@@ -2,8 +2,6 @@ name: Bootstrap web release
 
 on:
   push:
-    paths:
-      - '.github/workflows/bootstrap-sync.yml'
   workflow_dispatch:
 
 permissions:
