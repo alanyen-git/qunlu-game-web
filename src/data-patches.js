@@ -1,6 +1,6 @@
 /*
  * 群陸旅誌資料補丁入口
- * CURRENT-1.55.0：西境河谷內容深化包
+ * CURRENT-1.57.0：阿斯戴爾王國 F～B 擴充與既有內容深化包
  * 載入順序：game-data.js -> data-patches.js -> runtime.js
  */
 (()=>{
