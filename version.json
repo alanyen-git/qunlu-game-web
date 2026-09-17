@@ -1,18 +1,14 @@
 {
-  "version": "CURRENT-1.64.1",
-  "previous_version": "CURRENT-1.64.0",
+  "version": "CURRENT-1.64.2",
+  "previous_version": "CURRENT-1.64.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "世界命名一致性第一階段：依命名參考表正規化政體、種族、職業、技能、組織、流派、物品、裝備、怪物、城鎮、地下城與險地名稱，並鎖定雷煌流、雷鳴流非技能相關資料。",
+  "summary": "修正進入遊戲後重複顯示 1.64.1 更新提示：同步正式版版本號、存檔版本標記與 PWA 快取。",
   "changelog": [
-    "新增 WORLD-NAMING-1.0，以顯示名稱層進行非破壞式正規化，不修改資料 ID、規則、數值或引用鍵，維持既有存檔相容。",
-    "導入使用者提供的西方奇幻命名基準，涵蓋9個政體、主要種族與職業舊名、17個技能名稱、11個組織、14個非鎖定武術流派、藥劑、裝備、怪物、9座主城、地下城與險地等明確映射。",
-    "雷煌流與雷鳴流加入強制保護：流派名稱、人物、裝備、傳承、背景、地點與其他關聯欄位不做命名變更；只允許技能／招式分支套用技能名稱更新。",
-    "雷煌流與雷鳴流本體名稱不套用參考表中的西洋化流派替換；目前明確技能映射仍允許例如『雷鳴直進』更新為『迅雷衝鋒』。",
-    "命名補丁於所有主要內容擴充模組之後、PWA啟動之前載入，使既有主資料與後續擴充資料採同一命名規則。",
-    "提供 window.QUNLU_WORLD_NAMING 診斷摘要，可檢視實際改名數、技能改名數、保護記錄數與舊名命中統計。",
-    "現行PWA維持network-first；world-naming-v1.js首次在線載入後會由既有Service Worker快取，未修改原有離線快取版本。"
+    "新增 RELEASE-VERSION-SYNC-1.0，將實際執行版本同步為 CURRENT-1.64.2，避免 runtime 舊版號造成永久誤判。",
+    "更新存檔版本同步流程；載入舊存檔後會寫入現行正式版版本標記，不影響角色、世界、物品與進度資料。",
+    "PWA 快取升級並納入 release-version-sync-v1.js 與 world-naming-v1.js，確保重新整理與離線啟動使用一致版本。"
   ],
   "content_revision": "ASDAIL-DEPTH-2.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -23,6 +19,7 @@
   "system_integrity_revision": "SYSTEM-INTEGRITY-2.0",
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-1.0",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.0",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
