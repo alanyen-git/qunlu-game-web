@@ -1,10 +1,13 @@
 (()=>{
   "use strict";
-  const RELEASE_VERSION="CURRENT-1.64.2";
+  const REVISION="RELEASE-VERSION-SYNC-1.1";
+  const scriptVersion=typeof document!=="undefined"?String(document.currentScript?.dataset?.release||"").trim():"";
+  const titleVersion=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
+  const RELEASE_VERSION=scriptVersion||titleVersion||"CURRENT-1.65.0";
 
   if(globalThis.DB?.meta){
     DB.meta.current_version=RELEASE_VERSION;
-    DB.meta.release_version_sync_revision="RELEASE-VERSION-SYNC-1.0";
+    DB.meta.release_version_sync_revision=REVISION;
   }
 
   if(typeof localGameVersion==="function"){
