@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v12";
+const CACHE_NAME=CACHE_PREFIX+"v13";
 const CORE=[
   "./",
   "./index.html",
@@ -23,6 +23,7 @@ const CORE=[
   "./src/player-experience-guidance-v1.js",
   "./src/world-naming-v1.js",
   "./src/world-naming-v2.js",
+  "./src/world-naming-protection-v1.js",
   "./src/release-version-sync-v1.js",
   "./src/pwa.js",
   "./icons/icon-192.png",
