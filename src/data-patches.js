@@ -1,6 +1,6 @@
 /*
  * 群陸旅誌資料補丁入口
- * CURRENT-1.57.0：成年怪物威脅平衡補丁（含既有內容深化包）
+ * CURRENT-1.55.0：西境河谷內容深化包
  * 載入順序：game-data.js -> data-patches.js -> runtime.js
  */
 (()=>{
@@ -1468,6 +1468,208 @@
   };
   DB.meta.current_version="CURRENT-1.55.0";
   DB.meta.content_depth_revision="CONTENT-DEPTH-1.0";
+
+  // ASDAIL-KINGDOM-EXPANSION-1.0：阿斯戴爾王國 F～B 級可遊玩內容。
+  // 只新增資料與引用，不更動角色初始值、戰鬥公式、存檔schema、九元素或既有正史。
+  const asdailAdd=(key,rows)=>appendUnique(key,rows);
+
+  asdailAdd("world_regions",[
+    {id:"REG-ASD-01",name:"阿斯戴爾王國",kind:"kingdom",tier:"B",world_tier:"B",capital_id:"ASD-CAPITAL",description:"由王冠大道、銀穗糧倉、北境灰門與東部赤岩礦帶組成的封建王國；王權依賴道路、糧倉、教會法庭與行會協議維持秩序。",governance:"國王—大公／公爵—伯爵—男爵／鎮守官—騎士",known_elements:["光","火","風","水","地","雷","生命","暗","死亡"],current_year:317}
+  ]);
+
+  asdailAdd("realm_region_maps",[
+    {id:"MAP-ASD-01",region_id:"REG-ASD-01",name:"阿斯戴爾王國全域圖",tier:"B",capital_id:"ASD-CAPITAL",province_ids:["PROV-ASD-CROWN","PROV-ASD-RIVER","PROV-ASD-NORTH","PROV-ASD-EAST"],travel_rules:"王都與主要城鎮由王冠大道、河運與驛站連接；未取得通行資格不得進入B級王家封鎖區。"}
+  ]);
+  asdailAdd("province_region_maps",[
+    {id:"PROV-ASD-CROWN",region_id:"REG-ASD-01",name:"王冠直轄領",tier:"B",hub_id:"ASD-CAPITAL",description:"王都、王家糧倉、法庭與騎士團駐地所在。"},
+    {id:"PROV-ASD-RIVER",region_id:"REG-ASD-01",name:"西境河谷省",tier:"C",hub_id:"ASD-RIVER",description:"農業、河運與冒險者低階委託密集的河谷地。"},
+    {id:"PROV-ASD-NORTH",region_id:"REG-ASD-01",name:"北境灰門省",tier:"B",hub_id:"ASD-GRAYGATE",description:"面向山脈與舊邊境堡壘，D～B級魔物活動逐步增加。"},
+    {id:"PROV-ASD-EAST",region_id:"REG-ASD-01",name:"赤岩東境省",tier:"C",hub_id:"ASD-REDCLIFF",description:"礦脈、熔窟與商路衝突交錯的丘陵省份。"}
+  ]);
+  asdailAdd("settlement_region_maps",[
+    {id:"SET-ASD-CAPITAL",province_id:"PROV-ASD-CROWN",location_id:"ASD-CAPITAL",name:"艾斯戴拉王都",world_tier:"B",settlement_tier:"B"},
+    {id:"SET-ASD-RIVER",province_id:"PROV-ASD-RIVER",location_id:"ASD-RIVER",name:"河谷鎮",world_tier:"F",settlement_tier:"F"},
+    {id:"SET-ASD-SILVER",province_id:"PROV-ASD-RIVER",location_id:"ASD-SILVER",name:"銀穗城",world_tier:"C",settlement_tier:"C"},
+    {id:"SET-ASD-GRAYGATE",province_id:"PROV-ASD-NORTH",location_id:"ASD-GRAYGATE",name:"灰門鎮",world_tier:"D",settlement_tier:"D"},
+    {id:"SET-ASD-MISTPINE",province_id:"PROV-ASD-NORTH",location_id:"ASD-MISTPINE",name:"霧杉鎮",world_tier:"C",settlement_tier:"C"},
+    {id:"SET-ASD-REDCLIFF",province_id:"PROV-ASD-EAST",location_id:"ASD-REDCLIFF",name:"赤岩鎮",world_tier:"D",settlement_tier:"D"},
+    {id:"SET-ASD-DAWNPORT",province_id:"PROV-ASD-EAST",location_id:"ASD-DAWNPORT",name:"黎明港",world_tier:"C",settlement_tier:"C"}
+  ]);
+
+  asdailAdd("locations",[
+    {id:"ASD-CAPITAL",name:"艾斯戴拉王都",kind:"town",tier:"B",world_tier:"B",region_id:"REG-ASD-01",province_id:"PROV-ASD-CROWN",parent_id:null,description:"王冠大道的中心城市，王宮、白塔法庭、冒險者公會總會與王家鍛造院分據城內六區。",encounter_profile:{zone:"capital",danger:"B",allowed_tiers:["F","E","D","C","B"]},facilities:["王宮外廷","冒險者公會總會","白塔教會","王家鍛造院","中央市場"],travel_time_hours:18},
+    {id:"ASD-RIVER",name:"河谷鎮",kind:"town",tier:"F",world_tier:"F",region_id:"REG-ASD-01",province_id:"PROV-ASD-RIVER",description:"王冠大道西側的糧運小鎮，適合F級角色接受第一批護運、採集與野狼委託。",encounter_profile:{zone:"town_outskirts",danger:"F",allowed_tiers:["F","E"]},facilities:["冒險者公會支部","小型教會","穀倉","馬廄"],travel_time_hours:4},
+    {id:"ASD-SILVER",name:"銀穗城",kind:"town",tier:"C",world_tier:"C",region_id:"REG-ASD-01",province_id:"PROV-ASD-RIVER",description:"河谷省的糧價與河運樞紐，地方貴族、商路聯盟與農民協會在此協商。",encounter_profile:{zone:"river_valley",danger:"C",allowed_tiers:["F","E","D","C"]},facilities:["河運碼頭","商路聯盟會館","糧價議所","冒險者公會支部"],travel_time_hours:8},
+    {id:"ASD-GRAYGATE",name:"灰門鎮",kind:"town",tier:"D",world_tier:"D",region_id:"REG-ASD-01",province_id:"PROV-ASD-NORTH",description:"北境山口的守備鎮，平民生活依靠軍需、獵團與城牆外的礦木採集。",encounter_profile:{zone:"frontier",danger:"D",allowed_tiers:["F","E","D"]},facilities:["灰門守備隊","邊境教會","獵團營地","修繕工坊"],travel_time_hours:16},
+    {id:"ASD-MISTPINE",name:"霧杉鎮",kind:"town",tier:"C",world_tier:"C",region_id:"REG-ASD-01",province_id:"PROV-ASD-NORTH",description:"被霧杉林包圍的木材與藥草城鎮，夜間常聽見林中鐘聲與非人足跡。",encounter_profile:{zone:"deep_forest",danger:"C",allowed_tiers:["F","E","D","C"]},facilities:["藥草行會","林務所","月泉教會","冒險者公會支部"],travel_time_hours:12},
+    {id:"ASD-REDCLIFF",name:"赤岩鎮",kind:"town",tier:"D",world_tier:"D",region_id:"REG-ASD-01",province_id:"PROV-ASD-EAST",description:"建在赤色礦層上的採礦鎮，礦工、鐵匠與王國商路聯盟共同控制進山通道。",encounter_profile:{zone:"rocky_hills",danger:"D",allowed_tiers:["F","E","D"]},facilities:["礦坑管理所","鐵匠行會","熔石酒館","赤岩教會"],travel_time_hours:14},
+    {id:"ASD-DAWNPORT",name:"黎明港",kind:"town",tier:"C",world_tier:"C",region_id:"REG-ASD-01",province_id:"PROV-ASD-EAST",description:"東南水路港口，受王國海關與商路聯盟雙重管理，港外潮洞通往未完全測繪的地下水域。",encounter_profile:{zone:"coast",danger:"C",allowed_tiers:["F","E","D","C"]},facilities:["海關","港口教會","商路聯盟碼頭","潮汐觀測所"],travel_time_hours:20},
+
+    {id:"ASD-WILD-CROWNROAD",name:"王冠大道南段",kind:"wild",tier:"F",world_tier:"F",region_id:"REG-ASD-01",province_id:"PROV-ASD-CROWN",description:"王都至河谷鎮的石砌道路，白天有巡路騎士，夜間仍可能遇到狼群與攔路者。",encounter_profile:{zone:"road",danger:"F",allowed_tiers:["F","E"]},parent_id:"ASD-CAPITAL",travel_time_hours:6},
+    {id:"ASD-WILD-SILVERFENS",name:"銀穗濕地",kind:"wild",tier:"E",world_tier:"E",region_id:"REG-ASD-01",province_id:"PROV-ASD-RIVER",description:"河流改道後形成的蘆葦濕地，盛產止血草，也藏有泥沼魔物與走失的運糧牲畜。",encounter_profile:{zone:"wetland",danger:"E",allowed_tiers:["F","E","D"]},parent_id:"ASD-SILVER",travel_time_hours:5},
+    {id:"ASD-WILD-KINGSWOOD",name:"王家外林",kind:"wild",tier:"D",world_tier:"D",region_id:"REG-ASD-01",province_id:"PROV-ASD-CROWN",description:"王都北側的狩獵林，外圍開放採集，內圈因王室封獵令需持有許可。",encounter_profile:{zone:"royal_forest",danger:"D",allowed_tiers:["F","E","D"]},parent_id:"ASD-CAPITAL",travel_time_hours:7},
+    {id:"ASD-WILD-MISTPINE",name:"霧杉深林",kind:"wild",tier:"C",world_tier:"C",region_id:"REG-ASD-01",province_id:"PROV-ASD-NORTH",description:"濃霧與古杉構成的深林，樹根下有被封閉的舊祭壇，C級以下不建議離開標記獵徑。",encounter_profile:{zone:"deep_forest",danger:"C",allowed_tiers:["E","D","C"]},parent_id:"ASD-MISTPINE",travel_time_hours:6},
+    {id:"ASD-WILD-GRAYPASS",name:"灰門山徑",kind:"wild",tier:"D",world_tier:"D",region_id:"REG-ASD-01",province_id:"PROV-ASD-NORTH",description:"通往北境堡壘的山徑，雪崩、座狼與盜匪使護送委託長期存在。",encounter_profile:{zone:"mountain_pass",danger:"D",allowed_tiers:["E","D","C"]},parent_id:"ASD-GRAYGATE",travel_time_hours:8},
+    {id:"ASD-WILD-REDHILLS",name:"赤岩丘陵",kind:"wild",tier:"D",world_tier:"D",region_id:"REG-ASD-01",province_id:"PROV-ASD-EAST",description:"地表有鐵礦與硫磺裂口的丘陵，地底熱流讓火屬性魔物異常活躍。",encounter_profile:{zone:"rocky_hills",danger:"D",allowed_tiers:["F","E","D"]},parent_id:"ASD-REDCLIFF",travel_time_hours:7},
+    {id:"ASD-WILD-DAWNCOAST",name:"黎明潮岸",kind:"wild",tier:"C",world_tier:"C",region_id:"REG-ASD-01",province_id:"PROV-ASD-EAST",description:"港口外的礁岸與潮池，夜間可見水光，沿岸漁民以繩標記安全路線。",encounter_profile:{zone:"coast",danger:"C",allowed_tiers:["E","D","C"]},parent_id:"ASD-DAWNPORT",travel_time_hours:5},
+    {id:"ASD-WILD-CROWNMEADOW",name:"王冠草甸",kind:"wild",tier:"F",world_tier:"F",region_id:"REG-ASD-01",province_id:"PROV-ASD-CROWN",description:"王都南方的公共牧地，幼年山羊、野兔與家畜在此活動，深夜才可能出現掠食者。",encounter_profile:{zone:"meadow",danger:"F",allowed_tiers:["F","E"]},parent_id:"ASD-CAPITAL",travel_time_hours:3},
+    {id:"ASD-WILD-BLACKWATER",name:"黑水河源",kind:"wild",tier:"B",world_tier:"B",region_id:"REG-ASD-01",province_id:"PROV-ASD-NORTH",description:"灰門山脈下方的黑水源頭，水脈受古代封印影響，只有取得王都與教會雙重許可才可深入。",encounter_profile:{zone:"cursed_spring",danger:"B",allowed_tiers:["C","B"]},parent_id:"ASD-GRAYGATE",travel_time_hours:14},
+
+    {id:"ASD-DUNGEON-ROYAL-CISTERN",name:"王家舊蓄水廊",kind:"dungeon",tier:"D",world_tier:"D",region_id:"REG-ASD-01",province_id:"PROV-ASD-CROWN",description:"王都地下的舊水利設施，部分區段仍供應城市用水，探險不得破壞主水閘。",encounter_profile:{zone:"aqueduct",danger:"D",allowed_tiers:["E","D"]},parent_id:"ASD-CAPITAL",persistent:true,resource_reset:false},
+    {id:"ASD-DUNGEON-MIST-ALTAR",name:"霧杉月泉祭壇",kind:"dungeon",tier:"C",world_tier:"C",region_id:"REG-ASD-01",province_id:"PROV-ASD-NORTH",description:"林中舊祭壇與地下根室相連，祭壇供奉的不是現行教會神名，記錄需交由學者與教會共同判讀。",encounter_profile:{zone:"ancient_altar",danger:"C",allowed_tiers:["D","C"]},parent_id:"ASD-WILD-MISTPINE",persistent:true,resource_reset:false},
+    {id:"ASD-DUNGEON-RED-FURNACE",name:"赤岩熔窟",kind:"dungeon",tier:"C",world_tier:"C",region_id:"REG-ASD-01",province_id:"PROV-ASD-EAST",description:"廢棄礦井深處的天然熔窟，礦工只開採外層，內部熱壓與魔物巢穴尚未處理。",encounter_profile:{zone:"lava_cave",danger:"C",allowed_tiers:["D","C"]},parent_id:"ASD-REDCLIFF",persistent:true,resource_reset:false},
+    {id:"ASD-DUNGEON-GRAY-FORT",name:"灰門舊堡地下層",kind:"dungeon",tier:"B",world_tier:"B",region_id:"REG-ASD-01",province_id:"PROV-ASD-NORTH",description:"舊邊境堡壘下方的封鎖層，牆上留有王國成立前的軍旗，通道開啟會改變北境守備部署。",encounter_profile:{zone:"sealed_fortress",danger:"B",allowed_tiers:["C","B"]},parent_id:"ASD-GRAYGATE",persistent:true,resource_reset:false},
+    {id:"ASD-DUNGEON-DAWN-TIDE",name:"黎明潮汐洞",kind:"dungeon",tier:"B",world_tier:"B",region_id:"REG-ASD-01",province_id:"PROV-ASD-EAST",description:"受潮汐影響的海蝕洞群，內部地圖每日有小幅變化，但已開啟的安全繩路會持久保留。",encounter_profile:{zone:"tidal_cavern",danger:"B",allowed_tiers:["C","B"]},parent_id:"ASD-DAWNPORT",persistent:true,resource_reset:false}
+  ]);
+
+  asdailAdd("regional_npc_archetypes",[
+    {id:"NPC-ASD-001",name:"伊芙琳・阿爾德",role:"王都外廷書記官",tier:"C",location_id:"ASD-CAPITAL",description:"負責核對地方領主、行會與教會提交的道路和糧倉紀錄；只提供可驗證的行政資料。",organization_ids:["ORG-ASD-CROWN-COURT"],services:["委託登記","王國通行文書"],dialogue_ids:["DIA-ASD-001","DIA-ASD-002"]},
+    {id:"NPC-ASD-002",name:"布蘭特・灰盾",role:"灰門守備隊副隊長",tier:"D",location_id:"ASD-GRAYGATE",description:"曾在黑水河源失去一支巡邏隊，對未經許可的深山探索極為警戒。",organization_ids:["ORG-ASD-GRAY-WARDENS"],services:["通行許可","守備委託"],dialogue_ids:["DIA-ASD-003"]},
+    {id:"NPC-ASD-003",name:"梅拉・銀穗",role:"銀穗糧價議所調停人",tier:"C",location_id:"ASD-SILVER",description:"代表沃土農民協會與商路聯盟協商糧價，拒絕以謠言作為正式證據。",organization_ids:["ORG-ASD-GRAIN-COMPACT","ORG-ASD-ROAD-LEAGUE"],services:["糧運委託","市場情報"],dialogue_ids:["DIA-ASD-004"]},
+    {id:"NPC-ASD-004",name:"奧倫・赤砧",role:"赤岩鎮王國註冊鐵匠",tier:"C",location_id:"ASD-REDCLIFF",description:"能辨識精鋼與受熱變質礦材，與王家鍛造院保持技術往來。",organization_ids:["ORG-ASD-ROAD-LEAGUE"],services:["裝備鑑定","鍛造委託"],dialogue_ids:["DIA-ASD-005"]},
+    {id:"NPC-ASD-005",name:"賽芮安・霧鈴",role:"霧杉林務與月泉教會聯絡人",tier:"C",location_id:"ASD-MISTPINE",description:"以鐘聲與繩標維持林徑秩序，知道祭壇的存在但不宣稱理解其真相。",organization_ids:["ORG-ASD-MISTWARDENS"],services:["採集許可","林徑委託"],dialogue_ids:["DIA-ASD-006"]},
+    {id:"NPC-ASD-006",name:"卡洛斯・潮記",role:"黎明港潮汐觀測員",tier:"C",location_id:"ASD-DAWNPORT",description:"記錄潮洞水位、海蝕與港口失物，從不把海外傳聞寫入王國正史。",organization_ids:["ORG-ASD-ROAD-LEAGUE"],services:["潮岸委託","地下城情報"],dialogue_ids:["DIA-ASD-007"]}
+  ]);
+
+  asdailAdd("dialogue_database",[
+    {id:"DIA-ASD-001",speaker_id:"NPC-ASD-001",topic:"王都行政",text:"王冠大道的每一枚路標都有登記。沒有文書的消息，只能先算傳聞。"},
+    {id:"DIA-ASD-002",speaker_id:"NPC-ASD-001",topic:"王家封鎖區",text:"王都不是所有門都能進。階級、委託與通行理由缺一不可。"},
+    {id:"DIA-ASD-003",speaker_id:"NPC-ASD-002",topic:"黑水河源",text:"那裡不是給新手證明勇氣的地方。先帶回巡邏隊留下的鐵牌，再談深入。"},
+    {id:"DIA-ASD-004",speaker_id:"NPC-ASD-003",topic:"糧價",text:"糧食短缺是真的，王國崩潰只是有人想讓你相信的故事。"},
+    {id:"DIA-ASD-005",speaker_id:"NPC-ASD-004",topic:"赤岩礦",text:"紅色不代表礦石更好；真正的差別在鍛火後是否仍保持韌性。"},
+    {id:"DIA-ASD-006",speaker_id:"NPC-ASD-005",topic:"霧杉祭壇",text:"我只知道它在林子裡，知道不等於有資格打開它。"},
+    {id:"DIA-ASD-007",speaker_id:"NPC-ASD-006",topic:"潮汐洞",text:"海水會把路藏起來，但不會替你把錯誤的繩結解開。"}
+  ]);
+
+  asdailAdd("world_organizations",[
+    {id:"ORG-ASD-CROWN-COURT",name:"阿斯戴爾王國外廷",kind:"political",tier:"B",region_id:"REG-ASD-01",base_location_id:"ASD-CAPITAL",description:"處理道路、稅役、王家封獵與地方申訴，不等同於王室內廷。",bonus:{authority_request:"王國通行文書"}},
+    {id:"ORG-ASD-GRAY-WARDENS",name:"灰門守備隊",kind:"military",tier:"D",region_id:"REG-ASD-01",base_location_id:"ASD-GRAYGATE",description:"負責北境哨線、山徑封鎖與魔物警戒。",bonus:{frontier_safety:10}},
+    {id:"ORG-ASD-GRAIN-COMPACT",name:"銀穗糧議會",kind:"civilian",tier:"C",region_id:"REG-ASD-01",base_location_id:"ASD-SILVER",description:"沃土農民協會、糧商與城鎮代表組成的地方協議組織。",bonus:{food_market:"供需情報"}},
+    {id:"ORG-ASD-MISTWARDENS",name:"霧杉林務會",kind:"ranger",tier:"C",region_id:"REG-ASD-01",base_location_id:"ASD-MISTPINE",description:"維持林徑、採集許可與野火警戒，與教會保持有限合作。",bonus:{forest_gathering:10}}
+  ]);
+
+  asdailAdd("discipline_factions",[
+    {id:"DISC-ASD-IRON-BANNER",name:"鐵旗守勢流",tier:"D",base_location_id:"ASD-GRAYGATE",description:"北境守備隊流傳的盾劍訓練，重視掩護、穩定與反擊，不取代既有雷鳴流、雷煌流或柳生唯心流。",bonus:{defense:3,guard_effectiveness:8},requirements:{min_level:5,weapon_types:["武器","盾"]}},
+    {id:"DISC-ASD-MIST-STEP",name:"霧徑聽息流",tier:"C",base_location_id:"ASD-MISTPINE",description:"霧杉獵人以聽覺、腳步與短距離位移為核心的野外流派，重視避戰與先手。",bonus:{evasion:5,accuracy:4},requirements:{min_level:12,weapon_types:["短刃","弓"]}}
+  ]);
+
+  asdailAdd("monsters",[
+    {id:"MON-ASD-001",name:"王冠大道鬣犬",tier:"F",lore_role:"一般",habitat:["ASD-WILD-CROWNROAD"],hp:36,attack:12,defense:5,accuracy:68,damage:[4,8],description:"成群追逐疲弱旅隊的野獸，不是野兔級低威脅生物。"},
+    {id:"MON-ASD-002",name:"銀穗泥蠑螈",tier:"E",lore_role:"一般",habitat:["ASD-WILD-SILVERFENS"],hp:50,attack:16,defense:8,accuracy:70,damage:[5,10],element:"水",description:"棲於灌溉水道的兩棲魔物，會以黏液拖慢獵物。"},
+    {id:"MON-ASD-003",name:"王家林角鹿",tier:"D",lore_role:"一般",habitat:["ASD-WILD-KINGSWOOD"],hp:76,attack:22,defense:11,accuracy:72,damage:[7,14],description:"受地脈影響的雄鹿，角擊可穿透輕甲。"},
+    {id:"MON-ASD-004",name:"霧杉纏根獸",tier:"C",lore_role:"一般",habitat:["ASD-WILD-MISTPINE","ASD-DUNGEON-MIST-ALTAR"],hp:110,attack:29,defense:16,accuracy:74,damage:[10,20],element:"生命",description:"以根鬚與樹皮構成的森林魔物，受火元素傷害時防禦下降。"},
+    {id:"MON-ASD-005",name:"灰門雪爪狼",tier:"C",lore_role:"菁英",habitat:["ASD-WILD-GRAYPASS"],hp:130,attack:31,defense:18,accuracy:76,damage:[11,22],element:"風",description:"狼群首領級魔物，成年野狼的進階威脅，不應出現在F級近郊。"},
+    {id:"MON-ASD-006",name:"赤岩熔背蜥",tier:"D",lore_role:"一般",habitat:["ASD-WILD-REDHILLS"],hp:74,attack:23,defense:12,accuracy:72,damage:[7,15],element:"火",description:"背甲蓄熱後會噴出短距離火舌。"},
+    {id:"MON-ASD-007",name:"赤岩硫喉獸",tier:"C",lore_role:"一般",habitat:["ASD-DUNGEON-RED-FURNACE"],hp:112,attack:30,defense:17,accuracy:74,damage:[10,21],element:"火",description:"熔窟中的大型穴居魔物，會使藥劑材料變質。"},
+    {id:"MON-ASD-008",name:"黎明潮骨蟹",tier:"E",lore_role:"一般",habitat:["ASD-WILD-DAWNCOAST"],hp:52,attack:17,defense:9,accuracy:70,damage:[5,10],element:"水",description:"外殼堅硬、行動緩慢的沿岸魔物。"},
+    {id:"MON-ASD-009",name:"潮洞歌蛙",tier:"D",lore_role:"一般",habitat:["ASD-DUNGEON-DAWN-TIDE"],hp:78,attack:22,defense:11,accuracy:73,damage:[7,14],element:"水",description:"叫聲會使探索者短暫失去方向，需依潮標辨路。"},
+    {id:"MON-ASD-010",name:"灰堡鎧骸",tier:"C",lore_role:"菁英",habitat:["ASD-DUNGEON-GRAY-FORT"],hp:140,attack:33,defense:20,accuracy:75,damage:[11,23],element:"死亡",description:"穿著古代軍鎧的死靈守衛，與地下層封印狀態連動。"},
+    {id:"MON-ASD-011",name:"黑水源噬獸",tier:"B",lore_role:"一般",habitat:["ASD-WILD-BLACKWATER"],hp:165,attack:39,defense:24,accuracy:78,damage:[13,28],element:"暗",description:"黑水源頭的B級魔物，未取得許可不得作為普通遭遇。"},
+    {id:"MON-ASD-012",name:"王冠石翼獅",tier:"B",lore_role:"菁英",habitat:["ASD-WILD-KINGSWOOD"],hp:190,attack:43,defense:27,accuracy:80,damage:[15,31],element:"風",description:"王家外林內圈的稀有魔物，擊敗後會引起王家封獵與生態調查。"}
+  ]);
+
+  asdailAdd("items",[
+    {id:"ITEM-ASD-IRONBARK",name:"鐵杉樹皮",kind:"material",tier:"D",weight:0.3,price:12,description:"霧杉纏根獸與深林採集可取得的韌性材料。"},
+    {id:"ITEM-ASD-RED-OREDUST",name:"赤岩礦粉",kind:"material",tier:"D",weight:0.2,price:15,description:"赤岩熔窟外層礦脈的基礎鍛造材料。"},
+    {id:"ITEM-ASD-BLACKWATER-SALT",name:"黑水鹽晶",kind:"material",tier:"B",weight:0.2,price:90,description:"黑水源頭凝結的暗色鹽晶，需許可採集。"},
+    {id:"ITEM-ASD-CROWN-SEAL",name:"王冠道路通行章",kind:"key_item",tier:"C",weight:0.05,price:0,description:"證明持有人可在指定時限通行王冠大道封鎖段。"},
+    {id:"ITEM-ASD-GRAY-IDOL",name:"灰門舊軍牌",kind:"quest",tier:"C",weight:0.1,price:0,description:"可確認失聯巡邏隊身分的鐵牌。"},
+    {id:"ITEM-ASD-MIST-LANTERN",name:"霧徑遮霧燈",kind:"tool",tier:"C",weight:1.0,price:75,effect:"在霧杉深林降低迷路與失明事件風險。"},
+    {id:"ITEM-ASD-TIDE-ROPE",name:"潮汐安全繩",kind:"tool",tier:"C",weight:1.5,price:48,effect:"在黎明潮汐洞固定已探索路線。"},
+    {id:"ITEM-ASD-ROYAL-STEEL",name:"王家精鋼短劍",kind:"equipment",tier:"C",weight:1.2,price:320,equip_slot:"weapon",attack:18,material:"精鋼",description:"王家鍛造院流出的制式短劍。"},
+    {id:"ITEM-ASD-GRAY-SHIELD",name:"灰門守備盾",kind:"equipment",tier:"D",weight:3.8,price:180,equip_slot:"offhand",defense:10,material:"黑鐵",description:"適合守勢流訓練的黑鐵圓盾。"},
+    {id:"ITEM-ASD-CROWN-CLOAK",name:"王冠驛騎斗篷",kind:"equipment",tier:"B",weight:1.0,price:680,equip_slot:"body",defense:14,description:"王冠大道驛騎使用的耐候斗篷，持有通行章時可減少道路事件風險。"}
+  ]);
+
+  asdailAdd("recipes",[
+    {id:"RECIPE-ASD-MIST-LANTERN",name:"霧徑遮霧燈",tier:"C",profession:"鍛造",ingredients:[{item_id:"ITEM-ASD-IRONBARK",qty:2},{item_id:"I-GLASS",qty:1},{item_id:"I-OIL",qty:1}],output:{item_id:"ITEM-ASD-MIST-LANTERN",qty:1},time_hours:2},
+    {id:"RECIPE-ASD-GRAY-SHIELD",name:"灰門守備盾",tier:"D",profession:"鍛造",ingredients:[{item_id:"MAT-ORE-24",qty:3},{item_id:"ITEM-ASD-RED-OREDUST",qty:1}],output:{item_id:"ITEM-ASD-GRAY-SHIELD",qty:1},time_hours:4},
+    {id:"RECIPE-ASD-IRON-SALVE",name:"鐵杉止血膏",tier:"D",profession:"藥劑",ingredients:[{item_id:"ITEM-ASD-IRONBARK",qty:1},{item_id:"I-HERB",qty:2}],output:{item_id:"ITEM-ASD-IRON-SALVE",qty:1},time_hours:1}
+  ]);
+  asdailAdd("items",[
+    {id:"ITEM-ASD-IRON-SALVE",name:"鐵杉止血膏",kind:"consumable",tier:"D",weight:0.1,price:42,effect:"恢復少量HP並降低流血持續時間。"},
+    {id:"ITEM-ASD-BLACKWATER-TONIC",name:"黑水抗蝕藥劑",kind:"consumable",tier:"B",weight:0.1,price:160,effect:"短時間降低暗元素與腐蝕地形造成的傷害。"},
+    {id:"ITEM-ASD-TIDEBREATH-POTION",name:"潮息藥劑",kind:"consumable",tier:"C",weight:0.1,price:86,effect:"短時間延長水下探索時間，不能取代正常休息。"},
+    {id:"ITEM-ASD-MIST-EYE-DROP",name:"霧視滴劑",kind:"consumable",tier:"C",weight:0.05,price:72,effect:"降低霧杉深林的致盲與迷失風險。"}
+  ]);
+
+  asdailAdd("shared_skills",[
+    {id:"SKILL-ASD-ROAD-SENSE",name:"王冠道路辨識",tier:"F",category:"生存",description:"辨識王國道路、路標、驛站與合法封鎖線；不提供未取得的機密情報。",effect:"降低王國道路探索失敗風險。",max_level:10},
+    {id:"SKILL-ASD-FIELD-MEDIC",name:"邊境急救",tier:"E",category:"生存",description:"以繃帶、止血草與簡易固定處理野外創傷。",effect:"提升非戰鬥治療效果；不能取代復活。",max_level:10},
+    {id:"SKILL-ASD-MIST-LISTEN",name:"霧中聽息",tier:"D",category:"戰鬥",description:"在視線受阻時依腳步與呼吸判斷敵方距離。",effect:"霧地形中命中與迴避小幅提升。",max_level:10},
+    {id:"SKILL-ASD-SHIELD-ANCHOR",name:"盾根錨定",tier:"D",category:"戰鬥",description:"以盾牌與腳步固定自身位置，承受衝撞時減少失衡。",effect:"格擋成功後降低下一次受擊傷害。",max_level:10},
+    {id:"SKILL-ASD-TIDE-READ",name:"潮汐讀流",tier:"C",category:"探索",description:"讀取潮線、回流與海蝕洞安全窗口。",effect:"降低潮汐地下城的時間與迷路損失。",max_level:10},
+    {id:"SKILL-ASD-SEAL-READ",name:"封印讀紋",tier:"C",category:"知識",description:"辨識古代軍事封印與現行教會標記的差異。",effect:"可解讀部分地下城封鎖提示。",max_level:10},
+    {id:"SKILL-ASD-ROYAL-ETIQUETTE",name:"王國禮法",tier:"B",category:"社交",description:"理解王國封臣、行會與教會法庭的正式程序。",effect:"降低王都正式交涉的失敗懲罰。",max_level:10},
+    {id:"SKILL-ASD-APPRAISE-STEEL",name:"精鋼鑑識",tier:"C",category:"製作",description:"分辨精鋼、黑鐵與受熱變質礦材。",effect:"提高鍛造素材辨識與合格率。",max_level:10}
+  ]);
+
+  asdailAdd("quest_templates",[
+    {id:"Q158-ASD-ROAD-MARKERS",name:"王冠大道路標補漆",tier:"F",min_level:1,max_level:7,type:"巡查",description:"南段路標被雨水剝落，請補上合法方向與距離標記。",objective:{kind:"action",location_id:"ASD-WILD-CROWNROAD",target:2},reward:[12,20],recommended_locations:["ASD-WILD-CROWNROAD"],xp_reward:14},
+    {id:"Q158-ASD-WOLF-TRACKS",name:"大道邊的成年狼群",tier:"F",min_level:1,max_level:8,type:"討伐",description:"成年野狼已逼近運糧車隊，請確認狼跡並驅離首隻獵手。",objective:{kind:"hunt",monster_id:"LEGACY-MON-002",target:1},reward:[20,32],recommended_locations:["ASD-WILD-CROWNROAD"],xp_reward:18},
+    {id:"Q158-ASD-SILVER-HERB",name:"銀穗濕地止血草",tier:"E",min_level:4,max_level:12,type:"採集",description:"救助室需要濕地止血草，採集時須避開泥蠑螈棲地。",objective:{kind:"gather",item_id:"I-HERB",target:5,consume_on_turnin:true},reward:[28,46],recommended_locations:["ASD-WILD-SILVERFENS"],xp_reward:28},
+    {id:"Q158-ASD-GRAIN-ESCORT",name:"銀穗糧車護送",tier:"E",min_level:5,max_level:14,type:"護送",description:"護送糧車由銀穗城前往河谷鎮，途中不可擅自打開封袋。",objective:{kind:"patrol",location_id:"ASD-WILD-SILVERFENS",target:2,checkpoints:["北側水閘","舊渡口"]},reward:[42,68],recommended_locations:["ASD-SILVER","ASD-WILD-SILVERFENS"],xp_reward:36},
+    {id:"Q158-ASD-KINGSWOOD-PASS",name:"王家外林採集許可",tier:"D",min_level:10,max_level:22,type:"調查",description:"取得外林採集許可，並回報王家林角鹿的族群數量。",objective:{kind:"action",location_id:"ASD-WILD-KINGSWOOD",target:1},reward:[80,125],recommended_locations:["ASD-CAPITAL","ASD-WILD-KINGSWOOD"],xp_reward:62},
+    {id:"Q158-ASD-MIST-LANTERN",name:"霧杉林徑重立燈標",tier:"D",min_level:12,max_level:25,type:"探索",description:"霧中燈標熄滅，請帶入遮霧燈並重建兩段安全繩路。",objective:{kind:"item",item_id:"ITEM-ASD-MIST-LANTERN",target:1,consume_on_turnin:false},reward:[96,150],recommended_locations:["ASD-MISTPINE","ASD-WILD-MISTPINE"],xp_reward:76},
+    {id:"Q158-ASD-RED-FURNACE",name:"赤岩熔窟礦脈封存",tier:"C",min_level:20,max_level:35,type:"地下城",description:"熔窟內層熱壓異常，請封存三處變質礦脈並帶回礦粉樣本。",objective:{kind:"gather",item_id:"ITEM-ASD-RED-OREDUST",target:3,consume_on_turnin:true},reward:[180,280],recommended_locations:["ASD-DUNGEON-RED-FURNACE"],xp_reward:130},
+    {id:"Q158-ASD-GRAY-IDOL",name:"灰門失聯巡邏隊",tier:"C",min_level:22,max_level:38,type:"調查",description:"前往灰門舊堡地下層，找回巡邏隊鐵牌並確認封鎖層是否鬆動。",objective:{kind:"item",item_id:"ITEM-ASD-GRAY-IDOL",target:1,consume_on_turnin:false},reward:[210,330],recommended_locations:["ASD-GRAYGATE","ASD-DUNGEON-GRAY-FORT"],xp_reward:155},
+    {id:"Q158-ASD-TIDE-WINDOW",name:"黎明潮洞安全窗口",tier:"C",min_level:24,max_level:40,type:"探索",description:"依潮汐記錄進入洞窟，固定一條可供港口救援隊使用的繩路。",objective:{kind:"action",location_id:"ASD-DUNGEON-DAWN-TIDE",target:2},reward:[220,350],recommended_locations:["ASD-DAWNPORT","ASD-DUNGEON-DAWN-TIDE"],xp_reward:165},
+    {id:"Q158-ASD-BLACKWATER",name:"黑水源雙重許可",tier:"B",min_level:35,max_level:55,type:"封鎖區",description:"取得王都與教會雙重許可，調查黑水源噬獸活動，不得擅自破壞水脈封印。",objective:{kind:"action",location_id:"ASD-WILD-BLACKWATER",target:1},reward:[520,820],recommended_locations:["ASD-CAPITAL","ASD-GRAYGATE","ASD-WILD-BLACKWATER"],xp_reward:360},
+    {id:"Q158-ASD-CROWN-LAW",name:"王都法庭的失竊印模",tier:"B",min_level:38,max_level:60,type:"調查",description:"找回被盜的道路封印印模，避免地方勢力偽造通行文書。",objective:{kind:"action",location_id:"ASD-CAPITAL",target:3},reward:[600,960],recommended_locations:["ASD-CAPITAL"],xp_reward:420}
+  ]);
+
+  asdailAdd("adventure_event_templates",[
+    {id:"AE158-ASD-ROAD-COACH",name:"翻覆的王冠驛車",tier:"F",kinds:["wild"],zones:["road"],location_ids:["ASD-WILD-CROWNROAD"],stat:"力量",dc:10,text:"驛車翻覆堵住道路，貨物散落在成年野狼活動的邊緣。",success:"你先固定車軸再收攏貨物，車夫承諾向公會回報。",fail:"你只能保住一箱糧袋，狼跡已逼近。",reward:{money:[4,8],reputation:1},failure:{fatigue:2}},
+    {id:"AE158-ASD-WETLAND-LIGHT",name:"濕地水燈",tier:"E",kinds:["wild"],zones:["wetland"],location_ids:["ASD-WILD-SILVERFENS"],stat:"智力",dc:12,text:"蘆葦間漂著不該出現的水燈，燈下綁著糧議會的封條。",success:"你沿安全水線取回封條，沒有驚動泥蠑螈。",fail:"水燈沉入泥中，只留下不完整的印記。",reward:{item_pool:["ITEM-ASD-CROWN-SEAL"],item_qty:[1,1]}},
+    {id:"AE158-ASD-ROYAL-HUNT",name:"封獵日的角聲",tier:"D",kinds:["wild"],zones:["royal_forest"],location_ids:["ASD-WILD-KINGSWOOD"],stat:"感知",dc:14,text:"王家獵隊封鎖林徑，遠處傳來林角鹿的撞擊聲。",success:"你遵守封線並指出安全繞行路徑，獵隊允許你保留採集樣本。",fail:"你誤入封線，被要求接受盤查。",reward:{reputation:2},failure:{event_clock:2}},
+    {id:"AE158-ASD-MIST-BELL",name:"霧中的第三聲鐘",tier:"D",kinds:["wild"],zones:["deep_forest"],location_ids:["ASD-WILD-MISTPINE"],stat:"感知",dc:15,text:"霧杉林傳來第三聲鐘，但林務會的記錄只承認兩聲。",success:"你沿繩標找到熄滅燈標，沒有追逐未知足跡。",fail:"霧勢加重，你被迫返回鎮上。",reward:{item_pool:["ITEM-ASD-MIST-LANTERN"],item_qty:[1,1]},failure:{fatigue:4}},
+    {id:"AE158-ASD-RED-VENT",name:"赤岩裂口吐息",tier:"C",kinds:["wild"],zones:["rocky_hills"],location_ids:["ASD-WILD-REDHILLS"],stat:"體力",dc:16,text:"丘陵裂口吐出硫磺熱氣，赤岩礦粉被吹向山徑。",success:"你封住小裂口並收集未變質礦粉。",fail:"熱氣灼傷裝備，你必須退回赤岩鎮。",reward:{item_pool:["ITEM-ASD-RED-OREDUST"],item_qty:[1,2]},failure:{hp:5}},
+    {id:"AE158-ASD-FORT-SEAL",name:"舊堡牆內的軍令",tier:"C",kinds:["dungeon"],zones:["sealed_fortress"],location_ids:["ASD-DUNGEON-GRAY-FORT"],stat:"智力",dc:17,text:"古代軍令要求守軍等待一支從未抵達的援軍。",success:"你封存軍令並確認地下層未被重新開啟。",fail:"灰堡鎧骸的腳步在牆後停下。",reward:{reputation:2,event_clock:2},failure:{fatigue:5}},
+    {id:"AE158-ASD-TIDE-ROPE",name:"潮線外的第二條繩",tier:"C",kinds:["dungeon"],zones:["tidal_cavern"],location_ids:["ASD-DUNGEON-DAWN-TIDE"],stat:"敏捷",dc:16,text:"洞窟內出現一條不在港口記錄上的新繩路。",success:"你標記潮差並把繩路交由潮汐觀測所封存。",fail:"浪頭捲走一段繩索，你只能等待退潮。",reward:{item_pool:["ITEM-ASD-TIDE-ROPE"],item_qty:[1,1]},failure:{fatigue:5}},
+    {id:"AE158-ASD-BLACKWATER-ECHO",name:"黑水源回聲",tier:"B",kinds:["wild"],zones:["cursed_spring"],location_ids:["ASD-WILD-BLACKWATER"],stat:"意志",dc:20,text:"水源深處傳來像是人聲的回音，卻沒有任何可見說話者。",success:"你記錄回音節律並撤回封鎖線外，沒有碰觸封印。",fail:"暗水侵入裝備縫隙，返回時必須接受教會檢查。",reward:{reputation:4,event_clock:3},failure:{hp:8}},
+    {id:"AE158-ASD-COURT-SEAL",name:"白塔法庭的空座",tier:"B",kinds:["town"],zones:["capital"],location_ids:["ASD-CAPITAL"],stat:"智力",dc:18,text:"正式聽證少了一名地方代表，桌上卻已放好他的封印文件。",success:"你只轉交文件，不替任何一方推斷罪責。",fail:"你被捲入程序爭議，必須暫停一日委託。",reward:{reputation:3},failure:{event_clock:3}},
+    {id:"AE158-ASD-GRAIN-FIRE",name:"銀穗糧倉的夜火",tier:"C",kinds:["town"],zones:["river_valley"],location_ids:["ASD-SILVER"],stat:"敏捷",dc:15,text:"糧倉外牆起火，守衛懷疑是人為縱火，農民協會要求先救糧。",success:"你切斷火勢與貨物損失，未在證據不足時指控任何人。",fail:"部分糧袋受潮，糧議會開始限制夜間通行。",reward:{money:[40,80],reputation:2},failure:{event_clock:2}}
+  ]);
+
+  asdailAdd("regional_adventure_hooks",[
+    {id:"HOOK158-ASD-CROWN-SEAL",region_id:"REG-ASD-01",tier:"B",title:"王冠印模與失效的道路",summary:"王都的道路封印遭竊，地方通行權開始出現矛盾紀錄。",entry_locations:["ASD-CAPITAL","ASD-SILVER"],required_facts:["DIA-ASD-001"],linked_quests:["Q158-ASD-CROWN-LAW"],linked_events:["AE158-ASD-COURT-SEAL"]},
+    {id:"HOOK158-ASD-BLACKWATER",region_id:"REG-ASD-01",tier:"B",title:"黑水源封印鬆動",summary:"北境水源與舊堡地下層出現同時異常，王國、教會與守備隊各自掌握一部分真相。",entry_locations:["ASD-GRAYGATE","ASD-CAPITAL"],required_facts:["DIA-ASD-003"],linked_quests:["Q158-ASD-BLACKWATER","Q158-ASD-GRAY-IDOL"],linked_events:["AE158-ASD-BLACKWATER-ECHO","AE158-ASD-FORT-SEAL"]}
+  ]);
+
+  asdailAdd("lore_records",[
+    {id:"LORE158-ASD-01",title:"阿斯戴爾王國的四條命脈",tier:"C",category:"地方制度",region_id:"REG-ASD-01",status:"CURRENT",text:"王冠大道、河谷糧倉、北境守備與東境礦路共同維持王國；任何一條命脈中斷，都會先造成地方性短缺，而非立即改寫王國正史。"},
+    {id:"LORE158-ASD-02",title:"灰門舊堡的未抵援軍",tier:"B",category:"歷史疑案",region_id:"REG-ASD-01",status:"傳聞待核",text:"舊堡軍令記載曾有援軍被派往北境，但現存名冊缺頁。此事可作為B級調查線索，不直接宣稱王國成立史為謊言。"},
+    {id:"LORE158-ASD-03",title:"霧杉月泉的雙重記錄",tier:"C",category:"地方民俗",region_id:"REG-ASD-01",status:"地方記錄",text:"林務會以鐘聲記錄霧勢，月泉教會則以水位記錄祭壇狀態；兩者都不能單獨證明祭壇來自何種古代信仰。"}
+  ]);
+
+  asdailAdd("world_timeline",[
+    {id:"TL158-ASD-01",year:317,region_id:"REG-ASD-01",tier:"C",status:"CURRENT",title:"王冠大道南段重修",text:"王國外廷批准道路與水標重修，河谷鎮與銀穗城的糧運委託增加。"},
+    {id:"TL158-ASD-02",year:317,region_id:"REG-ASD-01",tier:"B",status:"CURRENT",title:"灰門舊堡列入封鎖清冊",text:"北境守備隊將舊堡地下層列為受限區，任何深入行動需取得通行理由與教會檢查。"}
+  ]);
+
+  asdailAdd("organization_contract_archetypes",[
+    {id:"CONTRACT158-ASD-ROAD",organization_id:"ORG-ASD-ROAD-LEAGUE",region_id:"REG-ASD-01",tier:"F",name:"道路與驛站維護",locations:["ASD-WILD-CROWNROAD","ASD-RIVER"],rules:["不可破壞路標","交付前需核對封章"]},
+    {id:"CONTRACT158-ASD-FRONTIER",organization_id:"ORG-ASD-GRAY-WARDENS",region_id:"REG-ASD-01",tier:"D",name:"北境封鎖與巡哨",locations:["ASD-WILD-GRAYPASS","ASD-DUNGEON-GRAY-FORT"],rules:["D級以下不得單獨深入B級封鎖區","回報魔物族群變化"]},
+    {id:"CONTRACT158-ASD-GRAIN",organization_id:"ORG-ASD-GRAIN-COMPACT",region_id:"REG-ASD-01",tier:"E",name:"糧運與市場穩定",locations:["ASD-SILVER","ASD-WILD-SILVERFENS"],rules:["不可無限收購","交付數量受每日市場上限限制"]}
+  ]);
+
+  DB.asdail_kingdom_expansion={
+    version:"ASDAIL-KINGDOM-EXPANSION-1.0",
+    release:"CURRENT-1.57.0",
+    region_id:"REG-ASD-01",
+    scope:"F～B",
+    content_counts:{settlements:7,wild_maps:8,dungeons:5,fixed_npcs:6,organizations:4,disciplines:2,monsters:12,quests:11,adventure_events:10,items:14,recipes:3,skills:8,lore_records:3,timeline_records:2},
+    rules:[
+      "阿斯戴爾目前可接觸世界層級由既有C級擴展至B級受限區域。",
+      "B級內容需通行資格、委託前置或地區條件，不會出現在F級普通遭遇。",
+      "地下城、巢穴、資源、封鎖與通道狀態持久化，不因離場重置。",
+      "神話、傳聞與地方民俗不自動升格為CURRENT正史。",
+      "不新增主權國、元素、真龍真鳳血脈、魔族公開據點或雷煌流機密。",
+      "不改角色初始值、戰鬥公式、存檔schema、掉落規則與既有生態限制。"
+    ],
+    status:"PASS"
+  };
+
   // MONSTER-THREAT-1.0：成年普通敵人與弱小生物威脅分層。
   const monsterThreatBaseline={"F":{"hp":34,"attack":12,"defense":5,"accuracy":68,"damage":[4,8]},"E":{"hp":48,"attack":16,"defense":8,"accuracy":70,"damage":[5,10]},"D":{"hp":72,"attack":21,"defense":11,"accuracy":72,"damage":[7,14]},"C":{"hp":105,"attack":28,"defense":16,"accuracy":74,"damage":[10,20]},"B":{"hp":155,"attack":38,"defense":23,"accuracy":77,"damage":[13,27]},"A":{"hp":220,"attack":50,"defense":30,"accuracy":80,"damage":[17,35]},"S":{"hp":320,"attack":65,"defense":38,"accuracy":83,"damage":[22,45]}};
   const harmlessMonsterIds=new Set(["MON14-001","MON14-025","MON14-026","MON14-022","LEGACY-MON-001","LEGACY-MON-009","MON14-030","MON14-180"]);
