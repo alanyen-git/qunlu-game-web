@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v8";
+const CACHE_NAME=CACHE_PREFIX+"v9";
 const CORE=[
   "./",
   "./index.html",
@@ -18,6 +18,7 @@ const CORE=[
   "./src/npc-depth-v1.js",
   "./src/npc-depth-v2.js",
   "./src/class-skill-optimization-v1.js",
+  "./src/class-skill-passive-compat-v1.js",
   "./src/system-integrity-v2.js",
   "./src/pwa.js",
   "./icons/icon-192.png",
