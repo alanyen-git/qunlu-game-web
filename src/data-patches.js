@@ -1545,7 +1545,8 @@
     {id:"ORG-ASD-CROWN-COURT",name:"阿斯戴爾王國外廷",kind:"political",tier:"B",region_id:"REG-ASD-01",base_location_id:"ASD-CAPITAL",description:"處理道路、稅役、王家封獵與地方申訴，不等同於王室內廷。",bonus:{authority_request:"王國通行文書"}},
     {id:"ORG-ASD-GRAY-WARDENS",name:"灰門守備隊",kind:"military",tier:"D",region_id:"REG-ASD-01",base_location_id:"ASD-GRAYGATE",description:"負責北境哨線、山徑封鎖與魔物警戒。",bonus:{frontier_safety:10}},
     {id:"ORG-ASD-GRAIN-COMPACT",name:"銀穗糧議會",kind:"civilian",tier:"C",region_id:"REG-ASD-01",base_location_id:"ASD-SILVER",description:"沃土農民協會、糧商與城鎮代表組成的地方協議組織。",bonus:{food_market:"供需情報"}},
-    {id:"ORG-ASD-MISTWARDENS",name:"霧杉林務會",kind:"ranger",tier:"C",region_id:"REG-ASD-01",base_location_id:"ASD-MISTPINE",description:"維持林徑、採集許可與野火警戒，與教會保持有限合作。",bonus:{forest_gathering:10}}
+    {id:"ORG-ASD-MISTWARDENS",name:"霧杉林務會",kind:"ranger",tier:"C",region_id:"REG-ASD-01",base_location_id:"ASD-MISTPINE",description:"維持林徑、採集許可與野火警戒，與教會保持有限合作。",bonus:{forest_gathering:10}},
+    {id:"ORG-ASD-ROAD-LEAGUE",name:"王國商路聯盟阿斯戴爾分會",kind:"trade",tier:"C",region_id:"REG-ASD-01",base_location_id:"ASD-SILVER",description:"負責王冠大道、驛站、河運與護運協調；不擁有地方主權。",bonus:{travel_cost:-5,escort_contracts:true}}
   ]);
 
   asdailAdd("discipline_factions",[
@@ -1578,11 +1579,13 @@
     {id:"ITEM-ASD-TIDE-ROPE",name:"潮汐安全繩",kind:"tool",tier:"C",weight:1.5,price:48,effect:"在黎明潮汐洞固定已探索路線。"},
     {id:"ITEM-ASD-ROYAL-STEEL",name:"王家精鋼短劍",kind:"equipment",tier:"C",weight:1.2,price:320,equip_slot:"weapon",attack:18,material:"精鋼",description:"王家鍛造院流出的制式短劍。"},
     {id:"ITEM-ASD-GRAY-SHIELD",name:"灰門守備盾",kind:"equipment",tier:"D",weight:3.8,price:180,equip_slot:"offhand",defense:10,material:"黑鐵",description:"適合守勢流訓練的黑鐵圓盾。"},
-    {id:"ITEM-ASD-CROWN-CLOAK",name:"王冠驛騎斗篷",kind:"equipment",tier:"B",weight:1.0,price:680,equip_slot:"body",defense:14,description:"王冠大道驛騎使用的耐候斗篷，持有通行章時可減少道路事件風險。"}
+    {id:"ITEM-ASD-CROWN-CLOAK",name:"王冠驛騎斗篷",kind:"equipment",tier:"B",weight:1.0,price:680,equip_slot:"body",defense:14,description:"王冠大道驛騎使用的耐候斗篷，持有通行章時可減少道路事件風險。"},
+    {id:"ITEM-ASD-LANTERN-GLASS",name:"耐熱燈罩玻璃",kind:"material",tier:"D",weight:0.2,price:18,description:"可承受霧杉燈具熱度的厚玻璃。"},
+    {id:"ITEM-ASD-LAMP-OIL",name:"霧燈植物油",kind:"material",tier:"D",weight:0.3,price:10,description:"以濕地種子壓榨的低煙植物油。"}
   ]);
 
   asdailAdd("recipes",[
-    {id:"RECIPE-ASD-MIST-LANTERN",name:"霧徑遮霧燈",tier:"C",profession:"鍛造",ingredients:[{item_id:"ITEM-ASD-IRONBARK",qty:2},{item_id:"I-GLASS",qty:1},{item_id:"I-OIL",qty:1}],output:{item_id:"ITEM-ASD-MIST-LANTERN",qty:1},time_hours:2},
+    {id:"RECIPE-ASD-MIST-LANTERN",name:"霧徑遮霧燈",tier:"C",profession:"鍛造",ingredients:[{item_id:"ITEM-ASD-IRONBARK",qty:2},{item_id:"ITEM-ASD-LANTERN-GLASS",qty:1},{item_id:"ITEM-ASD-LAMP-OIL",qty:1}],output:{item_id:"ITEM-ASD-MIST-LANTERN",qty:1},time_hours:2},
     {id:"RECIPE-ASD-GRAY-SHIELD",name:"灰門守備盾",tier:"D",profession:"鍛造",ingredients:[{item_id:"MAT-ORE-24",qty:3},{item_id:"ITEM-ASD-RED-OREDUST",qty:1}],output:{item_id:"ITEM-ASD-GRAY-SHIELD",qty:1},time_hours:4},
     {id:"RECIPE-ASD-IRON-SALVE",name:"鐵杉止血膏",tier:"D",profession:"藥劑",ingredients:[{item_id:"ITEM-ASD-IRONBARK",qty:1},{item_id:"I-HERB",qty:2}],output:{item_id:"ITEM-ASD-IRON-SALVE",qty:1},time_hours:1}
   ]);
