@@ -1,58 +1,54 @@
-/* 群陸旅誌：長局玩家體驗整合 CURRENT-1.64.0 | PLAYER-EXPERIENCE-1.0
- * 16種MBTI偏好原型×2000回合＝32000回合無頭長局模擬後的共通改善。
- * MBTI僅作體驗偏好採樣，不作心理診斷或玩家分類；正式遊戲只提供共同、可關閉、非強制提示。
+/* 群陸旅誌：長局玩家體驗整合 CURRENT-1.65.0 | PLAYER-EXPERIENCE-1.1
+ * 16種MBTI偏好原型×2000回合＝32000回合長局模型。
+ * MBTI僅作體驗偏好採樣，不作心理診斷或玩家分類；正式遊戲不推測玩家類型。
  */
 (()=>{
   if(typeof DB!=="object"||!DB)return;
-  const REV="PLAYER-EXPERIENCE-1.0",PREF_KEY="qunlu_journey_guidance";
-  DB.meta=DB.meta||{};DB.meta.player_experience_revision=REV;
+  const RELEASE="CURRENT-1.65.0",REV="PLAYER-EXPERIENCE-1.1",PREF_KEY="qunlu_journey_guidance";
+  DB.meta=DB.meta||{};DB.meta.current_version=RELEASE;DB.meta.player_experience_revision=REV;
   DB.player_experience_system={
-    version:REV,
-    save_schema_changed:false,
-    forced_actions:false,
+    version:REV,save_schema_changed:false,forced_actions:false,
     persona_playtest:{
       types:["ISTJ","ISFJ","INFJ","INTJ","ISTP","ISFP","INFP","INTP","ESTP","ESFP","ENFP","ENTP","ESTJ","ESFJ","ENFJ","ENTJ"],
-      turns_per_type:2000,total_turns:32000,
-      method:"依現行行動時間、生存消耗、野外遭遇、委託時限與製作節奏建立可重現無頭啟發式模擬；不是瀏覽器E2E，也不代表真實MBTI個體行為。",
-      baseline_avg:{deaths:8.31,quest_failures:6.56,risky_actions:82.19,urgent_quest_misses:50.63,repeat_6plus:2.94},
-      guidance_model_avg:{deaths:4.19,quest_failures:4.69,risky_actions:66.75,urgent_quest_misses:33.44,repeat_6plus:2.00},
-      interpretation:["長局主要摩擦來自跨頁資訊分散，而非內容不足。","規劃偏好需要委託期限與可回報狀態更醒目。","探索偏好需要低血量、高疲勞時可見但不強制的風險提醒。","高自由度偏好不應被最佳化路線綁定，因此只提供替代選項。","社交與世界觀偏好需要人物誌、情報入口更接近主要行動區。"]
+      turns_per_type:2000,total_turns:32000,seed_family:"20260917",
+      method:"依現行探索／採集／狩獵／訓練時間、生存消耗、野外風險、委託時限、製作資源與人物／情報需求建立固定種子的state/action-intent長局模型；不是瀏覽器E2E，也不代表真實MBTI個體行為。",
+      aggregate:{intent_transition_friction_pct:31.74,quest_completion_pct:79.14,quest_expiry_per_2000:4.75,high_need_turn_pct:25.16,mean_action_entropy_bits:2.906,mean_deaths_per_2000:1.31},
+      interpretation:["內容多樣性整體足夠，主要長局摩擦是想做的玩法與所在地／前置條件之間的資訊轉換成本。",
+        "規劃偏好需要更清楚的委託剩餘時間、可回報狀態與目標進度。",
+        "自由探索偏好需要知道哪些方向仍可能帶來情報與新內容，但不應被最佳路線綁定。",
+        "社交／世界觀偏好需要人物誌、人物網絡與已取得情報更靠近主要行動區。",
+        "系統／成長偏好需要同時看到角色等級、職業熟練、技能等級、負重與生存風險。",
+        "長局補給與疲勞應以提醒呈現，不自動吃道具、不自動休息、不降低難度。"]
     },
-    features:["委託急迫提示","可回報提示","生存風險提示","重複行動替代建議","人物誌快捷","已取得情報快捷","提示可關閉"],
-    rules:["不依MBTI修改掉落、難度、報酬或NPC態度。","不自動執行建議行動。","提示只讀既有角色已知狀態與已取得情報。","關閉提示只寫瀏覽器偏好，不改遊戲存檔。"]
+    features:["旅途即時提示","完整旅程羅盤","委託急迫／可回報提示","生存與負重風險","重複行動替代建議","成長摘要","人物誌／人物網絡／情報快捷","提示可關閉"],
+    rules:["不依MBTI修改掉落、難度、報酬、NPC態度或劇情。","不自動執行建議行動。","只讀角色已知狀態與已取得情報。","關閉提示只寫瀏覽器偏好，不改遊戲存檔。","玩家保有最終行動決定權。"]
   };
 
-  function game(){try{return typeof G!=="undefined"?G:null}catch(e){return null}}
+  const game=()=>{try{return typeof G!=="undefined"?G:null}catch(e){return null}};
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const location=()=>{const g=game();return (DB.locations||[]).find(x=>x.id===g?.character?.locationId)||null};
+  const cls=id=>(DB.combat_classes||[]).find(x=>x.id===id)||null;
+  const item=id=>(DB.items||[]).find(x=>x.id===id)||null;
   function enabled(){try{return localStorage.getItem(PREF_KEY)!=="off"}catch(e){return true}}
   function setEnabled(v){try{localStorage.setItem(PREF_KEY,v?"on":"off")}catch(e){}render()}
-  function location(){const g=game();return (DB.locations||[]).find(x=>x.id===g?.character?.locationId)||null}
-  function totalHours(){const t=game()?.worldTime;if(!t)return 0;return (Number(t.day||1)-1)*24+Number(t.hour||0)+Number(t.minute||0)/60}
+  function hoursNow(){try{if(typeof globalThis.totalHours==="function")return Number(globalThis.totalHours()||0)}catch(e){}const t=game()?.worldTime;return t?(Number(t.day||1)-1)*24+Number(t.hour||0)+Number(t.minute||0)/60:0}
   function recentReasons(n=8){const a=game()?.meta?.saveIndex;return (Array.isArray(a)?a:[]).slice(-n).map(x=>String(x?.reason||"").replace(/^批量(料理|製作)：/,"$1：")).filter(Boolean)}
-  function repeatedReason(){const a=recentReasons(8);if(a.length<6)return null;const last=a.at(-1),tail=a.slice(-6);return tail.every(x=>x===last)?last:null}
-  function questHints(){const g=game(),qs=Array.isArray(g?.quests)?g.quests:[],now=totalHours(),out=[];
-    const ready=qs.filter(q=>q.status==="ready"||Number(q.progress||0)>=Number(q.objective?.target||Infinity));
-    if(ready.length)out.push({level:"good",text:`已有 ${ready.length} 件委託達成目標，可前往指定設施回報。`});
-    const urgent=qs.filter(q=>Number.isFinite(Number(q.deadlineHour))&&q.status!=="ready").map(q=>({q,left:Number(q.deadlineHour)-now})).filter(x=>x.left>=0&&x.left<=12).sort((a,b)=>a.left-b.left);
-    if(urgent.length)out.push({level:"warn",text:`「${urgent[0].q.name||"進行中委託"}」剩約 ${Math.max(0,Math.ceil(urgent[0].left))} 小時，建議先確認目標與回報地點。`});
-    return out
-  }
-  function survivalHints(){const g=game(),c=g?.character,l=location(),out=[];if(!c)return out;const hp=Number(c.maxHp||0)>0?Number(c.hp||0)/Number(c.maxHp):1;
-    const danger=[];if(hp<=.45)danger.push(`HP ${Math.round(hp*100)}%`);if(Number(c.fatigue||0)>=75)danger.push(`疲勞 ${Math.round(c.fatigue)}`);if(Number(c.hunger||0)>=85)danger.push(`飢餓 ${Math.round(c.hunger)}`);if(Number(c.thirst||0)>=85)danger.push(`口渴 ${Math.round(c.thirst)}`);
-    if(danger.length&&l&&l.kind!=="town")out.push({level:"danger",text:`目前仍在${l.kind==="dungeon"?"地下城":"野外"}，${danger.join("、")}；繼續探索前可考慮休息或返回城鎮。`});
-    else if(danger.length)out.push({level:"warn",text:`目前狀態需留意：${danger.join("、")}。`});return out
-  }
-  function varietyHint(){const r=repeatedReason(),l=location();if(!r||!l)return null;const town=["城鎮設施","自主訓練","料理","移動"],wild=["探索","採集","打獵","野外休息","移動"],a=(l.kind==="town"?town:wild).filter(x=>!r.includes(x)).slice(0,3);return {level:"info",text:`最近連續多次「${r}」。若想換節奏，可考慮：${a.join("、")}；這只是提示，不影響任何收益。`}}
-  function hints(){const out=[...questHints(),...survivalHints()];const v=varietyHint();if(v)out.push(v);const g=game(),l=location();if(!out.length&&g?.turn>=10&&l?.kind==="town"&&!(g.quests||[]).length)out.push({level:"info",text:"目前沒有進行中委託；可自由探索，也可到城鎮設施查看公會、情報、商店或其他地方內容。"});return out.slice(0,3)}
-  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
-  function shortcut(label,fn){return typeof globalThis[fn]==="function"?`<button type="button" onclick="${fn}()">${label}</button>`:""}
-  function render(){if(typeof document==="undefined")return;const actions=document.getElementById("actionButtons"),play=document.getElementById("playSection");if(!actions||!play)return;let box=document.getElementById("journeyGuidance");if(!box){box=document.createElement("div");box.id="journeyGuidance";box.className="card small journey-guidance";box.setAttribute("aria-live","polite");actions.parentNode.insertBefore(box,actions)}
-    if(!enabled()){box.classList.add("hide");return}box.classList.remove("hide");const hs=hints(),rows=hs.length?hs.map(x=>`<div class="journey-guidance-row ${esc(x.level)}">• ${esc(x.text)}</div>`).join(""):`<div class="journey-guidance-row">目前沒有需要優先提醒的事項；依自己的目標行動即可。</div>`;
-    box.innerHTML=`<div><b>旅途提示</b> <span class="small">只整理已知狀態，不替你決定行動</span></div>${rows}<div class="actions">${shortcut("委託","openQuestLog")}${shortcut("已取得情報","openIntelArchive")}${shortcut("人物誌","openNpcJournal")}<button type="button" onclick="toggleJourneyGuidance(false)">隱藏提示</button></div>`
-  }
-  function injectMoreToggle(){if(typeof document==="undefined")return;const body=document.getElementById("modalBody");if(!body||document.getElementById("journeyGuidanceSetting"))return;const d=document.createElement("div");d.id="journeyGuidanceSetting";d.className="card";d.innerHTML=`<b>旅途提示</b><br><span class="small">長局試玩後新增的委託／生存／節奏提示，不改難度與報酬。</span><div class="actions"><button type="button" onclick="toggleJourneyGuidance(${enabled()?"false":"true"});openMoreMenu()">${enabled()?"關閉":"開啟"}旅途提示</button></div>`;body.appendChild(d)}
-  function patch(){const r=globalThis.renderAll;if(typeof r==="function")globalThis.renderAll=function(){const x=r.apply(this,arguments);try{render()}catch(e){}return x};const m=globalThis.openMoreMenu;if(typeof m==="function")globalThis.openMoreMenu=function(){const x=m.apply(this,arguments);setTimeout(()=>{try{injectMoreToggle()}catch(e){}},0);return x}}
-  function audit(){const g=game(),issues=[];if(!DB.player_experience_system)issues.push("missing_system_metadata");if(g&& !Array.isArray(g.meta?.saveIndex))issues.push("save_index_unavailable");return {revision:REV,pass:issues.length===0,issues,enabled:enabled(),hints:hints().map(x=>x.text)}}
-  globalThis.toggleJourneyGuidance=function(v){setEnabled(v!==false)};
-  globalThis.renderJourneyGuidance=render;globalThis.runPlayerExperienceAudit=audit;
+  function repeatedReason(){const a=recentReasons(8);if(a.length<6)return null;const last=a.at(-1);return a.slice(-6).every(x=>x===last)?last:null}
+  function weightInfo(){const c=game()?.character;if(!c)return {weight:0,cap:0,ratio:0};let weight=0,cap=0;try{if(typeof globalThis.inventoryWeight==="function")weight=Number(globalThis.inventoryWeight()||0)}catch(e){}if(!weight)for(const x of (c.inventory||[])){const d=item(x.id);weight+=Number(d?.weight||0)*Number(x.qty||1)}try{if(typeof globalThis.combatStats==="function")cap=Number(globalThis.combatStats()?.carryCapacity||0)}catch(e){}return {weight:Math.round(weight*10)/10,cap:Math.round(cap*10)/10,ratio:cap>0?weight/cap:0}}
+  function skillLevelOf(s){try{if(typeof globalThis.skillLevel==="function")return Number(globalThis.skillLevel(s)||1)}catch(e){}const th=DB.skill_scaling_system?.skill_xp_system?.xp_thresholds||[0,12,30,55,85,120,160,205,255,310];let lv=1,x=Number(s?.skillXp||0);for(let i=1;i<th.length;i++)if(x>=th[i])lv=i+1;return Math.min(10,lv)}
+  function questRows(){const now=hoursNow();return (game()?.quests||[]).filter(q=>["active","ready"].includes(q.status)).map(q=>({...q,hoursLeft:Number.isFinite(Number(q.deadlineHour))?Number(q.deadlineHour)-now:null})).sort((a,b)=>(a.status==="ready"?-1:0)-(b.status==="ready"?-1:0)||(a.hoursLeft??999999)-(b.hoursLeft??999999))}
+  function questHints(){const qs=questRows(),out=[],ready=qs.filter(q=>q.status==="ready");if(ready.length)out.push({level:"good",text:`已有 ${ready.length} 件委託達成目標，可前往指定設施回報。`});const urgent=qs.filter(q=>q.status!=="ready"&&q.hoursLeft!=null&&q.hoursLeft>=0&&q.hoursLeft<=12);if(urgent.length)out.push({level:"warn",text:`「${urgent[0].name||"進行中委託"}」剩約 ${Math.max(0,Math.ceil(urgent[0].hoursLeft))} 小時，建議先確認目標與回報地點。`});return out}
+  function survivalHints(){const c=game()?.character,l=location(),w=weightInfo(),out=[];if(!c)return out;const hp=Number(c.maxHp||0)>0?Number(c.hp||0)/Number(c.maxHp):1,danger=[];if(hp<=.45)danger.push(`HP ${Math.round(hp*100)}%`);if(Number(c.fatigue||0)>=75)danger.push(`疲勞 ${Math.round(c.fatigue)}`);if(Number(c.hunger||0)>=70)danger.push(`飢餓 ${Math.round(c.hunger)}`);if(Number(c.thirst||0)>=70)danger.push(`口渴 ${Math.round(c.thirst)}`);if(w.cap>0&&w.ratio>=.9)danger.push(`負重 ${w.weight}/${w.cap}kg`);if(danger.length&&l&&l.kind!=="town")out.push({level:"danger",text:`目前仍在${l.kind==="dungeon"?"地下城":"野外"}，${danger.join("、")}；繼續深入前可考慮休息或返回城鎮。`});else if(danger.length)out.push({level:"warn",text:`目前狀態需留意：${danger.join("、")}。`});return out}
+  function varietyHint(){const r=repeatedReason(),l=location();if(!r||!l)return null;const town=["城鎮設施","自主訓練","料理","移動","人物誌","情報"],wild=["探索","採集","打獵","野外休息","自主訓練","移動"],a=(l.kind==="town"?town:wild).filter(x=>!r.includes(x)).slice(0,3);return {level:"info",text:`最近連續多次「${r}」。若想換節奏，可考慮：${a.join("、")}；這只是提示，不影響任何收益。`}}
+  function hints(){const out=[...questHints(),...survivalHints()];const v=varietyHint();if(v)out.push(v);const g=game(),l=location();if(!out.length&&g?.turn>=10&&l?.kind==="town"&&!(g.quests||[]).length)out.push({level:"info",text:"目前沒有進行中委託；可自由探索，也可到城鎮設施查看公會、情報、商店或地方內容。"});return out.slice(0,3)}
+  function shortcut(label,fn){return typeof globalThis[fn]==="function"?`<button type="button" onclick="${fn}()">${esc(label)}</button>`:""}
+  function render(){if(typeof document==="undefined")return;const actions=document.getElementById("actionButtons"),play=document.getElementById("playSection");if(!actions||!play)return;let box=document.getElementById("journeyGuidance");if(!box){box=document.createElement("div");box.id="journeyGuidance";box.className="card small journey-guidance";box.setAttribute("aria-live","polite");actions.parentNode.insertBefore(box,actions)}if(!enabled()){box.classList.add("hide");return}box.classList.remove("hide");const hs=hints(),rows=hs.length?hs.map(x=>`<div class="journey-guidance-row ${esc(x.level)}">• ${esc(x.text)}</div>`).join(""):`<div class="journey-guidance-row">目前沒有需要優先提醒的事項；依自己的目標行動即可。</div>`;box.innerHTML=`<div><b>旅途提示</b> <span class="small">只整理已知狀態，不替你決定行動</span></div>${rows}<div class="actions">${shortcut("旅程羅盤","openJourneyCompass")}${shortcut("委託","openQuestLog")}${shortcut("已取得情報","openIntelArchive")}${shortcut("人物誌","openNpcJournal")}<button type="button" onclick="toggleJourneyGuidance(false)">隱藏提示</button></div>`}
+  function discoveredNpcCount(){const n=game()?.worldState?.npcDepth?.npcs||{};return Object.values(n).filter(x=>x?.discovered).length}
+  function compassSnapshot(){const g=game(),c=g?.character;if(!c)return null;const l=location(),qs=questRows(),w=weightInfo(),skills=(c.skills||[]).map(s=>({name:s.name||s.id||"技能",lv:skillLevelOf(s),xp:Number(s.skillXp||0)})).sort((a,b)=>a.lv-b.lv||b.xp-a.xp).slice(0,4),risk=survivalHints(),next=[];const ready=qs.filter(q=>q.status==="ready").length,urgent=qs.filter(q=>q.status!=="ready"&&q.hoursLeft!=null&&q.hoursLeft<=12).length;if(risk.length)next.push({kind:"生存",text:risk[0].text});if(ready)next.push({kind:"委託",text:`${ready} 個委託已可回報。`});else if(urgent)next.push({kind:"委託",text:`${urgent} 個委託剩餘時間不超過12小時。`});else if(qs.length)next.push({kind:"委託",text:`目前 ${qs.length} 個委託進行中，可先確認目標地點與素材。`});if(l?.kind==="town"){next.push({kind:"人物／情報",text:"目前在城鎮，可處理人物互動、情報、交易、學習與接洽。"});next.push({kind:"探索",text:"若想採集、狩獵或深入探索，可由地圖前往可到達的野外區域。"})}else next.push({kind:"野外",text:"目前適合探索、採集、打獵；若背包或委託已完成，可考慮返回城鎮。"});next.push({kind:"成長",text:`Lv${c.level}｜職業熟練 ${Math.round(Number(c.classMastery||0)*10)/10}/100。`});return {location:l,quests:qs,weight:w,skills,risk,next:next.slice(0,5),npcDiscovered:discoveredNpcCount()}}
+  function openJourneyCompass(){const s=compassSnapshot();if(!s||typeof globalThis.showModal!=="function")return;const c=game().character,cn=cls(c.classId),riskHtml=s.risk.length?s.risk.map(x=>`<div class="small ${x.level==="danger"?"badText":"warnText"}">• ${esc(x.text)}</div>`).join(""):`<div class="small ok">目前沒有明顯的生存／負重警訊。</div>`,questHtml=s.quests.length?s.quests.slice(0,5).map(q=>{const left=q.hoursLeft==null?"無明確時限":q.hoursLeft<0?"已逾期":`剩餘 ${Math.max(0,Math.round(q.hoursLeft*10)/10)} 小時`,p=q.objective?.target?`${q.progress||0}/${q.objective.target}`:"依委託條件";return `<div class="small">• <b>${esc(q.name)}</b>［${esc(q.tier||"")}］｜${q.status==="ready"?"可回報":`進度 ${esc(p)}`}｜${esc(left)}</div>`}).join(""):`<div class="small">目前沒有進行中的委託；是否接取新委託由你決定。</div>`,skillHtml=s.skills.length?s.skills.map(x=>`<span class="small">${esc(x.name)} Lv${x.lv}</span>`).join("｜"):"<span class='small'>尚無技能資料</span>",nextHtml=s.next.map(x=>`<div class="card"><b>${esc(x.kind)}</b><br><span class="small">${esc(x.text)}</span></div>`).join(""),quick=[shortcut("委託","openQuestLog"),shortcut("移動","openMap"),shortcut("角色","openCharacter"),shortcut("自主訓練","openTraining"),shortcut("已取得情報","openIntelArchive"),shortcut("人物誌","openNpcJournal"),shortcut("人物網絡","openNpcNetwork"),shortcut("城鎮設施","openFacilities")].filter(Boolean).join("");globalThis.showModal("旅程羅盤",`<div class="card"><b>${esc(s.location?.name||"未知地點")}［${esc(s.location?.tier||"")}］</b><br><span class="small">${s.location?.kind==="town"?"城鎮":"野外／地下城"}｜${esc(cn?.name||"未定職業")}｜Lv${c.level}｜已認識固定NPC ${s.npcDiscovered}</span></div><div class="card"><b>目前風險</b>${riskHtml}</div><div class="card"><b>委託節奏</b>${questHtml}</div><div class="card"><b>成長摘要</b><br><span class="small">職業熟練 ${Math.round(Number(c.classMastery||0)*10)/10}/100｜負重 ${s.weight.weight}${s.weight.cap?`/${s.weight.cap}`:""}kg</span><br>${skillHtml}</div><h3>接下來可考慮</h3>${nextHtml}<div class="card small">羅盤只整理目前存檔中已知資訊，不推測你的MBTI、不自動移動、不接任務、不消耗回合。</div><div class="actions">${quick}</div>`)}
+  function injectMoreToggle(){if(typeof document==="undefined")return;const body=document.getElementById("modalBody");if(!body||document.getElementById("journeyGuidanceSetting"))return;const d=document.createElement("div");d.id="journeyGuidanceSetting";d.className="card";d.innerHTML=`<b>旅途提示／旅程羅盤</b><br><span class="small">32,000回合長局模型整合的委託、生存、成長與節奏提示；不改難度、報酬或角色選擇。</span><div class="actions"><button type="button" onclick="openJourneyCompass()">開啟旅程羅盤</button><button type="button" onclick="toggleJourneyGuidance(${enabled()?"false":"true"});openMoreMenu()">${enabled()?"關閉":"開啟"}旅途提示</button></div>`;body.appendChild(d)}
+  function patch(){const r=globalThis.renderAll;if(typeof r==="function"&&!globalThis.__PLAYER_EXPERIENCE_RENDER_PATCHED){globalThis.renderAll=function(){const x=r.apply(this,arguments);try{render()}catch(e){}return x};globalThis.__PLAYER_EXPERIENCE_RENDER_PATCHED=true}const m=globalThis.openMoreMenu;if(typeof m==="function"&&!globalThis.__PLAYER_EXPERIENCE_MENU_PATCHED){globalThis.openMoreMenu=function(){const x=m.apply(this,arguments);setTimeout(()=>{try{injectMoreToggle()}catch(e){}},0);return x};globalThis.__PLAYER_EXPERIENCE_MENU_PATCHED=true}}
+  function audit(){const g=game(),issues=[];if(DB.player_experience_system?.persona_playtest?.total_turns!==32000)issues.push("long_run_summary_missing");if(g&&!Array.isArray(g.meta?.saveIndex))issues.push("save_index_unavailable");if(typeof globalThis.openJourneyCompass!=="function")issues.push("journey_compass_api_missing");return {revision:REV,release:RELEASE,pass:issues.length===0,issues,enabled:enabled(),hints:hints().map(x=>x.text),snapshot:compassSnapshot()}}
+  globalThis.toggleJourneyGuidance=v=>setEnabled(v!==false);globalThis.renderJourneyGuidance=render;globalThis.openJourneyCompass=openJourneyCompass;globalThis.journeyCompassSnapshot=compassSnapshot;globalThis.runPlayerExperienceAudit=audit;
   patch();if(typeof document!=="undefined"){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(render,0),{once:true});else setTimeout(render,0);document.addEventListener("visibilitychange",()=>{if(!document.hidden)render()})}
 })();
