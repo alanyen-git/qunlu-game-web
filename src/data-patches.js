@@ -1,6 +1,6 @@
 /*
  * 群陸旅誌資料補丁入口
- * CURRENT-1.55.0：西境河谷內容深化包
+ * CURRENT-1.57.0：成年怪物威脅平衡補丁（含既有內容深化包）
  * 載入順序：game-data.js -> data-patches.js -> runtime.js
  */
 (()=>{
