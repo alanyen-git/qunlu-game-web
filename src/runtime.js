@@ -1,5 +1,5 @@
 
-const CURRENT_VERSION="CURRENT-1.55.0";
+const CURRENT_VERSION="CURRENT-1.57.0";
 const AUDIT_INTERVAL_TURNS=5;
 DB.meta.current_version=CURRENT_VERSION;
 DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
@@ -25,6 +25,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-1.52.0／QUALITY-AUDIT-
 DB.integration_registry.optimization_notes.push("CURRENT-1.53.0／UI-RUNTIME-1.0：快取靜態DOM、略過相同介面重寫、批次同步背包型委託、共用戰鬥數值，並補齊彈窗鍵盤焦點；不改canonical世界內容與存檔結構。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.54.0／RUNTIME-OPT-1.4：補齊能力點與技能XP舊存檔正規化、三次教會復活、商店每日庫存及每日收購資金；不改canonical世界內容與既有角色資料。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
+DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
 let creation={race:null,raceSubtype:null,origin:null,element:null,classId:null,randomLeft:10};
 const DOM_CACHE=new Map(),UI_HTML_CACHE=new WeakMap();
@@ -5243,7 +5244,7 @@ document.addEventListener("keydown",e=>{
 })
 
 const WEB_UPDATE={
- manifest:"/version.json",
+ manifest:"version.json",
  checking:false,
  available:null,
  timer:null
@@ -5310,6 +5311,15 @@ function applyGameUpdate(){
  u.searchParams.set("v",String(info.build||Date.now()));
  location.replace(u.toString())
 }
-function initWebUpdate(){WEB_UPDATE.available=null;updateBannerHtml(null);if(WEB_UPDATE.timer){clearInterval(WEB_UPDATE.timer);WEB_UPDATE.timer=null}return null}
+function initWebUpdate(){
+ WEB_UPDATE.available=null;updateBannerHtml(null);
+ if(WEB_UPDATE.timer){clearInterval(WEB_UPDATE.timer);WEB_UPDATE.timer=null}
+ let protocol="";
+ try{protocol=new URL(location.href).protocol}catch(e){}
+ if(!/^https?:$/.test(protocol))return null;
+ checkForGameUpdate(false);
+ WEB_UPDATE.timer=setInterval(()=>checkForGameUpdate(false),5*60*1000);
+ return WEB_UPDATE.timer
+}
 
 window.addEventListener("load",()=>{init();initWebUpdate()},{once:true});
