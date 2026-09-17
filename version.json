@@ -18,13 +18,15 @@
     "創角職業說明追加戰鬥系別、職業定位、建議起始技能組合與直接進階路線，使職業選擇不再只看名稱。",
     "新增職業／技能稽核：檢查空技能池、可選職業F級技能數、起始攻擊技能、職業進階引用、技能倍率離群與Lv6／Lv10里程碑缺口。",
     "SYSTEM-INTEGRITY升級為2.0，納入CLASS-SKILL-OPT-1.0自檢、既有角色技能欄位安全同步與職業ID檢查；既有技能XP、職業熟練、角色進度與存檔皆保留。",
-    "PWA快取升級至v8並改載class-skill-optimization-v1.js與system-integrity-v2.js；舊SYSTEM-INTEGRITY-1.0不再載入，避免版本回寫衝突。"
+    "補上CLASS-SKILL-PASSIVE-COMPAT-1.0：舊技能或舊存檔只要以display_type標記為被動，也會正確套用被動成長、Lv6／Lv10里程碑與禁止手動施放，不要求kind欄位必須同步存在。",
+    "PWA快取升級至v9，新增被動技能相容修正模組；舊SYSTEM-INTEGRITY-1.0維持不載入，避免版本回寫衝突。"
   ],
   "content_revision": "ASDAIL-DEPTH-2.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.0",
   "npc_depth_revision": "NPC-DEPTH-2.0",
   "class_skill_revision": "CLASS-SKILL-OPT-1.0",
+  "class_skill_passive_compat_revision": "CLASS-SKILL-PASSIVE-COMPAT-1.0",
   "system_integrity_revision": "SYSTEM-INTEGRITY-2.0",
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
