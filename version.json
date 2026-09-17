@@ -12,7 +12,7 @@
     "雷煌流與雷鳴流本體名稱不套用參考表中的西洋化流派替換；目前明確技能映射仍允許例如『雷鳴直進』更新為『迅雷衝鋒』。",
     "命名補丁於所有主要內容擴充模組之後、PWA啟動之前載入，使既有主資料與後續擴充資料採同一命名規則。",
     "提供 window.QUNLU_WORLD_NAMING 診斷摘要，可檢視實際改名數、技能改名數、保護記錄數與舊名命中統計。",
-    "PWA快取升級至v11並納入world-naming-v1.js。"
+    "現行PWA維持network-first；world-naming-v1.js首次在線載入後會由既有Service Worker快取，未修改原有離線快取版本。"
   ],
   "content_revision": "ASDAIL-DEPTH-2.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
