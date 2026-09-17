@@ -1,9 +1,9 @@
 {
-  "version": "CURRENT-1.56.0",
+  "version": "CURRENT-1.57.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "GitHub Pages 正式網頁版：提交通過回歸測試後自動發布，遊玩與更新完全不依賴 Netlify，並保留既有瀏覽器存檔。",
+  "summary": "成年普通怪物威脅平衡：保留弱小生物低威脅，依階級提高所有一般／菁英／首領怪物戰鬥基線。",
   "changelog": [
     "正式發布來源改為 GitHub Pages；Netlify 停用、卡住或部署失敗均不影響本遊戲網址。",
     "main 分支變更會先重建 runtime、驗證 JavaScript 與深層回歸，再發布正式站。",
@@ -54,7 +54,11 @@
     "移除戰鬥流程重複DOM繪製。",
     "合併本機load初始化事件並修正HTML尾端結構。",
     "CURRENT-1.51.0存檔原地遷移，不更動角色與存檔結構。",
-    "現行本機引擎1200回合驗證：240次五回合自檢0異常。"
+    "現行本機引擎1200回合驗證：240次五回合自檢0異常。",
+    "新增 MONSTER-THREAT-1.0：成年野狼等一般敵人對1級角色具備可感知威脅。",
+    "保留野兔、幼年山羊、貓頭鷹等弱小或非戰鬥生物的低威脅定位。",
+    "依F～S級校正怪物HP、攻擊、防禦、命中與傷害範圍；不修改角色數值、公式、存檔結構、掉落或生態規則。",
+    "怪物威脅平衡資料與全表變更稽核已寫入遊戲資料補丁。"
   ],
   "deployment_provider": "github_pages",
   "netlify_dependency": false

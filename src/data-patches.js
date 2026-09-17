@@ -1468,4 +1468,46 @@
   };
   DB.meta.current_version="CURRENT-1.55.0";
   DB.meta.content_depth_revision="CONTENT-DEPTH-1.0";
+  // MONSTER-THREAT-1.0：成年普通敵人與弱小生物威脅分層。
+  const monsterThreatBaseline={"F":{"hp":34,"attack":12,"defense":5,"accuracy":68,"damage":[4,8]},"E":{"hp":48,"attack":16,"defense":8,"accuracy":70,"damage":[5,10]},"D":{"hp":72,"attack":21,"defense":11,"accuracy":72,"damage":[7,14]},"C":{"hp":105,"attack":28,"defense":16,"accuracy":74,"damage":[10,20]},"B":{"hp":155,"attack":38,"defense":23,"accuracy":77,"damage":[13,27]},"A":{"hp":220,"attack":50,"defense":30,"accuracy":80,"damage":[17,35]},"S":{"hp":320,"attack":65,"defense":38,"accuracy":83,"damage":[22,45]}};
+  const harmlessMonsterIds=new Set(["MON14-001","MON14-025","MON14-026","MON14-022","LEGACY-MON-001","LEGACY-MON-009","MON14-030","MON14-180"]);
+  const harmlessMonsterNames=new Set(["野兔","幼年山羊","貓頭鷹"]);
+  for(const monster of DB.monsters||[]){
+    const base=monsterThreatBaseline[monster.tier];
+    if(!base)continue;
+    const harmless=harmlessMonsterIds.has(monster.id)||harmlessMonsterNames.has(monster.name);
+    if(harmless){
+      monster.threat_profile="harmless";
+      monster.harmless_at_level_1=true;
+      continue;
+    }
+    const eliteOrBoss=monster.lore_role==="菁英"||monster.lore_role==="高階首領"||["C","B","A","S"].includes(monster.tier);
+    monster.threat_profile=eliteOrBoss?"elite_or_boss":"standard_adult";
+    monster.harmless_at_level_1=false;
+    monster.hp=Math.max(Number(monster.hp||0),base.hp);
+    monster.attack=Math.max(Number(monster.attack||0),base.attack);
+    monster.defense=Math.max(Number(monster.defense||0),base.defense);
+    monster.accuracy=Math.max(Number(monster.accuracy||0),base.accuracy);
+    const oldDamage=Array.isArray(monster.damage)?monster.damage:[0,0];
+    monster.damage=[Math.max(Number(oldDamage[0]||0),base.damage[0]),Math.max(Number(oldDamage[1]||0),base.damage[1])];
+  }
+  DB.monster_threat_balance={
+    version:"MONSTER-THREAT-1.0",
+    release:"CURRENT-1.57.0",
+    total_monsters:(DB.monsters||[]).length,
+    harmless_level_1_ids:[...harmlessMonsterIds],
+    harmless_level_1_names:[...harmlessMonsterNames],
+    baselines:monsterThreatBaseline,
+    rules:[
+      "野兔、幼年山羊、貓頭鷹等弱小或非戰鬥生物可維持低威脅。",
+      "成年普通敵人即使位於F級，也必須能對穿戴起始裝備的1級角色造成可感知傷害。",
+      "怪物威脅依階級遞增；C級以上維持菁英／首領級，不得出現在低階普通遭遇。",
+      "只提高怪物資料基線，不修改角色初始數值、戰鬥公式、存檔結構、掉落規則或生態棲地限制。"
+    ],
+    changed_by_tier:{"F":14,"E":36,"D":45,"B":43,"C":47,"A":13,"S":4},
+    harmless_count:8
+  };
+  DB.meta.current_version="CURRENT-1.57.0";
+  DB.meta.monster_threat_revision="MONSTER-THREAT-1.0";
+
 })();
