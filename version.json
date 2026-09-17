@@ -1,17 +1,15 @@
 {
-  "version": "CURRENT-1.65.0",
-  "previous_version": "CURRENT-1.64.2",
+  "version": "CURRENT-1.65.1",
+  "previous_version": "CURRENT-1.65.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "第二輪世界命名稽核：清理第一輪殘留的雙名稱、重複字、日式專名與模板式流派名稱，並恢復雷煌流／雷鳴流鎖定裝備『闇夜』。",
+  "summary": "命名保護熱修：柳生惟心流改為永久保留名稱，不再套用第二輪西洋化命名。",
   "changelog": [
-    "新增 WORLD-NAMING-2.0：修正斜線雙名稱、地下城重複字、組織／地名語意錯位與新增內容中的日式／武俠模板命名。",
-    "阿斯戴爾新增流派正規化：柳生唯心流、鐵旗守勢流、霧徑聽息流、碎浪繩鬥術、霜線獵槍術、白塔護印術改為西方奇幻自然命名。",
-    "補強文字引用同步：只替換具唯一性的舊專名，避免把戰士、法師、精靈等一般詞彙在敘述中過度改寫。",
-    "名品武士刀『闇夜』列入第二輪強制保護並恢復；雷煌流、雷鳴流及其關聯設定仍不套用泛化西洋化規則。",
-    "新增 window.QUNLU_WORLD_NAMING_V2／QUNLU_WORLD_NAMING_LATEST 診斷，可列出剩餘斜線名、日式模板、占位名、重複字與流派模板候選。",
-    "RELEASE-VERSION-SYNC 升級為 1.1，正式版本改由頁面 release 標記同步，降低後續升版再次出現永久更新提示的風險。"
+    "新增 NAMING-PROTECTION-1.0，將柳生惟心流加入命名保護層。",
+    "任何已被第二輪命名補丁轉為『白柳劍術學派』的顯示結果會在資料載入後還原為『柳生惟心流』。",
+    "舊字形『柳生唯心流』在執行期統一為使用者指定的正式名稱『柳生惟心流』。",
+    "雷煌流、雷鳴流與名品武士刀『闇夜』既有保護規則維持不變。"
   ],
   "content_revision": "ASDAIL-DEPTH-2.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -22,6 +20,7 @@
   "system_integrity_revision": "SYSTEM-INTEGRITY-2.0",
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-2.0",
+  "naming_protection_revision": "NAMING-PROTECTION-1.0",
   "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.1",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
