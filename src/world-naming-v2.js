@@ -1,6 +1,6 @@
 /*
  * 群陸旅誌世界命名一致性補丁：第二輪
- * WORLD-NAMING-2.0
+ * WORLD-NAMING-2.1
  * 原則：只調整顯示名稱與其文字引用；不更動資料 ID、鍵值、規則、數值或存檔 schema。
  * 保護：雷煌流、雷鳴流及其既有關聯設定不做泛化改名；名品武士刀「闇夜」恢復並列入保護。
  */
@@ -9,7 +9,7 @@
   const db=(typeof DB!=='undefined'&&DB)||(typeof window!=='undefined'&&window.QUNLU_DATA);
   if(!db||typeof db!=='object')return;
 
-  const REVISION='WORLD-NAMING-2.0';
+  const REVISION='WORLD-NAMING-2.1';
   const PROTECTED_TOKENS=Object.freeze(['雷煌流','雷鳴流','柳生惟心流','名品武士刀「闇夜」','闇夜']);
 
   const EXACT_RENAMES=Object.freeze({
@@ -253,5 +253,5 @@
     window.QUNLU_WORLD_NAMING_V2=report;
     window.QUNLU_WORLD_NAMING_LATEST=report;
   }
-  if(typeof console!=='undefined'&&console.info)console.info('[QUNLU] WORLD-NAMING-2.0 applied',report);
+  if(typeof console!=='undefined'&&console.info)console.info('[QUNLU] WORLD-NAMING-2.1 applied',report);
 })();
