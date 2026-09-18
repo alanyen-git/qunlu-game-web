@@ -1,21 +1,21 @@
 {
-  "version": "CURRENT-1.65.8",
-  "previous_version": "CURRENT-1.65.7",
+  "version": "CURRENT-1.65.9",
+  "previous_version": "CURRENT-1.65.8",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正五回合自檢的物品來源索引：支援所有料理／製作配方格式，並在後載入模組新增物品後自動重建來源索引。",
+  "summary": "修正料理資料污染與素材語意錯配：料理介面只顯示真正料理，鍛造／藥劑配方不再混入；炙烤肉串等 R7 配方改用符合名稱的食材。",
   "changelog": [
-    "修正料理來源索引：同時支援 ingredients/output.item_id 與 requires/result 兩種配方格式。",
-    "蜂蜜草茶、乳香麥飲、松谷酸果飲、冰薄荷茶現在會正確列入 recipe_outputs，不再被判定為「物品來源完全空白」。",
-    "物品自身 craft_recipe 的材料與製作結果同步加入 recipe_inputs／recipe_outputs。",
-    "新增後載入來源索引同步：空水袋、折疊水桶等在 runtime 建立後才加入的物品也會立即補入 content_link_index.item_sources。",
-    "來源索引每次同步都會以目前 DB.items 為基準重建，避免物品總數與索引數量不同步。",
-    "I-WATER 正式標記 water_source 特殊來源，與取水點系統串接。",
-    "五回合自檢會同步核對實際物品數與來源索引數，保留真正無來源物品的警告，不以硬編碼方式掩蓋異常。",
-    "PWA快取升至v20。"
+    "料理清單新增嚴格分類：成品必須是料理／食物，且配方 profession 不得是鍛造、藥劑等其他專業。",
+    "cookBatch 增加伺服邏輯層防線，即使以舊按鍵或手動呼叫非料理配方，也會拒絕從料理介面製作。",
+    "霧徑遮霧燈、灰門守備盾、鐵杉止血膏等非料理配方不再出現在料理清單。",
+    "修正 R7-04 炙烤肉串：素材改為生肉×1＋甜根×1。",
+    "修正 R7-01 香烤甜根、R7-02 莓果串、R7-05 河魚燉湯、R7-06 香草燉肉、R7-08 莓香烤魚、R7-14 戰士炙肉盤、R7-22 龍焰燉肉等名稱與素材錯配。",
+    "真正料理配方補上 profession=料理，與共用 DB.recipes 的鍛造／藥劑配方明確分流。",
+    "五回合自檢新增料理資料完整性與配方專業分類檢查。",
+    "PWA快取升至v21。"
   ],
-  "content_revision": "ITEM-SOURCE-INDEX-1.1",
+  "content_revision": "COOKING-DATA-INTEGRITY-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.0",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -31,5 +31,6 @@
   "netlify_dependency": false,
   "save_compatible": true,
   "water_source_revision": "WATER-SOURCE-1.2",
-  "item_source_index_revision": "ITEM-SOURCE-INDEX-1.1"
+  "item_source_index_revision": "ITEM-SOURCE-INDEX-1.1",
+  "cooking_data_integrity_revision": "COOKING-DATA-INTEGRITY-1.0"
 }
