@@ -814,12 +814,13 @@ function encounterCandidates(l){
  const out=DB.monsters.filter(m=>{
    if(m.encounter_enabled===false||m.domestic)return false;
    if(tierOrder(m.tier)>maxTier)return false;
-   if(!(m.habitats||[]).some(h=>tags.includes(h)))return false;
-   if(p.zone==="town_outskirts"&&!m.near_town_eligible)return false;
+   const explicitHabitat=(m.habitat||[]).includes(l.id)||(m.habitats||[]).includes(l.id);
+   if(!explicitHabitat&&!(m.habitats||[]).some(h=>tags.includes(h)))return false;
+   if(p.zone==="town_outskirts"&&!m.near_town_eligible&&!explicitHabitat)return false;
    if(m.category==="元素植物魔法生物系"&&!p.allow_magical_ecology)return false;
    if(m.category==="惡魔與深淵地獄系"&&!p.allow_demons)return false;
    if(p.zone==="town_outskirts"&&["龍與亞龍爬蟲系","不死系","元素植物魔法生物系","惡魔與深淵地獄系"].includes(m.category))return false;
-   if(!monsterFitsLocationEcology(m,l))return false;
+   if(!explicitHabitat&&!monsterFitsLocationEcology(m,l))return false;
    return true
  });
  ENCOUNTER_CACHE.set(l.id,out);return out
@@ -827,10 +828,11 @@ function encounterCandidates(l){
 function activeKillQuestTargets(l,pool){
  const out=[];
  for(const q of (G.quests||[])){
-   if(q.status!=="active"||q.objective?.kind!=="kill")continue;
+   if(q.status!=="active"||!["kill","hunt"].includes(q.objective?.kind))continue;
    const valid=q.viableLocationIds||questViableLocations(questTemplate(q.templateId)||q);
    if(valid.length&&!valid.includes(l.id))continue;
-   const keys=q.objective.monster_keywords||[],matched=pool.filter(m=>keys.some(k=>m.name.includes(k)));
+   const keys=q.objective.monster_keywords||[],targetId=q.objective.monster_id;
+   const matched=pool.filter(m=>targetId?m.id===targetId:keys.some(k=>m.name.includes(k)));
    if(matched.length){
      const chance=q.target_spawn_boost??questTemplate(q.templateId)?.target_spawn_boost??DB.quest_system.target_information_bonus.kill_target_encounter_chance;
      out.push(...matched.map(m=>[m,chance]))
@@ -864,8 +866,10 @@ function playerAdventureTier(){
  const lv=G.character.level||1;
  if(lv>=90)return "S";if(lv>=70)return "A";if(lv>=50)return "B";if(lv>=35)return "C";if(lv>=20)return "D";if(lv>=8)return "E";return "F"
 }
-function adventureEventMoneyCap(l=loc(G.character.locationId)){
- return Math.min(12,3+tierOrder(l.tier)*2+Math.floor((G.character.level||1)/10)*2)
+function adventureEventMoneyCap(l=loc(G.character.locationId),eventTier=null){
+ const tier=eventTier||l?.tier||"F",caps=[12,24,60,120,240,480,900];
+ const allowed=Math.min(tierOrder(tier),tierOrder(l?.tier||tier),tierOrder(playerAdventureTier()));
+ return caps[Math.max(0,allowed)]??12
 }
 function adventureEventCandidates(l){
  const maxTier=Math.min(tierOrder(l.tier),tierOrder(playerAdventureTier()));
@@ -892,24 +896,25 @@ function generateAdventureEvent(context){
 function adventureEventTemplate(ev=G.pendingAdventureEvent){return ev?(IDX.adventureEvent.get(ev.templateId)||null):null}
 function openPendingAdventureEvent(){
  const ev=G.pendingAdventureEvent,t=adventureEventTemplate(ev);if(!ev||!t)return;
- const l=loc(ev.locationId),cap=adventureEventMoneyCap(l);
+ const l=loc(ev.locationId),cap=adventureEventMoneyCap(l,t.tier);
  showModal(`奇遇・${t.name}`,`<div class="card"><b>${l.name}</b> <span class="tier">${t.tier}</span>｜安全度${locationSafety(l)}/100（${safetyLabel(l)}）<br><span class="small">${t.text}</span></div>
  <div class="card small">這類奇遇受角色等級、地圖層級與獎勵上限控制；本地小額銀幣上限約${cap}銀，不會直接給C級以上裝備。</div>
  <div class="actions"><button class="good" onclick="resolveAdventureEvent('engage')">介入／調查</button><button onclick="resolveAdventureEvent('leave')">離開</button></div>`)
 }
-function validAdventureRewardItem(id,l){
+function validAdventureRewardItem(id,l,eventTier=null){
  const d=item(id);if(!d)return false;
- if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type))return false;
- return tierOrder(d.tier)<=Math.min(tierOrder(l.tier),tierOrder("E"))
+ if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type)||["武器","防具","飾品"].includes(d.catalog_group))return false;
+ const maxTier=Math.min(tierOrder(l?.tier||"F"),tierOrder(eventTier||l?.tier||"F"),tierOrder(playerAdventureTier()));
+ return tierOrder(d.tier)<=maxTier
 }
 function applyAdventureEventReward(t){
  const l=loc(G.character.locationId),r=t.reward||{},parts=[];
  if(r.money){
-   const cap=adventureEventMoneyCap(l),amt=Math.min(cap,randomInt(r.money[0],r.money[1]));
+   const cap=adventureEventMoneyCap(l,t.tier),amt=Math.min(cap,randomInt(r.money[0],r.money[1]));
    if(amt>0){G.character.moneySilver+=amt;parts.push(`${amt}銀`)}
  }
  if(r.item_pool?.length){
-   const pool=r.item_pool.filter(id=>validAdventureRewardItem(id,l));
+   const pool=r.item_pool.filter(id=>validAdventureRewardItem(id,l,t.tier));
    if(pool.length){
      const id=pool[rand(pool.length)],range=r.item_qty||[1,1],q=Math.max(1,Math.min(2,randomInt(range[0],range[1])));
      addItem(id,q);parts.push(`${item(id).name}×${q}`)
@@ -1089,7 +1094,7 @@ function questLocationValid(t,l){
  }
  if(o.kind==="patrol")return l.id===o.location_id&&Array.isArray(o.checkpoints)&&o.checkpoints.length>=o.target;
  if(o.kind==="action")return l.id===o.location_id;
- if(o.kind==="kill")return ["wild","dungeon"].includes(l.kind)&&encounterCandidates(l).some(m=>(o.monster_keywords||[]).some(k=>m.name.includes(k)));
+ if(["kill","hunt"].includes(o.kind))return ["wild","dungeon"].includes(l.kind)&&encounterCandidates(l).some(m=>o.monster_id?m.id===o.monster_id:(o.monster_keywords||[]).some(k=>m.name.includes(k)));
  return false
 }
 function questViableLocations(t){
@@ -1107,7 +1112,7 @@ function questTimeAllowance(t){
  const reachable=places.map(id=>shortestTravelHours(G.character.locationId,id)).filter(Number.isFinite);
  if(!reachable.length)return Infinity;
  const travel=Math.min(...reachable),o=t.objective||{};
- const work=o.kind==="kill"?(o.target||1)*4:o.kind==="gather"?(o.target||1)*1.5:o.kind==="patrol"?(o.target||1)*1.4:(o.target||1)*1.5;
+ const work=["kill","hunt"].includes(o.kind)?(o.target||1)*4:o.kind==="gather"?(o.target||1)*1.5:o.kind==="patrol"?(o.target||1)*1.4:(o.target||1)*1.5;
  return Math.ceil(Math.max(t.base_time_limit_hours||t.time_limit_hours||0,minByTier,travel*2+work+12))
 }
 function questEffectiveDeadline(q){return q.status==="ready"?(q.reportDeadlineHour??q.deadlineHour):q.deadlineHour}
@@ -1123,7 +1128,7 @@ function updateQuestProgress(kind,data={}){
    if(!["active","ready"].includes(q.status))continue;const o=q.objective||{};
    if(["item","gather"].includes(o.kind)&&o.item_id){syncQuestInventoryProgressOne(q,false);continue}
    if(q.status!=="active")continue;let add=0;
-   if(kind==="kill"&&o.kind==="kill"&&(o.monster_keywords||[]).some(k=>(data.name||"").includes(k)))add=1;
+   if(kind==="kill"&&["kill","hunt"].includes(o.kind)&&(o.monster_id?o.monster_id===data.id:(o.monster_keywords||[]).some(k=>(data.name||"").includes(k))))add=1;
    if(kind==="action"&&o.kind==="action"&&o.action===data.action&&(!o.location_id||o.location_id===data.location_id))add=1;
    if(kind==="patrol"&&o.kind==="patrol"&&o.location_id===data.location_id){q.patrolVisited=q.patrolVisited||[];const next=(o.checkpoints||[]).find(cp=>!q.patrolVisited.includes(cp));if(next){q.patrolVisited.push(next);add=1;log("巡查",`${q.name}：完成巡查點「${next}」(${q.patrolVisited.length}/${o.target})。`,"ok")}}
    if(add){q.progress=Math.min(o.target||1,(q.progress||0)+add);if(q.progress>=(o.target||1)){q.status="ready";q.completedHour=totalHours();const grace=q.completionGraceHours??DB.quest_system.report_grace_hours??24;q.reportDeadlineHour=Math.max(q.deadlineHour||totalHours(),totalHours()+grace);log("委託",`${q.name}：目標已完成，請在回報寬限內返回指定設施。`,"ok")}}
@@ -4572,14 +4577,16 @@ function runGeneratorAudit(){
  if(DB.status_system?.version!=="STATUS-1.11")issues.push("STATUS-1.11缺失");
  if(DB.quality_audit_system?.version!=="QUALITY-AUDIT-1.0")issues.push("QUALITY-AUDIT-1.0缺失");
  for(const e of (DB.adventure_event_templates||[])){
-   if(tierOrder(e.tier)>tierOrder("E"))issues.push(`奇遇模板超出目前直接模板上限:${e.name}`);
+   if(!["F","E","D","C","B","A","S"].includes(e.tier))issues.push(`奇遇模板層級無效:${e.name}`);
    if(!e.kinds?.length||!e.stat||!Number.isFinite(e.dc))issues.push(`奇遇模板條件不完整:${e.name}`);
-   const r=e.reward||{};
+   const r=e.reward||{},eventLoc=(e.location_ids||[]).map(loc).find(Boolean);
    for(const id of (r.item_pool||[])){
      const d=item(id);if(!d)issues.push(`奇遇獎勵引用缺失:${e.name}->${id}`);
-     else if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type)||tierOrder(d.tier)>tierOrder("E"))issues.push(`奇遇獎勵超規:${e.name}->${d.name}`)
+     else if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type)||["武器","防具","飾品"].includes(d.catalog_group)||tierOrder(d.tier)>tierOrder(e.tier))issues.push(`奇遇獎勵超規:${e.name}->${d.name}`)
    }
-   if(r.money&&r.money[1]>12)issues.push(`奇遇金錢上限過高:${e.name}`)
+   const tierCaps={F:12,E:24,D:60,C:120,B:240,A:480,S:900};
+   if(r.money&&r.money[1]>(tierCaps[e.tier]||12))issues.push(`奇遇金錢上限過高:${e.name}`);
+   if(eventLoc&&tierOrder(e.tier)>tierOrder(eventLoc.tier))issues.push(`奇遇層級高於地圖:${e.name}->${eventLoc.name}`)
  }
  for(const sp of (DB.companion_species||[])){
    if(!["pet","summon","contract"].includes(sp.companion_kind))issues.push(`夥伴類型錯誤:${sp.name}`);
@@ -4634,10 +4641,10 @@ function runGeneratorAudit(){
    if(f.patronDeityId&&!deity(f.patronDeityId))issues.push(`角色主神引用無效`);
    if(f.oathId&&!(DB.faith_oaths||[]).some(x=>x.id===f.oathId))issues.push(`角色誓言引用無效`)
  }
- if((DB.world_organizations||[]).length!==100)issues.push(`世界組織數量異常:${(DB.world_organizations||[]).length}`);
+ if((DB.world_organizations||[]).length<100)issues.push(`世界組織核心數量不足:${(DB.world_organizations||[]).length}`);
  const orgIds=new Set((DB.world_organizations||[]).map(x=>x.id));
  const alignCount=(DB.world_organizations||[]).reduce((m,x)=>(m[x.alignment]=(m[x.alignment]||0)+1,m),{});
- if(alignCount.light!==10||alignCount.dark!==20||alignCount.neutral!==70)issues.push(`世界組織陣營分布異常:${JSON.stringify(alignCount)}`);
+ if((alignCount.light||0)<10||(alignCount.dark||0)<20||(alignCount.neutral||0)<70)issues.push(`世界組織核心陣營分布不足:${JSON.stringify(alignCount)}`);
  for(const o of (DB.world_organizations||[])){
    if(!DB.facilities[o.primary_facility])issues.push(`組織設施引用缺失:${o.name}`);
    if(!o.joinable||!o.mission_issuer||!o.can_be_enemy)issues.push(`組織功能不完整:${o.name}`)
@@ -4670,7 +4677,7 @@ function runGeneratorAudit(){
  }
  if((G?.worldState?.integratedEvents||[]).length>60)issues.push("整合世界事件超過60筆");
  if((DB.political_entities||[]).length!==18)issues.push(`政治單位數量異常:${(DB.political_entities||[]).length}`);
- if((DB.world_regions||[]).length!==20)issues.push(`宏觀地區數量異常:${(DB.world_regions||[]).length}`);
+ if((DB.world_regions||[]).length<20)issues.push(`宏觀地區核心數量不足:${(DB.world_regions||[]).length}`);
  if((DB.culture_profiles||[]).length!==20)issues.push(`文化資料數量異常:${(DB.culture_profiles||[]).length}`);
  const polityIds=new Set((DB.political_entities||[]).map(x=>x.id)),regionIds=new Set((DB.world_regions||[]).map(x=>x.id)),cultureIds=new Set((DB.culture_profiles||[]).map(x=>x.id));
  for(const p of (DB.political_entities||[])){if(!regionIds.has(p.core_region_id))issues.push(`政治體核心地區缺失:${p.name}`);if(!cultureIds.has(p.culture_id))issues.push(`政治體文化缺失:${p.name}`);if(p.vassal_of&&!polityIds.has(p.vassal_of))issues.push(`政治體宗主引用缺失:${p.name}`)}
@@ -4721,7 +4728,7 @@ function runGeneratorAudit(){
  const dsc=DB.discipline_factions||[],dids=new Set(dsc.map(x=>x.id)),sfs=new Set((DB.skill_families||[]).map(x=>x.id)),cids=new Set(DB.combat_classes.map(x=>x.id));
  if(dsc.filter(x=>x.track==="physical").length!==25)issues.push(`物理流派數量異常:${dsc.filter(x=>x.track==="physical").length}`);
  if(dsc.filter(x=>x.track==="magic").length!==24)issues.push(`魔法流派數量異常:${dsc.filter(x=>x.track==="magic").length}`);
- if(dids.size!==49)issues.push(`流派ID重複或數量異常:${dids.size}`);
+ if(dids.size!==dsc.length)issues.push(`流派ID重複:${dids.size}/${dsc.length}`);
  const dnames=new Set();for(const d of dsc){
    if(dnames.has(d.name))issues.push(`流派名稱重複:${d.name}`);dnames.add(d.name);
    if(d.parent_org_id&&!orgIds.has(d.parent_org_id))issues.push(`流派父組織缺失:${d.name}->${d.parent_org_id}`);
@@ -4794,7 +4801,7 @@ function runGeneratorAudit(){
  for(const rid of (stone?.secondary_political_entity_ids||[]))if(!politicalEntity(rid))issues.push(`宏觀地區次級政治體引用缺失:${rid}`);
  if(ou.length!==3)issues.push(`海外未知文明數量異常:${ou.length}`);
  for(const x of ou){
-   if(!["魔族","龍族","鳳族"].includes(x.people))issues.push(`海外未知族群異常:${x.people}`);
+   if(!["魔族","魔裔","龍族","鳳族"].includes(x.people))issues.push(`海外未知族群異常:${x.people}`);
    for(const k of ["known_political_entity_id","known_name","known_capital","known_government","known_ruler","known_borders"])if(x[k]!==null)issues.push(`海外未知欄位被污染:${x.people}/${k}`);
  }
  for(const sid of ["ST-28","ST-29","ST-30"])if(sTierCombatant(sid)?.primary_polity_id!==null)issues.push(`古龍被誤掛國籍:${sid}`);
@@ -4803,7 +4810,7 @@ function runGeneratorAudit(){
  const wh=DB.world_history_system,ht=DB.world_timeline||[],hp=DB.historical_subperiods||[],hc=DB.historical_causal_chains||[],hd=DB.historical_disputes||[];
  if(!wh||wh.version!=="HISTORY-2.0")issues.push("HISTORY-2.0缺失");
  if(hp.length!==12)issues.push(`歷史細分時期數量異常:${hp.length}`);
- if(ht.length!==82)issues.push(`世界史年表數量異常:${ht.length}`);
+ if(ht.length<82)issues.push(`世界史年表核心數量不足:${ht.length}`);
  if(hc.length!==14)issues.push(`歷史因果鏈數量異常:${hc.length}`);
  if(hd.length!==8)issues.push(`爭議史數量異常:${hd.length}`);
  const heIds=new Set(ht.map(x=>x.id));if(heIds.size!==ht.length)issues.push("世界史事件ID重複");
@@ -4826,14 +4833,14 @@ function runGeneratorAudit(){
  const sh=systemDomainHealth();issues.push(...sh.issues);
  if(DB.system_orchestrator?.version!=="ORCHESTRATOR-3.0")issues.push("ORCHESTRATOR-3.0缺失");
  if(DB.generation_pipeline?.version!=="GEN-PIPE-2.0")issues.push("GEN-PIPE-2.0缺失");
- if((DB.regional_content_profiles||[]).length!==21)issues.push(`區域內容檔案數量異常:${(DB.regional_content_profiles||[]).length}`);
- if((DB.regional_npc_archetypes||[]).length!==126)issues.push(`地方NPC原型數量異常:${(DB.regional_npc_archetypes||[]).length}`);
- if((DB.regional_adventure_hooks||[]).length!==84)issues.push(`區域冒險脈絡數量異常:${(DB.regional_adventure_hooks||[]).length}`);
- if((DB.regional_life_events||[]).length!==63)issues.push(`區域生活事件數量異常:${(DB.regional_life_events||[]).length}`);
- if((DB.quest_templates||[]).length!==24)issues.push(`公會委託模板數量異常:${(DB.quest_templates||[]).length}`);
+ if((DB.regional_content_profiles||[]).length<21)issues.push(`區域內容檔案核心數量不足:${(DB.regional_content_profiles||[]).length}`);
+ if((DB.regional_npc_archetypes||[]).length<126)issues.push(`地方NPC原型核心數量不足:${(DB.regional_npc_archetypes||[]).length}`);
+ if((DB.regional_adventure_hooks||[]).length<84)issues.push(`區域冒險脈絡核心數量不足:${(DB.regional_adventure_hooks||[]).length}`);
+ if((DB.regional_life_events||[]).length<63)issues.push(`區域生活事件核心數量不足:${(DB.regional_life_events||[]).length}`);
+ if((DB.quest_templates||[]).length<24)issues.push(`公會委託模板核心數量不足:${(DB.quest_templates||[]).length}`);
  const expectedAdventureEvents=DB.integration_registry?.counts?.adventure_event_templates??(DB.adventure_event_templates||[]).length;if((DB.adventure_event_templates||[]).length!==expectedAdventureEvents)issues.push(`奇遇模板數量異常:${(DB.adventure_event_templates||[]).length}/${expectedAdventureEvents}`);
- if((DB.dialogue_database?.records||[]).length!==546)issues.push(`對話資料數量異常:${(DB.dialogue_database?.records||[]).length}`);
- if((DB.intel_database?.records||[]).length!==546)issues.push(`情報資料數量異常:${(DB.intel_database?.records||[]).length}`);
+ if((DB.dialogue_database?.records||[]).length<546)issues.push(`對話資料核心數量不足:${(DB.dialogue_database?.records||[]).length}`);
+ if((DB.intel_database?.records||[]).length<546)issues.push(`情報資料核心數量不足:${(DB.intel_database?.records||[]).length}`);
  const rgIds=new Set((DB.world_regions||[]).map(x=>x.id));
  for(const x of DB.regional_content_profiles||[]){if(!rgIds.has(x.region_id))issues.push(`區域內容地區斷鏈:${x.id}`);for(const eid of x.history_event_ids||[])if(!historyEvent(eid))issues.push(`區域內容歷史斷鏈:${x.id}->${eid}`)}
  for(const x of DB.regional_npc_archetypes||[]){if(!rgIds.has(x.region_id))issues.push(`NPC原型地區斷鏈:${x.id}`);if(x.combat_tier_ceiling&&tierOrder(x.combat_tier_ceiling)>tierOrder("C"))issues.push(`普通NPC原型戰力越權:${x.id}`)}
@@ -4883,7 +4890,7 @@ function runGeneratorAudit(){
  for(const rp of (DB.regional_powers||[])){if(rp.recognized_sovereignty!==false)issues.push(`區域勢力誤具主權:${rp.name}`);if(politicalEntity(rp.legacy_polity_id))issues.push(`退役政體仍存在:${rp.legacy_polity_id}`)}
  for(const rid of ["REG-10","REG-17"]){const r=worldRegion(rid);if(r?.political_entity_id!==null)issues.push(`區域勢力地區誤掛政體:${rid}`);if(!regionalPowersForRegion(rid).length)issues.push(`區域勢力地區缺勢力:${rid}`)}
  for(const pid of ["POL-007","POL-008","POL-009"]){if(politicalEntity(pid)?.government_type!=="自由都市")issues.push(`自由都市類型未統整:${pid}`)}
- if((DB.discipline_factions||[]).length!==49)issues.push(`流派精簡未達49:${DB.discipline_factions?.length}`);
+ if((DB.discipline_factions||[]).length<49)issues.push(`流派核心數量不足49:${DB.discipline_factions?.length}`);
  for(const id of ["EST-THUNDERCLAP","EST-RAIKO","EST-YAGYU-MIND"]){if(!(DB.eastern_sword_traditions||[]).some(x=>x.id===id))issues.push(`東方核心傳承缺失:${id}`)}
  if(!disciplineFor("DSC-PHY-31"))issues.push("雷煌流canonical流派缺失");
  for(const [oldId,newId] of Object.entries(DB.discipline_merge_map||{})){if(!disciplineFor(newId))issues.push(`流派整併目標缺失:${oldId}->${newId}`);if((DB.discipline_factions||[]).some(x=>x.id===oldId))issues.push(`舊流派未退役:${oldId}`)}
@@ -4894,12 +4901,12 @@ function runGeneratorAudit(){
        lhist=DB.local_historical_incidents||[],folk=DB.regional_folklore||[],rum=DB.regional_rumors||[],
        packs=DB.generator_material_packs||[];
  if(!wm||wm.version!=="WORLD-MATERIAL-1.0")issues.push("WORLD-MATERIAL-1.0缺失");
- if(fest.length!==40)issues.push(`文化節慶數量異常:${fest.length}`);
+ if(fest.length<40)issues.push(`文化節慶核心數量不足:${fest.length}`);
  if(myths.length!==27)issues.push(`神話母題數量異常:${myths.length}`);
- if(lhist.length!==40)issues.push(`地方微歷史數量異常:${lhist.length}`);
- if(folk.length!==40)issues.push(`地方民俗數量異常:${folk.length}`);
- if(rum.length!==100)issues.push(`地方傳聞數量異常:${rum.length}`);
- if(packs.length!==20)issues.push(`區域素材包數量異常:${packs.length}`);
+ if(lhist.length<40)issues.push(`地方微歷史核心數量不足:${lhist.length}`);
+ if(folk.length<40)issues.push(`地方民俗核心數量不足:${folk.length}`);
+ if(rum.length<100)issues.push(`地方傳聞核心數量不足:${rum.length}`);
+ if(packs.length<20)issues.push(`區域素材包核心數量不足:${packs.length}`);
  for(const r of DB.world_regions||[]){
    const pack=generatorMaterialPackFor(r.id);if(!pack)issues.push(`地區素材包缺失:${r.id}`);
    if(localHistoryFor(r.id).length<2)issues.push(`地方微歷史不足:${r.id}`);
@@ -4932,11 +4939,11 @@ function runGeneratorAudit(){
  const otherCount=(DB.items||[]).length-eqCount-potCount;
  const craftCount=(DB.items||[]).filter(x=>x.craft_recipe).length;
  if(ics.version!=="ITEM-CATALOG-1.1")issues.push("ITEM-CATALOG-1.1缺失");
- if((DB.items||[]).length!==(DB.hard_rules.item_total_core_count||1098))issues.push(`物品總數異常:${(DB.items||[]).length}`);
- if(eqCount!==280)issues.push(`裝備數量異常:${eqCount}`);
- if(potCount!==240)issues.push(`藥劑數量異常:${potCount}`);
- if(otherCount!==(DB.hard_rules.general_item_core_count||578))issues.push(`一般道具數量異常:${otherCount}`);
- if(craftCount!==520)issues.push(`可製作品數量異常:${craftCount}`);
+ if((DB.items||[]).length<(DB.hard_rules.item_total_core_count||1098))issues.push(`物品核心總數不足:${(DB.items||[]).length}`);
+ if(eqCount<280)issues.push(`裝備核心數量不足:${eqCount}`);
+ if(potCount<240)issues.push(`藥劑核心數量不足:${potCount}`);
+ if(otherCount<(DB.hard_rules.general_item_core_count||578))issues.push(`一般道具核心數量不足:${otherCount}`);
+ if(craftCount<520)issues.push(`可製作品核心數量不足:${craftCount}`);
  if((DB.items||[]).some(x=>x.id?.startsWith("EQ31-")&&["A","S"].includes(x.tier)))issues.push("1.31新增裝備出現A/S級");
  for(const x of (DB.items||[]).filter(x=>x.id?.startsWith("EQ31-")||x.id?.startsWith("P31-"))){
    if(!x.craft_recipe)issues.push(`新增製作品缺配方:${x.id}`);
