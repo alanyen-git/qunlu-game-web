@@ -47,7 +47,9 @@
   };
 
   const GATHER_PATCHES={
-    "ASD2-WILD-AMBERFIELDS":["ITEM-ASD2-AMBER-HONEY","ITEM-ASD2-BEESWAX","ITEM-ASD2-FLAX"],
+    // 琥珀田野為 F 級安全農野，只能直接取得 F 級蜂蜜。
+    // 精製蜂蠟／長纖亞麻皆為 E 級加工農產，由琥珀田鎮與商隊物流供應，不得列入野外直接採集池。
+    "ASD2-WILD-AMBERFIELDS":["ITEM-ASD2-AMBER-HONEY"],
     "ASD2-WILD-SEABREAKREEF":["ITEM-ASD2-REEF-SALT"],
     "ASD2-WILD-NIGHTMARSH":["ITEM-ASD2-MIRROR-MUD"]
   };
