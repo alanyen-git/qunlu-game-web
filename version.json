@@ -1,15 +1,16 @@
 {
-  "version": "CURRENT-1.65.1",
-  "previous_version": "CURRENT-1.65.0",
+  "version": "CURRENT-1.65.2",
+  "previous_version": "CURRENT-1.65.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "命名保護熱修：柳生惟心流改為永久保留名稱，不再套用第二輪西洋化命名。",
+  "summary": "修正柳生惟心流命名流程：從原始資料與命名引擎源頭保留名稱，不再依賴後置還原。",
   "changelog": [
-    "新增 NAMING-PROTECTION-1.0，將柳生惟心流加入命名保護層。",
-    "任何已被第二輪命名補丁轉為『白柳劍術學派』的顯示結果會在資料載入後還原為『柳生惟心流』。",
-    "舊字形『柳生唯心流』在執行期統一為使用者指定的正式名稱『柳生惟心流』。",
-    "雷煌流、雷鳴流與名品武士刀『闇夜』既有保護規則維持不變。"
+    "原始阿斯戴爾資料中的『柳生唯心流』已修正為正式名稱『柳生惟心流』。",
+    "WORLD-NAMING-2.1 移除『柳生唯心流→白柳劍術學派』錯誤映射。",
+    "命名引擎新增保護名稱硬性跳過機制；雷煌流、雷鳴流、柳生惟心流與名品武士刀『闇夜』不再進入一般改名流程。",
+    "NAMING-PROTECTION-1.0 保留作舊快取／舊資料相容修復，只負責將歷史錯名還原，不再作為主要解法。",
+    "PWA 快取更新以確保正式頁面載入修正後資料與命名引擎。"
   ],
   "content_revision": "ASDAIL-DEPTH-2.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -19,7 +20,7 @@
   "class_skill_passive_compat_revision": "CLASS-SKILL-PASSIVE-COMPAT-1.0",
   "system_integrity_revision": "SYSTEM-INTEGRITY-2.0",
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
-  "world_naming_revision": "WORLD-NAMING-2.0",
+  "world_naming_revision": "WORLD-NAMING-2.1",
   "naming_protection_revision": "NAMING-PROTECTION-1.0",
   "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.1",
   "persona_playtest_turns": 32000,
