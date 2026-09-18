@@ -5,9 +5,12 @@
  */
 (()=>{
   const appendUnique=(key,rows)=>{
-    DB[key]=Array.isArray(DB[key])?DB[key]:[];
-    const ids=new Set(DB[key].map(x=>x&&x.id).filter(Boolean));
-    for(const row of rows)if(row&&row.id&&!ids.has(row.id)){DB[key].push(row);ids.add(row.id)}
+    let target;
+    if(Array.isArray(DB[key]))target=DB[key];
+    else if(DB[key]&&typeof DB[key]==="object"&&Array.isArray(DB[key].records))target=DB[key].records;
+    else{DB[key]=[];target=DB[key]}
+    const ids=new Set(target.map(x=>x&&x.id).filter(Boolean));
+    for(const row of rows)if(row&&row.id&&!ids.has(row.id)){target.push(row);ids.add(row.id)}
   };
   const questDefaults={
   "time_limit_hours": 96,
