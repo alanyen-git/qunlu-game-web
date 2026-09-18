@@ -1976,7 +1976,8 @@ function openDiscipline(id){
  const m=disciplineMastery(id),rep=disciplineRep(id),reason=disciplineStudyReason(d),cost=disciplineStudyCost(d),s=disciplineState(),member=s.membershipId===id,joinGate=canJoinDiscipline(d);
  const orgName=d.parent_org_id?worldOrg(d.parent_org_id)?.name:"獨立傳承";
  const clsNames=(d.related_class_ids||[]).map(x=>cls(x)?.name||x).slice(0,8).join("、"),b=d.member_bonus;
- showModal(d.name,`<div class="card"><b>${d.name}</b>［${disciplineTrackLabel(d)}］<br>${disciplineKindLabel(d)}｜${d.family}<br><span class="small">隸屬／合作：${orgName}<br>最早紀錄：群陸紀元${d.first_attested_year}年前後<br>${d.historical_origin}</span></div>
+ const firstRecord=d.first_attested_year!=null?`群陸紀元${d.first_attested_year}年前後`:"未詳",originText=d.historical_origin||d.description||"正式沿革資料尚待整理。";
+ showModal(d.name,`<div class="card"><b>${d.name}</b>［${disciplineTrackLabel(d)}］<br>${disciplineKindLabel(d)||"傳承流派"}｜${d.family||"未分類傳承"}<br><span class="small">隸屬／合作：${orgName}<br>最早紀錄：${firstRecord}<br>${originText}</span></div>
  <div class="card"><b>流派加成｜${b?.name||"未設定"}</b><br><span class="small">${affiliationBonusText(b)}<br>${member?"目前生效中；退出流派後立即取消。":"正式加入後生效；角色同時只能加入一個流派。"}</span></div>
  <div class="card"><b>教範</b><br><span class="small">${d.specialty}<br>${d.institutional_culture}${d.substyles?.length?`<br>內部分支：${d.substyles.join("、")}`:""}<br>相關職業：${clsNames||"依個別師承判定"}<br>訓練內容上限：${d.training_tier_ceiling}</span></div>
  <div class="card"><b>你的進度</b><br>${disciplineMasteryLabel(m)} ${m.toFixed(1)}%｜流派聲望 ${rep}<br><span class="small">${reason?`目前不可研習：${reason}`:`可進行基礎研習，費用${cost}銀／${DB.discipline_system.study_hours}小時。`}<br>正式加入條件：基礎研習${DB.discipline_bonus_system?.minimum_mastery_to_join||10}%以上；研習不會直接授予C級以上裝備或跳過技能學習條件。</span></div>
