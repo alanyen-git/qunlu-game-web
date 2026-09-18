@@ -509,7 +509,7 @@ function applySurvival(){
  if(c.hp<=0){c.alive=false;c.conditions.push("死亡");log("死亡","生命值歸零。","danger")}
 }
 function effectiveStat(n){
- let v=(G.character.stats[n]||10)+talentStatBonus(n);
+ let v=(G.character.stats[n]||10)+talentStatBonus(n)+equipmentSetStatBonus(n);
  for(const b of (G.character.buffs||[]))v+=b[`stat_${n}`]||0;
  if(G.battle?.active&&G.battle.playerBuff)v+=G.battle.playerBuff[`stat_${n}`]||0;
  if(G.character.hunger>=90||G.character.fatigue>=90||G.character.thirst>=90)v=Math.floor(v/2);
@@ -530,6 +530,32 @@ function equippedEntries(){
  const arr=Object.entries(G.character.equipment||{}).map(([slot,eq])=>({slot,eq})).filter(x=>x.eq);
  if(offhandEquip())arr.push({slot:"副手",eq:offhandEquip()});return arr
 }
+let EQUIPMENT_SET_CACHE={signature:null,state:[]};
+function equipmentSetState(){
+ const ids=[...new Set(equippedEntries().map(({eq})=>equipId(eq)).filter(Boolean))].sort();
+ const signature=ids.join("|");
+ if(EQUIPMENT_SET_CACHE.signature===signature)return EQUIPMENT_SET_CACHE.state;
+ const owned=new Set(ids),state=(DB.equipment_sets||[]).map(set=>{
+   const count=(set.pieces||[]).filter(id=>owned.has(id)).length;
+   const active=(set.bonuses||[]).filter(b=>Number(b.pieces)>0&&count>=Number(b.pieces)).sort((a,b)=>a.pieces-b.pieces);
+   return {set,count,total:(set.pieces||[]).length,active}
+ }).filter(x=>x.count>0);
+ EQUIPMENT_SET_CACHE={signature,state};return state
+}
+function equipmentSetBonusBucket(field){
+ const out={};
+ for(const x of equipmentSetState())for(const b of x.active)for(const [k,v] of Object.entries(b?.[field]||{}))out[k]=(out[k]||0)+Number(v||0);
+ return out
+}
+function equipmentSetStatBonus(stat){return Number(equipmentSetBonusBucket("stats")[stat]||0)}
+function equipmentSetSummaryHtml(){
+ const states=equipmentSetState();if(!states.length)return "";
+ const rows=states.map(x=>{
+   const lines=(x.set.bonuses||[]).map(b=>`<span class="${x.count>=b.pieces?"ok":"small"}">${b.pieces}件：${b.description||"套裝效果"}</span>`).join("<br>");
+   return `<div class="card small"><b>${x.set.name}</b> ${x.count}/${x.total}<br>${lines}</div>`
+ }).join("");
+ return `<h3>套裝效果</h3>${rows}`
+}
 function mainIsTwoHanded(){
  const d=mainWeaponData();return (d?.weapon_profile?.hands||1)>=2
 }
@@ -543,7 +569,9 @@ function unequipOffhand(silent=false){
    const d=item(equipId(eq));if(!d)return;const ratio=(eq.durability??1)/(eq.maxDurability||d.durability||1);
    let scale=ratio<=0?0:ratio<.3?.6:1;if(d.sealed)scale*=.35;
    for(const k of Object.keys(out))out[k]+=(d.combat?.[k]||0)*scale
- });return out
+ });
+ const set=equipmentSetBonusBucket("combat");for(const k of Object.keys(out))out[k]+=Number(set[k]||0);
+ return out
 }
 function skillCombat(){
  const out={attack:0,magicPower:0,defense:0,magicDefense:0,accuracy:0,evasion:0,critRate:0,critDamage:0,attackSpeed:0,castSpeed:0,blockRate:0,statusResist:0};
@@ -594,7 +622,9 @@ function advancedEquipment(){
  equippedEntries().forEach(({eq})=>{
    const d=item(equipId(eq));if(!d)return;const ratio=(eq.durability??1)/(eq.maxDurability||d.durability||1),scale=ratio<=0?0:ratio<.3?.6:1;
    for(const [k,v] of Object.entries(d.advanced_combat||{}))if(k in out)out[k]+=Number(v||0)*scale
- });return out
+ });
+ const set=equipmentSetBonusBucket("advanced_combat");for(const k of Object.keys(out))out[k]+=Number(set[k]||0);
+ return out
 }
 function advancedBuffs(){
  const out={moveSpeed:0,range:0,armorPenPct:0,magicPenPct:0,blockRate:0,blockValue:0,poise:0,statusAccuracy:0,lifeSteal:0,healingPower:0,manaRegen:0,hpRegen:0,critResist:0,threat:0,stealth:0,perception:0,carryCapacity:0,initiative:0};
@@ -713,6 +743,7 @@ function elementalResistances(){
  const out={光明:0,黑暗:0,火:0,風:0,水:0,地:0,雷:0,生命:0,死亡:0};
  for(const [k,v] of Object.entries(raceResistances()))if(k in out)out[k]+=Number(v||0);
  for(const {eq} of equippedEntries()){if(!eq)continue;const d=item(equipId(eq));for(const [k,v] of Object.entries(d?.element_resistances||{}))if(k in out)out[k]+=Number(v||0)}
+ const set=equipmentSetBonusBucket("element_resistances");for(const [k,v] of Object.entries(set))if(k in out)out[k]+=Number(v||0);
  for(const b of (G.character.buffs||[]))for(const [k,v] of Object.entries(b.element_resistances||{}))if(k in out)out[k]+=Number(v||0);
  return out
 }
@@ -3425,6 +3456,13 @@ function itemStatsText(d){
    const names={attack:"攻擊",magicPower:"魔法威力",defense:"防禦",magicDefense:"魔防",accuracy:"命中",evasion:"閃避",critRate:"爆擊",critDamage:"爆傷",attackSpeed:"攻速",castSpeed:"施法速度",blockRate:"格擋",statusResist:"抗性"};
    for(const [k,v] of Object.entries(d.combat))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
  }
+ if((d.feature_tags||[]).length||d.set_id){
+   const advNames={moveSpeed:"移速",range:"射程",armorPenPct:"破甲",magicPenPct:"法穿",blockValue:"格擋減傷",poise:"韌性",statusAccuracy:"異常命中",lifeSteal:"生命偷取",healingPower:"治療效果",manaRegen:"MP回復/時",hpRegen:"HP回復/時",critResist:"爆擊抗性",threat:"威脅",stealth:"潛行",perception:"感知",carryCapacity:"負重",initiative:"先攻",blockRate:"格擋"};
+   for(const [k,v] of Object.entries(d.advanced_combat||{}))if(v)a.push(`${advNames[k]||k}${v>0?"+":""}${Math.abs(v)<1?Number(v).toFixed(2):v}`);
+   for(const [k,v] of Object.entries(d.element_resistances||{}))if(v)a.push(`${k}抗性${v>0?"+":""}${v}`);
+   if(d.feature)a.push(`特色：${d.feature}`);
+   if(d.set_id){const set=(DB.equipment_sets||[]).find(x=>x.id===d.set_id);if(set)a.push(`套裝：${set.name}（${set.pieces.length}件）`)}
+ }
  if(d.use?.hp)a.push(`HP+${d.use.hp}`);if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
  if(d.use?.mana)a.push(`MP+${d.use.mana}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
  if(d.use?.stamina)a.push(`體力+${d.use.stamina}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
@@ -4553,7 +4591,7 @@ function openEquipment(){
  }).join("");
  const off=offhandEquip(),od=off&&item(off.id);
  b+=`<div class="itemrow"><span><b>副手</b>：${od?`${od.name} <span class="tier">${od.tier}</span><br><span class="small">${itemStatsText(od)}｜耐久${off.durability}/${off.maxDurability}</span>`:"—"}</span>${off?`<button onclick="unequipOffhand()">卸下</button>`:""}</div>`;
- showModal("裝備",b+`<div class="card small">固定頂層裝備欄仍為8格；副手可裝備盾牌或任一單手武器，主手與副手可同時裝備單手武器。雙手武器與任何副手裝備互斥。</div>`)
+ showModal("裝備",b+equipmentSetSummaryHtml()+`<div class="card small">固定頂層裝備欄仍為8格；副手可裝備盾牌或任一單手武器，主手與副手可同時裝備單手武器。雙手武器與任何副手裝備互斥。套裝總件數與啟動門檻由資料定義，不限制3／5／8件。</div>`)
 }
 function unequip(slot){const eq=G.character.equipment[slot];if(!eq)return;addItem(eq.id,1,{durability:eq.durability});G.character.equipment[slot]=null;persist();renderAll();openEquipment()}
 function slotForItem(d){if(d.type==="飾品")return G.character.equipment.飾品1?"飾品2":"飾品1";return d.type}
@@ -5186,7 +5224,16 @@ function runGeneratorAudit(){
  const craftCount=(DB.items||[]).filter(x=>x.craft_recipe).length;
  if(ics.version!=="ITEM-CATALOG-1.1")issues.push("ITEM-CATALOG-1.1缺失");
  if((DB.items||[]).length<(DB.hard_rules.item_total_core_count||1098))issues.push(`物品核心總數不足:${(DB.items||[]).length}`);
- if(eqCount<280)issues.push(`裝備核心數量不足:${eqCount}`);
+ if(eqCount<352)issues.push(`裝備核心數量不足:${eqCount}`);
+ if(DB.equipment_depth_system?.version!=="EQUIPMENT-DEPTH-1.0")issues.push("EQUIPMENT-DEPTH-1.0缺失");
+ const setSizes=new Set();
+ for(const set of DB.equipment_sets||[]){
+   const pieces=[...new Set(set.pieces||[])];setSizes.add(pieces.length);
+   if(!set.id||!set.name||pieces.length<2)issues.push(`套裝定義異常:${set.id||"未知"}`);
+   for(const id of pieces)if(!item(id))issues.push(`套裝部件不存在:${set.id}/${id}`);
+   for(const b of set.bonuses||[])if(!(Number(b.pieces)>0)||Number(b.pieces)>pieces.length)issues.push(`套裝門檻異常:${set.id}/${b.pieces}`)
+ }
+ for(const n of [3,5,8])if(!setSizes.has(n))issues.push(`套裝件數範例缺失:${n}件`);
  if(potCount<240)issues.push(`藥劑核心數量不足:${potCount}`);
  if(otherCount<(DB.hard_rules.general_item_core_count||578))issues.push(`一般道具核心數量不足:${otherCount}`);
  if(craftCount<520)issues.push(`可製作品核心數量不足:${craftCount}`);
