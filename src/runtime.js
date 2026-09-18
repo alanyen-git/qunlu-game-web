@@ -219,6 +219,38 @@ function nowId(p){return p+"-"+Date.now().toString(36).toUpperCase()+"-"+Math.ra
 function rollD20(){return 1+rand(20)}
 function weightedPick(pairs){let total=pairs.reduce((s,x)=>s+x[1],0),r=Math.random()*total;for(const x of pairs){r-=x[1];if(r<=0)return x[0]}return pairs.at(-1)[0]}
 function tierOrder(t){return {F:0,E:1,D:2,C:3,B:4,A:5,S:6}[t]??0}
+const ITEM_LIST_CATEGORY_ORDER={"武器":10,"防具":20,"飾品":30,"藥劑":40,"餐飲":50,"素材":60,"補給／工具":70,"卷軸／書籍":80,"其他":90};
+const SHOP_CATEGORY_STATE={};
+const CRAFT_CATEGORY_STATE={};
+function itemListCategoryLabel(d){
+ if(!d)return "其他";
+ if(d.catalog_group==="武器"||d.type==="主武器")return "武器";
+ if(d.catalog_group==="防具"||["盔甲","頭盔","手套","鞋子"].includes(d.type))return "防具";
+ if(d.catalog_group==="飾品"||["飾品","披風"].includes(d.type))return "飾品";
+ if(d.type==="藥劑"||d.consumable_group)return "藥劑";
+ if(["料理","食物","食材"].includes(d.type)||d.inventory_group==="食物"||d.inventory_group==="食材")return "餐飲";
+ if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.material_group||d.monster_drop_core)return "素材";
+ if(["補給","工具","道具"].includes(d.type)||d.tool_effect)return "補給／工具";
+ if(["書籍","卷軸","符文"].includes(d.type)||d.knowledge_tag)return "卷軸／書籍";
+ return "其他"
+}
+function worldTierItemSort(a,b){
+ return tierOrder(a?.tier||"F")-tierOrder(b?.tier||"F") ||
+   (ITEM_LIST_CATEGORY_ORDER[itemListCategoryLabel(a)]||99)-(ITEM_LIST_CATEGORY_ORDER[itemListCategoryLabel(b)]||99) ||
+   String(a?.name||a?.id||"").localeCompare(String(b?.name||b?.id||""),"zh-Hant")
+}
+function itemListCategories(items){
+ return [...new Set((items||[]).map(itemListCategoryLabel))].sort((a,b)=>(ITEM_LIST_CATEGORY_ORDER[a]||99)-(ITEM_LIST_CATEGORY_ORDER[b]||99)||a.localeCompare(b,"zh-Hant"))
+}
+function tierGroupedItemRows(items,rowFn,emptyText="目前沒有商品。"){
+ const sorted=[...(items||[])].sort(worldTierItemSort);if(!sorted.length)return `<div class="small">${emptyText}</div>`;
+ let last="",html="";
+ for(const d of sorted){
+   if(d.tier!==last){last=d.tier;html+=`<div class="inventory-category-title">${d.tier}級</div>`}
+   html+=rowFn(d)
+ }
+ return html
+}
 function equipId(v){return v&&typeof v==="object"?v.id:v}
 function makeEquip(id,dur=null){const d=item(id);return {id,durability:dur??d.durability,maxDurability:d.durability}}
 function init(){let raw=null;try{raw=window.localStorage?localStorage.getItem("chronicle_save"):null}catch(e){}if(raw){try{G=JSON.parse(raw);migrateSave();enterGame(true)}catch(e){console.warn(e)}}}
@@ -1455,7 +1487,7 @@ function learnCraftRecipe(itemId){
  const fee=recipeLearnFee(d);if(G.character.moneySilver<fee){alert(`需要 ${fee} 銀。`);return}
  closeModal();if(!beginTurn("學習製作配方"))return;
  G.character.moneySilver-=fee;G.character.knownRecipes=G.character.knownRecipes||[];G.character.knownRecipes.push(d.recipe_id);
- log("製作",`學會 ${d.name}［${d.tier}］配方，支付${fee}銀。`,"ok");endTurn(2);openCrafting(d.craft_recipe.requires_facility,d.tier)
+ log("製作",`學會 ${d.name}［${d.tier}］配方，支付${fee}銀。`,"ok");endTurn(2);openCrafting(d.craft_recipe.requires_facility)
 }
 function consumeIngredient(id,qty){
  let left=qty;
@@ -1502,26 +1534,34 @@ function craftItemBatch(itemId,count=1){
  const missing=craftingMissingBatch(d,count);if(missing.length){alert("批量材料不足："+missing.map(x=>`${item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}
  closeModal();if(!beginTurn(`批量製作：${d.name}×${count}`))return;const chance=craftSuccessChance(d,j);let success=0,fail=0;
  for(let n=0;n<count;n++){const roll=1+rand(100),ok=roll<=chance;for(const x of craftRecipeMaterials(d))consumeIngredient(x.id,x.qty);if(ok){addItem(d.id,1);success++}else fail++;gainSubjobXp(DB.crafting_system.profession_subjob[r.profession],(tierOrder(d.tier)+1)*8)}
- log("製作",`${d.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");endTurn(craftTimeHours(d,j)*count);openCrafting(fid,d.tier)
+ log("製作",`${d.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");endTurn(craftTimeHours(d,j)*count);openCrafting(fid)
 }
 function craftItem(itemId){return craftItemBatch(itemId,1)}
 
-function openCrafting(fid,tierFilter="F"){
+function openCrafting(fid,category=null){
  const prof=DB.crafting_system.facility_profession[fid];if(!prof)return;
  if(!currentFacilityAllowsCrafting(fid)){alert("必須先進入對應製作設施。");return}
  const locTier=loc(G.character.locationId).tier,j=subjobForProfession(prof);
- const allowed=["F","E","D","C","B","A","S"].filter(t=>tierOrder(t)<=tierOrder(locTier));
- if(!allowed.includes(tierFilter))tierFilter=allowed.at(-1)||"F";
- const tabs=allowed.map(t=>`<button ${t===tierFilter?'class="primary"':""} onclick="openCrafting('${fid}','${t}')">${t}</button>`).join("");
- const all=craftingItemsFor(fid,tierFilter);
- const rows=all.slice(0,80).map(d=>{
+ const base=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier));
+ const categories=itemListCategories(base);
+ if(["F","E","D","C","B","A","S"].includes(category))category=null;
+ if(category&&category!=="全部"&&!categories.includes(category))category=null;
+ if(category)CRAFT_CATEGORY_STATE[fid]=category;
+ const selected=CRAFT_CATEGORY_STATE[fid]&&(["全部",...categories].includes(CRAFT_CATEGORY_STATE[fid]))?CRAFT_CATEGORY_STATE[fid]:"全部";
+ CRAFT_CATEGORY_STATE[fid]=selected;
+ const tabs=["全部",...categories].map(cat=>{
+   const count=cat==="全部"?base.length:base.filter(d=>itemListCategoryLabel(d)===cat).length;
+   return `<button ${cat===selected?'class="primary"':""} onclick="openCrafting('${fid}','${cat}')">${cat} ${count}</button>`
+ }).join("");
+ const all=(selected==="全部"?base:base.filter(d=>itemListCategoryLabel(d)===selected)).sort(worldTierItemSort);
+ const rows=tierGroupedItemRows(all,d=>{
    const known=recipeKnown(d),canLearn=!known&&recipeCanLearn(d),missing=craftingMissing(d),chance=j?craftSuccessChance(d,j):0,maxBatch=known?craftMaxBatch(d,10):0;
    const mats=craftMaterialText(d,true);
    const gradeOk=j&&tierOrder(j.grade)>=tierOrder(d.tier),canCraft=gradeOk&&G.character.level>=(d.recipe_level||1);
    return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${craftResultLine(d)}<br>${mats}<br>${known?`成功率約${chance}%｜${craftTimeHours(d,j)}小時｜可連做${maxBatch}次`:`配方：${d.recipe_access==="special"?"特殊來源":d.recipe_access==="trainer"?"師傅教授":"公開"}`}${missing.length?`｜缺料${missing.length}種`:""}</span></span><span>${canLearn?`<button onclick="learnCraftRecipe('${d.id}')">學配方 ${recipeLearnFee(d)}銀</button>`:""} ${known?`<span class="craft-batch"><button ${canCraft&&maxBatch>=1?"":"disabled"} onclick="craftItemBatch('${d.id}',1)">製作1</button><button ${canCraft&&maxBatch>=5?"":"disabled"} onclick="craftItemBatch('${d.id}',5)">×5</button><button ${canCraft&&maxBatch>=10?"":"disabled"} onclick="craftItemBatch('${d.id}',10)">×10</button></span>`:""}</span></div>`
- }).join("")||"<div class='small'>此階級沒有可用配方。</div>";
+ },"此類別沒有可用配方。");
  const sj=j?`${sub(j.id).name}［${j.grade}］ XP ${j.xp||0}`:"尚未取得對應副職業";
- showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>F公開；E/D可由師傅教授；C以上需要特殊配方來源。</div><div class="actions">${tabs}</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting(\'${fid}\',\'${tierFilter}\')`)
+ showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>商品依世界層級 F→S 排列；F公開、E/D可由師傅教授、C以上需要特殊配方來源。</div><h3>製作類別</h3><div class="actions">${tabs}</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting(\\'${fid}\\',\\'${selected}\\')`)
 }function pantheon(id){return IDX.pantheon.get(id)||null}
 function faithEntity(id){return IDX.faith.get(id)}
 function deity(id){const x=faithEntity(id);return x?.entity_type==="deity"?x:null}
@@ -5272,6 +5312,11 @@ function runGeneratorAudit(){
  for(const r of cookingProfessionLeaks)issues.push(`料理配方專業分類異常:${r.id}/${r.profession}`);
  if(DB.crafting_data_integrity_system?.version!=="CRAFTING-DATA-INTEGRITY-1.0")issues.push("CRAFTING-DATA-INTEGRITY-1.0缺失");
  if(typeof craftingRecipeMatchesFacility!=="function"||typeof currentFacilityAllowsCrafting!=="function")issues.push("專業製作分類防線缺失");
+ if(typeof worldTierItemSort!=="function"||typeof itemListCategoryLabel!=="function"||typeof tierGroupedItemRows!=="function")issues.push("商品／製作世界層級排序runtime缺失");
+ else{
+   const orderProbe=[{tier:"C",name:"C"},{tier:"F",name:"F"},{tier:"A",name:"A"},{tier:"D",name:"D"}].sort(worldTierItemSort).map(x=>x.tier).join("");
+   if(orderProbe!=="FDCA")issues.push("商品／製作世界層級排序異常");
+ }
  for(const x of DB.crafting_data_integrity_system?.issues||[])issues.push(`專業製作資料異常:${x.id}/${x.reason}`);
  for(const [fid,prof] of Object.entries(DB.crafting_system?.facility_profession||{})){
    for(const d of (DB.items||[]).filter(x=>x?.craft_recipe?.requires_facility===fid)){
