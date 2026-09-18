@@ -3168,13 +3168,13 @@ function subjobPrereqComparison(s){
  const entries=Object.entries(s?.prereq||{});
  if(!entries.length)return '<span class="ok">無屬性門檻</span>';
  return entries.map(([k,v])=>{
-   const need=Math.max(0,Number(v)||0),current=Math.max(0,Number(G.character.stats?.[k])||0),delta=current-need;
-   return `<span class="${delta>=0?"ok":"bad"}">${k}：需求 ${need}｜目前 ${current}｜${delta>=0?`已達成（高出 ${delta}）`:`不足 ${Math.abs(delta)}`}</span>`
+   const need=Math.max(0,Number(v)||0),current=Math.max(0,Number(G.character.stats?.[k])||0),ok=current>=need;
+   return `<span class="${ok?"ok":"bad"}">${k}：需求 ${need}｜目前 ${current}</span>`
  }).join("<br>")
 }
 function subjobFeeComparison(s){
- const need=Math.max(0,Number(s?.fee)||0),current=Math.max(0,Number(G.character.moneySilver)||0),delta=current-need;
- return `<span class="${delta>=0?"ok":"bad"}">學費：需求 ${need}銀｜持有 ${current}銀｜${delta>=0?`已足夠（餘額 ${delta}銀）`:`不足 ${Math.abs(delta)}銀`}</span>`
+ const need=Math.max(0,Number(s?.fee)||0),current=Math.max(0,Number(G.character.moneySilver)||0),ok=current>=need;
+ return `<span class="${ok?"ok":"bad"}">學費：需求 ${need}銀｜目前 ${current}銀</span>`
 }
 function meetsSubjob(s){return Object.entries(s.prereq||{}).every(([k,v])=>(G.character.stats[k]||0)>=v)}
 function learnSubjobHere(fid){
