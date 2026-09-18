@@ -66,6 +66,140 @@ let TRAVEL_CACHE=null;
 function ensureTravelCache(){if(TRAVEL_CACHE)return TRAVEL_CACHE;const ids=DB.locations.map(x=>x.id),ix=new Map(ids.map((id,i)=>[id,i])),n=ids.length,d=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Infinity));for(const l of DB.locations){const i=ix.get(l.id);for(const e of (l.links||[])){const j=ix.get(e.to);if(j!=null&&Number.isFinite(e.hours))d[i][j]=Math.min(d[i][j],e.hours)}}for(let k=0;k<n;k++)for(let i=0;i<n;i++){if(!Number.isFinite(d[i][k]))continue;for(let j=0;j<n;j++){const nd=d[i][k]+d[k][j];if(nd<d[i][j])d[i][j]=nd}}TRAVEL_CACHE={ix,d};return TRAVEL_CACHE}
 const ENCOUNTER_CACHE=new Map();
 const CRAFT_INDEX=new Map();
+
+function replaceRuntimeIndex(map,rows,keyFn=x=>x?.id){
+ if(!(map instanceof Map))return;
+ map.clear();
+ for(const x of rows||[]){const key=keyFn(x);if(key!=null)map.set(key,x)}
+}
+function syncRuntimeIndexesAndMetadata(){
+ replaceRuntimeIndex(IDX.item,DB.items);
+ replaceRuntimeIndex(IDX.loc,DB.locations);
+ replaceRuntimeIndex(IDX.cls,DB.combat_classes);
+ replaceRuntimeIndex(IDX.origin,DB.origins);
+ replaceRuntimeIndex(IDX.sub,DB.subjobs);
+ replaceRuntimeIndex(IDX.talent,DB.talents);
+ replaceRuntimeIndex(IDX.monster,DB.monsters);
+ replaceRuntimeIndex(IDX.quest,[...(DB.quest_templates||[]),...(DB.shop_quests||[])]);
+ replaceRuntimeIndex(IDX.recipe,DB.recipes);
+ replaceRuntimeIndex(IDX.companion,DB.companion_species);
+ replaceRuntimeIndex(IDX.partyTemplate,DB.party_member_templates);
+ replaceRuntimeIndex(IDX.faith,DB.faith_entities);
+ replaceRuntimeIndex(IDX.faithOath,DB.faith_oaths);
+ replaceRuntimeIndex(IDX.pantheon,DB.pantheons);
+ replaceRuntimeIndex(IDX.worldOrg,DB.world_organizations);
+ replaceRuntimeIndex(IDX.adventureEvent,DB.adventure_event_templates);
+ replaceRuntimeIndex(IDX.dialogue,DB.dialogue_database?.records);
+ replaceRuntimeIndex(IDX.intel,DB.intel_database?.records);
+ replaceRuntimeIndex(IDX.lore,DB.lore_records);
+ replaceRuntimeIndex(IDX.polity,DB.political_entities);
+ replaceRuntimeIndex(IDX.culture,DB.culture_profiles);
+ replaceRuntimeIndex(IDX.worldRegion,DB.world_regions);
+ replaceRuntimeIndex(IDX.authority,DB.political_authority_catalog||DB.authority_archetypes);
+ replaceRuntimeIndex(IDX.authorityTier,DB.authority_tiers);
+ replaceRuntimeIndex(IDX.authorityRight,DB.authority_rights_catalog);
+ replaceRuntimeIndex(IDX.authorityProfile,DB.polity_authority_profiles,x=>x?.polity_id);
+ replaceRuntimeIndex(IDX.authorityRequest,DB.authority_request_archetypes);
+ replaceRuntimeIndex(IDX.discipline,DB.discipline_factions);
+ replaceRuntimeIndex(IDX.sTier,DB.s_tier_combatants);
+ replaceRuntimeIndex(IDX.historyEvent,DB.world_timeline);
+ replaceRuntimeIndex(IDX.historySubperiod,DB.historical_subperiods);
+ replaceRuntimeIndex(IDX.historyChain,DB.historical_causal_chains);
+ replaceRuntimeIndex(IDX.historicalDispute,DB.historical_disputes);
+ replaceRuntimeIndex(IDX.regionalPower,DB.regional_powers);
+ replaceRuntimeIndex(IDX.materialPack,DB.generator_material_packs,x=>x?.region_id);
+ replaceRuntimeIndex(IDX.historicalRelation,DB.historical_relationship_records);
+
+ TRAVEL_CACHE=null;ENCOUNTER_CACHE.clear();CRAFT_INDEX.clear();
+ try{if(typeof globalThis.syncContentLinkItemSources==="function")globalThis.syncContentLinkItemSources()}catch(e){console.warn("item source resync",e)}
+
+ const counts={
+   items:(DB.items||[]).length,
+   locations:(DB.locations||[]).length,
+   monsters:(DB.monsters||[]).length,
+   classes:(DB.combat_classes||[]).length,
+   companions:(DB.companion_species||[]).length,
+   party_templates:(DB.party_member_templates||[]).length,
+   faith_entities:(DB.faith_entities||[]).length,
+   organizations:(DB.world_organizations||[]).length,
+   dialogue:(DB.dialogue_database?.records||[]).length,
+   intel:(DB.intel_database?.records||[]).length,
+   political_entities:(DB.political_entities||[]).length,
+   authority_archetypes:(DB.authority_archetypes||[]).length,
+   authority_profiles:(DB.polity_authority_profiles||[]).length,
+   lore_records:(DB.lore_records||[]).length,
+   history_events:(DB.world_timeline||[]).length,
+   craft_recipes:(DB.items||[]).filter(x=>x?.craft_recipe).length,
+   cooking_recipes:(DB.recipes||[]).filter(r=>typeof isCookingRecipe==="function"?isCookingRecipe(r):true).length,
+   quest_templates:(DB.quest_templates||[]).length,
+   adventure_event_templates:(DB.adventure_event_templates||[]).length,
+   regional_profiles:(DB.regional_content_profiles||[]).length,
+   regional_npc_archetypes:(DB.regional_npc_archetypes||[]).length,
+   regional_adventure_hooks:(DB.regional_adventure_hooks||[]).length,
+   regional_life_events:(DB.regional_life_events||[]).length,
+   generators:(DB.generators||[]).length,
+   management_ai:(DB.management_ai||[]).length,
+   regional_economy_profiles:(DB.regional_economy_profiles||[]).length,
+   realm_region_maps:(DB.realm_region_maps||[]).length,
+   province_region_maps:(DB.province_region_maps||[]).length,
+   settlement_region_maps:(DB.settlement_region_maps||[]).length,
+   settlements:(DB.locations||[]).filter(x=>x?.kind==="town").length,
+   cultural_festivals:(DB.cultural_festivals||[]).length,
+   myth_cycle_records:(DB.myth_cycle_records||[]).length,
+   local_historical_incidents:(DB.local_historical_incidents||[]).length,
+   regional_folklore:(DB.regional_folklore||[]).length,
+   regional_rumors:(DB.regional_rumors||[]).length,
+   generator_material_packs:(DB.generator_material_packs||[]).length,
+   regional_powers:(DB.regional_powers||[]).length,
+   historical_relationship_records:(DB.historical_relationship_records||[]).length
+ };
+ if(DB.integration_registry){
+   DB.integration_registry.counts=DB.integration_registry.counts&&typeof DB.integration_registry.counts==="object"?DB.integration_registry.counts:{};
+   Object.assign(DB.integration_registry.counts,counts);
+ }
+ if(DB.lore_system)DB.lore_system.record_count=counts.lore_records;
+
+ DB.database_growth_compat_system={
+   version:"DATABASE-GROWTH-COMPAT-1.0",
+   release:"CURRENT-1.66.1",
+   live_counts:{...counts},
+   expandable_minimums:{
+     companion_species:200,party_member_templates:200,pantheons:9,faith_entities:100,
+     political_entities:18,culture_profiles:20,authority_archetypes:20,
+     physical_disciplines:25,magic_disciplines:24,eastern_sword_traditions:3,
+     overseas_unknown_horizons:3,historical_subperiods:12,historical_causal_chains:14,
+     historical_disputes:8,regional_powers:2,myth_cycle_records:27,
+     historical_relationship_records:222,talents:100
+   },
+   closed_invariants:{
+     s_tier_global_cap:40,equipment_slots:8,subjob_limit:2,skill_limit:10,
+     map_hierarchy_layers:4,settlement_world_tiers:7
+   },
+   rules:[
+     "可擴充資料庫只檢查核心最低量與引用完整性，不因新增合法資料超過舊版基準而報錯。",
+     "真正封閉規則仍維持硬限制，例如S級全球上限40、8個頂層裝備欄、副職業2個、技能10個。",
+     "五回合自檢前重建runtime索引與可推導統計，避免後載入擴充資料被舊索引誤判為不存在。",
+     "新增資料若缺必要引用、ID重複、超出封閉上限或破壞世界規則，仍必須正常回報。"
+   ]
+ };
+ return counts
+}
+function databaseGrowthAudit(){
+ const issues=[];
+ syncRuntimeIndexesAndMetadata();
+ for(const [key,value] of Object.entries(DB)){
+   if(!Array.isArray(value)||!value.length)continue;
+   const objects=value.filter(x=>x&&typeof x==="object"&&!Array.isArray(x));
+   if(!objects.length)continue;
+   const identified=objects.filter(x=>x.id!=null);
+   if(identified.length<Math.ceil(objects.length*.8))continue;
+   const seen=new Set(),dups=[];
+   for(const x of identified){const id=String(x.id);if(seen.has(id))dups.push(id);else seen.add(id)}
+   if(dups.length)issues.push(`資料庫ID重複:${key}/${[...new Set(dups)].slice(0,6).join("、")}`);
+ }
+ return issues
+}
+
 function craftingRecipeMatchesFacility(d,fid){
  const r=d?.craft_recipe,prof=DB.crafting_system?.facility_profession?.[fid];
  if(!r||!prof)return false;
@@ -4588,12 +4722,13 @@ function saveInfoHtml(){
  if(!G)return `<div class="card"><b>目前存檔</b><br><span class="small">尚未開始遊戲。</span></div>`;
  return `<div class="card"><b>目前存檔</b><br>${s?`${s.id}<br><span class="small">${s.time||timeText()}｜T${s.turn??G.turn}｜${s.type||"AUTO"}${s.reason?`｜${s.reason}`:""}</span>`:`<span class="small">尚無存檔紀錄</span>`}<br><span class="small">存檔筆數：${G.meta.saveIndex.length}/180</span></div>`
 }
-function openSettings(){showModal("設定",`${saveInfoHtml()}<h3>世界與權柄</h3><div class="actions"><button onclick="openWorldLore()">世界誌 ${knownLore().length}/${DB.lore_system.record_count}</button><button onclick="openPoliticalAuthorityCatalog()">權柄20原型</button></div><hr><div class="actions"><button onclick="manualSave()">手動存檔</button><button onclick="checkForGameUpdate(true)">檢查遊戲更新</button><button onclick="exportSave()">匯出存檔</button><button class="bad" onclick="resetGame()">重開新檔</button></div><hr><h3>世界資料庫</h3><div class="rulebox">版本：${DB.meta.current_version}<br>職業：${DB.combat_classes.length}<br>戰士／騎士系：${DB.profession_tree.categories["戰士／騎士系"].length}<br>遊俠／盜賊／吟遊系：${DB.profession_tree.categories["遊俠／盜賊／吟遊系"].length}<br>法師／術士系：${DB.profession_tree.categories["法師／術士系"].length}<br>神職／自然系：${DB.profession_tree.categories["神職／自然系"].length}<br>混合／上位／傳說系：${DB.profession_tree.categories["混合／上位／傳說系"].length}<br>技能定義：${Object.values(DB.skill_pools).reduce((s,a)=>s+a.length,0)}<br>技能進階家族：${DB.skill_families.length}<br>裝備：${DB.items.filter(x=>["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(x.type)).length}<br>武器核心：${DB.equipment_system.catalog_counts["武器"]}<br>防具核心：${DB.equipment_system.catalog_counts["防具"]}<br>飾品核心：${DB.equipment_system.catalog_counts["飾品"]}<br>藥劑／戰鬥消耗品核心：${DB.items.filter(x=>x.type==="藥劑").length}<br>技能紀錄：${DB.skill_design_system.skill_records}<br>技能家族：${DB.skill_design_system.family_count}<br>戰鬥職業：${DB.class_design_system.count}<br>裝備核心：${DB.item_material_design_system.equipment_core_count}<br>藥劑：${DB.item_material_design_system.potion_count}<br>退出新生成的舊怪物素材：${DB.item_material_design_system.legacy_monster_materials_retired_from_generation}<br>公會跨職規則：${DB.guild_training.cross_track_rule}<br>同時委託上限：${DB.quest_system.max_active}<br>生成器：${DB.generators.length}（共同邏輯管線）<br>管理AI：${DB.management_ai.length}（輸入／驗證／回退規則）<br>網站模式：${location.protocol==="https:"?"公開HTTPS":"本機／預覽"}｜網域：${location.host||"local"}<br>戰鬥數值核心：${DB.combat_stat_system.count}項<br>CON/SP分離：啟用｜先攻/破甲/韌性/狀態命中：啟用<br>角色成長：Lv1–${DB.progression_system.max_level}｜職業熟練／轉職啟用<br>製作閉環：${DB.items.filter(x=>x.craft_recipe).length}筆配方資料｜鍛造／裁縫／藥劑介面啟用<br>武器組：8頂層欄＋內部副手（單手武器／盾牌）｜狀態系統：${Object.keys(DB.status_system.definitions).length}種<br>天賦核心：${DB.talent_system.core_count}<br>角色天賦上限：${DB.talent_system.character_limit}<br>體質／生存：${DB.talent_system.category_counts["體質與生存"]}<br>戰鬥專精：${DB.talent_system.category_counts["戰鬥專精"]}<br>魔法／血脈：${DB.talent_system.category_counts["魔法與血脈"]}<br>技巧／生活／命運：${DB.talent_system.category_counts["技巧生活與命運"]}<br>核心種族：${DB.race_system.core_count}<br>常見種族：${DB.race_system.groups["常見種族"].length}<br>精靈分支：${DB.race_system.groups["精靈族"].length}<br>混血種族：${DB.race_system.groups["混血種族"].length}<br>特殊種族：${DB.race_system.groups["特殊種族"].length}<br>角色出身核心：${DB.origin_system.core_count}<br>平民與鄉野：${DB.origin_system.category_counts["平民與鄉野"]}<br>貴族與騎士：${DB.origin_system.category_counts["貴族與騎士"]}<br>軍事與傭兵：${DB.origin_system.category_counts["軍事與傭兵"]}<br>信仰與魔法：${DB.origin_system.category_counts["信仰與魔法"]}<br>詛咒與命運：${DB.origin_system.category_counts["詛咒與命運"]}<br>怪物圖鑑核心：${DB.monster_catalog.core_count}<br>野獸動物：${DB.monster_catalog.category_counts["野獸動物系"]}<br>哥布林／獸人／巨人：${DB.monster_catalog.category_counts["哥布林獸人巨人系"]}<br>龍／亞龍／爬蟲：${DB.monster_catalog.category_counts["龍與亞龍爬蟲系"]}<br>不死：${DB.monster_catalog.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_catalog.category_counts["惡魔與深淵地獄系"]}<br>元素／植物／魔法生物：${DB.monster_catalog.category_counts["元素植物魔法生物系"]}<br>蟲／水生／軟泥：${DB.monster_catalog.category_counts["蟲水生軟泥系"]}<br>怪物掉落核心：${DB.monster_drop_system.core_count}<br>軟泥／魔像：${DB.monster_drop_system.category_counts["軟泥與魔像系"]}<br>哥布林／獸人／巨人：${DB.monster_drop_system.category_counts["哥布林獸人巨人系"]}<br>野獸：${DB.monster_drop_system.category_counts["野獸系"]}<br>龍與爬蟲：${DB.monster_drop_system.category_counts["龍與爬蟲系"]}<br>不死：${DB.monster_drop_system.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_drop_system.category_counts["惡魔與深淵系"]}<br>元素／植物／魔法生物：${DB.monster_drop_system.category_counts["元素植物魔法生物系"]}<br>蟲與水生：${DB.monster_drop_system.category_counts["蟲與水生系"]}<br>素材／通用道具核心：${DB.material_system.core_count}<br>草藥植物：${DB.material_system.category_counts["草藥與植物素材"]}<br>礦石金屬：${DB.material_system.category_counts["礦石與金屬素材"]}<br>怪物素材：${DB.material_system.category_counts["怪物素材"]}<br>食材食物：${DB.material_system.category_counts["食材與食物"]}<br>木材布料皮革：${DB.material_system.category_counts["木材布料皮革"]}<br>寶石結晶：${DB.material_system.category_counts["寶石與魔法結晶"]}<br>卷軸符文書籍：${DB.material_system.category_counts["卷軸符文書籍"]}<br>鑰匙工具寶藏：${DB.material_system.category_counts["鑰匙工具寶藏任務"]}<br>生命回復：${DB.consumable_system.category_counts["生命回復"]}<br>魔力與精力：${DB.consumable_system.category_counts["魔力與精力"]}<br>屬性強化：${DB.consumable_system.category_counts["屬性強化"]}<br>抗性防禦：${DB.consumable_system.category_counts["抗性防禦"]}<br>解除淨化：${DB.consumable_system.category_counts["解除淨化"]}<br>攻擊投擲／塗油：${DB.consumable_system.category_counts["攻擊投擲／塗油"]}<br>特殊煎藥／傳奇：${DB.consumable_system.category_counts["特殊煎藥／傳奇"]}<br>料理：${DB.items.filter(x=>x.type==="料理").length}<br>料理配方：${DB.recipes.length}<br>敵人：${DB.monsters.length}<br>敵方專用素材：${DB.items.filter(x=>x.type==="魔物素材").length}<br>野外地圖：${DB.locations.filter(x=>x.kind==="wild").length}<br>地下城：${DB.locations.filter(x=>x.kind==="dungeon").length}<br>城鎮：${DB.locations.filter(x=>x.kind==="town").length}<br>副職業：${DB.subjobs.length}</div><h3>核心規則</h3><div class="rulebox">設施對話與情報遵守知識來源限制。<br>副職業只能在指定設施且符合能力前置與學費後學習。<br>裝備耐久影響戰鬥加成，鐵匠鋪可修復。<br>戰鬥數值集中於角色卡；包含攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋與狀態抗性。<br>遭遇戰鬥改為彈出式回合制介面，可選一般攻擊、技能、防禦、使用道具與逃跑。<br>B級以上內容仍受前置資格與封印規則限制。<br>掉落規則：只有人型敵人可能掉落金錢與裝備；非人型敵人只能掉落素材。<br>戰鬥職業池為100種。<br>核心裝備200件、藥劑200種、通用素材200種；本版新增200種怪物掉落核心，並建立200裝備升級連結與200藥劑鍊金連結。<br>技能命名採傳統RPG結構：動詞＋名詞／元素＋效果；東方系採原創自然意象＋動作。<br>命名AI：以用途可讀性、區域詞根、怪物家族與世界層級生成名稱，並避開專有作品名稱與過度現實訓練術語。</div>`)}
+function openSettings(){showModal("設定",`${saveInfoHtml()}<h3>世界與權柄</h3><div class="actions"><button onclick="openWorldLore()">世界誌 ${knownLore().length}/${DB.lore_system.record_count}</button><button onclick="openPoliticalAuthorityCatalog()">權柄20原型</button></div><hr><div class="actions"><button onclick="manualSave()">手動存檔</button><button onclick="checkForGameUpdate(true)">檢查遊戲更新</button><button onclick="exportSave()">匯出存檔</button><button class="bad" onclick="resetGame()">重開新檔</button></div><hr><h3>世界資料庫</h3><div class="rulebox">版本：${DB.meta.current_version}<br>職業：${DB.combat_classes.length}<br>戰士／騎士系：${DB.profession_tree.categories["戰士／騎士系"].length}<br>遊俠／盜賊／吟遊系：${DB.profession_tree.categories["遊俠／盜賊／吟遊系"].length}<br>法師／術士系：${DB.profession_tree.categories["法師／術士系"].length}<br>神職／自然系：${DB.profession_tree.categories["神職／自然系"].length}<br>混合／上位／傳說系：${DB.profession_tree.categories["混合／上位／傳說系"].length}<br>技能定義：${Object.values(DB.skill_pools).reduce((s,a)=>s+a.length,0)}<br>技能進階家族：${DB.skill_families.length}<br>裝備：${DB.items.filter(x=>["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(x.type)).length}<br>武器核心：${DB.equipment_system.catalog_counts["武器"]}<br>防具核心：${DB.equipment_system.catalog_counts["防具"]}<br>飾品核心：${DB.equipment_system.catalog_counts["飾品"]}<br>藥劑／戰鬥消耗品核心：${DB.items.filter(x=>x.type==="藥劑").length}<br>技能紀錄：${DB.skill_design_system.skill_records}<br>技能家族：${DB.skill_design_system.family_count}<br>戰鬥職業：${DB.class_design_system.count}<br>裝備核心：${DB.item_material_design_system.equipment_core_count}<br>藥劑：${DB.item_material_design_system.potion_count}<br>退出新生成的舊怪物素材：${DB.item_material_design_system.legacy_monster_materials_retired_from_generation}<br>公會跨職規則：${DB.guild_training.cross_track_rule}<br>同時委託上限：${DB.quest_system.max_active}<br>生成器：${DB.generators.length}（共同邏輯管線）<br>管理AI：${DB.management_ai.length}（輸入／驗證／回退規則）<br>網站模式：${location.protocol==="https:"?"公開HTTPS":"本機／預覽"}｜網域：${location.host||"local"}<br>戰鬥數值核心：${DB.combat_stat_system.count}項<br>CON/SP分離：啟用｜先攻/破甲/韌性/狀態命中：啟用<br>角色成長：Lv1–${DB.progression_system.max_level}｜職業熟練／轉職啟用<br>製作閉環：${DB.items.filter(x=>x.craft_recipe).length}筆配方資料｜鍛造／裁縫／藥劑／附魔介面啟用<br>武器組：8頂層欄＋內部副手（單手武器／盾牌）｜狀態系統：${Object.keys(DB.status_system.definitions).length}種<br>天賦核心：${DB.talent_system.core_count}<br>角色天賦上限：${DB.talent_system.character_limit}<br>體質／生存：${DB.talent_system.category_counts["體質與生存"]}<br>戰鬥專精：${DB.talent_system.category_counts["戰鬥專精"]}<br>魔法／血脈：${DB.talent_system.category_counts["魔法與血脈"]}<br>技巧／生活／命運：${DB.talent_system.category_counts["技巧生活與命運"]}<br>核心種族：${DB.race_system.core_count}<br>常見種族：${DB.race_system.groups["常見種族"].length}<br>精靈分支：${DB.race_system.groups["精靈族"].length}<br>混血種族：${DB.race_system.groups["混血種族"].length}<br>特殊種族：${DB.race_system.groups["特殊種族"].length}<br>角色出身核心：${DB.origin_system.core_count}<br>平民與鄉野：${DB.origin_system.category_counts["平民與鄉野"]}<br>貴族與騎士：${DB.origin_system.category_counts["貴族與騎士"]}<br>軍事與傭兵：${DB.origin_system.category_counts["軍事與傭兵"]}<br>信仰與魔法：${DB.origin_system.category_counts["信仰與魔法"]}<br>詛咒與命運：${DB.origin_system.category_counts["詛咒與命運"]}<br>怪物圖鑑核心：${DB.monster_catalog.core_count}<br>野獸動物：${DB.monster_catalog.category_counts["野獸動物系"]}<br>哥布林／獸人／巨人：${DB.monster_catalog.category_counts["哥布林獸人巨人系"]}<br>龍／亞龍／爬蟲：${DB.monster_catalog.category_counts["龍與亞龍爬蟲系"]}<br>不死：${DB.monster_catalog.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_catalog.category_counts["惡魔與深淵地獄系"]}<br>元素／植物／魔法生物：${DB.monster_catalog.category_counts["元素植物魔法生物系"]}<br>蟲／水生／軟泥：${DB.monster_catalog.category_counts["蟲水生軟泥系"]}<br>怪物掉落核心：${DB.monster_drop_system.core_count}<br>軟泥／魔像：${DB.monster_drop_system.category_counts["軟泥與魔像系"]}<br>哥布林／獸人／巨人：${DB.monster_drop_system.category_counts["哥布林獸人巨人系"]}<br>野獸：${DB.monster_drop_system.category_counts["野獸系"]}<br>龍與爬蟲：${DB.monster_drop_system.category_counts["龍與爬蟲系"]}<br>不死：${DB.monster_drop_system.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_drop_system.category_counts["惡魔與深淵系"]}<br>元素／植物／魔法生物：${DB.monster_drop_system.category_counts["元素植物魔法生物系"]}<br>蟲與水生：${DB.monster_drop_system.category_counts["蟲與水生系"]}<br>素材／通用道具核心：${DB.material_system.core_count}<br>草藥植物：${DB.material_system.category_counts["草藥與植物素材"]}<br>礦石金屬：${DB.material_system.category_counts["礦石與金屬素材"]}<br>怪物素材：${DB.material_system.category_counts["怪物素材"]}<br>食材食物：${DB.material_system.category_counts["食材與食物"]}<br>木材布料皮革：${DB.material_system.category_counts["木材布料皮革"]}<br>寶石結晶：${DB.material_system.category_counts["寶石與魔法結晶"]}<br>卷軸符文書籍：${DB.material_system.category_counts["卷軸符文書籍"]}<br>鑰匙工具寶藏：${DB.material_system.category_counts["鑰匙工具寶藏任務"]}<br>生命回復：${DB.consumable_system.category_counts["生命回復"]}<br>魔力與精力：${DB.consumable_system.category_counts["魔力與精力"]}<br>屬性強化：${DB.consumable_system.category_counts["屬性強化"]}<br>抗性防禦：${DB.consumable_system.category_counts["抗性防禦"]}<br>解除淨化：${DB.consumable_system.category_counts["解除淨化"]}<br>攻擊投擲／塗油：${DB.consumable_system.category_counts["攻擊投擲／塗油"]}<br>特殊煎藥／傳奇：${DB.consumable_system.category_counts["特殊煎藥／傳奇"]}<br>料理：${DB.items.filter(x=>x.type==="料理").length}<br>料理配方：${DB.recipes.length}<br>敵人：${DB.monsters.length}<br>敵方專用素材：${DB.items.filter(x=>x.type==="魔物素材").length}<br>野外地圖：${DB.locations.filter(x=>x.kind==="wild").length}<br>地下城：${DB.locations.filter(x=>x.kind==="dungeon").length}<br>城鎮：${DB.locations.filter(x=>x.kind==="town").length}<br>副職業：${DB.subjobs.length}</div><h3>核心規則</h3><div class="rulebox">設施對話與情報遵守知識來源限制。<br>副職業只能在指定設施且符合能力前置與學費後學習。<br>裝備耐久影響戰鬥加成，鐵匠鋪可修復。<br>戰鬥數值集中於角色卡；包含攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋與狀態抗性。<br>遭遇戰鬥改為彈出式回合制介面，可選一般攻擊、技能、防禦、使用道具與逃跑。<br>B級以上內容仍受前置資格與封印規則限制。<br>掉落規則：只有人型敵人可能掉落金錢與裝備；非人型敵人只能掉落素材。<br>戰鬥職業池為100種。<br>核心裝備200件、藥劑200種、通用素材200種；本版新增200種怪物掉落核心，並建立200裝備升級連結與200藥劑鍊金連結。<br>技能命名採傳統RPG結構：動詞＋名詞／元素＋效果；東方系採原創自然意象＋動作。<br>命名AI：以用途可讀性、區域詞根、怪物家族與世界層級生成名稱，並避開專有作品名稱與過度現實訓練術語。</div>`)}
 function manualSave(){const id=`MANUAL-${G.meta.characterId.slice(-6)}-T${String(G.turn).padStart(5,"0")}`;G.meta.saveIndex.push({id,turn:G.turn,time:timeText(),type:"MANUAL"});persist();renderAll();log("存檔",`已建立${id}`,"save")}
 function exportSave(){const b=new Blob([JSON.stringify(G,null,2)],{type:"application/json;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${G.character.name}_${G.meta.characterId}_save.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),400)}
 function resetGame(){if(confirm("確定清除本機存檔？")){try{localStorage.removeItem("chronicle_save")}catch(e){}location.reload()}}
 function runGeneratorAudit(){
  const issues=[];
+ issues.push(...databaseGrowthAudit());
  for(const l of DB.locations){
    if(typeof l.safety_score!=="number"||l.safety_score<0||l.safety_score>100)issues.push(`地圖安全度異常:${l.name}`);
    if(!l.safety_label)issues.push(`地圖安全標籤缺失:${l.name}`);
@@ -4628,7 +4763,7 @@ function runGeneratorAudit(){
    if(!DB.companion_system.ai_profiles[sp.ai_profile])issues.push(`夥伴AI缺失:${sp.name}`);
    if(!sp.base_stats||!Number.isFinite(sp.base_stats.hp))issues.push(`夥伴戰鬥資料缺失:${sp.name}`);
  }
- if((DB.companion_species||[]).length!==200)issues.push(`夥伴物種數量異常:${(DB.companion_species||[]).length}`);
+ if((DB.companion_species||[]).length<200)issues.push(`夥伴物種核心數量不足:${(DB.companion_species||[]).length}`);
  if(G?.character?.companions?.length>DB.companion_system.roster_limit)issues.push(`角色夥伴超過上限`);
  if(G?.character?.activeCompanionId&&!G.character.companions.some(x=>x.uid===G.character.activeCompanionId))issues.push(`出戰夥伴引用無效`);
  for(const t of (DB.party_member_templates||[])){
@@ -4636,7 +4771,7 @@ function runGeneratorAudit(){
    if(!t.base_stats||!Number.isFinite(t.base_stats.hp))issues.push(`隊友戰鬥資料缺失:${t.name}`);
    if(tierOrder(t.tier)>tierOrder("C"))issues.push(`普通招募隊友超過C級:${t.name}`);
  }
- if((DB.party_member_templates||[]).length!==200)issues.push(`隊友模板數量異常:${(DB.party_member_templates||[]).length}`);
+ if((DB.party_member_templates||[]).length<200)issues.push(`隊友模板核心數量不足:${(DB.party_member_templates||[]).length}`);
  if(G?.character?.adventureParty){
    const p=G.character.adventureParty;
    if((p.members||[]).length<1||(p.members||[]).length>4)issues.push(`冒險團人數異常:${1+(p.members||[]).length}`);
@@ -4659,8 +4794,8 @@ function runGeneratorAudit(){
    const arr=mealSys?.venues?.[fid]?.[p]||[];if(arr.length<3)issues.push(`餐點資料不足:${fid}/${p}`);
    if(arr.some(x=>!Number.isFinite(x.price)||x.price<=0))issues.push(`餐點價格異常:${fid}/${p}`)
  }
- if((DB.pantheons||[]).length!==9)issues.push(`神系數量異常:${(DB.pantheons||[]).length}`);
- if((DB.faith_entities||[]).length!==100)issues.push(`信仰實體數量異常:${(DB.faith_entities||[]).length}`);
+ if((DB.pantheons||[]).length<9)issues.push(`神系核心數量不足:${(DB.pantheons||[]).length}`);
+ if((DB.faith_entities||[]).length<100)issues.push(`信仰實體核心數量不足:${(DB.faith_entities||[]).length}`);
  const faithIds=new Set((DB.faith_entities||[]).map(x=>x.id)),pantheonIds=new Set((DB.pantheons||[]).map(x=>x.id));
  for(const e of (DB.faith_entities||[])){
    if(!pantheonIds.has(e.pantheon_id))issues.push(`信仰神系引用缺失:${e.name}`);
@@ -4711,9 +4846,9 @@ function runGeneratorAudit(){
    for(const mid of (c.monster_reference_ids||[]))if(!IDX.monster.has(mid))issues.push(`夥伴魔物關聯缺失:${c.name}->${mid}`)
  }
  if((G?.worldState?.integratedEvents||[]).length>60)issues.push("整合世界事件超過60筆");
- if((DB.political_entities||[]).length!==18)issues.push(`政治單位數量異常:${(DB.political_entities||[]).length}`);
+ if((DB.political_entities||[]).length<18)issues.push(`政治單位核心數量不足:${(DB.political_entities||[]).length}`);
  if((DB.world_regions||[]).length<20)issues.push(`宏觀地區核心數量不足:${(DB.world_regions||[]).length}`);
- if((DB.culture_profiles||[]).length!==20)issues.push(`文化資料數量異常:${(DB.culture_profiles||[]).length}`);
+ if((DB.culture_profiles||[]).length<20)issues.push(`文化資料核心數量不足:${(DB.culture_profiles||[]).length}`);
  const polityIds=new Set((DB.political_entities||[]).map(x=>x.id)),regionIds=new Set((DB.world_regions||[]).map(x=>x.id)),cultureIds=new Set((DB.culture_profiles||[]).map(x=>x.id));
  for(const p of (DB.political_entities||[])){if(!regionIds.has(p.core_region_id))issues.push(`政治體核心地區缺失:${p.name}`);if(!cultureIds.has(p.culture_id))issues.push(`政治體文化缺失:${p.name}`);if(p.vassal_of&&!polityIds.has(p.vassal_of))issues.push(`政治體宗主引用缺失:${p.name}`)}
  for(const r of (DB.political_relations||[])){if(!polityIds.has(r.a)||!polityIds.has(r.b))issues.push(`政治關係引用缺失:${r.a}/${r.b}`);if(r.score<-100||r.score>100)issues.push(`政治關係值越界:${r.a}/${r.b}`)}
@@ -4729,8 +4864,8 @@ function runGeneratorAudit(){
  for(const [k,v] of Object.entries(G?.worldState?.politicalRelations||{}))if(v.score<-100||v.score>100)issues.push(`動態政治關係越界:${k}`);
 
  const authTierIds=new Set((DB.authority_tiers||[]).map(x=>x.id)),authRightIds=new Set((DB.authority_rights_catalog||[]).map(x=>x.id)),authIds=new Set((DB.authority_archetypes||[]).map(x=>x.id));
- if((DB.authority_archetypes||[]).length!==20)issues.push(`權力原型數量異常:${(DB.authority_archetypes||[]).length}`);
- if((DB.polity_authority_profiles||[]).length!==18)issues.push(`政治體權力檔案數量異常:${(DB.polity_authority_profiles||[]).length}`);
+ if((DB.authority_archetypes||[]).length<20)issues.push(`權力原型核心數量不足:${(DB.authority_archetypes||[]).length}`);
+ const authorityProfilePolityIds=new Set();for(const ap of (DB.polity_authority_profiles||[])){if(authorityProfilePolityIds.has(ap.polity_id))issues.push(`政治體權力檔案重複:${ap.polity_id}`);authorityProfilePolityIds.add(ap.polity_id);if(!politicalEntity(ap.polity_id))issues.push(`政治體權力檔案指向無效政體:${ap.polity_id}`)}
  if((DB.political_authority_catalog||[]).length)issues.push(`舊權力catalog仍在參與資料:${DB.political_authority_catalog.length}`);
  for(const a of (DB.authority_archetypes||[])){
    if(!a.succession_method||!a.jurisdiction||!a.symbols?.length||!a.subordinate_titles?.length)issues.push(`權力原型資料不完整:${a.name||a.id}`);
@@ -4761,8 +4896,8 @@ function runGeneratorAudit(){
  for(const [pid,v] of Object.entries(G?.character?.politicalStanding||{}))if(!politicalEntity(pid)||v<-100||v>100)issues.push(`政治聲望異常:${pid}/${v}`);
 
  const dsc=DB.discipline_factions||[],dids=new Set(dsc.map(x=>x.id)),sfs=new Set((DB.skill_families||[]).map(x=>x.id)),cids=new Set(DB.combat_classes.map(x=>x.id));
- if(dsc.filter(x=>x.track==="physical").length!==25)issues.push(`物理流派數量異常:${dsc.filter(x=>x.track==="physical").length}`);
- if(dsc.filter(x=>x.track==="magic").length!==24)issues.push(`魔法流派數量異常:${dsc.filter(x=>x.track==="magic").length}`);
+ if(dsc.filter(x=>x.track==="physical").length<25)issues.push(`物理流派核心數量不足:${dsc.filter(x=>x.track==="physical").length}`);
+ if(dsc.filter(x=>x.track==="magic").length<24)issues.push(`魔法流派核心數量不足:${dsc.filter(x=>x.track==="magic").length}`);
  if(dids.size!==dsc.length)issues.push(`流派ID重複:${dids.size}/${dsc.length}`);
  const dnames=new Set();for(const d of dsc){
    if(dnames.has(d.name))issues.push(`流派名稱重複:${d.name}`);dnames.add(d.name);
@@ -4786,7 +4921,7 @@ function runGeneratorAudit(){
  }
 
  const et=DB.eastern_sword_traditions||[],ef=DB.eastern_sword_figures||[],etsk=DB.eastern_sword_techniques||[];
- if(et.length!==3)issues.push(`東方劍術核心傳承數量異常:${et.length}`);
+ if(et.length<3)issues.push(`東方劍術核心傳承數量不足:${et.length}`);
  if(!et.some(x=>x.id==="EST-THUNDERCLAP")||!et.some(x=>x.id==="EST-RAIKO")||!et.some(x=>x.id==="EST-YAGYU-MIND"))issues.push("雷鳴／雷煌／柳生唯心傳承缺失");
  if(!disciplineFor("DSC-PHY-31")||disciplineFor("DSC-PHY-31").discovery!=="hidden_restricted")issues.push("雷煌流隱藏流派設定缺失");
  if((disciplineFor("DSC-PHY-31")?.dialogue_record_ids||[]).length||(disciplineFor("DSC-PHY-31")?.intel_record_ids||[]).length)issues.push("雷煌流誤接入普通公開對話／情報");
@@ -4801,9 +4936,8 @@ function runGeneratorAudit(){
  if((DB.named_weapons||[]).filter(x=>String(x.id).startsWith("NW-RAIKO-")).some(x=>x.acquisition?.includes("普通商店" )===false?false:false)){}
 
  const st=DB.s_tier_combatants||[],reservedS=DB.s_tier_reserved_slots||[],stIds=new Set(st.map(x=>x.id));
- if(st.length!==30)issues.push(`S級已確認人數異常:${st.length}`);
- if(reservedS.length!==10)issues.push(`S級保留席數異常:${reservedS.length}`);
- if(st.length+reservedS.length!==40)issues.push(`S級全球席位總數異常:${st.length+reservedS.length}`);
+ if(st.length>40)issues.push(`S級已確認人數超過全球上限:${st.length}/40`);
+ if(st.length+reservedS.length>40)issues.push(`S級全球席位超過上限:${st.length+reservedS.length}/40`);
  if(stIds.size!==st.length)issues.push("S級人物ID重複");
  for(const x of reservedS){
    if(x.status!=="reserved_blank"||x.name!==null||x.race_id!==null||x.background!==null||x.locked_for_future!==true)issues.push(`S級保留席被污染:${x.slot_id}`)
@@ -4827,14 +4961,14 @@ function runGeneratorAudit(){
  if((G?.worldState?.sTierEvents||[]).length>20)issues.push("S級世界影響事件超過20筆");
 
  const cpo=DB.continental_political_order,ou=DB.overseas_unknown_horizons||[];
- if(!cpo||cpo.political_unit_count!==20||cpo.governed_polity_count!==17||cpo.regional_power_count!==2||cpo.nonstate_political_zone_count!==1)issues.push("大陸政治體系統缺失或數量異常");
+ if(!cpo||cpo.political_unit_count<20||cpo.governed_polity_count<17||cpo.regional_power_count<2||cpo.nonstate_political_zone_count<1)issues.push("大陸政治體系統缺失或核心數量不足");
  if(politicalEntity("POL-020")?.name!=="黑月深庭")issues.push("POL-020未修正為黑月深庭");
  if(politicalEntity("POL-020")?.primary_authority_archetype_id!=="AUT-005")issues.push("黑月深庭主權原型錯誤");
  if(worldRegion("REG-20")?.political_entity_id!==null)issues.push("龍脊火山群誤掛政治體");
  if(worldRegion("REG-20")?.political_status!=="unclaimed_fragmented")issues.push("龍脊火山群無主狀態缺失");
  const stone=worldRegion("REG-13");if(!stone?.secondary_political_entity_ids?.includes("POL-020")||stone.layered_sovereignty!==true)issues.push("石冠山脈／黑月深庭重疊主權缺失");
  for(const rid of (stone?.secondary_political_entity_ids||[]))if(!politicalEntity(rid))issues.push(`宏觀地區次級政治體引用缺失:${rid}`);
- if(ou.length!==3)issues.push(`海外未知文明數量異常:${ou.length}`);
+ if(ou.length<3)issues.push(`海外未知文明核心數量不足:${ou.length}`);
  for(const x of ou){
    if(!["魔族","魔裔","龍族","鳳族"].includes(x.people))issues.push(`海外未知族群異常:${x.people}`);
    for(const k of ["known_political_entity_id","known_name","known_capital","known_government","known_ruler","known_borders"])if(x[k]!==null)issues.push(`海外未知欄位被污染:${x.people}/${k}`);
@@ -4844,10 +4978,10 @@ function runGeneratorAudit(){
 
  const wh=DB.world_history_system,ht=DB.world_timeline||[],hp=DB.historical_subperiods||[],hc=DB.historical_causal_chains||[],hd=DB.historical_disputes||[];
  if(!wh||wh.version!=="HISTORY-2.0")issues.push("HISTORY-2.0缺失");
- if(hp.length!==12)issues.push(`歷史細分時期數量異常:${hp.length}`);
+ if(hp.length<12)issues.push(`歷史細分時期核心數量不足:${hp.length}`);
  if(ht.length<82)issues.push(`世界史年表核心數量不足:${ht.length}`);
- if(hc.length!==14)issues.push(`歷史因果鏈數量異常:${hc.length}`);
- if(hd.length!==8)issues.push(`爭議史數量異常:${hd.length}`);
+ if(hc.length<14)issues.push(`歷史因果鏈核心數量不足:${hc.length}`);
+ if(hd.length<8)issues.push(`爭議史核心數量不足:${hd.length}`);
  const heIds=new Set(ht.map(x=>x.id));if(heIds.size!==ht.length)issues.push("世界史事件ID重複");
  const eraMap=new Map((DB.historical_eras||[]).map(x=>[x.id,x])),perMap=new Map(hp.map(x=>[x.id,x]));
  for(const e of ht){
@@ -4921,7 +5055,7 @@ function runGeneratorAudit(){
    if(!(lp.wilderness_map_ids||[]).length||!(lp.dungeon_map_ids||[]).length)issues.push("洛文省域野外／地下城資料缺失");
  }
 
- if((DB.regional_powers||[]).length!==2)issues.push(`區域勢力數量異常:${(DB.regional_powers||[]).length}`);
+ if((DB.regional_powers||[]).length<2)issues.push(`區域勢力核心數量不足:${(DB.regional_powers||[]).length}`);
  for(const rp of (DB.regional_powers||[])){if(rp.recognized_sovereignty!==false)issues.push(`區域勢力誤具主權:${rp.name}`);if(politicalEntity(rp.legacy_polity_id))issues.push(`退役政體仍存在:${rp.legacy_polity_id}`)}
  for(const rid of ["REG-10","REG-17"]){const r=worldRegion(rid);if(r?.political_entity_id!==null)issues.push(`區域勢力地區誤掛政體:${rid}`);if(!regionalPowersForRegion(rid).length)issues.push(`區域勢力地區缺勢力:${rid}`)}
  for(const pid of ["POL-007","POL-008","POL-009"]){if(politicalEntity(pid)?.government_type!=="自由都市")issues.push(`自由都市類型未統整:${pid}`)}
@@ -4937,7 +5071,7 @@ function runGeneratorAudit(){
        packs=DB.generator_material_packs||[];
  if(!wm||wm.version!=="WORLD-MATERIAL-1.0")issues.push("WORLD-MATERIAL-1.0缺失");
  if(fest.length<40)issues.push(`文化節慶核心數量不足:${fest.length}`);
- if(myths.length!==27)issues.push(`神話母題數量異常:${myths.length}`);
+ if(myths.length<27)issues.push(`神話母題核心數量不足:${myths.length}`);
  if(lhist.length<40)issues.push(`地方微歷史核心數量不足:${lhist.length}`);
  if(folk.length<40)issues.push(`地方民俗核心數量不足:${folk.length}`);
  if(rum.length<100)issues.push(`地方傳聞核心數量不足:${rum.length}`);
@@ -4955,7 +5089,7 @@ function runGeneratorAudit(){
 
  const wrs=DB.world_relationship_system,hr=DB.historical_relationship_records||[],hri=DB.historical_relationship_index||{};
  if(!wrs||wrs.version!=="RELATION-HISTORY-1.0")issues.push("RELATION-HISTORY-1.0缺失");
- if(hr.length!==222)issues.push(`歷史關係數量異常:${hr.length}`);
+ if(hr.length<222)issues.push(`歷史關係核心數量不足:${hr.length}`);
  const hrIds=new Set(hr.map(x=>x.id));if(hrIds.size!==hr.length)issues.push("歷史關係ID重複");
  for(const r of hr){
    if(r.score<-100||r.score>100)issues.push(`關係分數越界:${r.id}`);
@@ -5022,9 +5156,9 @@ function runGeneratorAudit(){
  }
 
  if(DB.talent_system?.version!=="TALENT-CORE-2.0")issues.push("TALENT-CORE-2.0缺失");
- if((DB.talents||[]).length!==100)issues.push(`天賦數量異常:${(DB.talents||[]).length}`);
- const tc=DB.talent_system?.category_counts||{};
- if(tc["角色能力"]!==25||tc["戰鬥專精"]!==30||tc["戰鬥素質"]!==20||tc["副職業專精"]!==25)issues.push("天賦分類數量異常");
+ if((DB.talents||[]).length<100)issues.push(`天賦核心數量不足:${(DB.talents||[]).length}`);
+ const talentActual=(DB.talents||[]).reduce((m,x)=>(m[x.category]=(m[x.category]||0)+1,m),{});
+ if((talentActual["角色能力"]||0)<25||(talentActual["戰鬥專精"]||0)<30||(talentActual["戰鬥素質"]||0)<20||(talentActual["副職業專精"]||0)<25)issues.push(`天賦分類核心數量不足:${JSON.stringify(talentActual)}`);
  if(typeof talentSubjobBonus!=="function"||typeof craftTimeHours!=="function")issues.push("天賦副職業runtime缺失");
  if(DB.crafting_system?.profession_subjob?.["附魔"]!=="SJ-ENCHANT")issues.push("附魔副職業映射缺失");
 
