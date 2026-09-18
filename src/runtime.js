@@ -3130,16 +3130,73 @@ function normalizeCharacterSkills(){
  }
  c.skills=out.slice(0,10)
 }
+function skillPrereqCompareLine(label,need,current,ok,shortfall=""){
+ const extra=!ok&&shortfall?`｜尚差 ${shortfall}`:"";
+ return `<span class="${ok?"ok":"bad"}">${label}：需求 ${need}｜目前 ${current}${extra}</span>`
+}
+function skillStatRequirements(s,overrideStat=null,overrideNeed=null){
+ const out={};
+ for(const [k,v] of Object.entries(s?.prereq||{}))if(Number.isFinite(Number(v)))out[k]=Math.max(0,Number(v));
+ for(const [k,v] of Object.entries(s?.required_stats||{}))if(Number.isFinite(Number(v)))out[k]=Math.max(0,Number(v));
+ if(s?.required_stat){
+   const n=Number(s.required_stat_value??s.required_stat_requirement??DB.guild_training?.primary_stat_requirement??0);
+   if(Number.isFinite(n)&&n>0)out[s.required_stat]=n
+ }
+ if(overrideStat&&Number.isFinite(Number(overrideNeed)))out[overrideStat]=Math.max(0,Number(overrideNeed));
+ return out
+}
+function skillLearningPrereqState(s,opt={}){
+ const checks=[],mode=opt.mode||"class",fee=Math.max(0,Number(opt.fee)||0);
+ const add=(label,need,current,ok,shortfall="")=>checks.push({label,need,current,ok:!!ok,shortfall});
+ if(mode==="class"){
+   const need=String(s?.tier||"F"),current=String(G.character.combatGrade||"F"),ok=tierOrder(current)>=tierOrder(need);
+   add("戰鬥職業階級",need,current,ok,ok?"":`${tierOrder(need)-tierOrder(current)}階`)
+ }
+ const reqLv=Math.max(1,Number(s?.required_level)||1);
+ if(reqLv>1){
+   const cur=Math.max(1,Number(G.character.level)||1),ok=cur>=reqLv;
+   add("角色等級",`Lv${reqLv}`,`Lv${cur}`,ok,ok?"":`Lv${reqLv-cur}`)
+ }
+ const statNeed=Number(DB.guild_training?.primary_stat_requirement||0);
+ const statReqs=skillStatRequirements(s,opt.statName||null,opt.statName?statNeed:null);
+ for(const [stat,need] of Object.entries(statReqs)){
+   const cur=Math.max(0,Number(G.character.stats?.[stat])||0),ok=cur>=need;
+   add(`${stat}（基礎屬性）`,need,cur,ok,ok?"":need-cur)
+ }
+ if(fee>0){
+   const cur=Math.max(0,Number(G.character.moneySilver)||0),ok=cur>=fee;
+   add("學費",`${fee}銀`,`${cur}銀`,ok,ok?"":`${fee-cur}銀`)
+ }
+ const used=(G.character.skills||[]).length,free=Math.max(0,10-used),slotOk=free>=1;
+ add("技能欄", "至少1格", `可用${free}格（${used}/10）`,slotOk,slotOk?"":"1格");
+ if(opt.requireGuild!==false){
+   const here=G.character.currentFacility==="guild",cur=G.character.currentFacility?(DB.facilities?.[G.character.currentFacility]?.name||G.character.currentFacility):"未進入設施";
+   add("學習地點","冒險者公會",cur,here,here?"":"需前往公會")
+ }
+ return {ok:checks.every(x=>x.ok),checks,missing:checks.filter(x=>!x.ok).map(x=>x.label),html:checks.map(x=>skillPrereqCompareLine(x.label,x.need,x.current,x.ok,x.shortfall)).join("<br>")}
+}
+function skillUseRequirementText(s){
+ return s?.weapon_requirements?.length?`<br><span class="small">使用限制：${s.weapon_requirements.join("／")}（不影響學習資格，施展時需符合）</span>`:""
+}
+DB.meta.skill_learning_prereq_compare_revision="SKILL-LEARNING-PREREQ-COMPARE-1.0";
+DB.skill_learning_prereq_compare_system={version:"SKILL-LEARNING-PREREQ-COMPARE-1.0",rules:["本職、跨職與限定技能均顯示需求／目前值對比。","紅字代表未達成、綠字代表已達成；屬性門檻使用角色基礎屬性。","畫面按鈕與實際學習函式共用同一前置判定，避免只靠UI阻擋。","武器需求屬於技能使用限制，不混同為學習資格。"]};
+
 function classTraining(){
  const pool=DB.skill_pools[G.character.classId]||[],known=knownSkillKeys(),seen=new Set(),avail=[];
  for(const s of pool){
-   const key=skillKey(s);if(seen.has(key)||known.has(key)||tierOrder(s.tier)>tierOrder(G.character.combatGrade))continue;
+   const key=skillKey(s);if(seen.has(key)||known.has(key))continue;
    seen.add(key);avail.push(s)
  }
- const rows=avail.map(s=>`<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span>［${s.kind}／${s.school||"戰技"}］<br>
- <span class="small">${skillDescriptionText(s)}<br>${s.kind!=="被動"?`命中${(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")}｜${s.resource==="mana"?"MP":"體力"}${s.resource_cost??s.stamina_cost??0}`:"常駐生效"}${s.canonical_skill_id?`｜通用技能`:""}</span></span>
- <button onclick="learnCombatSkill('${skillKey(s)}')">學習</button></div>`).join("")||"<div class='small'>目前沒有符合階級的新技能。</div>";
- showModal("冒險者公會・本職技能",rows+`<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`)
+ avail.sort((a,b)=>tierOrder(a.tier)-tierOrder(b.tier)||String(a.name).localeCompare(String(b.name),"zh-Hant"));
+ let lastTier="";
+ const rows=avail.map(s=>{
+   const gate=skillLearningPrereqState(s,{mode:"class",requireGuild:true}),tierHead=s.tier!==lastTier?(lastTier=s.tier,`<div class="inventory-category-title">${s.tier}級技能</div>`):"";
+   const label=gate.ok?"學習":gate.missing.join("＋");
+   return tierHead+`<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span>［${s.kind}／${s.school||"戰技"}］<br>
+   <span class="small">${skillDescriptionText(s)}<br>${s.kind!=="被動"?`命中${(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")}｜${s.resource==="mana"?"MP":"體力"}${s.resource_cost??s.stamina_cost??0}`:"常駐生效"}${s.canonical_skill_id?"｜通用技能":""}<br><b>前置條件（角色基礎狀態）</b><br>${gate.html}${skillUseRequirementText(s)}</span></span>
+   <button ${gate.ok?"class='good'":"disabled"} onclick="learnCombatSkill('${skillKey(s)}')">${label}</button></div>`
+ }).join("")||"<div class='small'>目前沒有尚未學會的本職技能。</div>";
+ showModal("冒險者公會・本職技能",`<div class="card small">比照副職業學習：每項技能直接對照需求與目前值。紅字代表尚未達成，綠字代表已達成；高階技能保留顯示，方便查看後續成長目標。</div>`+rows+`<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`)
 }
 function classCombatTrack(c){return c?.combat_track||((c?.resource_type==="混合")?"hybrid":(c?.resource_type==="MP"?"magic":"physical"))}
 function canCrossTrainClass(fromClass,toClass){
@@ -3150,7 +3207,7 @@ function canCrossTrainClass(fromClass,toClass){
 function combatTrackText(c){return {"physical":"物理系","magic":"魔法系","hybrid":"魔武雙修"}[classCombatTrack(c)]||"未分類"}
 function guildBasicTraining(){
  if(G.character.currentFacility!=="guild")return;
- const current=cls(G.character.classId),rows=[],known=knownSkillKeys(),seenLocal=new Set();
+ const current=cls(G.character.classId),rows=[],known=knownSkillKeys(),seenLocal=new Set(),fee=DB.guild_training.cross_profession_fee;
 
  const rowTrack=(s,c=null)=>{
    if(c?.combat_track==="magic")return "magic";
@@ -3163,9 +3220,8 @@ function guildBasicTraining(){
 
  for(const s of (DB.shared_skills||[])){
    if(s.tier!=="F"||known.has(s.id)||!sharedTrackAllowed(current,s.shared_scope))continue;
-   const statOk=(G.character.stats[s.required_stat]||0)>=DB.guild_training.primary_stat_requirement;
-   const moneyOk=G.character.moneySilver>=DB.guild_training.cross_profession_fee;
-   rows.push({shared:true,key:s.id,s,ok:statOk&&moneyOk,source:`通用（${s.shared_scope_label}）`,track:rowTrack(s)})
+   const gate=skillLearningPrereqState(s,{mode:"cross",fee,requireGuild:true});
+   rows.push({shared:true,key:s.id,s,ok:gate.ok,gate,source:`通用（${s.shared_scope_label}）`,track:rowTrack(s)})
  }
 
  for(const [cid,pool] of Object.entries(DB.skill_pools)){
@@ -3173,9 +3229,8 @@ function guildBasicTraining(){
    for(const s of pool){
      const key=skillKey(s);if(s.tier!=="F"||s.canonical_skill_id||known.has(key))continue;
      const localKey=`${cid}|${key}`;if(seenLocal.has(localKey))continue;seenLocal.add(localKey);
-     const statOk=(G.character.stats[c.primary]||0)>=DB.guild_training.primary_stat_requirement;
-     const moneyOk=G.character.moneySilver>=DB.guild_training.cross_profession_fee;
-     rows.push({shared:false,key,cid,s,ok:statOk&&moneyOk,source:`${c.name}［${combatTrackText(c)}］`,track:rowTrack(s,c)})
+     const gate=skillLearningPrereqState(s,{mode:"cross",statName:c.primary,fee,requireGuild:true});
+     rows.push({shared:false,key,cid,s,ok:gate.ok,gate,source:`${c.name}［${combatTrackText(c)}］`,track:rowTrack(s,c)})
    }
  }
 
@@ -3184,8 +3239,8 @@ function guildBasicTraining(){
  const magic=rows.filter(r=>r.track==="magic").sort(sorter);
 
  const rowHtml=r=>`<div class="itemrow"><span><b>${r.s.name}</b> <span class="tier">F</span>｜${r.source}<br>
- <span class="small">${skillDescriptionText(r.s)}<br>前置：${r.shared?skillRequirementText(r.s):`${cls(r.cid).primary}≥${DB.guild_training.primary_stat_requirement}`}</span></span>
- <button ${r.ok?"":"disabled"} onclick="learnGuildBasic('${r.key}'${r.shared?"":`,'${r.cid}'`})">${r.ok?"學習":"未達條件"}</button></div>`;
+ <span class="small">${skillDescriptionText(r.s)}<br><b>前置條件（角色基礎狀態）</b><br>${r.gate.html}${skillUseRequirementText(r.s)}</span></span>
+ <button ${r.ok?"class='good'":"disabled"} onclick="learnGuildBasic('${r.key}'${r.shared?"":`,'${r.cid}'`})">${r.ok?"學習":r.gate.missing.join("＋")}</button></div>`;
 
  const emptyText=track=>{
    const currentTrack=current.combat_track||"physical";
@@ -3201,7 +3256,7 @@ function guildBasicTraining(){
 
  const rule=`目前職業：${current.name}［${combatTrackText(current)}］。物理系只能跨學物理系；魔法系只能跨學魔法系；只有魔武雙修可同時跨學兩系。魔武雙修通用技能依主要作用系別歸類且只顯示一次。`;
  showModal("冒險者公會・跨職基礎技能",
-   `<div class="card small">${rule}<br>只教授公開F級技能；每項${DB.guild_training.cross_profession_fee}銀。通用技能以canonical ID去重。</div>`+
+   `<div class="card small">${rule}<br>只教授公開F級技能；每項${fee}銀。各項前置比照副職業學習直接顯示需求／目前值；通用技能以canonical ID去重。</div>`+
    section("物理系","physical",physical,"⚔")+
    section("魔法系","magic",magic,"✦")+
    `<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`,
@@ -3212,15 +3267,13 @@ function learnGuildBasic(ref,cid=""){
  const current=cls(G.character.classId);let s=null,sourceClass=null;
  if(ref.startsWith("SK-COM-")){
    s=sharedSkill(ref);if(!s||s.tier!=="F"||!sharedTrackAllowed(current,s.shared_scope))return;
-   if((G.character.stats[s.required_stat]||0)<DB.guild_training.primary_stat_requirement)return
  }else{
    sourceClass=cls(cid);s=findPoolSkillByKey(cid,ref);
-   if(!sourceClass||sourceClass.sealed||!s||s.tier!=="F"||!canCrossTrainClass(current,sourceClass))return;
-   if((G.character.stats[sourceClass.primary]||0)<DB.guild_training.primary_stat_requirement)return
+   if(!sourceClass||sourceClass.sealed||!s||s.tier!=="F"||!canCrossTrainClass(current,sourceClass))return
  }
- if(G.character.moneySilver<DB.guild_training.cross_profession_fee)return;
+ const gate=skillLearningPrereqState(s,{mode:"cross",statName:sourceClass?.primary||null,fee:DB.guild_training.cross_profession_fee,requireGuild:true});
+ if(!gate.ok){alert(`尚未達成：${gate.missing.join("、")}。`);return}
  if(knownSkillKeys().has(skillKey(s))){alert("已學會同一技能，不能從其它職業重複學習。");return}
- if(G.character.skills.length>=10){alert("技能已達10個上限，請先遺忘技能。");return}
  closeModal();if(!beginTurn("公會跨職技能訓練"))return;
  G.character.moneySilver-=DB.guild_training.cross_profession_fee;
  G.character.skills.push({...s,type:"戰鬥",mastery:.5,crossClass:true});
@@ -3229,7 +3282,8 @@ function learnGuildBasic(ref,cid=""){
 function learnCombatSkill(key){
  const d=findPoolSkillByKey(G.character.classId,key);if(!d)return;
  if(knownSkillKeys().has(skillKey(d))){alert("已學會同一技能。");return}
- if(G.character.skills.length>=10){alert("技能已達10個，請先在角色頁遺忘技能。");return}
+ const gate=skillLearningPrereqState(d,{mode:"class",requireGuild:true});
+ if(!gate.ok){alert(`尚未達成：${gate.missing.join("、")}。`);return}
  closeModal();if(!beginTurn("學習技能"))return;
  const shared=d.canonical_skill_id?sharedSkill(d.canonical_skill_id):null;
  G.character.skills.push({...shared||d,type:"戰鬥",mastery:1});
@@ -4931,6 +4985,8 @@ function runGeneratorAudit(){
  for(const c of DB.combat_classes)for(const p of (c.progression_from||[]))if(!cls(p))issues.push(`職業進階引用缺失:${c.name}->${p}`);
  for(const d of DB.items.filter(x=>x.craft_recipe))for(const x of craftRecipeMaterials(d))if(!item(x.id))issues.push(`配方引用缺失:${d.name}->${x.id}`);
  for(const s of Object.values(DB.skill_pools).flat())if(s.status&&!DB.status_system.definitions[s.status])issues.push(`技能狀態缺失:${s.name}->${s.status}`);
+  if(DB.skill_learning_prereq_compare_system?.version!=="SKILL-LEARNING-PREREQ-COMPARE-1.0")issues.push("技能學習前置對比系統缺失");
+  if(typeof skillLearningPrereqState!=="function"||typeof skillPrereqCompareLine!=="function")issues.push("技能學習前置對比runtime缺失");
  for(const d of DB.items||[])for(const id of (d.use?.conditions||[]))if(!DB.status_system.definitions[id])issues.push(`物品狀態引用缺失:${d.name}->${id}`);
  if(DB.status_system?.version!=="STATUS-1.11")issues.push("STATUS-1.11缺失");
  if(DB.quality_audit_system?.version!=="QUALITY-AUDIT-1.0")issues.push("QUALITY-AUDIT-1.0缺失");
