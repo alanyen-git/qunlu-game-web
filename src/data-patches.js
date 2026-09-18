@@ -1550,7 +1550,7 @@
   ]);
 
   asdailAdd("discipline_factions",[
-    {id:"DISC-ASD-IRON-BANNER",name:"鐵旗守勢流",tier:"D",base_location_id:"ASD-GRAYGATE",description:"北境守備隊流傳的盾劍訓練，重視掩護、穩定與反擊，不取代既有雷鳴流、雷煌流或柳生唯心流。",bonus:{defense:3,guard_effectiveness:8},requirements:{min_level:5,weapon_types:["武器","盾"]}},
+    {id:"DISC-ASD-IRON-BANNER",name:"鐵旗守勢流",tier:"D",base_location_id:"ASD-GRAYGATE",description:"北境守備隊流傳的盾劍訓練，重視掩護、穩定與反擊，不取代既有雷鳴流、雷煌流或柳生惟心流。",bonus:{defense:3,guard_effectiveness:8},requirements:{min_level:5,weapon_types:["武器","盾"]}},
     {id:"DISC-ASD-MIST-STEP",name:"霧徑聽息流",tier:"C",base_location_id:"ASD-MISTPINE",description:"霧杉獵人以聽覺、腳步與短距離位移為核心的野外流派，重視避戰與先手。",bonus:{evasion:5,accuracy:4},requirements:{min_level:12,weapon_types:["短刃","弓"]}}
   ]);
 
