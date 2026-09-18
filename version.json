@@ -1,19 +1,15 @@
 {
-  "version": "CURRENT-1.65.3",
-  "previous_version": "CURRENT-1.65.2",
+  "version": "CURRENT-1.65.4",
+  "previous_version": "CURRENT-1.65.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正阿斯戴爾擴充資料與 CURRENT 引擎 schema 不同步造成的五回合自檢連鎖異常，並將自檢改為可安全容納合法內容擴充。",
+  "summary": "修正 WORLD-AUTONOMY-2.0 在後置載入時重新將 E 級加工農產塞回 F 級琥珀田野採集池，消除五回合自檢的兩筆採集超階警告。",
   "changelog": [
-    "修正 data-patches 將 dialogue_database 物件誤覆寫成陣列的根因；正式對話現為 571 筆，既有 DLG 引用完整保留。",
-    "新增 ASDAIL-INTEGRATION-1.0：補齊阿斯戴爾地圖安全度、四層地圖欄位、聚落層級、NPC 地區、組織/流派會員加成、世界誌索引、世界史時期、素材包、物品來源索引與怪物掉落 profile。",
-    "遭遇系統支援區域作者明示 habitat；補齊灰門山徑、王冠草甸、王家舊蓄水廊的合法候選池，31 張阿斯戴爾野外/地下城不再有空生態池。",
-    "委託 runtime 正式支援 hunt 目標與介面文字；修正區域搜索/採樣任務，35 筆阿斯戴爾委託均有合法目標來源。",
-    "奇遇獎勵改為依事件、地圖與玩家可接觸層級動態限制，並修正赤岩裂口、白鬃座狼與糧秤事件層級；不再用 E 級/12 銀固定上限誤判 D～B 級事件。",
-    "核心資料量稽核由固定相等改為核心最低基準＋逐筆引用驗證；合法新增地區、組織、NPC、流派、物品與世界史不再被誤報。",
-    "正式資料重建驗證：地圖安全/採集超階/委託無來源/空生態池/奇遇層級與獎勵等本次主要異常類別均為 0；物品來源索引 1189/1189。",
-    "PWA 使用 v15 快取且採 network-first/no-store 更新；存檔 schema 不變、舊存檔相容。"
+    "根因確認：ASDAIL-INTEGRATION 已正確移除超階素材，但後置 world-autonomy-v2.js 的 GATHER_PATCHES 又重新加入精製蜂蠟與長纖亞麻。",
+    "琥珀田野（F級）野外直接採集池改為只保留 F 級琥珀田蜂蜜。",
+    "精製蜂蠟（E級）與長纖亞麻（E級）保留為琥珀田鎮農產加工／商隊物流商品，不再標記為 F 級野外可直接採集來源。",
+    "PWA 快取升至 v16，確保重新整理後取得修正後的 WORLD-AUTONOMY-2.0。"
   ],
   "content_revision": "ASDAIL-INTEGRATION-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
