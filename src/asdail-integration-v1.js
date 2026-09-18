@@ -233,6 +233,7 @@
     pack={id:"MATPACK-ASD-01",region_id:"REG-ASD-01",festival_ids:[],local_history_ids:[],folklore_ids:[],rumor_ids:[],quest_motifs:["商路巡查","地方救難","礦務安全","封鎖區許可"],exploration_motifs:["王冠大道","霧杉深林","赤岩熔窟","碎浪潮岸"]};
     DB.generator_material_packs.push(pack);
   }
+  pack.festival_ids=uniq([...(pack.festival_ids||[]),...(DB.cultural_festivals||[]).filter(x=>x.region_id==="REG-ASD-01").map(x=>x.id)]);
   pack.local_history_ids=uniq([...(pack.local_history_ids||[]),...localHist.map(x=>x.id)]);
   pack.folklore_ids=uniq([...(pack.folklore_ids||[]),...folklore.map(x=>x.id)]);
   pack.rumor_ids=uniq([...(pack.rumor_ids||[]),...rumors.map(x=>x.id)]);
