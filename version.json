@@ -1,21 +1,20 @@
 {
-  "version": "CURRENT-1.69.9",
-  "previous_version": "CURRENT-1.69.8",
+  "version": "CURRENT-1.70.0",
+  "previous_version": "CURRENT-1.69.9",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全生產製作成功率升級：鍛造、裁縫、藥劑、附魔與料理統一由能力值、幸運、天賦、副職業階級／熟練Lv、配方難度與組織加成共同決定。",
+  "summary": "寵物／召喚獸獨有光環系統：每個夥伴物種依類型、AI定位、元素、族群與物種簽章生成固定光環；出戰生效、倒下失效，並隨階級、等級與羈絆成長。",
   "changelog": [
-    "新增 PRODUCTION-CRAFT-SUCCESS-2.0，鍛造、裁縫、藥劑、附魔、料理全部套用成功率判定。",
-    "鍛造採力量＋敏捷；裁縫採敏捷＋智力；藥劑與附魔採智力＋意志；料理採敏捷＋智力，幸運另提供共同加成。",
-    "副職業新增由既有XP推導的熟練Lv1–10；成功率同時受副職業階級與熟練Lv影響，不改舊存檔schema。",
-    "既有鍛造／裁縫／藥劑／附魔天賦與烹飪天賦正式納入同一成功率公式；所有副職業通用成功率天賦亦生效。",
-    "料理移除舊版『取得廚師固定+18』簡化判定，改與專業製作一致使用能力、階級、熟練Lv與天賦。",
-    "製作與料理介面顯示目前成功率、能力值、幸運、副職業階級／熟練Lv、天賦與配方難度來源。",
-    "批量1／5／10逐次擲定；批次途中副職業升階或熟練Lv提升時，後續嘗試立即套用新成功率。",
-    "失敗不產生成品，仍消耗該次完整配方素材並取得實作副職業XP；成功率下限20%、上限95%。",
-    "五回合自檢追加全製作成功率系統與專業能力／副職業映射檢查。",
-    "保留CURRENT-1.69.8戰鬥隊形調整與CRAFTING-RECIPE-SEMANTIC-2.0配方完整性成果；PWA快取升級至v43。"
+    "新增 COMPANION-AURA-1.0；所有既有與未來寵物、召喚獸、契約獸物種自動取得唯一ID與固定名稱的獨有光環。",
+    "光環生成同時參考夥伴類型、AI定位（守護／猛攻／游擊／術法／支援／暗蝕／傳說）、九元素、族群特徵與物種固定簽章。",
+    "光環只有設為出戰的夥伴會啟動；戰鬥中夥伴HP歸零或失去戰鬥能力時立即失效，避免倒下後仍提供永久增益。",
+    "光環作用於玩家與冒險團隊友；光環來源本身不吃自己的光環，避免召喚獸自我循環放大。",
+    "光環強度隨夥伴階級、等級與羈絆成長；同一物種不會因重新取得或讀檔而隨機換光環。",
+    "玩家戰鬥數值、元素抗性、感知／潛行／掉寶等支援欄位正式接入光環；冒險團隊友同步取得相容的攻防、命中、閃避與速度增益。",
+    "寵物／召喚面板新增獨有光環名稱、目前效果與啟動狀態；戰鬥夥伴欄同步顯示目前啟動光環。",
+    "五回合自檢新增夥伴光環完整性、ID／名稱唯一性與未支援效果鍵檢查；既有存檔相容，不需重開角色。",
+    "保留 CURRENT-1.69.9 全生產製作成功率與 CURRENT-1.69.8 戰鬥隊形成果；PWA快取升級至v44。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -53,7 +52,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-2.0",
+  "pwa_cache_revision": "PWA-CACHE-FIX-2.1",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -89,5 +88,27 @@
     "subjob_level_cap": 10,
     "batch_recalculate_each_attempt": true,
     "save_compatible": true
+  },
+  "companion_aura_revision": "COMPANION-AURA-1.0",
+  "companion_aura": {
+    "applies_to": [
+      "寵物",
+      "召喚獸",
+      "契約獸"
+    ],
+    "generated_per_species": true,
+    "activation": "出戰且未倒下",
+    "affects": [
+      "玩家",
+      "冒險團隊友"
+    ],
+    "source_self_buff": false,
+    "scaling": [
+      "夥伴階級",
+      "夥伴等級",
+      "羈絆"
+    ],
+    "deterministic": true,
+    "save_compatible": true
   }
-}
+}\n
