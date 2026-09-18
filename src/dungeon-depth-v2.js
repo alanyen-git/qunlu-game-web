@@ -185,7 +185,7 @@ function grantEquipment(l,boss=false){
  const cap=dungeonCapTier(l);
  const preferred=pool.filter(d=>tierOrder(d.tier)>=Math.max(0,cap-(boss?1:2)));
  const d=(preferred.length?preferred:pool)[rand((preferred.length?preferred:pool).length)];
- const durability=Math.max(1,Math.round((d.durability||100)*(boss?.72:.48+Math.random()*.22)));
+ const durability=Math.max(1,Math.round((d.durability||100)*(boss ? .72 : .48+Math.random()*.22)));
  addItem(d.id,1,{durability});
  return d
 }
@@ -305,7 +305,7 @@ function resolveNpcEvent(ev,run,room,choice){
  if(choice==="avoid"){log("地下城NPC","你與 "+team.name+" 保持距離，雙方各自前進。");return}
  const roll=rollD20();
  if(choice==="cooperate"){
-   const mod=Math.floor((effectiveStat("魅力")-10)/2)+(G.character.guildReputation||0)>=20?2:0;
+   const mod=Math.floor((effectiveStat("魅力")-10)/2)+((G.character.guildReputation||0)>=20?2:0);
    const total=roll+mod,dc=10+tierOrder(l.tier);
    if(total>=dc){
      run.cooperationBonus=Math.min(3,(run.cooperationBonus||0)+1);revealAround(run,room,2);
@@ -345,7 +345,7 @@ function resolveDungeonEvent(choice){
  const run=G.dungeonRuns?.[ev.locationId],room=eventRoom(run,ev);
  if(!run||!room){G.pendingDungeonEvent=null;closeModal();persist();return}
  if(ev.kind==="npc")resolveNpcEvent(ev,run,room,choice);else resolveSpecialEvent(ev,run,room,choice);
- G.pendingDungeonEvent=null;markRoomCleared(run,room);closeModal();persist();renderAll()
+ G.pendingDungeonEvent=null;if(ev.kind==="special")markRoomCleared(run,room);closeModal();persist();renderAll()
 }
 function bossVictoryReward(run){
  const l=loc(run.locationId),p=tierProfile(l.tier),got=grantTreasure(l,1.6);
