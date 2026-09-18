@@ -907,6 +907,9 @@ body{background:#071014;color:var(--ui-text)}
 }
 .inventory-item-head{font-size:19px;font-weight:800;color:#f3efe7}
 .inventory-item-meta{margin-top:6px;color:#bac5c7;font-size:13px;line-height:1.5}
+.equip-compare-better{color:var(--good);font-weight:700}
+.equip-compare-worse{color:var(--bad);font-weight:700}
+.equip-compare-equal{color:#f3efe7;font-weight:700}
 .inventory-item-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:11px}
 .inventory-item-actions.one{grid-template-columns:1fr}
 .inventory-item-actions button{width:100%;min-height:58px;border-radius:15px;font-size:16px}
