@@ -1029,12 +1029,23 @@ function openRestChoice(){showModal("野外休息","<div class='actions'><button
 function wildRest(h){closeModal();if(!beginTurn("野外休息"))return;G.character.fatigue=clamp(G.character.fatigue-h*12,0,120);G.character.stamina=G.character.maxStamina;maybeEncounter("休息");endTurn(h)}
 function openTraining(){showModal("自主訓練","<div class='actions'><button onclick=\"train('combat')\">戰鬥訓練</button><button onclick=\"train('survival')\">生存訓練</button><button onclick=\"train('body')\">體能訓練</button></div>")}
 function train(type){closeModal();if(!beginTurn("自主訓練"))return;G.character.fatigue=clamp(G.character.fatigue+6,0,120);log("訓練","完成基礎訓練；成長仍受每日上限控制。","ok");endTurn(1.5)}
+function cookingOutputItem(r){
+ const id=r?.result||r?.output?.item_id||null;
+ return id?item(id):null
+}
+function isCookingRecipe(r){
+ if(!r)return false;
+ const d=cookingOutputItem(r);if(!d)return false;
+ const prof=String(r.profession||"").trim();
+ if(prof&&!["料理","烹飪","cook","cooking","SJ-COOK"].includes(prof))return false;
+ return d.type==="料理"||d.inventory_group==="食物"||!!d.food_subtype
+}
 function openCooking(){
  const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),rank=hasCook?G.character.subjobs.find(x=>x.id==="SJ-COOK").grade:null;
- let list=DB.recipes.filter(r=>!r.cook_grade||(rank&&tierOrder(rank)>=tierOrder(r.cook_grade)));
- let b=`<div class="small">沒有烹飪副職業也能製作F級基礎料理；E級以上需烹飪資格。批量製作會按實際次數消耗材料與時間。</div>`+
+ let list=DB.recipes.filter(r=>isCookingRecipe(r)&&(!r.cook_grade||(rank&&tierOrder(rank)>=tierOrder(r.cook_grade))));
+ let b=`<div class="small">沒有烹飪副職業也能製作F級基礎料理；E級以上需烹飪資格。料理清單只顯示實際可食用成品；批量製作會按實際次數消耗材料與時間。</div>`+
  list.map(r=>{
-   const result=item(r.result);
+   const result=cookingOutputItem(r);
    return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${r.tier}</span>
    <br><span class="small">${craftResultLine(result)}<br>${cookingMaterialText(r,true)}</span></span>
    <span class="craft-batch"><button onclick="cookBatch('${r.id}',1)">製作1</button><button onclick="cookBatch('${r.id}',5)">×5</button><button onclick="cookBatch('${r.id}',10)">×10</button></span></div>`
@@ -1064,7 +1075,9 @@ function showMissingMaterials(r,miss){
 function cookingMissingBatch(r,count){const miss=[];for(const [id,q] of Object.entries(r.requires||{})){const need=q*count,have=inventoryQty(id);if(have<need)miss.push({id,need,have})}if(r.requires_any_food){const need=r.requires_any_food*count,have=(G.character.inventory||[]).reduce((n,x)=>n+(item(x.id)?.type==="食材"?(x.qty||1):0),0);if(have<need)miss.push({id:"ANY_FOOD",need,have})}return miss}
 function consumeAnyFood(qty){let n=qty;for(let i=G.character.inventory.length-1;i>=0&&n>0;i--){const x=G.character.inventory[i];if(item(x.id)?.type!=="食材")continue;const take=Math.min(n,x.qty||1);removeItem(x.id,take,i);n-=take}return n<=0}
 function cookBatch(rid,count=1){
- count=Math.max(1,Math.min(10,Number(count)||1));const r=IDX.recipe.get(rid);if(!r)return;const miss=cookingMissingBatch(r,count);if(miss.length){alert("批量材料不足："+miss.map(x=>`${x.id==="ANY_FOOD"?"任意食材":item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}closeModal();if(!beginTurn(`批量料理：${r.name}×${count}`))return;const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),chance=clamp(42+effectiveStat("敏捷")*2+effectiveStat("幸運")*2+(hasCook?18:0)-tierOrder(r.tier)*8+talentSubjobBonus("SJ-COOK","success"),25,95);let success=0,fail=0;for(let n=0;n<count;n++){if(r.requires)for(const [id,q] of Object.entries(r.requires))consumeIngredient(id,q);if(r.requires_any_food)consumeAnyFood(r.requires_any_food);if(1+rand(100)<=chance){addItem(r.result);success++}else fail++;if(hasCook)gainSubjobXp("SJ-COOK",(tierOrder(r.tier)+1)*6)}log("料理",`${r.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");const red=clamp(talentSubjobBonus("SJ-COOK","timeReduction"),0,.35);endTurn(Math.max(.25,Math.round(count*(1-red)*100)/100));openCooking()
+ count=Math.max(1,Math.min(10,Number(count)||1));const r=IDX.recipe.get(rid);if(!r)return;
+ if(!isCookingRecipe(r)){alert("此配方不是料理配方，無法從料理介面製作。");return}
+ const miss=cookingMissingBatch(r,count);if(miss.length){alert("批量材料不足："+miss.map(x=>`${x.id==="ANY_FOOD"?"任意食材":item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}closeModal();if(!beginTurn(`批量料理：${r.name}×${count}`))return;const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),chance=clamp(42+effectiveStat("敏捷")*2+effectiveStat("幸運")*2+(hasCook?18:0)-tierOrder(r.tier)*8+talentSubjobBonus("SJ-COOK","success"),25,95);let success=0,fail=0;for(let n=0;n<count;n++){if(r.requires)for(const [id,q] of Object.entries(r.requires))consumeIngredient(id,q);if(r.requires_any_food)consumeAnyFood(r.requires_any_food);if(1+rand(100)<=chance){addItem(r.result);success++}else fail++;if(hasCook)gainSubjobXp("SJ-COOK",(tierOrder(r.tier)+1)*6)}log("料理",`${r.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");const red=clamp(talentSubjobBonus("SJ-COOK","timeReduction"),0,.35);endTurn(Math.max(.25,Math.round(count*(1-red)*100)/100));openCooking()
 }
 function cook(rid){return cookBatch(rid,1)}
 
@@ -4969,6 +4982,14 @@ function runGeneratorAudit(){
 
  if(DB.crafting_system?.ui_version!=="CRAFT-UI-1.1")issues.push("CRAFT-UI-1.1缺失");
  if(typeof craftMaterialText!=="function"||typeof cookingMaterialText!=="function")issues.push("製作素材文字函式缺失");
+ if(DB.cooking_data_integrity_system?.version!=="COOKING-DATA-INTEGRITY-1.0")issues.push("COOKING-DATA-INTEGRITY-1.0缺失");
+ if(typeof isCookingRecipe!=="function")issues.push("料理配方分類函式缺失");
+ for(const x of DB.cooking_data_integrity_system?.semantic_issues||[])issues.push(`料理素材語意異常:${x.id}/${x.reason}`);
+ const cookingProfessionLeaks=(DB.recipes||[]).filter(r=>{
+   const d=cookingOutputItem(r),prof=String(r?.profession||"").trim();
+   return d&&(d.type==="料理"||d.inventory_group==="食物"||d.food_subtype)&&prof&&!["料理","烹飪","cook","cooking","SJ-COOK"].includes(prof)
+ });
+ for(const r of cookingProfessionLeaks)issues.push(`料理配方專業分類異常:${r.id}/${r.profession}`);
 
  if(DB.talent_system?.version!=="TALENT-CORE-2.0")issues.push("TALENT-CORE-2.0缺失");
  if((DB.talents||[]).length!==100)issues.push(`天賦數量異常:${(DB.talents||[]).length}`);
