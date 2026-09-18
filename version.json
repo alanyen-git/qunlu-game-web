@@ -1,23 +1,21 @@
 {
-  "version": "CURRENT-1.65.7",
-  "previous_version": "CURRENT-1.65.6",
+  "version": "CURRENT-1.65.8",
+  "previous_version": "CURRENT-1.65.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正取水容器守恆：取水必須同時具備取水工具與空水袋，空水袋轉為裝滿水袋；飲用或料理後退回空水袋，不再憑空生成水袋。",
+  "summary": "修正五回合自檢的物品來源索引：支援所有料理／製作配方格式，並在後載入模組新增物品後自動重建來源索引。",
   "changelog": [
-    "新增「空水袋」F級道具並加入一般雜貨店；空水袋可重複使用。",
-    "折疊水桶重新定義為取水工具，不再視為長途儲水容器。",
-    "每取得1份 I-WATER 必須先消耗1個空水袋；空水袋不足時最多只能取得對應數量的水。",
-    "沒有空水袋時，取水按鍵直接顯示「需要空水袋」，不會自動生成新水袋。",
-    "沒有折疊水桶／其他取水工具時也不能執行取水。",
-    "直接飲用 I-WATER 後會留下1個空水袋。",
-    "料理配方消耗 I-WATER 後會依實際消耗數量退回空水袋，維持容器總量守恆。",
-    "既有角色持有的 I-WATER 視為已裝滿的既有水袋，不額外補發空水袋；只有使用後才轉回空袋。",
-    "五回合自檢新增空水袋、取水工具與空／滿水袋生命週期檢查。",
-    "PWA快取升至v19。"
+    "修正料理來源索引：同時支援 ingredients/output.item_id 與 requires/result 兩種配方格式。",
+    "蜂蜜草茶、乳香麥飲、松谷酸果飲、冰薄荷茶現在會正確列入 recipe_outputs，不再被判定為「物品來源完全空白」。",
+    "物品自身 craft_recipe 的材料與製作結果同步加入 recipe_inputs／recipe_outputs。",
+    "新增後載入來源索引同步：空水袋、折疊水桶等在 runtime 建立後才加入的物品也會立即補入 content_link_index.item_sources。",
+    "來源索引每次同步都會以目前 DB.items 為基準重建，避免物品總數與索引數量不同步。",
+    "I-WATER 正式標記 water_source 特殊來源，與取水點系統串接。",
+    "五回合自檢會同步核對實際物品數與來源索引數，保留真正無來源物品的警告，不以硬編碼方式掩蓋異常。",
+    "PWA快取升至v20。"
   ],
-  "content_revision": "WATER-SOURCE-1.1",
+  "content_revision": "ITEM-SOURCE-INDEX-1.1",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.0",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -32,5 +30,6 @@
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
   "save_compatible": true,
-  "water_source_revision": "WATER-SOURCE-1.1"
+  "water_source_revision": "WATER-SOURCE-1.2",
+  "item_source_index_revision": "ITEM-SOURCE-INDEX-1.1"
 }
