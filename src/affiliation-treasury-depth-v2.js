@@ -2,7 +2,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.69.2",REV="AFFILIATION-TREASURY-DEPTH-2.1";
+const RELEASE="CURRENT-1.69.3",REV="AFFILIATION-TREASURY-DEPTH-2.2";
 const R={F:0,E:1,D:2,C:3,B:4,A:5,S:6},TIERS=["F","E","D","C","B","A","S"];
 const LEVEL={F:1,E:8,D:20,C:35,B:50,A:70,S:90};
 const RANK_REQ={F:0,E:1,D:2,C:3,B:4,A:5,S:5};
@@ -243,10 +243,21 @@ function renderItemRow(type,id,d,p,z,c){
  return `<div class="itemrow"><span><b>${esc(d.name)}</b> <span class="tier">${esc(d.tier)}</span><br><span class="small">${stat}<br>規模層級 ${esc(d.affiliation_scale_tier||d.tier)}｜需求：${esc(titleFor(type,aff(type,id),need))}｜${cost}貢獻${lim<999?`｜${owned}/${lim}`:""}</span></span><button ${ok?"class='good'":"disabled"} onclick="exchangeAffiliationTreasuryItem('${type}','${esc(id)}','${esc(d.id)}')">${esc(reason)}</button></div>`
 }
 function renderSkillRow(type,id,s,p,z,c){
- const need=Number(s.treasury_rank||0),cost=costWithDiscount(s.treasury_cost,z.rank),known=knownSkill(s.id),lvOk=Number(G?.character?.level||1)>=Number(s.required_level||1),sg=skillStatGate(s),slotOk=(G?.character?.skills||[]).length<10;
- const ok=!known&&z.rank>=need&&p.balance>=cost&&c.ok&&lvOk&&sg.ok&&slotOk;
- const reason=known?"已學會":z.rank<need?`需職位：${titleFor(type,aff(type,id),need)}`:!lvOk?`需Lv${s.required_level}`:!sg.ok?`${sg.stat}需${sg.need}`:!slotOk?"技能已達10個":p.balance<cost?`貢獻不足 ${p.balance}/${cost}`:c.ok?"研習":c.text;
- return `<div class="itemrow"><span><b>${esc(s.name)}</b> <span class="tier">${esc(s.tier)}</span> <span class="small">獨有技能</span><br><span class="small">${skillText(s)}<br>規模層級 ${esc(s.affiliation_scale_tier)}｜需求：${esc(titleFor(type,aff(type,id),need))}、Lv${s.required_level}、${sg.stat}≥${sg.need}｜${cost}貢獻</span></span><button ${ok?"class='good'":"disabled"} onclick="learnAffiliationTreasurySkill('${type}','${esc(id)}','${esc(s.id)}')">${esc(reason)}</button></div>`
+ const a=aff(type,id),need=Number(s.treasury_rank||0),cost=costWithDiscount(s.treasury_cost,z.rank),known=knownSkill(s.id),sg=skillStatGate(s);
+ const generic=typeof skillLearningPrereqState==="function"?skillLearningPrereqState(s,{mode:"treasury",requireGuild:false}):{ok:Number(G?.character?.level||1)>=Number(s.required_level||1)&&(G?.character?.skills||[]).length<10,html:"",missing:[]};
+ const curTitle=titleFor(type,a,z.rank),needTitle=titleFor(type,a,need),rankOk=z.rank>=need,statCurrent=Number(G?.character?.stats?.[sg.stat]||0),balanceOk=Number(p.balance||0)>=cost;
+ const line=typeof skillPrereqCompareLine==="function"?skillPrereqCompareLine:(label,req,cur,ok,short="")=>`<span class="${ok?"ok":"bad"}">${label}：需求 ${req}｜目前 ${cur}${!ok&&short?`｜尚差 ${short}`:""}</span>`;
+ const extra=[
+  line("職位",needTitle,curTitle,rankOk,rankOk?"":"尚未晉升"),
+  line(`${sg.stat}（基礎屬性）`,sg.need,statCurrent,sg.ok,sg.ok?"":sg.need-statCurrent),
+  line("可用貢獻",cost,Number(p.balance||0),balanceOk,balanceOk?"":cost-Number(p.balance||0)),
+  line("研習地點","正式據點",c.text,c.ok,c.ok?"":"需返回指定據點")
+ ];
+ const knownLine=line("技能狀態","尚未學會",known?"已學會":"尚未學會",!known,known?"不可重複研習":"");
+ const compare=[generic.html,...extra,knownLine].filter(Boolean).join("<br>");
+ const ok=!known&&generic.ok&&rankOk&&sg.ok&&balanceOk&&c.ok;
+ const missing=[...generic.missing,...(!rankOk?["職位"]:[]),...(!sg.ok?[sg.stat]:[]),...(!balanceOk?["貢獻"]:[]),...(!c.ok?["研習地點"]:[]),...(known?["已學會"]:[])];
+ return `<div class="itemrow"><span><b>${esc(s.name)}</b> <span class="tier">${esc(s.tier)}</span> <span class="small">獨有技能</span><br><span class="small">${skillText(s)}<br>規模層級 ${esc(s.affiliation_scale_tier)}<br><b>前置條件（角色目前狀態）</b><br>${compare}</span></span><button ${ok?"class='good'":"disabled"} onclick="learnAffiliationTreasurySkill('${type}','${esc(id)}','${esc(s.id)}')">${esc(ok?"研習":missing.join("＋"))}</button></div>`
 }
 function openTreasury(type,id){
  const a=aff(type,id);if(!a||!member(type,id))return alert("只有正式成員可以使用寶庫。");
@@ -301,9 +312,9 @@ DB.affiliation_treasury_depth_system={version:REV,release:RELEASE,save_compatibl
  "規模優先讀明確scale/size欄位，其次讀scope/jurisdiction，再以既有tier及接觸據點數保底。",
  "小型勢力不生成高階寶庫；大型、跨國與世界級勢力才可能提供B/A/S級限定內容。",
  "B級以上技能仍需職位、角色等級、能力值與技能槽前置，不因加入大型組織直接解鎖。",
- "所有獨有技能使用既有技能XP Lv1-10與Lv6/Lv10里程碑runtime。","舊版誓徽／傳承裝僅保留既有持有品，不再與規模化裝備重複供應。"
+ "所有獨有技能使用既有技能XP Lv1-10與Lv6/Lv10里程碑runtime。","獨有技能研習比照副職業學習逐條顯示職位、角色等級、基礎屬性、技能欄、貢獻與據點的需求／目前值。","舊版誓徽／傳承裝僅保留既有持有品，不再與規模化裝備重複供應。"
 ]};
-if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.2／${REV}：寶庫依勢力規模擴充數種獨有裝備與技能，規模越大種類與最高層級越高。`);
+if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.3／${REV}：寶庫依勢力規模擴充數種獨有裝備與技能，規模越大種類與最高層級越高。`);
 ensureContent();try{if(typeof syncRuntimeIndexesAndMetadata==="function")syncRuntimeIndexesAndMetadata()}catch(e){}ensureSources();patchSync();
 globalThis.openAffiliationTreasury=openTreasury;
 globalThis.learnAffiliationTreasurySkill=learnSkill;
