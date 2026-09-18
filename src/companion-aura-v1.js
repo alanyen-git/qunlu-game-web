@@ -231,9 +231,28 @@ if(typeof elementalResistances==="function"){
     return out
   }
 }
-if(typeof partyMemberCombatStats==="function"){
-  const basePartyMemberCombatStats=partyMemberCombatStats;
-  partyMemberCombatStats=function(){return applyPartyAura(basePartyMemberCombatStats.apply(this,arguments),activeAura())}
+function setPartySnapshotAuraStats(m,aura){
+  if(!m)return m;
+  m._auraBase=m._auraBase||{
+    attack:Number(m.attack||0),magic:Number(m.magic||0),defense:Number(m.defense||0),
+    accuracy:Number(m.accuracy||0),evasion:Number(m.evasion||0),speed:Number(m.speed||0)
+  };
+  const next=applyPartyAura(m._auraBase,aura);
+  for(const k of ["attack","magic","defense","accuracy","evasion","speed"])m[k]=next[k];
+  return m
+}
+function syncBattlePartyAura(){
+  if(typeof G==="undefined"||!G?.battle?.active||!Array.isArray(G.battle.party))return;
+  const aura=activeAura();
+  for(const m of G.battle.party)setPartySnapshotAuraStats(m,aura)
+}
+if(typeof partyBattleSnapshots==="function"){
+  const basePartyBattleSnapshots=partyBattleSnapshots;
+  partyBattleSnapshots=function(){
+    const snaps=basePartyBattleSnapshots.apply(this,arguments)||[],aura=activeAura();
+    for(const m of snaps)setPartySnapshotAuraStats(m,aura);
+    return snaps
+  }
 }
 if(typeof battleCompanionSnapshot==="function"){
   const baseBattleCompanionSnapshot=battleCompanionSnapshot;
@@ -243,9 +262,21 @@ if(typeof battleCompanionSnapshot==="function"){
     snap.aura=auraStateFor(inst,sp);return snap
   }
 }
+if(typeof resolvePartyTurns==="function"){
+  const baseResolvePartyTurns=resolvePartyTurns;
+  resolvePartyTurns=function(){syncBattlePartyAura();const r=baseResolvePartyTurns.apply(this,arguments);syncBattlePartyAura();return r}
+}
+if(typeof partyThreatTargets==="function"){
+  const basePartyThreatTargets=partyThreatTargets;
+  partyThreatTargets=function(){syncBattlePartyAura();return basePartyThreatTargets.apply(this,arguments)}
+}
+if(typeof enemyBattleTurn==="function"){
+  const baseEnemyBattleTurn=enemyBattleTurn;
+  enemyBattleTurn=function(){syncBattlePartyAura();const r=baseEnemyBattleTurn.apply(this,arguments);syncBattlePartyAura();return r}
+}
 if(typeof renderBattle==="function"){
   const baseRenderBattle=renderBattle;
-  renderBattle=function(){const r=baseRenderBattle.apply(this,arguments);decorateBattleAura();return r}
+  renderBattle=function(){syncBattlePartyAura();const r=baseRenderBattle.apply(this,arguments);decorateBattleAura();return r}
 }
 if(typeof openCompanionPanel==="function"){
   openCompanionPanel=function(filter="pet"){
