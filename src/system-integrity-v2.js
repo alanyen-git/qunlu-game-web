@@ -7,7 +7,7 @@
 
   const titleRelease=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
   const RELEASE=globalThis.QUNLU_RELEASE_VERSION||titleRelease||DB.meta?.current_version||"CURRENT-1.66.1";
-  const REVISION="SYSTEM-INTEGRITY-2.1";
+  const REVISION="SYSTEM-INTEGRITY-2.2";
   const LEGACY_RUNTIME_VERSION="CURRENT-1.57.0";
   const CFG={event_limit:80,seen_limit:220,audit_interval_ms:60000,persist_after_repair:true};
 
@@ -17,13 +17,13 @@
   DB.system_integrity_system={
     version:REVISION,
     release_source:"document_title_or_release_sync",
-    scope:["版本同步","存檔遷移","事件去重","NPC狀態完整性","跨模組版本一致性","職業／技能結構"],
+    scope:["版本同步","存檔遷移","事件去重","NPC狀態完整性","跨模組版本一致性","職業／技能結構","組織／流派全鏈路"],
     rules:[
       "CURRENT-1.57.0以前的存檔才執行舊runtime完整遷移；完整性模組不再以舊發布常數反向降版。",
       "每次寫入本機存檔前，G.meta.version必須與DB.meta.current_version同步。",
       "NPC第一、第二階段與自主世界事件依事件ID去重，不修改事件內容與遊戲結果。",
       "職業與技能完整性由CLASS-SKILL-OPT-1.0共同稽核，既有角色技能XP與職業進度不得被重置。",
-      "自檢只修復可確定的結構性問題，不刪除角色進度、不重置人物關係、不繞過資格規則。"
+      "組織／流派稽核涵蓋會員、貢獻、職位、內部委託、捐贈、規模、寶庫、獨有裝備技能與來源索引。","自檢只修復可確定的結構性問題，不刪除角色進度、不重置人物關係、不繞過資格規則。"
     ],
     save_schema_changed:false,
     destructive_repairs:false
@@ -50,6 +50,7 @@
       if(n2.npcs&&typeof n2.npcs==="object")for(const s of Object.values(n2.npcs)){if(!s||typeof s!=="object")continue;const before=Number(s.playerImpression||0),after=Math.max(-50,Math.min(50,before));if(before!==after){s.playerImpression=after;changed=true;repairs.push("NPC工作圈口碑越界修正")}if(Array.isArray(s.knowledge)&&s.knowledge.length>12){s.knowledge=s.knowledge.slice(0,12);changed=true;repairs.push("NPC情報上限修正")}}
     }
     if(typeof globalThis.syncClassSkillOptimizationState==="function")try{if(globalThis.syncClassSkillOptimizationState()){changed=true;repairs.push("既有角色技能欄位同步")}}catch(e){}
+    if(typeof globalThis.repairAffiliationIntegrityState==="function")try{const ar=globalThis.repairAffiliationIntegrityState();if(ar?.changed){changed=true;repairs.push(...(ar.repairs||["組織／流派狀態修復"]))}}catch(e){}
     if(syncGameVersion()){changed=true;repairs.push("存檔版本同步")}
     return {changed,repairs:[...new Set(repairs)]}
   }
@@ -77,9 +78,12 @@
     if(g){add("save_version",g.meta?.version===RELEASE,g.meta?.version);add("character_present",!!g.character);add("world_state_present",!!g.worldState)}
     const npc2=typeof globalThis.runNpcDepth2SelfCheck==="function"?globalThis.runNpcDepth2SelfCheck():null;add("npc_depth2_selfcheck",!npc2||npc2.pass===true,npc2?.revision||null,npc2&&!npc2.pass?JSON.stringify(npc2.checks.filter(x=>!x.pass)):"");
     const cs=typeof globalThis.runClassSkillOptimizationAudit==="function"?globalThis.runClassSkillOptimizationAudit():null;add("class_skill_selfcheck",!cs||cs.high===0,cs?`H${cs.high}/M${cs.medium}/L${cs.low}`:null,cs?.issues?.filter(x=>x.severity==="high").slice(0,5).map(x=>`${x.name}:${x.text}`).join("；")||"");
+    const ac=typeof globalThis.runAffiliationContributionAudit==="function"?globalThis.runAffiliationContributionAudit():null;add("affiliation_contribution_selfcheck",!ac||ac.pass===true,ac?.revision||null,ac?.issues?.slice(0,5).join("；")||"");
+    const at=typeof globalThis.runAffiliationTreasuryDepthAudit==="function"?globalThis.runAffiliationTreasuryDepthAudit():null;add("affiliation_treasury_selfcheck",!at||at.pass===true,at?.revision||null,at?.issues?.slice(0,5).join("；")||"");
+    const ai=typeof globalThis.runAffiliationIntegrityAudit==="function"?globalThis.runAffiliationIntegrityAudit():null;add("affiliation_integrity_selfcheck",!ai||ai.pass===true,ai?.revision||null,ai?.issues?.slice(0,5).join("；")||"");
 
     const repairResult=repair?repairWorldState():{changed:false,repairs:[]};
-    const result={revision:REVISION,release:RELEASE,pass:checks.every(x=>x.pass),checks,repair:repairResult,time:Date.now(),classSkill:cs};
+    const result={revision:REVISION,release:RELEASE,pass:checks.every(x=>x.pass),checks,repair:repairResult,time:Date.now(),classSkill:cs,affiliationContribution:ac,affiliationTreasury:at,affiliationIntegrity:ai};
     const gg=game();if(gg?.worldState)gg.worldState.systemIntegrity=result;
     if(repairResult.changed&&CFG.persist_after_repair&&typeof originalPersist==="function")try{originalPersist()}catch(e){}
     return result
@@ -92,7 +96,7 @@
   const originalCreateCharacter=typeof globalThis.createCharacter==="function"?globalThis.createCharacter:null;
   if(originalCreateCharacter&&!globalThis.__SYSTEM_INTEGRITY2_CREATE_PATCHED){globalThis.createCharacter=function(){const result=originalCreateCharacter.apply(this,arguments);syncGameVersion();try{globalThis.persist?.()}catch(e){}return result};globalThis.__SYSTEM_INTEGRITY2_CREATE_PATCHED=true}
 
-  function openSystemIntegrityPanel(){const result=runAudit(true),bad=result.checks.filter(x=>!x.pass),good=result.checks.length-bad.length,esc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");const badHtml=bad.length?bad.map(x=>`<div class="small badText"><b>${esc(x.id)}</b>｜${esc(x.value??"")} ${esc(x.detail||"")}</div>`).join(""):"<div class='small ok'>未發現阻斷級整合錯誤。</div>";const repairs=result.repair.repairs.length?result.repair.repairs.map(x=>`<div class="small">• ${esc(x)}</div>`).join(""):"<div class='small'>本次沒有需要自動修復的狀態。</div>";const cs=result.classSkill?`<div class="small">職業／技能：高優先${result.classSkill.high}｜中優先${result.classSkill.medium}｜觀察${result.classSkill.low}</div>`:"";if(typeof showModal==="function")showModal("系統自檢",`<div class="card"><b>${esc(REVISION)}</b><br><span class="small">通過 ${good}/${result.checks.length} 項｜發布版 ${esc(RELEASE)}｜${result.pass?"核心檢查通過":"仍有需處理項目"}</span>${cs}</div><div class="card"><b>異常項目</b>${badHtml}</div><div class="card"><b>本次修復</b>${repairs}</div>`)}
+  function openSystemIntegrityPanel(){const result=runAudit(true),bad=result.checks.filter(x=>!x.pass),good=result.checks.length-bad.length,esc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");const badHtml=bad.length?bad.map(x=>`<div class="small badText"><b>${esc(x.id)}</b>｜${esc(x.value??"")} ${esc(x.detail||"")}</div>`).join(""):"<div class='small ok'>未發現阻斷級整合錯誤。</div>";const repairs=result.repair.repairs.length?result.repair.repairs.map(x=>`<div class="small">• ${esc(x)}</div>`).join(""):"<div class='small'>本次沒有需要自動修復的狀態。</div>";const cs=result.classSkill?`<div class="small">職業／技能：高優先${result.classSkill.high}｜中優先${result.classSkill.medium}｜觀察${result.classSkill.low}</div>`:"";const ai=result.affiliationIntegrity?`<div class="small">組織／流派：${result.affiliationIntegrity.pass?"通過":"需檢查"}｜組織${result.affiliationIntegrity.stats?.organizations||0}／流派${result.affiliationIntegrity.stats?.disciplines||0}／寶庫物品${result.affiliationIntegrity.stats?.treasury_items||0}／獨有技能${result.affiliationIntegrity.stats?.exclusive_skills||0}</div>`:"";if(typeof showModal==="function")showModal("系統自檢",`<div class="card"><b>${esc(REVISION)}</b><br><span class="small">通過 ${good}/${result.checks.length} 項｜發布版 ${esc(RELEASE)}｜${result.pass?"核心檢查通過":"仍有需處理項目"}</span>${cs}${ai}</div><div class="card"><b>異常項目</b>${badHtml}</div><div class="card"><b>本次修復</b>${repairs}</div>`)}
   function patchMoreMenu(){if(globalThis.__SYSTEM_INTEGRITY2_MENU_PATCHED||typeof globalThis.openMoreMenu!=="function")return;const original=globalThis.openMoreMenu;globalThis.openMoreMenu=function(){const result=original.apply(this,arguments);setTimeout(()=>{const grid=typeof document!=="undefined"?document.querySelector("#modalBody .more-grid"):null;if(grid&&!grid.querySelector("[data-system-integrity]")){const b=document.createElement("button");b.className="more-card";b.dataset.systemIntegrity="1";b.innerHTML='<span class="more-icon">✓</span><span>系統自檢</span>';b.addEventListener("click",openSystemIntegrityPanel);grid.appendChild(b)}},0);return result};globalThis.__SYSTEM_INTEGRITY2_MENU_PATCHED=true}
 
   globalThis.runSystemIntegrityAudit=runAudit;globalThis.openSystemIntegrityPanel=openSystemIntegrityPanel;globalThis.SYSTEM_INTEGRITY_CONFIG=Object.freeze({...CFG});
