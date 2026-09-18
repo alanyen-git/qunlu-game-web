@@ -3236,9 +3236,9 @@ function rareAbilityPotionChance(d){
  if(!isAbilityStatPotion(d))return 1;
  const settlementRank=tierOrder(loc(G.character.locationId)?.tier||"F"),itemRank=tierOrder(d?.tier||"F");
  if(settlementRank<itemRank)return 0;
- const base=[0,.08,.12,.18,.25,.35,.45][settlementRank]??0;
+ const base=[0,.05,.08,.12,.18,.25,.35][settlementRank]??0;
  const gap=Math.max(0,settlementRank-itemRank);
- return clamp(base+gap*.02,0,.55)
+ return clamp(base+gap*.015,0,.40)
 }
 function rareShopStockAvailable(fid,d){
  if(fid!=="alchemy"||!isAbilityStatPotion(d))return true;
