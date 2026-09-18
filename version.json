@@ -1,24 +1,23 @@
 {
-  "version": "CURRENT-1.66.1",
-  "previous_version": "CURRENT-1.66.0",
+  "version": "CURRENT-1.67.0",
+  "previous_version": "CURRENT-1.66.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全面修正資料庫新增內容的假陽性自檢：可擴充資料採核心最低量與結構驗證，載入完成及五回合自檢前重建 runtime 索引與統計；來源索引支援所有合法 acquisition_sources，並移除完整性模組的舊版號釘死。",
+  "summary": "地下城深化為依世界層級生成的多地圖遠征：新增機關陷阱房、財寶房、裝備房、地下城專屬奇遇、精英怪物、最深處 Boss 房，以及高階地下城更常見的 NPC 團隊競爭／合作；保留既有地點 ID 與舊存檔相容。",
   "changelog": [
-    "全面稽核五回合自檢中的固定筆數規則，將夥伴、隊友、神系、信仰實體、政治體、文化、權力原型、流派、東方傳承、海外未知文明、歷史資料、區域勢力、神話母題、歷史關係與天賦改為核心最低量驗證，合法新增資料不再因超過舊基準而報錯。",
-    "保留真正封閉規則：S級全球戰力上限40、8個頂層裝備欄、副職業上限2、技能上限10、地圖4層、聚落世界層級7級等仍採硬限制。",
-    "S級自檢由固定30名＋10保留席改為總量不得超過40；新增正式S級資料時不再因『不是30人』直接誤報。",
-    "政治體權力檔案取消固定18筆限制，改為逐一檢查重複、孤兒引用，以及每個政治體是否具備有效權力檔案。",
-    "天賦分類改用實際 DB.talents 動態統計，只要求既有四類核心最低量，不再依賴可能過期的 category_counts 固定值。",
-    "新增 DATABASE-GROWTH-COMPAT-1.0：五回合自檢前重建 IDX.item／loc／monster／recipe／quest／lore／political 等 runtime 索引，避免後載入新增資料被舊 Map 誤判不存在。",
-    "頁面 load 完成後即主動同步一次 runtime 索引，不必等到下一個五回合自檢。",
-    "INTEGRATION-3.0 counts 改由 CURRENT 實際資料推導同步；items、locations、monsters、製作、料理、NPC、歷史、地圖等統計不再停留在舊版本數值。",
-    "來源索引同步擴充支援 farm、market、hunt、fish、forage、mining、processing、exploration、guild、loot、legacy、woodcut 等合法 acquisition_sources；結構型 shop/cook/craft/monster_drop/gather 仍要求真實連結。",
-    "實測目前1197個物品對應1197個來源索引，來源完全空白0筆。",
-    "system-integrity-v2 升至 SYSTEM-INTEGRITY-2.1，不再把 CURRENT-1.64.0 當固定發布版寫回存檔；改由目前頁面正式版本／release sync 動態取得。",
-    "release-version-sync 升至 RELEASE-VERSION-SYNC-1.2，移除 CURRENT-1.65.0 舊 fallback 釘死。",
-    "PWA快取升至v23。"
+    "地下城由單層探索改為多地圖遠征；F～S級分別生成約2～12張內部樓層地圖，層級越高路線越長、陷阱與精英密度越高。",
+    "每輪地下城保證納入機關陷阱、財寶、裝備、地下城專屬奇遇與精英怪物等房型；普通怪物房、樓層入口與探索通道依權重混合生成。",
+    "最深層固定且僅生成一個 Boss 房；Boss 必須實際進入戰鬥並擊敗後才會完成本輪地下城，戰敗或逃跑不會誤判通關。",
+    "Boss 與精英由所在地生態遭遇池生成強化版本，普通怪物房維持一般倍率；封印奇遇可合理削弱最深處 Boss。",
+    "新增地下城專屬奇遇：前代遠征記號、失落營地、失衡封印、流動魔力脈、封存遺物台與高階異質空間裂隙。",
+    "新增 NPC 冒險團隊競合：F級約2%基礎遭遇率，隨世界層級升至S級約44%；可選合作、競爭或保持距離，結果由D20與角色能力決定。",
+    "NPC 團隊事件不會取代所在房間本身；即使在精英房或 Boss 房前遇到其他隊伍，仍需完成原房間攻略。",
+    "財寶與裝備獎勵同時受地下城世界層級與角色可承受層級限制，避免越階掉落；裝備房產出為需修復的耐久裝備。",
+    "完成地下城後依F～S級設定18～168小時重整期，重整前不重複產生完整Boss與寶藏，避免無限刷取。",
+    "新增地下城地圖視窗，可查看各樓層、已揭露房間、已清理狀態與目前進度；地下城進度寫入本機存檔。",
+    "五回合自檢新增地下城系統版本、地下城層級設定、存檔孤兒、樓層資料與Boss房唯一性檢查。",
+    "PWA快取升至v24，正式發布版升至CURRENT-1.67.0。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -40,5 +39,6 @@
   "cooking_data_integrity_revision": "COOKING-DATA-INTEGRITY-1.0",
   "crafting_data_integrity_revision": "CRAFTING-DATA-INTEGRITY-1.0",
   "database_growth_compat_revision": "DATABASE-GROWTH-COMPAT-1.0",
-  "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0"
+  "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0",
+  "dungeon_depth_revision": "DUNGEON-DEPTH-2.0"
 }
