@@ -123,12 +123,13 @@
 
   shopBuy=function(fid){
     if(G.character.currentFacility!==fid)return;
-    const f=DB.facilities[fid],stock=(f.stock||[]).map(item).filter(Boolean),market=marketFacilityState(fid);
+    const f=DB.facilities[fid],stock=(f.stock||[]).map(item).filter(Boolean).filter(d=>typeof rareShopStockAvailable!=="function"||rareShopStockAvailable(fid,d)),market=marketFacilityState(fid);
     const rows=stock.map(d=>{
-      const p=shopBuyUnitPrice(d),qty=marketStockQty(fid,d),flow=itemTradeFlowText(d);
-      return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${itemStatsText(d)}｜${flow}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`;
+      const p=shopBuyUnitPrice(d),qty=marketStockQty(fid,d),flow=itemTradeFlowText(d),rare=typeof isAbilityStatPotion==="function"&&isAbilityStatPotion(d);
+      return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span>${rare?" <span class='small'>・稀有到貨</span>":""}<br><span class="small">${itemStatsText(d)}｜${flow}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`;
     }).join("")||"目前沒有庫存。";
-    showModal(f.name+"・購買",`<div class="card small">商品有每日庫存上限。收購與售價現在共用同一個本地供需倍率：市場供應增加時兩端同步緩降，需求增加時兩端同步緩升。</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`);
+    const rareNote=fid==="alchemy"?'<div class="card small">能力屬性強化藥水屬稀有到貨：只在符合城鎮層級時以低機率每日輪替，出現時最多1瓶。</div>':"";
+    showModal(f.name+"・購買",`<div class="card small">商品有每日庫存上限。收購與售價共用同一個本地供需倍率：市場供應增加時兩端同步緩降，需求增加時兩端同步緩升。</div>${rareNote}${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`);
   };
 
   buyItem=function(fid,id,p){
