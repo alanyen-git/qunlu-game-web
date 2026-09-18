@@ -9,7 +9,8 @@
     "根因確認：ASDAIL-INTEGRATION 已正確移除超階素材，但後置 world-autonomy-v2.js 的 GATHER_PATCHES 又重新加入精製蜂蠟與長纖亞麻。",
     "琥珀田野（F級）野外直接採集池改為只保留 F 級琥珀田蜂蜜。",
     "精製蜂蠟（E級）與長纖亞麻（E級）保留為琥珀田鎮農產加工／商隊物流商品，不再標記為 F 級野外可直接採集來源。",
-    "PWA 快取升至 v16，確保重新整理後取得修正後的 WORLD-AUTONOMY-2.0。"
+    "PWA 快取升至 v16，確保重新整理後取得修正後的 WORLD-AUTONOMY-2.0。",
+    "同步修正 WORLD-AUTONOMY-2.0 不應在 heartbeat 中覆寫全域版本號的問題，避免後置模組把 CURRENT 版本回寫成舊版。"
   ],
   "content_revision": "ASDAIL-INTEGRATION-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
