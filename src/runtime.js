@@ -3232,7 +3232,29 @@ function buyItem(fid,id,p){
  if(G.character.currentFacility!==fid)return;const d=item(id),f=DB.facilities[fid];if(!d||!(f?.stock||[]).includes(id))return;const market=marketFacilityState(fid),price=shopBuyUnitPrice(d),qty=marketStockQty(fid,d);if(qty<=0){alert("今日庫存已售罄。");shopBuy(fid);return}if(G.character.moneySilver<price){alert("銀幣不足");return}
  G.character.moneySilver-=price;market.stock[id]=qty-1;market.budgetRemaining=Math.min(market.budgetMax*2,market.budgetRemaining+price);addItem(id);persist();shopBuy(fid)
 }
-function canSellTo(fid,d){if(fid==="tavern")return d.type==="食材";if(fid==="blacksmith")return ["主武器","盔甲","頭盔","手套","鞋子","披風","礦石"].includes(d.type);if(fid==="alchemy")return ["素材","藥劑"].includes(d.type);return true}
+let ALCHEMY_BUYBACK_CACHE={signature:"",ids:new Set()};
+function alchemyBuybackIngredientIds(){
+ const signature=`${(DB.items||[]).length}|${(DB.recipes||[]).length}`;
+ if(ALCHEMY_BUYBACK_CACHE.signature===signature)return ALCHEMY_BUYBACK_CACHE.ids;
+ const ids=new Set(),add=id=>{if(id)ids.add(id)},addMats=arr=>(arr||[]).forEach(m=>add(m?.id||m?.item_id));
+ for(const out of (DB.items||[])){
+   const cr=out?.craft_recipe;if(!cr||String(cr.profession||"").trim()!=="藥劑")continue;
+   addMats(cr.base_materials);addMats(cr.monster_components);addMats(cr.ingredients);
+   if(cr.requires&&typeof cr.requires==="object")Object.keys(cr.requires).forEach(add)
+ }
+ for(const recipe of (DB.recipes||[])){
+   if(String(recipe?.profession||"").trim()!=="藥劑")continue;
+   addMats(recipe.ingredients);addMats(recipe.base_materials);addMats(recipe.monster_components);
+   if(recipe.requires&&typeof recipe.requires==="object")Object.keys(recipe.requires).forEach(add)
+ }
+ ALCHEMY_BUYBACK_CACHE={signature,ids};return ids
+}
+function isAlchemyBuybackItem(d){
+ if(!d)return false;
+ if(["素材","草藥素材","藥草","藥材","煉金素材","藥劑"].includes(d.type))return true;
+ return alchemyBuybackIngredientIds().has(d.id)
+}
+function canSellTo(fid,d){if(fid==="tavern")return d.type==="食材";if(fid==="blacksmith")return ["主武器","盔甲","頭盔","手套","鞋子","披風","礦石"].includes(d.type);if(fid==="alchemy")return isAlchemyBuybackItem(d);return true}
 function shopSell(fid){
  if(G.character.currentFacility!==fid)return;
  const market=marketFacilityState(fid),list=G.character.inventory.map((x,i)=>[x,i]).filter(([x])=>{const d=item(x.id);return d&&canSellTo(fid,d)});
@@ -5182,6 +5204,11 @@ function runGeneratorAudit(){
  if((DB.items||[]).some(x=>!(Number(x.weight)>0)))issues.push("存在無正重量物品");
  if(typeof craftItemBatch!=="function"||typeof cookBatch!=="function")issues.push("批量製作runtime缺失");
  if(typeof openGuildBuyback!=="function")issues.push("公會收購櫃檯runtime缺失");
+ if(typeof isAlchemyBuybackItem!=="function"||typeof alchemyBuybackIngredientIds!=="function")issues.push("煉金店收購分類runtime缺失");
+ else{
+   const rejectedAlchemyIngredients=[...alchemyBuybackIngredientIds()].map(item).filter(Boolean).filter(d=>!canSellTo("alchemy",d));
+   if(rejectedAlchemyIngredients.length)issues.push(`煉金店拒收合法藥劑素材:${rejectedAlchemyIngredients.slice(0,8).map(x=>x.id).join(",")}`)
+ }
 
  if(DB.encounter_ecology_system?.version!=="ENCOUNTER-ECOLOGY-2.0")issues.push("ENCOUNTER-ECOLOGY-2.0缺失");
  if(typeof monsterFitsLocationEcology!=="function"||typeof encounterWeightForLocation!=="function")issues.push("生態遭遇runtime缺失");
