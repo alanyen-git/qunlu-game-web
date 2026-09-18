@@ -1,4 +1,4 @@
-/* 群陸旅誌：取水點、取水工具、水袋守恆與來源索引同步 CURRENT-1.65.8
+/* 群陸旅誌：取水點、取水工具、水袋守恆與來源索引同步 CURRENT-1.66.1
  * WATER-SOURCE-1.1
  * 地點水源 -> 取水工具 -> 空水袋 -> 裝滿水袋(I-WATER) -> 飲用／料理 -> 空水袋
  */
@@ -6,7 +6,7 @@
   "use strict";
   if(typeof DB!=="object"||!DB)return;
 
-  const REVISION="WATER-SOURCE-1.2";
+  const REVISION="WATER-SOURCE-1.3";
   const WATER_ITEM_ID="I-WATER";
   const EMPTY_BAG_DEFAULT_ID="I-WATER-BAG-EMPTY";
   const FOLD_BUCKET_ID="I-FOLD-BUCKET";
@@ -149,11 +149,11 @@
     const water=src[WATER_ITEM_ID];
     if(water)water.special_sources=uniqList([...water.special_sources,"water_source"]);
 
-    const intrinsic=new Set(["quest","event","world_event","starting_item","initial","reward","special"]);
+    const structuralSources=new Set(["shop","cook","craft","monster_drop","gather"]);
     for(const d of DB.items||[]){
       if(!d?.id||!src[d.id])continue;
       for(const declared of d.acquisition_sources||[]){
-        if(intrinsic.has(declared))src[d.id].special_sources=uniqList([...src[d.id].special_sources,`declared:${declared}`]);
+        if(!structuralSources.has(declared))src[d.id].special_sources=uniqList([...src[d.id].special_sources,`declared:${declared}`]);
       }
     }
 
