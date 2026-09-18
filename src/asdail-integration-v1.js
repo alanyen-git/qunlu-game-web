@@ -154,6 +154,7 @@
   for(const d of DB.discipline_factions||[]){
     if(!String(d.id||"").startsWith("DISC-ASD"))continue;
     d.track=disciplineTrack(d);
+    d.kind=d.kind||(d.track==="magic"?"arcane_school":"martial_circle");
     d.min_level=Number(d.min_level||d.requirements?.min_level||joinLvByTier[d.tier]||1);
     d.training_tier_ceiling=d.training_tier_ceiling||d.tier||"F";
     d.discovery=d.discovery||"public";
