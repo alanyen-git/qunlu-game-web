@@ -119,20 +119,51 @@
     if(String(o.kind).includes("religious"))return "church";
     return "guild"
   };
+  const joinLvByTier={F:1,E:4,D:8,C:15,B:28,A:45,S:65};
+  const orgCategory=o=>{
+    if(o.category)return o.category;
+    if(o.kind==="military")return "軍事與武力";
+    if(["ranger","adventure","exploration"].includes(o.kind))return "冒險與探索";
+    if(["arcane","magic","academic"].includes(o.kind))return "魔法與學術";
+    if(["underground","criminal","secret"].includes(o.kind))return "黑暗與地下";
+    if(["trade","civilian","merchant"].includes(o.kind))return "商業與貿易";
+    return "王權／種族／職人"
+  };
+  const orgScope=t=>({F:"小型",E:"地方",D:"城鎮",C:"區域",B:"國家",A:"跨國",S:"世界"}[t]||"地方");
   for(const o of DB.world_organizations||[]){
     if(!String(o.id||"").startsWith("ORG-ASD"))continue;
     o.alignment=o.alignment||"neutral";
+    o.category=orgCategory(o);
+    o.scope=o.scope||orgScope(o.tier);
     o.primary_facility=o.primary_facility||orgFacility(o);
+    if(!(Number(o.min_join_level)>=1))o.min_join_level=joinLvByTier[o.tier]||1;
+    if(!Number.isFinite(Number(o.join_reputation)))o.join_reputation=0;
+    if(!o.visibility)o.visibility=o.alignment==="dark"?"hidden":"public";
+    if(!o.legal_status)o.legal_status=o.alignment==="dark"?"illegal":"legal";
     if(o.joinable==null)o.joinable=true;
     if(o.mission_issuer==null)o.mission_issuer=true;
     if(o.can_be_enemy==null)o.can_be_enemy=true;
     if(!o.member_bonus?.id)o.member_bonus={id:`MB-${o.id}`,text:`${o.name}正式成員的地方協作加成。`,effects:orgEffect(o)};
   }
   const asdLore=(DB.lore_records||[]).filter(x=>String(x.id||"").includes("ASD")).map(x=>x.id);
+  const disciplineTrack=d=>{
+    if(["physical","magic"].includes(d.track))return d.track;
+    const text=`${d.name||""} ${d.description||""}`;
+    return /魔法|法師|奧術|秘術|咒|巫|護印|聖印|術士|法術|魔導/.test(text)?"magic":"physical"
+  };
   for(const d of DB.discipline_factions||[]){
     if(!String(d.id||"").startsWith("DISC-ASD"))continue;
+    d.track=disciplineTrack(d);
+    d.min_level=Number(d.min_level||d.requirements?.min_level||joinLvByTier[d.tier]||1);
+    d.training_tier_ceiling=d.training_tier_ceiling||d.tier||"F";
+    d.discovery=d.discovery||"public";
+    d.family=d.family||(d.track==="magic"?"地方魔法傳承":"地方武技傳承");
+    d.specialty=d.specialty||d.description||"依正式教範進行分階研習。";
+    d.institutional_culture=d.institutional_culture||"重視正式接觸、師承紀錄與分階研習，不以短期訓練跳過前置。";
+    d.related_class_ids=Array.isArray(d.related_class_ids)?d.related_class_ids:[];
+    d.substyles=Array.isArray(d.substyles)?d.substyles:[];
     d.primary_facility=d.primary_facility||(String(d.name).includes("護印")?"church":"guild");
-    d.contact_location_ids=uniq([...(d.contact_location_ids||[]),d.base_location_id]);
+    d.contact_location_ids=uniq([...(d.contact_location_ids||[]),d.base_location_id].filter(Boolean));
     if(!(d.lore_record_ids||[]).length&&asdLore.length)d.lore_record_ids=[asdLore[rank(d.tier)%asdLore.length]];
     if(!d.member_bonus?.id){
       const b=d.bonus||{},effects={};
