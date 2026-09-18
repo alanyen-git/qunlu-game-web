@@ -1,16 +1,20 @@
 {
-  "version": "CURRENT-1.69.8",
-  "previous_version": "CURRENT-1.69.7",
+  "version": "CURRENT-1.69.6",
+  "previous_version": "CURRENT-1.69.8",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "調整戰鬥介面隊形：角色與敵方固定在第一列左右並排，寵物／召喚獸與冒險團隊友統一排列在兩個主對戰欄位下方。",
+  "summary": "全生產製作成功率升級：鍛造、裁縫、藥劑、附魔與料理統一納入能力值、幸運、天賦、副職業階級／熟練Lv、配方難度與組織加成。",
   "changelog": [
-    "戰鬥主欄位固定為角色與敵方左右並排，避免隊友或出戰夥伴插入後破壞對戰視線。",
-    "寵物／召喚獸沿用出戰夥伴欄位，與冒險團隊友統一移至主對戰欄位下方。",
-    "手機窄螢幕仍維持角色與敵方兩欄並排；VS標示在窄螢幕隱藏以保留資訊寬度。",
-    "僅調整戰鬥UI排列，不改動傷害、AI、隊友、寵物／召喚獸或存檔邏輯；既有存檔相容。",
-    "PWA快取升級至v42，CSS與版本入口同步CURRENT-1.69.8。"
+    "新增 PRODUCTION-CRAFT-SUCCESS-2.0，所有現行生產製作統一使用同一套成功率框架。",
+    "成功率因素納入主能力、次能力、幸運、是否具備對應副職業、副職業階級、熟練Lv1–10、製作天賦、組織製作加成與配方階級難度。",
+    "鍛造使用力量＋敏捷；裁縫使用敏捷＋智力；藥劑／附魔使用智力＋意志；料理使用敏捷＋智力。",
+    "料理不再只用『有廚師固定+18』；現在與其他製作一致，真正依烹飪階級、XP熟練Lv與天賦變動。",
+    "批量1／5／10改為逐次計算成功率；批次途中副職業升階或熟練Lv提升，後續製作立即套用新成功率。",
+    "製作列表與料理列表顯示當前成功率及影響來源；副職業欄位顯示階級、熟練Lv與XP。",
+    "失敗不產生成品，但仍消耗該次完整配方素材並取得實作熟練XP。",
+    "五回合自檢透過生成器稽核鏈追加全製作成功率系統完整性檢查。",
+    "PWA快取升級至v40。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -48,7 +52,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-1.9",
+  "pwa_cache_revision": "PWA-CACHE-FIX-1.7",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -67,5 +71,6 @@
     "core_tier_issues": 0,
     "semantic_mismatch_issues": 0
   },
-  "battle_layout_revision": "BATTLE-FORMATION-LAYOUT-1.0"
+  "battle_layout_revision": "BATTLE-FORMATION-LAYOUT-1.0",
+  "production_crafting_success_revision": "PRODUCTION-CRAFT-SUCCESS-2.0"
 }
