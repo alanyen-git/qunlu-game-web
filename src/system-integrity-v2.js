@@ -1,12 +1,13 @@
-/* 群陸旅誌：系統完整性修正 CURRENT-1.64.0
+/* 群陸旅誌：系統完整性修正（動態發布版） CURRENT-1.66.1
  * SYSTEM-INTEGRITY-2.0
  * 版本同步／舊存檔遷移閘門／跨模組稽核／職業技能整合／狀態修復
  */
 (()=>{
   if(typeof DB!=="object"||!DB)return;
 
-  const RELEASE="CURRENT-1.64.0";
-  const REVISION="SYSTEM-INTEGRITY-2.0";
+  const titleRelease=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
+  const RELEASE=globalThis.QUNLU_RELEASE_VERSION||titleRelease||DB.meta?.current_version||"CURRENT-1.66.1";
+  const REVISION="SYSTEM-INTEGRITY-2.1";
   const LEGACY_RUNTIME_VERSION="CURRENT-1.57.0";
   const CFG={event_limit:80,seen_limit:220,audit_interval_ms:60000,persist_after_repair:true};
 
@@ -15,9 +16,10 @@
   DB.meta.system_integrity_revision=REVISION;
   DB.system_integrity_system={
     version:REVISION,
+    release_source:"document_title_or_release_sync",
     scope:["版本同步","存檔遷移","事件去重","NPC狀態完整性","跨模組版本一致性","職業／技能結構"],
     rules:[
-      "CURRENT-1.57.0以前的存檔才執行舊runtime完整遷移；新版存檔禁止被舊常數反向降版。",
+      "CURRENT-1.57.0以前的存檔才執行舊runtime完整遷移；完整性模組不再以舊發布常數反向降版。",
       "每次寫入本機存檔前，G.meta.version必須與DB.meta.current_version同步。",
       "NPC第一、第二階段與自主世界事件依事件ID去重，不修改事件內容與遊戲結果。",
       "職業與技能完整性由CLASS-SKILL-OPT-1.0共同稽核，既有角色技能XP與職業進度不得被重置。",
