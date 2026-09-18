@@ -2011,3 +2011,74 @@
   DB.meta=DB.meta||{};
   DB.meta.crafting_data_integrity_revision="CRAFTING-DATA-INTEGRITY-1.0";
 })();
+
+/* CURRENT-1.69.7｜DROP-SG-06 / DROP-SG-08 實際來源修復
+ * ITEM-SOURCE-INDEX-1.3
+ * 修正舊 drop_source_map 索引漂移：黏獸王核不得指向帝王蠍，酸液黏獸酸囊不得指向樹人。
+ * 同步補上可實際遭遇、層級相符且會真正掉落素材的黏獸變種。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+  const upsertMonster=m=>{
+    DB.monsters=Array.isArray(DB.monsters)?DB.monsters:[];
+    const i=DB.monsters.findIndex(x=>x?.id===m.id);
+    if(i>=0)DB.monsters[i]={...DB.monsters[i],...m};
+    else DB.monsters.push(m);
+  };
+  const lootRule="只允許本怪物明確配置的素材；找不到合理素材時可無素材掉落，不得使用同分類其他物種素材代替。";
+
+  upsertMonster({
+    id:"MON-SG-ACID-D",aliases:["酸液史萊姆"],name:"酸液黏獸",tier:"D",category:"蟲水生軟泥系",humanoid:false,
+    monster_catalog_core:false,habitats:["cave","swamp"],encounter_enabled:true,lore_role:"一般",
+    hp:52,attack:12,defense:9,magicDefense:10,accuracy:71,evasion:10,critRate:7,critDamage:155,attackSpeed:1.0,
+    statusResist:22,damage:[4,9],loot_materials:[{id:"DROP-SG-08",chance:0.32,min:1,max:1}],
+    money_drop:null,equipment_drop:null,element_resistances:{},domestic:false,near_town_eligible:false,encounter_weight:0.267,
+    initiative:20.5,moveSpeed:103.0,range:1.2,armorPenPct:6,blockRate:0,blockValue:27.2,poise:24.0,statusAccuracy:20.0,
+    critResist:4.0,perception:41.0,stealth:22.0,primary_element:null,xp_reward:24,
+    ecology_profile:{body_scale:"small",tags:["invertebrate","slime"],habitat_source:"canonical_habitats+item_source_patch"},
+    loot_profile:{version:"LOOT-ECOLOGY-1.0",allowed_material_ids:["DROP-SG-08"],fallback_policy:"none",rule:lootRule},
+    source_patch:"ITEM-SOURCE-INDEX-1.3"
+  });
+
+  upsertMonster({
+    id:"MON-SG-KING-B",aliases:["史萊姆王"],name:"黏獸王",tier:"B",category:"蟲水生軟泥系",humanoid:false,
+    monster_catalog_core:false,habitats:["cave","forest","ruins","swamp"],encounter_enabled:true,lore_role:"菁英",
+    hp:118,attack:24,defense:18,magicDefense:18,accuracy:75,evasion:12,critRate:11,critDamage:170,attackSpeed:1.04,
+    statusResist:36,damage:[9,16],loot_materials:[{id:"DROP-SG-06",chance:0.09,min:1,max:1},{id:"DROP-SG-16",chance:0.12,min:1,max:1}],
+    money_drop:null,equipment_drop:null,element_resistances:{},domestic:false,near_town_eligible:false,encounter_weight:0.16,
+    initiative:24.7,moveSpeed:107.6,range:1.2,armorPenPct:12,blockRate:0,blockValue:34.4,poise:46.8,statusAccuracy:27.0,
+    critResist:8.0,perception:47.0,stealth:25.6,primary_element:null,xp_reward:120,
+    ecology_profile:{body_scale:"medium",tags:["invertebrate","slime"],habitat_source:"canonical_habitats+item_source_patch"},
+    loot_profile:{version:"LOOT-ECOLOGY-1.0",allowed_material_ids:["DROP-SG-06","DROP-SG-16"],fallback_policy:"none",rule:lootRule},
+    source_patch:"ITEM-SOURCE-INDEX-1.3"
+  });
+
+  DB.monster_drop_system=DB.monster_drop_system||{};
+  DB.monster_drop_system.monster_source_map=DB.monster_drop_system.monster_source_map||{};
+  DB.monster_drop_system.monster_source_map["DROP-SG-06"]="MON-SG-KING-B";
+  DB.monster_drop_system.monster_source_map["DROP-SG-08"]="MON-SG-ACID-D";
+
+  DB.monster_catalog=DB.monster_catalog||{};
+  DB.monster_catalog.drop_source_map=DB.monster_catalog.drop_source_map||{};
+  DB.monster_catalog.drop_source_map["DROP-SG-06"]="MON-SG-KING-B";
+  DB.monster_catalog.drop_source_map["DROP-SG-08"]="MON-SG-ACID-D";
+
+  DB.content_link_index=DB.content_link_index||{};
+  DB.content_link_index.item_sources=DB.content_link_index.item_sources||{};
+  const link=(itemId,monsterId)=>{
+    const s=DB.content_link_index.item_sources[itemId]||{shops:[],gather_locations:[],monster_drops:[],recipe_inputs:[],recipe_outputs:[],special_sources:[]};
+    s.shops=Array.isArray(s.shops)?s.shops:[];
+    s.gather_locations=Array.isArray(s.gather_locations)?s.gather_locations:[];
+    s.monster_drops=[monsterId];
+    s.recipe_inputs=Array.isArray(s.recipe_inputs)?s.recipe_inputs:[];
+    s.recipe_outputs=Array.isArray(s.recipe_outputs)?s.recipe_outputs:[];
+    s.special_sources=Array.isArray(s.special_sources)?s.special_sources:[];
+    DB.content_link_index.item_sources[itemId]=s;
+  };
+  link("DROP-SG-06","MON-SG-KING-B");
+  link("DROP-SG-08","MON-SG-ACID-D");
+
+  DB.meta=DB.meta||{};
+  DB.meta.current_version="CURRENT-1.69.7";
+  DB.meta.item_source_index_revision="ITEM-SOURCE-INDEX-1.3";
+})();
