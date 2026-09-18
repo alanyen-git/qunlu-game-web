@@ -3164,12 +3164,30 @@ function learnCombatSkill(key){
  log("技能",`學會${(shared||d).name}［${d.tier}］。`,"ok");endTurn(3)
 }
 function prereqText(s){return Object.entries(s.prereq||{}).map(([k,v])=>`${k}≥${v}`).join("、")}
+function subjobPrereqComparison(s){
+ const entries=Object.entries(s?.prereq||{});
+ if(!entries.length)return '<span class="ok">無屬性門檻</span>';
+ return entries.map(([k,v])=>{
+   const need=Math.max(0,Number(v)||0),current=Math.max(0,Number(G.character.stats?.[k])||0),delta=current-need;
+   return `<span class="${delta>=0?"ok":"bad"}">${k}：需求 ${need}｜目前 ${current}｜${delta>=0?`已達成（高出 ${delta}）`:`不足 ${Math.abs(delta)}`}</span>`
+ }).join("<br>")
+}
+function subjobFeeComparison(s){
+ const need=Math.max(0,Number(s?.fee)||0),current=Math.max(0,Number(G.character.moneySilver)||0),delta=current-need;
+ return `<span class="${delta>=0?"ok":"bad"}">學費：需求 ${need}銀｜持有 ${current}銀｜${delta>=0?`已足夠（餘額 ${delta}銀）`:`不足 ${Math.abs(delta)}銀`}</span>`
+}
 function meetsSubjob(s){return Object.entries(s.prereq||{}).every(([k,v])=>(G.character.stats[k]||0)>=v)}
 function learnSubjobHere(fid){
  if(G.character.subjobs.length>=2){showModal("副職業",`已達2個副職業上限。<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`);return}
  const list=DB.subjobs.filter(s=>s.facilities.includes(fid)&&!G.character.subjobs.some(x=>x.id===s.id));
- const rows=list.map(s=>{const ok=meetsSubjob(s)&&G.character.moneySilver>=s.fee;return `<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span><br><span class="small">${s.desc}<br>前置：${prereqText(s)}｜學費${s.fee}銀</span></span><button ${ok?"":"disabled"} onclick="learnSubjob('${fid}','${s.id}')">${ok?"學習":"未達條件"}</button></div>`}).join("")||"<div class='small'>此設施沒有可學副職業。</div>";
- showModal("副職業學習",rows+`<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
+ const rows=list.map(s=>{
+   const statOk=meetsSubjob(s),feeOk=G.character.moneySilver>=s.fee,ok=statOk&&feeOk;
+   const missing=[];
+   if(!statOk)missing.push("屬性不足");
+   if(!feeOk)missing.push("銀幣不足");
+   return `<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span><br><span class="small">${s.desc}<br><b>前置條件（角色基礎屬性）</b><br>${subjobPrereqComparison(s)}<br>${subjobFeeComparison(s)}</span></span><button ${ok?"":"disabled"} onclick="learnSubjob('${fid}','${s.id}')">${ok?"學習":missing.join("＋")}</button></div>`
+ }).join("")||"<div class='small'>此設施沒有可學副職業。</div>";
+ showModal("副職業學習",`<div class="card small">前置條件會直接對照角色目前的<b>基礎屬性</b>；紅字會標出尚差多少，裝備或暫時增益不會改變此學習門檻。</div>`+rows+`<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
 }
 function learnSubjob(fid,sid){const s=sub(sid);if(!s||!s.facilities.includes(fid)||!meetsSubjob(s)||G.character.moneySilver<s.fee)return;closeModal();if(!beginTurn("學習副職業"))return;G.character.moneySilver-=s.fee;G.character.subjobs.push({id:sid,grade:"F",xp:0});log("副職業",`取得${s.name}［F］入門資格。`,"ok");endTurn(4)}
 function facilityQuest(fid){
