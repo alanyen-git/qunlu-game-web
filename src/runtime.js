@@ -95,7 +95,7 @@ function syncRuntimeIndexesAndMetadata(){
  replaceRuntimeIndex(IDX.polity,DB.political_entities);
  replaceRuntimeIndex(IDX.culture,DB.culture_profiles);
  replaceRuntimeIndex(IDX.worldRegion,DB.world_regions);
- replaceRuntimeIndex(IDX.authority,DB.political_authority_catalog||DB.authority_archetypes);
+ replaceRuntimeIndex(IDX.authority,DB.political_authority_catalog?.length?DB.political_authority_catalog:DB.authority_archetypes);
  replaceRuntimeIndex(IDX.authorityTier,DB.authority_tiers);
  replaceRuntimeIndex(IDX.authorityRight,DB.authority_rights_catalog);
  replaceRuntimeIndex(IDX.authorityProfile,DB.polity_authority_profiles,x=>x?.polity_id);
