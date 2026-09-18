@@ -1,19 +1,20 @@
 {
-  "version": "CURRENT-1.68.4",
-  "previous_version": "CURRENT-1.68.3",
+  "version": "CURRENT-1.69.0",
+  "previous_version": "CURRENT-1.68.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正背包裝備對比仍整段變色的快取部署問題：修復Service Worker語法錯誤、強制更新runtime與CSS，並將候選值/目前裝備值分離著色。",
+  "summary": "深化組織／流派會員玩法：新增貢獻值、六階職位、內部委託、特色捐贈2倍與每個勢力／流派專屬寶庫。",
   "changelog": [
-    "確認1.68.3的比較邏輯本身正確，但sw.js核心清單存在字面\\\\n語法錯誤，導致新版Service Worker無法安裝。",
-    "修復sw.js語法並將PWA快取升至v33。",
-    "Service Worker註冊網址加入CURRENT-1.68.4版本參數，強制瀏覽器重新檢查並安裝新版。",
-    "index.html對game.css、runtime.js、market-economy-v2.js與pwa.js加入CURRENT-1.68.4版本參數，避免手機沿用舊HTTP/PWA快取。",
-    "背包裝備對比改為runtime直接指定顏色：候選裝備名稱與數值固定白色，只有目前裝備值依優劣變色。",
-    "防禦+3/+1：防禦+3/固定白色，+1紅色；防禦+3/+5：前段白色，+5綠色；+3/+3全白。",
-    "重量與耐久仍不參與比較。",
-    "存檔格式不變。"
+    "組織與流派新增獨立貢獻制度：累積貢獻用於職位晉升，可用貢獻用於寶庫兌換，兌換不會造成降職。",
+    "新增六階職位；組織依冒險、軍事、地下、商業、魔法、王權／職人類別使用不同職稱，流派依物理／魔法系使用不同職稱。",
+    "新增會員限定內部委託，每日依組織／流派需求生成物資徵集，完成後取得貢獻並小幅增加聲望。",
+    "新增物資捐贈：只收符合組織／流派用途的物品；符合其特色、武器傳承、專業或元素主題者貢獻值2倍。",
+    "每個可加入組織與流派建立獨有寶庫，提供專屬補給、藥劑、誓徽、研修教範卷與傳承裝備，並依職位解鎖。",
+    "既有組織正式契約在玩家為該組織成員時，完成後同步給予會員貢獻。",
+    "角色介面的固定「勢力」「流派」按鍵沿用既有入口；加入後會直接顯示職位、累積／可用貢獻與內部系統入口。",
+    "內部委託、捐贈、升職與寶庫兌換需在對應組織據點或流派正式接觸點辦理。",
+    "舊存檔相容；貢獻資料採延遲初始化，不重置既有角色、聲望、流派熟練或世界狀態。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -51,5 +52,6 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-1.0"
+  "pwa_cache_revision": "PWA-CACHE-FIX-1.1",
+  "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.0"
 }
