@@ -1,17 +1,16 @@
 {
-  "version": "CURRENT-1.69.7",
-  "previous_version": "CURRENT-1.69.6",
+  "version": "CURRENT-1.69.8",
+  "previous_version": "CURRENT-1.69.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修復五回合自檢的兩筆孤兒魔物素材來源：DROP-SG-06 黏獸王核、DROP-SG-08 酸液黏獸酸囊；同步修正錯誤來源索引並補上層級相符、可實際遭遇與掉落的黏獸來源。",
+  "summary": "調整戰鬥介面隊形：角色與敵方固定在第一列左右並排，寵物／召喚獸與冒險團隊友統一排列在兩個主對戰欄位下方。",
   "changelog": [
-    "修正 DROP-SG-06 舊來源索引誤指 MON14-190 帝王蠍；改由新增 B級黏獸王實際掉落，掉率9%。",
-    "修正 DROP-SG-08 舊來源索引誤指 MON14-174 樹人；改由新增 D級酸液黏獸實際掉落，掉率32%。",
-    "monster_drop_system、monster_catalog.drop_source_map、content_link_index.item_sources 三層來源索引同步，避免只消除警告卻無法實際取得素材。",
-    "層級檢查：B級黏獸王核由B級怪物產出；D級酸液黏獸酸囊由D級怪物產出，不產生低階區域取得高階素材的倒掛。",
-    "完整來源空白檢查結果為0筆；既有存檔相容，不需重開角色。",
-    "PWA快取升級至v41，版本入口與Service Worker同步CURRENT-1.69.7。"
+    "戰鬥主欄位固定為角色與敵方左右並排，避免隊友或出戰夥伴插入後破壞對戰視線。",
+    "寵物／召喚獸沿用出戰夥伴欄位，與冒險團隊友統一移至主對戰欄位下方。",
+    "手機窄螢幕仍維持角色與敵方兩欄並排；VS標示在窄螢幕隱藏以保留資訊寬度。",
+    "僅調整戰鬥UI排列，不改動傷害、AI、隊友、寵物／召喚獸或存檔邏輯；既有存檔相容。",
+    "PWA快取升級至v42，CSS與版本入口同步CURRENT-1.69.8。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -49,7 +48,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-1.8",
+  "pwa_cache_revision": "PWA-CACHE-FIX-1.9",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -67,5 +66,6 @@
     "material_above_product": 0,
     "core_tier_issues": 0,
     "semantic_mismatch_issues": 0
-  }
+  },
+  "battle_layout_revision": "BATTLE-FORMATION-LAYOUT-1.0"
 }
