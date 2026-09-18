@@ -200,6 +200,8 @@ function databaseGrowthAudit(){
  return issues
 }
 
+if(typeof window!=="undefined")window.addEventListener("load",()=>setTimeout(()=>{try{syncRuntimeIndexesAndMetadata()}catch(e){console.warn("runtime index sync",e)}},120),{once:true});
+
 function craftingRecipeMatchesFacility(d,fid){
  const r=d?.craft_recipe,prof=DB.crafting_system?.facility_profession?.[fid];
  if(!r||!prof)return false;
