@@ -1,18 +1,18 @@
 {
-  "version": "CURRENT-1.67.1",
-  "previous_version": "CURRENT-1.67.0",
+  "version": "CURRENT-1.67.2",
+  "previous_version": "CURRENT-1.67.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正煉金店收購分類：藥草、草藥素材、藥材、煉金素材與所有實際被藥劑配方引用的材料均可出售給煉金店，並加入自檢防止未來新增材料再次漏收。",
+  "summary": "深化副職業學習前置條件顯示：每項需求直接對照角色目前基礎屬性，標示已達成、高出數值或不足差額，並同步顯示學費需求、持有金額與不足差額。",
   "changelog": [
-    "修正煉金店原本只接受「素材／藥劑」類型，導致「草藥素材」被出售清單過濾的問題。",
-    "煉金店現在明確收購：素材、草藥素材、藥草、藥材、煉金素材與藥劑。",
-    "新增資料驅動判定：只要物品被任一藥劑配方實際引用為材料，即使其主分類為食材或其他合理跨用途分類，也可由煉金店收購。",
-    "藥劑材料索引會依目前 items／recipes 數量自動重建，後續新增藥草或煉金材料不需再手動維護白名單。",
-    "五回合自檢新增煉金店收購分類 runtime 與合法藥劑素材拒收檢查。",
-    "市場價格、每日收購資金與供需價格模型維持原規則，不因本次分類修正而繞過經濟限制。",
-    "PWA快取升至v25。"
+    "副職業學習視窗的前置屬性改為「需求值｜角色目前值｜差額」逐項顯示。",
+    "達成條件以已達成與高出數值呈現；未達條件直接顯示不足多少點。",
+    "學費同步顯示需求銀幣、角色持有銀幣及不足／剩餘差額。",
+    "學習按鈕在不可學習時會區分「屬性不足」、「銀幣不足」或兩者同時不足。",
+    "明確註記副職業學習門檻採角色基礎屬性判定，避免裝備與暫時增益造成誤解。",
+    "實際學習判定邏輯維持原規則，UI顯示與 meetsSubjob 判定共用同一份角色基礎屬性資料。",
+    "PWA快取升至v26。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -36,5 +36,6 @@
   "database_growth_compat_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0",
   "dungeon_depth_revision": "DUNGEON-DEPTH-2.0",
-  "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0"
+  "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0",
+  "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.0"
 }
