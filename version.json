@@ -1,20 +1,21 @@
 {
-  "version": "CURRENT-1.69.6",
+  "version": "CURRENT-1.69.9",
   "previous_version": "CURRENT-1.69.8",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全生產製作成功率升級：鍛造、裁縫、藥劑、附魔與料理統一納入能力值、幸運、天賦、副職業階級／熟練Lv、配方難度與組織加成。",
+  "summary": "全生產製作成功率升級：鍛造、裁縫、藥劑、附魔與料理統一由能力值、幸運、天賦、副職業階級／熟練Lv、配方難度與組織加成共同決定。",
   "changelog": [
-    "新增 PRODUCTION-CRAFT-SUCCESS-2.0，所有現行生產製作統一使用同一套成功率框架。",
-    "成功率因素納入主能力、次能力、幸運、是否具備對應副職業、副職業階級、熟練Lv1–10、製作天賦、組織製作加成與配方階級難度。",
-    "鍛造使用力量＋敏捷；裁縫使用敏捷＋智力；藥劑／附魔使用智力＋意志；料理使用敏捷＋智力。",
-    "料理不再只用『有廚師固定+18』；現在與其他製作一致，真正依烹飪階級、XP熟練Lv與天賦變動。",
-    "批量1／5／10改為逐次計算成功率；批次途中副職業升階或熟練Lv提升，後續製作立即套用新成功率。",
-    "製作列表與料理列表顯示當前成功率及影響來源；副職業欄位顯示階級、熟練Lv與XP。",
-    "失敗不產生成品，但仍消耗該次完整配方素材並取得實作熟練XP。",
-    "五回合自檢透過生成器稽核鏈追加全製作成功率系統完整性檢查。",
-    "PWA快取升級至v40。"
+    "新增 PRODUCTION-CRAFT-SUCCESS-2.0，鍛造、裁縫、藥劑、附魔、料理全部套用成功率判定。",
+    "鍛造採力量＋敏捷；裁縫採敏捷＋智力；藥劑與附魔採智力＋意志；料理採敏捷＋智力，幸運另提供共同加成。",
+    "副職業新增由既有XP推導的熟練Lv1–10；成功率同時受副職業階級與熟練Lv影響，不改舊存檔schema。",
+    "既有鍛造／裁縫／藥劑／附魔天賦與烹飪天賦正式納入同一成功率公式；所有副職業通用成功率天賦亦生效。",
+    "料理移除舊版『取得廚師固定+18』簡化判定，改與專業製作一致使用能力、階級、熟練Lv與天賦。",
+    "製作與料理介面顯示目前成功率、能力值、幸運、副職業階級／熟練Lv、天賦與配方難度來源。",
+    "批量1／5／10逐次擲定；批次途中副職業升階或熟練Lv提升時，後續嘗試立即套用新成功率。",
+    "失敗不產生成品，仍消耗該次完整配方素材並取得實作副職業XP；成功率下限20%、上限95%。",
+    "五回合自檢追加全製作成功率系統與專業能力／副職業映射檢查。",
+    "保留CURRENT-1.69.8戰鬥隊形調整與CRAFTING-RECIPE-SEMANTIC-2.0配方完整性成果；PWA快取升級至v43。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -52,7 +53,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-1.7",
+  "pwa_cache_revision": "PWA-CACHE-FIX-2.0",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -72,5 +73,21 @@
     "semantic_mismatch_issues": 0
   },
   "battle_layout_revision": "BATTLE-FORMATION-LAYOUT-1.0",
-  "production_crafting_success_revision": "PRODUCTION-CRAFT-SUCCESS-2.0"
+  "production_crafting_success_revision": "PRODUCTION-CRAFT-SUCCESS-2.0",
+  "production_crafting_success": {
+    "scope": [
+      "鍛造",
+      "裁縫",
+      "藥劑",
+      "附魔",
+      "料理"
+    ],
+    "chance_range": [
+      20,
+      95
+    ],
+    "subjob_level_cap": 10,
+    "batch_recalculate_each_attempt": true,
+    "save_compatible": true
+  }
 }
