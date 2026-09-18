@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v26";
+const CACHE_NAME=CACHE_PREFIX+"v27";
 const CORE=[
   "./",
   "./index.html",
