@@ -1886,3 +1886,128 @@
     ]
   };
 })();
+
+
+/* CURRENT-1.66.0｜專業製作資料完整性與跨格式配方正規化
+ * CRAFTING-DATA-INTEGRITY-1.0
+ * 鍛造／裁縫／藥劑／附魔：設施、專業、成品、素材與 legacy DB.recipes 統一治理。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+
+  const PROF_FACILITY={鍛造:"blacksmith",裁縫:"tailor",藥劑:"alchemy",附魔:"enchanter"};
+  const VALID_PROFESSIONS=new Set(Object.keys(PROF_FACILITY));
+  const itemById=id=>(DB.items||[]).find(d=>d?.id===id)||null;
+  const uniq=a=>[...new Set((a||[]).filter(Boolean))];
+
+  const outputTypeFor=(d,profession)=>{
+    if(d?.type)return d.type;
+    if(profession==="藥劑")return "藥劑";
+    if(d?.kind==="equipment"){
+      if(d.equip_slot==="weapon")return "主武器";
+      if(d.equip_slot==="offhand")return "盾牌";
+      if(d.equip_slot==="head")return "頭盔";
+      if(d.equip_slot==="hands")return "手套";
+      if(d.equip_slot==="feet")return "鞋子";
+      if(d.equip_slot==="body")return "盔甲";
+      return "飾品";
+    }
+    if(d?.kind==="armor")return "盔甲";
+    if(d?.kind==="accessory")return "飾品";
+    if(d?.kind==="consumable")return profession==="藥劑"?"藥劑":"消耗品";
+    if(d?.kind==="tool")return "道具";
+    return d?.kind||"道具";
+  };
+
+  const normalizedLegacy=[];
+  const migrationIssues=[];
+  for(const r of DB.recipes||[]){
+    const profession=String(r?.profession||"").trim();
+    if(!profession||["料理","烹飪","cook","cooking","SJ-COOK"].includes(profession))continue;
+    if(!VALID_PROFESSIONS.has(profession)){
+      migrationIssues.push({id:r.id||"unknown",reason:`未知製作專業:${profession}`});
+      continue;
+    }
+    const outputId=r?.result||r?.output?.item_id||null;
+    const out=outputId?itemById(outputId):null;
+    if(!out){
+      migrationIssues.push({id:r.id||"unknown",reason:`製作成品不存在:${outputId||"null"}`});
+      continue;
+    }
+    const materials=[];
+    for(const m of r.ingredients||[])if(m?.item_id)materials.push({id:m.item_id,qty:Math.max(1,Number(m.qty||1))});
+    for(const [id,qty] of Object.entries(r.requires||{}))materials.push({id,qty:Math.max(1,Number(qty||1))});
+
+    if(!out.craft_recipe){
+      out.craft_recipe={
+        profession,
+        grade:r.tier||out.tier||"F",
+        base_materials:materials,
+        monster_components:[],
+        requires_facility:PROF_FACILITY[profession]
+      };
+      out.recipe_id=r.id||`CR-${out.id}`;
+      out.recipe_access=out.recipe_access||"special";
+      out.recipe_level=Number(out.recipe_level||DB.class_design_system?.unlock_levels?.[out.tier]||1);
+      out.recipe_time_hours=Math.max(.25,Number(r.time_hours||out.recipe_time_hours||1));
+      out.type=outputTypeFor(out,profession);
+      if(out.value==null&&out.price!=null)out.value=Number(out.price||0);
+      out.acquisition_sources=uniq([...(out.acquisition_sources||[]),"craft"]);
+      normalizedLegacy.push(r.id||out.id);
+    }
+  }
+
+  const ALLOWED_TYPES={
+    鍛造:new Set(["主武器","副武器","盔甲","頭盔","手套","鞋子","盾牌","飾品","披風","道具"]),
+    裁縫:new Set(["盔甲","頭盔","手套","鞋子","披風","飾品"]),
+    藥劑:new Set(["藥劑","消耗品"]),
+    附魔:new Set(["主武器","副武器","盔甲","頭盔","手套","鞋子","盾牌","飾品","披風"])
+  };
+
+  const issues=[...migrationIssues];
+  const counts={鍛造:0,裁縫:0,藥劑:0,附魔:0};
+  for(const d of DB.items||[]){
+    const r=d?.craft_recipe;if(!r)continue;
+    const profession=String(r.profession||"").trim();
+    const expected=PROF_FACILITY[profession];
+    if(!expected){
+      issues.push({id:d.id,reason:`未知專業:${profession||"空白"}`});
+      continue;
+    }
+    counts[profession]=(counts[profession]||0)+1;
+    if(r.requires_facility!==expected)issues.push({id:d.id,reason:`設施錯配:${r.requires_facility||"空白"}→${expected}`});
+    if(d.type==="料理"||d.inventory_group==="食物"||d.food_subtype)issues.push({id:d.id,reason:`${profession}成品誤標為料理／食物`});
+    if(ALLOWED_TYPES[profession]&&!ALLOWED_TYPES[profession].has(d.type))issues.push({id:d.id,reason:`${profession}成品類型異常:${d.type||"空白"}`});
+
+    const mats=[...(r.base_materials||[]),...(r.monster_components||[])];
+    if(!mats.length)issues.push({id:d.id,reason:"製作素材為空"});
+    for(const m of mats){
+      if(!m?.id||!itemById(m.id))issues.push({id:d.id,reason:`素材不存在:${m?.id||"空白"}`});
+      if(!(Number(m?.qty)>0))issues.push({id:d.id,reason:`素材數量無效:${m?.id||"空白"}`});
+      const md=m?.id?itemById(m.id):null;
+      if(md&&(md.type==="料理"||md.inventory_group==="食物")&&!["藥劑"].includes(profession)){
+        issues.push({id:d.id,reason:`非藥劑製作誤用完成料理作素材:${md.id}`});
+      }
+    }
+  }
+
+  DB.crafting_data_integrity_system={
+    version:"CRAFTING-DATA-INTEGRITY-1.0",
+    release:"CURRENT-1.66.0",
+    profession_facility:{...PROF_FACILITY},
+    normalized_legacy_recipe_ids:normalizedLegacy,
+    counts,
+    issue_count:issues.length,
+    issues,
+    rules:[
+      "鍛造、裁縫、藥劑、附魔配方必須同時符合專業、設施與成品類型。",
+      "共用 DB.recipes 中的非料理 legacy 配方會正規化為成品 craft_recipe，進入正確專業製作系統。",
+      "製作素材必須存在且數量大於0；不得以完成料理誤作鍛造、裁縫或附魔素材。",
+      "專業製作介面與實際 craftItemBatch 都必須再次驗證專業/設施，不只依賴 UI 隱藏。",
+      "附魔工坊正式提供製作入口；附魔配方仍受副職業、階級、角色等級與配方取得限制。"
+    ]
+  };
+
+  DB.meta=DB.meta||{};
+  DB.meta.crafting_data_integrity_revision="CRAFTING-DATA-INTEGRITY-1.0";
+})();
