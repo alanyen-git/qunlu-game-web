@@ -1,19 +1,19 @@
 {
-  "version": "CURRENT-1.68.3",
-  "previous_version": "CURRENT-1.68.2",
+  "version": "CURRENT-1.68.4",
+  "previous_version": "CURRENT-1.68.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "調整背包裝備屬性對比著色：候選裝備數值固定白色，只對目前穿戴裝備數值依優劣顯示紅／綠／白。",
+  "summary": "修正背包裝備對比仍整段變色的快取部署問題：修復Service Worker語法錯誤、強制更新runtime與CSS，並將候選值/目前裝備值分離著色。",
   "changelog": [
-    "背包裝備屬性對比格式維持「候選值／目前裝備值」。",
-    "候選裝備的屬性名稱與數值固定使用白色，不因比較結果變色。",
-    "目前裝備數值低於候選裝備時顯示紅色。",
-    "目前裝備數值高於候選裝備時顯示綠色。",
-    "目前裝備數值與候選裝備相同時維持白色。",
-    "例如「防禦+3/+1」中，防禦+3/維持白色，只有+1為紅色。",
+    "確認1.68.3的比較邏輯本身正確，但sw.js核心清單存在字面\\\\n語法錯誤，導致新版Service Worker無法安裝。",
+    "修復sw.js語法並將PWA快取升至v33。",
+    "Service Worker註冊網址加入CURRENT-1.68.4版本參數，強制瀏覽器重新檢查並安裝新版。",
+    "index.html對game.css、runtime.js、market-economy-v2.js與pwa.js加入CURRENT-1.68.4版本參數，避免手機沿用舊HTTP/PWA快取。",
+    "背包裝備對比改為runtime直接指定顏色：候選裝備名稱與數值固定白色，只有目前裝備值依優劣變色。",
+    "防禦+3/+1：防禦+3/固定白色，+1紅色；防禦+3/+5：前段白色，+5綠色；+3/+3全白。",
     "重量與耐久仍不參與比較。",
-    "PWA快取升至v32。"
+    "存檔格式不變。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -50,5 +50,6 @@
     "eight_piece": 2
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
-  "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.1"
+  "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
+  "pwa_cache_revision": "PWA-CACHE-FIX-1.0"
 }
