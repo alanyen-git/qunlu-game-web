@@ -3522,8 +3522,8 @@ function itemStatsText(d,compareTo=null){
      for(const k of order){
        const candidate=Number(d.combat?.[k]||0),current=Number(compareTo.combat?.[k]||0);
        if(candidate===0&&current===0)continue;
-       const cls=candidate>current?"equip-compare-better":candidate<current?"equip-compare-worse":"equip-compare-equal";
-       a.push(`<span class="${cls}">${names[k]}${equipmentCompareValueText(candidate)}/${equipmentCompareValueText(current)}</span>`)
+       const cls=current>candidate?"equip-compare-better":current<candidate?"equip-compare-worse":"equip-compare-equal";
+       a.push(`<span class="equip-compare-base">${names[k]}${equipmentCompareValueText(candidate)}/</span><span class="${cls}">${equipmentCompareValueText(current)}</span>`)
      }
    }else for(const [k,v] of Object.entries(d.combat||{}))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
  }
