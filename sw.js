@@ -14,7 +14,6 @@ const CORE=[
   "./src/alchemy-healing-recipe-v1.js",
   "./src/equipment-depth-v1.js",
   "./src/crafting-recipe-semantic-v1.js",
-  "./src/crafting-recipe-integrity-v2.js",
   "./src/crafting-recipe-semantic-v2.js",
   "./src/runtime.js",
   "./src/market-economy-v2.js",
