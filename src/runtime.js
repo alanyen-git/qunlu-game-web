@@ -3488,7 +3488,23 @@ function craftEffectText(d){
 function craftResultLine(d){
  return `成品：${d?.name||"未知"}｜效果：${craftEffectText(d)}`
 }
-function itemStatsText(d){
+function equipmentCompareValueText(v){
+ const n=Number(v||0);
+ if(n===0)return "0";
+ if(Math.abs(n)<1)return `${n>0?"+":""}${n.toFixed(2)}`;
+ return `${n>0?"+":""}${n}`
+}
+function inventoryComparisonItem(d){
+ if(!d)return null;
+ let eq=null;
+ if(isShieldItem(d))eq=offhandEquip();
+ else if(d.type==="飾品")eq=G.character.equipment?.[slotForItem(d)]||null;
+ else if(d.type==="主武器")eq=G.character.equipment?.主武器||null;
+ else eq=G.character.equipment?.[d.type]||null;
+ const equipped=eq&&item(equipId(eq));
+ return equipped||{combat:{}}
+}
+function itemStatsText(d,compareTo=null){
  const a=[];
  // PLAYER-FACING ITEM DESCRIPTION POLICY:
  // Keep category/material/requirements/rarity and all mechanical effects.
@@ -3499,9 +3515,17 @@ function itemStatsText(d){
  if(d.required_level)a.push(`建議Lv${d.required_level}+`);
  if(d.rarity)a.push(d.rarity);
  if(d.sealed)a.push("封印中：高階加成受限");
- if(d.combat){
+ if(d.combat||compareTo){
    const names={attack:"攻擊",magicPower:"魔法威力",defense:"防禦",magicDefense:"魔防",accuracy:"命中",evasion:"閃避",critRate:"爆擊",critDamage:"爆傷",attackSpeed:"攻速",castSpeed:"施法速度",blockRate:"格擋",statusResist:"抗性"};
-   for(const [k,v] of Object.entries(d.combat))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
+   const order=["attack","magicPower","defense","magicDefense","accuracy","evasion","critRate","critDamage","attackSpeed","castSpeed","blockRate","statusResist"];
+   if(compareTo){
+     for(const k of order){
+       const candidate=Number(d.combat?.[k]||0),current=Number(compareTo.combat?.[k]||0);
+       if(candidate===0&&current===0)continue;
+       const cls=candidate>current?"equip-compare-better":candidate<current?"equip-compare-worse":"equip-compare-equal";
+       a.push(`<span class="${cls}">${names[k]}${equipmentCompareValueText(candidate)}/${equipmentCompareValueText(current)}</span>`)
+     }
+   }else for(const [k,v] of Object.entries(d.combat||{}))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
  }
  if((d.feature_tags||[]).length||d.set_id){
    const advNames={moveSpeed:"移速",range:"射程",armorPenPct:"破甲",magicPenPct:"法穿",blockValue:"格擋減傷",poise:"韌性",statusAccuracy:"異常命中",lifeSteal:"生命偷取",healingPower:"治療效果",manaRegen:"MP回復/時",hpRegen:"HP回復/時",critResist:"爆擊抗性",threat:"威脅",stealth:"潛行",perception:"感知",carryCapacity:"負重",initiative:"先攻",blockRate:"格擋"};
@@ -4719,7 +4743,7 @@ function openInventory(){
    const actionCount=(actions.match(/<button/g)||[]).length;
    return `${head}<div class="inventory-item">
      <div class="inventory-item-head">${d.name} <span class="tier">${d.tier}</span> ×${x.qty||1}</div>
-     <div class="inventory-item-meta">${itemStatsText(d)}${x.durability!=null?`｜耐久${x.durability}/${x.maxDurability}`:""}</div>
+     <div class="inventory-item-meta">${itemStatsText(d,isEq?inventoryComparisonItem(d):null)}${x.durability!=null?`｜耐久${x.durability}/${x.maxDurability}`:""}</div>
      <div class="inventory-item-actions ${actionCount===1?"one":""}">${actions}</div>
    </div>`
  }).join("")||"<div class='small'>背包為空。</div>";
@@ -5319,6 +5343,7 @@ function runGeneratorAudit(){
  for(const r of cookingProfessionLeaks)issues.push(`料理配方專業分類異常:${r.id}/${r.profession}`);
  if(DB.crafting_data_integrity_system?.version!=="CRAFTING-DATA-INTEGRITY-1.0")issues.push("CRAFTING-DATA-INTEGRITY-1.0缺失");
  if(typeof craftingRecipeMatchesFacility!=="function"||typeof currentFacilityAllowsCrafting!=="function")issues.push("專業製作分類防線缺失");
+ if(typeof inventoryComparisonItem!=="function"||typeof equipmentCompareValueText!=="function")issues.push("背包裝備屬性對比runtime缺失");
  if(typeof worldTierItemSort!=="function"||typeof itemListCategoryLabel!=="function"||typeof tierGroupedItemRows!=="function")issues.push("商品／製作世界層級排序runtime缺失");
  else{
    const orderProbe=[{tier:"C",name:"C"},{tier:"F",name:"F"},{tier:"A",name:"A"},{tier:"D",name:"D"}].sort(worldTierItemSort).map(x=>x.tier).join("");
