@@ -1,20 +1,22 @@
 {
-  "version": "CURRENT-1.67.4",
-  "previous_version": "CURRENT-1.67.3",
+  "version": "CURRENT-1.68.0",
+  "previous_version": "CURRENT-1.67.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "降低能力屬性強化藥水的商店取得頻率：不再作為煉金店每日常駐補貨，改為依城鎮層級低機率輪替到貨，且每次最多1瓶。",
+  "summary": "深化武器、裝備與飾品資料庫：新增72件以特色機制與附加屬性為主的裝備，並建立通用可變件數套裝系統，正式支援3件、5件、8件套裝與未來任意件數門檻。",
   "changelog": [
-    "力量、敏捷及其他帶 stat_ 能力屬性增益的藥水改為稀有商店商品。",
-    "低於藥水世界層級的城鎮不會販售該能力藥水。",
-    "同階城鎮每日到貨率顯著降低：E級約5%、D級約8%、C級約12%，高階城市再依規模逐步提高。",
-    "E級能力藥水在D級城鎮約9.5%、C級城鎮約15%；A/S級大型市場上限仍控制在40%以內。",
-    "能力藥水一旦到貨，單一品項當日最多1瓶；舊存檔若當日已有超額庫存也會立即壓到1瓶。",
-    "未到貨的能力藥水不再以固定常駐商品顯示；到貨時會標示「稀有到貨」。",
-    "普通恢復、魔力、解毒、抗性等藥劑仍維持原市場庫存規則。",
-    "五回合自檢加入能力藥水稀有供應runtime與庫存上限檢查。",
-    "PWA快取升至v28。"
+    "新增72件武器／防具／披風／飾品，裝備總量由280提升至352。",
+    "新增40件獨立特色裝備，著重破甲、法穿、感知、潛行、先攻、韌性、負重、生命偷取、治療增幅、回魔、爆擊抗性等附加屬性。",
+    "新增32件套裝部件，共6組套裝：2組3件、2組5件、2組8件。",
+    "新增通用equipment_sets套裝資料結構；套裝總件數與啟動門檻不寫死，未來可定義任意正整數件數。",
+    "3件套裝目前採2/3件門檻；5件套裝採3/5件門檻；8件套裝採3/5/8件門檻。",
+    "套裝加成正式接入基礎戰鬥數值、進階戰鬥數值、角色能力值與元素抗性，不是純文字效果。",
+    "同一套裝部件ID重複裝備不會重複計算套裝件數。",
+    "裝備視窗新增目前套裝進度與已啟動門檻；新特色裝備在物品說明中顯示進階屬性、特色與套裝名稱。",
+    "新增裝備以F～C級為主，不新增A／S級裝備，避免高階裝備通膨。",
+    "五回合自檢加入EQUIPMENT-DEPTH-1.0、352件裝備最低量、套裝部件引用、套裝門檻與3/5/8件範例檢查。",
+    "PWA快取升至v29。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -40,5 +42,14 @@
   "dungeon_depth_revision": "DUNGEON-DEPTH-2.0",
   "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0",
   "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.1",
-  "ability_potion_market_revision": "ABILITY-POTION-MARKET-1.0"
+  "ability_potion_market_revision": "ABILITY-POTION-MARKET-1.0",
+  "equipment_depth_revision": "EQUIPMENT-DEPTH-1.0",
+  "equipment_total": 352,
+  "equipment_added": 72,
+  "equipment_sets": {
+    "total": 6,
+    "three_piece": 2,
+    "five_piece": 2,
+    "eight_piece": 2
+  }
 }
