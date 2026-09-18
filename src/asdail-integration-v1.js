@@ -149,6 +149,19 @@
   }
 
   // 5) 怪物棲地與掉落 profile。顯式 habitat 是作者指定棲地，不應被舊 biome tag 丟棄。
+  const placeMonster=(id,locationIds)=>{
+    const m=monBy(id);if(!m)return;
+    m.habitats=uniq([...(m.habitats||[]),...locationIds]);
+  };
+  // D級北境山徑保留成年冬狼／座狼威脅；F級王冠草甸只配置低威脅動物。
+  placeMonster("MON14-006",["ASD-WILD-GRAYPASS"]);
+  placeMonster("MON14-007",["ASD-WILD-GRAYPASS"]);
+  placeMonster("MON14-001",["ASD-WILD-CROWNMEADOW"]);
+  placeMonster("MON14-015",["ASD-WILD-CROWNMEADOW"]);
+  placeMonster("MON14-026",["ASD-WILD-CROWNMEADOW"]);
+  // 王都舊蓄水廊只加入符合人工水道尺度的小型入侵者／軟泥，不塞大型野獸。
+  placeMonster("LEGACY-MON-001",["ASD-DUNGEON-ROYAL-CISTERN"]);
+  placeMonster("LEGACY-MON-011",["ASD-DUNGEON-ROYAL-CISTERN"]);
   for(const m of DB.monsters||[]){
     if(!String(m.id||"").startsWith("MON-ASD"))continue;
     m.habitats=uniq([...(m.habitats||[]),...(m.habitat||[])]);
@@ -170,10 +183,16 @@
   if(mistQ)mistQ.objective={kind:"action",action:"探索",location_id:"ASD-WILD-MISTPINE",target:2,required_item_id:"ITEM-ASD-MIST-LANTERN"};
   const basaltQ=quest("Q1582-ASD-BASALT-SAMPLE");
   if(basaltQ)basaltQ.objective={kind:"action",action:"探索",location_id:"ASD2-WILD-BASALTHOLLOW",target:2};
+  const mirrorQ=quest("Q1582-ASD-MIRROR-RUIN");
+  if(mirrorQ)mirrorQ.objective={kind:"action",action:"探索",location_id:"ASD2-DUNGEON-MIRRORDEPTH",target:2};
   const wetlandEvent=(DB.adventure_event_templates||[]).find(x=>x.id==="AE158-ASD-WETLAND-LIGHT");
   if(wetlandEvent)wetlandEvent.reward={reputation:1,event_clock:1};
   const mistEvent=(DB.adventure_event_templates||[]).find(x=>x.id==="AE158-ASD-MIST-BELL");
   if(mistEvent)mistEvent.reward={reputation:1,event_clock:1};
+  // 事件層級不得高於所在地；環境事件降至所在地 D 級，而不是抬高地圖層級。
+  for(const id of ["AE158-ASD-RED-VENT","AE1582-ASD-WOLF-CIRCLE","AE1582-ASD-GRAIN-SCALE"]){
+    const e=(DB.adventure_event_templates||[]).find(x=>x.id===id);if(e)e.tier="D";
+  }
 
   // 7) 世界誌：補 verification/scope/index。
   const verifyLevels=Object.keys(DB.lore_system?.verification_levels||{});
