@@ -3523,7 +3523,8 @@ function itemStatsText(d,compareTo=null){
        const candidate=Number(d.combat?.[k]||0),current=Number(compareTo.combat?.[k]||0);
        if(candidate===0&&current===0)continue;
        const cls=current>candidate?"equip-compare-better":current<candidate?"equip-compare-worse":"equip-compare-equal";
-       a.push(`<span class="equip-compare-base">${names[k]}${equipmentCompareValueText(candidate)}/</span><span class="${cls}">${equipmentCompareValueText(current)}</span>`)
+       const color=current>candidate?"var(--good)":current<candidate?"var(--bad)":"#f3efe7";
+       a.push(`<span class="equip-compare-base" style="color:#f3efe7">${names[k]}${equipmentCompareValueText(candidate)}/</span><span class="${cls}" style="color:${color}">${equipmentCompareValueText(current)}</span>`)
      }
    }else for(const [k,v] of Object.entries(d.combat||{}))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
  }
