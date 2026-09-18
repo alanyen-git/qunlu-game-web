@@ -1,23 +1,18 @@
 {
-  "version": "CURRENT-1.67.0",
-  "previous_version": "CURRENT-1.66.1",
+  "version": "CURRENT-1.67.1",
+  "previous_version": "CURRENT-1.67.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "地下城深化為依世界層級生成的多地圖遠征：新增機關陷阱房、財寶房、裝備房、地下城專屬奇遇、精英怪物、最深處 Boss 房，以及高階地下城更常見的 NPC 團隊競爭／合作；保留既有地點 ID 與舊存檔相容。",
+  "summary": "修正煉金店收購分類：藥草、草藥素材、藥材、煉金素材與所有實際被藥劑配方引用的材料均可出售給煉金店，並加入自檢防止未來新增材料再次漏收。",
   "changelog": [
-    "地下城由單層探索改為多地圖遠征；F～S級分別生成約2～12張內部樓層地圖，層級越高路線越長、陷阱與精英密度越高。",
-    "每輪地下城保證納入機關陷阱、財寶、裝備、地下城專屬奇遇與精英怪物等房型；普通怪物房、樓層入口與探索通道依權重混合生成。",
-    "最深層固定且僅生成一個 Boss 房；Boss 必須實際進入戰鬥並擊敗後才會完成本輪地下城，戰敗或逃跑不會誤判通關。",
-    "Boss 與精英由所在地生態遭遇池生成強化版本，普通怪物房維持一般倍率；封印奇遇可合理削弱最深處 Boss。",
-    "新增地下城專屬奇遇：前代遠征記號、失落營地、失衡封印、流動魔力脈、封存遺物台與高階異質空間裂隙。",
-    "新增 NPC 冒險團隊競合：F級約2%基礎遭遇率，隨世界層級升至S級約44%；可選合作、競爭或保持距離，結果由D20與角色能力決定。",
-    "NPC 團隊事件不會取代所在房間本身；即使在精英房或 Boss 房前遇到其他隊伍，仍需完成原房間攻略。",
-    "財寶與裝備獎勵同時受地下城世界層級與角色可承受層級限制，避免越階掉落；裝備房產出為需修復的耐久裝備。",
-    "完成地下城後依F～S級設定18～168小時重整期，重整前不重複產生完整Boss與寶藏，避免無限刷取。",
-    "新增地下城地圖視窗，可查看各樓層、已揭露房間、已清理狀態與目前進度；地下城進度寫入本機存檔。",
-    "五回合自檢新增地下城系統版本、地下城層級設定、存檔孤兒、樓層資料與Boss房唯一性檢查。",
-    "PWA快取升至v24，正式發布版升至CURRENT-1.67.0。"
+    "修正煉金店原本只接受「素材／藥劑」類型，導致「草藥素材」被出售清單過濾的問題。",
+    "煉金店現在明確收購：素材、草藥素材、藥草、藥材、煉金素材與藥劑。",
+    "新增資料驅動判定：只要物品被任一藥劑配方實際引用為材料，即使其主分類為食材或其他合理跨用途分類，也可由煉金店收購。",
+    "藥劑材料索引會依目前 items／recipes 數量自動重建，後續新增藥草或煉金材料不需再手動維護白名單。",
+    "五回合自檢新增煉金店收購分類 runtime 與合法藥劑素材拒收檢查。",
+    "市場價格、每日收購資金與供需價格模型維持原規則，不因本次分類修正而繞過經濟限制。",
+    "PWA快取升至v25。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -40,5 +35,6 @@
   "crafting_data_integrity_revision": "CRAFTING-DATA-INTEGRITY-1.0",
   "database_growth_compat_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0",
-  "dungeon_depth_revision": "DUNGEON-DEPTH-2.0"
+  "dungeon_depth_revision": "DUNGEON-DEPTH-2.0",
+  "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0"
 }
