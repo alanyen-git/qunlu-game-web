@@ -2,7 +2,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.69.1",REV="AFFILIATION-TREASURY-DEPTH-2.0";
+const RELEASE="CURRENT-1.69.2",REV="AFFILIATION-TREASURY-DEPTH-2.1";
 const R={F:0,E:1,D:2,C:3,B:4,A:5,S:6},TIERS=["F","E","D","C","B","A","S"];
 const LEVEL={F:1,E:8,D:20,C:35,B:50,A:70,S:90};
 const RANK_REQ={F:0,E:1,D:2,C:3,B:4,A:5,S:5};
@@ -206,7 +206,11 @@ function ensureContent(){
  for(const x of skills)if(!skillIds.has(x.id)){DB.shared_skills.push(x);skillIds.add(x.id)}
  for(const d of DB.items||[]){
   const owner=d?.affiliation_treasury_owner;if(!owner||ITEM_IDS.has(d.id))continue;
-  const a=aff(owner.type,owner.id);if(!a)continue;const cap=scaleProfile(owner.type,a).index;
+  const a=aff(owner.type,owner.id);if(!a)continue;
+  if(/^AT-(?:ORG|DISC)-.*-(?:ACC|SIG)$/.test(String(d.id||""))){
+   d.treasury_retired=true;d.treasury_retired_reason="已由規模化獨有裝備取代；既有持有品保留，不再提供新兌換。";continue
+  }
+  const cap=scaleProfile(owner.type,a).index;
   if(rk(d.tier)>cap)d.tier=TIERS[cap];
   d.affiliation_scale_tier=TIERS[cap]
  }
@@ -247,7 +251,7 @@ function renderSkillRow(type,id,s,p,z,c){
 function openTreasury(type,id){
  const a=aff(type,id);if(!a||!member(type,id))return alert("只有正式成員可以使用寶庫。");
  const p=pstate(type,id);p.purchases=p.purchases||{};const z={rank:Math.max(0,Math.min(5,Number(p.rank)||0))},c=contact(type,id),profile=scaleProfile(type,a);
- const owned=(DB.items||[]).filter(d=>d?.affiliation_treasury_owner?.type===type&&d.affiliation_treasury_owner.id===id);
+ const owned=(DB.items||[]).filter(d=>d?.affiliation_treasury_owner?.type===type&&d.affiliation_treasury_owner.id===id&&!d.treasury_retired);
  const eq=owned.filter(d=>["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type)).sort((x,y)=>rk(x.tier)-rk(y.tier)||String(x.name).localeCompare(String(y.name),"zh-Hant"));
  const supply=owned.filter(d=>!eq.includes(d)).sort((x,y)=>rk(x.tier)-rk(y.tier)||String(x.name).localeCompare(String(y.name),"zh-Hant"));
  const skills=(DB.shared_skills||[]).filter(s=>s?.affiliation_skill_owner?.type===type&&s.affiliation_skill_owner.id===id).sort((x,y)=>rk(x.tier)-rk(y.tier));
@@ -286,6 +290,8 @@ function audit(){
   if(e.some(x=>rk(x.tier)>p.index)||s.some(x=>rk(x.tier)>p.index))issues.push(`${a.id}:寶庫層級超過規模${p.tier}`)
  }
  for(const id of ITEM_IDS)if(!(DB.content_link_index?.item_sources?.[id]?.special_sources||[]).length)issues.push(`來源索引缺失:${id}`);
+ const legacyActive=(DB.items||[]).filter(d=>/^AT-(?:ORG|DISC)-.*-(?:ACC|SIG)$/.test(String(d?.id||""))&&!d.treasury_retired);
+ if(legacyActive.length)issues.push(`舊寶庫裝備仍可兌換:${legacyActive.slice(0,6).map(x=>x.id).join("、")}`);
  return {revision:REV,release:RELEASE,pass:issues.length===0,issues,stats}
 }
 
@@ -295,9 +301,9 @@ DB.affiliation_treasury_depth_system={version:REV,release:RELEASE,save_compatibl
  "規模優先讀明確scale/size欄位，其次讀scope/jurisdiction，再以既有tier及接觸據點數保底。",
  "小型勢力不生成高階寶庫；大型、跨國與世界級勢力才可能提供B/A/S級限定內容。",
  "B級以上技能仍需職位、角色等級、能力值與技能槽前置，不因加入大型組織直接解鎖。",
- "所有獨有技能使用既有技能XP Lv1-10與Lv6/Lv10里程碑runtime。"
+ "所有獨有技能使用既有技能XP Lv1-10與Lv6/Lv10里程碑runtime。","舊版誓徽／傳承裝僅保留既有持有品，不再與規模化裝備重複供應。"
 ]};
-if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.1／${REV}：寶庫依勢力規模擴充數種獨有裝備與技能，規模越大種類與最高層級越高。`);
+if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.2／${REV}：寶庫依勢力規模擴充數種獨有裝備與技能，規模越大種類與最高層級越高。`);
 ensureContent();try{if(typeof syncRuntimeIndexesAndMetadata==="function")syncRuntimeIndexesAndMetadata()}catch(e){}ensureSources();patchSync();
 globalThis.openAffiliationTreasury=openTreasury;
 globalThis.learnAffiliationTreasurySkill=learnSkill;
