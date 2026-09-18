@@ -66,7 +66,18 @@ let TRAVEL_CACHE=null;
 function ensureTravelCache(){if(TRAVEL_CACHE)return TRAVEL_CACHE;const ids=DB.locations.map(x=>x.id),ix=new Map(ids.map((id,i)=>[id,i])),n=ids.length,d=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Infinity));for(const l of DB.locations){const i=ix.get(l.id);for(const e of (l.links||[])){const j=ix.get(e.to);if(j!=null&&Number.isFinite(e.hours))d[i][j]=Math.min(d[i][j],e.hours)}}for(let k=0;k<n;k++)for(let i=0;i<n;i++){if(!Number.isFinite(d[i][k]))continue;for(let j=0;j<n;j++){const nd=d[i][k]+d[k][j];if(nd<d[i][j])d[i][j]=nd}}TRAVEL_CACHE={ix,d};return TRAVEL_CACHE}
 const ENCOUNTER_CACHE=new Map();
 const CRAFT_INDEX=new Map();
-function craftingItemsFor(fid,tier){const k=`${fid}|${tier}`;if(!CRAFT_INDEX.has(k))CRAFT_INDEX.set(k,(DB.items||[]).filter(d=>d.craft_recipe?.requires_facility===fid&&d.tier===tier));return CRAFT_INDEX.get(k)}
+function craftingRecipeMatchesFacility(d,fid){
+ const r=d?.craft_recipe,prof=DB.crafting_system?.facility_profession?.[fid];
+ if(!r||!prof)return false;
+ if(r.profession!==prof||r.requires_facility!==fid)return false;
+ if(d.type==="料理"||d.inventory_group==="食物"||d.food_subtype)return false;
+ return true
+}
+function currentFacilityAllowsCrafting(fid){
+ const l=G?.character?loc(G.character.locationId):null;
+ return !!fid&&G?.character?.currentFacility===fid&&!!l&&(l.facilities||[]).includes(fid)
+}
+function craftingItemsFor(fid,tier){const k=`${fid}|${tier}`;if(!CRAFT_INDEX.has(k))CRAFT_INDEX.set(k,(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&d.tier===tier));return CRAFT_INDEX.get(k)}
 const by=(arr,id)=>arr.find(x=>x.id===id),item=id=>IDX.item.get(id),loc=id=>IDX.loc.get(id),cls=id=>IDX.cls.get(id),org=id=>IDX.origin.get(id),sub=id=>IDX.sub.get(id),monster=id=>IDX.monster.get(id);
 function nowId(p){return p+"-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,6).toUpperCase()}
 function rollD20(){return 1+rand(20)}
@@ -1268,8 +1279,8 @@ function recipeKnown(d){
  return (G.character.knownRecipes||[]).includes(d.recipe_id)
 }
 function recipeCanLearn(d){
- const j=subjobForProfession(d.craft_recipe?.profession),access=d.recipe_access;
- return ["trainer"].includes(access)&&j&&tierOrder(j.grade)>=tierOrder(d.tier)&&G.character.level>=(d.recipe_level||1)
+ const r=d?.craft_recipe,j=subjobForProfession(r?.profession),access=d?.recipe_access,fid=r?.requires_facility;
+ return ["trainer"].includes(access)&&j&&craftingRecipeMatchesFacility(d,fid)&&currentFacilityAllowsCrafting(fid)&&tierOrder(j.grade)>=tierOrder(d.tier)&&G.character.level>=(d.recipe_level||1)
 }
 function recipeLearnFee(d){return Math.max(4,Math.ceil((d.value||20)*.08)+(tierOrder(d.tier)+1)*6)}
 function learnCraftRecipe(itemId){
@@ -1314,12 +1325,23 @@ function craftMaxBatch(d,limit=10){
  return Math.max(0,Math.min(limit,...mats.map(x=>Math.floor(inventoryQty(x.id)/Math.max(1,x.qty)))))
 }
 function craftItemBatch(itemId,count=1){
- count=Math.max(1,Math.min(10,Number(count)||1));const d=item(itemId),r=d?.craft_recipe,j=d&&subjobForProfession(r?.profession);if(!d||!r||!j){alert("缺少對應副職業。");return}if(!recipeKnown(d)){alert("尚未學會此配方。");return}if(tierOrder(j.grade)<tierOrder(d.tier)){alert(`副職業階級不足，需要${d.tier}級。`);return}if(G.character.level<(d.recipe_level||1)){alert(`需要角色Lv${d.recipe_level}。`);return}const missing=craftingMissingBatch(d,count);if(missing.length){alert("批量材料不足："+missing.map(x=>`${item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}closeModal();if(!beginTurn(`批量製作：${d.name}×${count}`))return;const chance=craftSuccessChance(d,j);let success=0,fail=0;for(let n=0;n<count;n++){const roll=1+rand(100),ok=roll<=chance;for(const x of craftRecipeMaterials(d))consumeIngredient(x.id,x.qty);if(ok){addItem(d.id,1);success++}else fail++;gainSubjobXp(DB.crafting_system.profession_subjob[r.profession],(tierOrder(d.tier)+1)*8)}log("製作",`${d.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");endTurn(craftTimeHours(d,j)*count);openCrafting(r.requires_facility,d.tier)
+ count=Math.max(1,Math.min(10,Number(count)||1));const d=item(itemId),r=d?.craft_recipe,j=d&&subjobForProfession(r?.profession),fid=r?.requires_facility;
+ if(!d||!r||!j){alert("缺少對應副職業。");return}
+ if(!craftingRecipeMatchesFacility(d,fid)){alert("此配方的專業／設施分類異常，已禁止製作。");return}
+ if(!currentFacilityAllowsCrafting(fid)){alert(`必須在${DB.facilities?.[fid]?.name||"對應製作設施"}內才能製作。`);return}
+ if(!recipeKnown(d)){alert("尚未學會此配方。");return}
+ if(tierOrder(j.grade)<tierOrder(d.tier)){alert(`副職業階級不足，需要${d.tier}級。`);return}
+ if(G.character.level<(d.recipe_level||1)){alert(`需要角色Lv${d.recipe_level}。`);return}
+ const missing=craftingMissingBatch(d,count);if(missing.length){alert("批量材料不足："+missing.map(x=>`${item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}
+ closeModal();if(!beginTurn(`批量製作：${d.name}×${count}`))return;const chance=craftSuccessChance(d,j);let success=0,fail=0;
+ for(let n=0;n<count;n++){const roll=1+rand(100),ok=roll<=chance;for(const x of craftRecipeMaterials(d))consumeIngredient(x.id,x.qty);if(ok){addItem(d.id,1);success++}else fail++;gainSubjobXp(DB.crafting_system.profession_subjob[r.profession],(tierOrder(d.tier)+1)*8)}
+ log("製作",`${d.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");endTurn(craftTimeHours(d,j)*count);openCrafting(fid,d.tier)
 }
 function craftItem(itemId){return craftItemBatch(itemId,1)}
 
 function openCrafting(fid,tierFilter="F"){
  const prof=DB.crafting_system.facility_profession[fid];if(!prof)return;
+ if(!currentFacilityAllowsCrafting(fid)){alert("必須先進入對應製作設施。");return}
  const locTier=loc(G.character.locationId).tier,j=subjobForProfession(prof);
  const allowed=["F","E","D","C","B","A","S"].filter(t=>tierOrder(t)<=tierOrder(locTier));
  if(!allowed.includes(tierFilter))tierFilter=allowed.at(-1)||"F";
@@ -2590,7 +2612,7 @@ function resolveOrganizationEncounter(engage){
  else log("組織奇遇",`你沒有介入${o.name}的地方事務。`);
  G.pendingOrganizationEncounter=null;closeModal();persist();renderAll()
 }
-function renderFacility(fid){const f=DB.facilities[fid],l=loc(G.character.locationId),ix=facilityIntegration(fid);let b=`<div class="card"><b>${f.name}</b><br><span class="small">${l.name}［${l.tier}］｜關聯組織${ix.organization_ids.length}｜情報${ix.intel_record_ids.length}｜對話${ix.dialogue_record_ids.length}${ix.subjob_ids.length?`｜可學副職${ix.subjob_ids.length}`:""}</span></div><div class="actions"><button onclick="facilityDialogue('${fid}')">對話</button><button onclick="facilityIntel('${fid}')">情報</button>`;if(f.shop)b+=`<button onclick="shopBuy('${fid}')">${fid==="tavern"||fid==="inn"?"購買餐飲":"購買"}</button><button onclick="shopSell('${fid}')">${fid==="tavern"?"收購食材":"出售"}</button>`;if(fid==="guild")b+=`<button onclick="guildQuests()">公會委託</button><button onclick="openGuildBuyback()">收購櫃檯</button><button onclick="openRecruitTeammates('guild')">招募隊友</button><button onclick="openJoinAdventureParty()">加入冒險團</button><button onclick="classTraining()">本職技能</button><button onclick="guildBasicTraining()">跨職基礎技能</button><button onclick="openClassAdvancement()">職業進階</button>`;if(fid==="tavern")b+=`<button onclick="openRecruitTeammates('tavern')">招募隊友</button>`;if(fid==="tavern")b+=`<button onclick="openFaithEncounter('tavern')">信仰人物</button>`;if(fid==="tavern"||fid==="inn")b+=`<button class="good" onclick="openMealService('${fid}')">用餐${mealPeriod()?`・${DB.meal_service_system.service_windows[mealPeriod()].label}`:""}</button>`;if(fid==="mageguild")b+=`<button onclick="openSummonResearch()">召喚研究</button><button onclick="openContractRitual()">契約儀式</button>`;if(fid==="enchanter")b+=`<button onclick="openContractRitual()">契約儀式</button>`;if(["blacksmith","tailor","alchemy"].includes(fid))b+=`<button onclick="openCrafting('${fid}')">製作</button>`;if(fid==="blacksmith")b+=`<button onclick="openRepair()">修理裝備</button>`;if(fid==="church"||fid==="clinic")b+=`<button onclick="facilityHeal('${fid}')">治療</button>`;if(fid==="church")b+=`<button onclick="openFaithDirectory()">神系與教會</button><button onclick="openFaithMissions()">神殿委託</button><button onclick="openFaithProfile()">祈禱／誓言</button><button onclick="openFaithEncounter('church')">地方神職</button>`;if(fid==="alchemy"||fid==="church")b+=`<button onclick="facilityQuest('${fid}')">臨時委託</button>`;if(DB.subjobs.some(s=>s.facilities.includes(fid)))b+=`<button onclick="learnSubjobHere('${fid}')">副職業學習</button>`;if(fid==="inn")b+=`<button onclick="innRest()">住宿</button>`;if(["guild","tavern","general","blacksmith","tailor","alchemy","enchanter","mageguild","clinic"].includes(fid))b+=`<button onclick="openFacilityOrganizations('${fid}')">組織／勢力</button>`;if(disciplineContactsHere(fid).length)b+=`<button onclick="openDisciplineDirectory('all','${fid}')">武技／魔法流派 ${disciplineContactsHere(fid).length}</button>`;if(fid===authorityLiaisonFacility()&&politicalContextForLocation().polity)b+=`<button onclick="openAuthorityRequests(\'${politicalContextForLocation().polity.id}\')">地方政務</button>`;b+="</div>";showModal(f.name,b,`renderFacility(\'${fid}\')`)}
+function renderFacility(fid){const f=DB.facilities[fid],l=loc(G.character.locationId),ix=facilityIntegration(fid);let b=`<div class="card"><b>${f.name}</b><br><span class="small">${l.name}［${l.tier}］｜關聯組織${ix.organization_ids.length}｜情報${ix.intel_record_ids.length}｜對話${ix.dialogue_record_ids.length}${ix.subjob_ids.length?`｜可學副職${ix.subjob_ids.length}`:""}</span></div><div class="actions"><button onclick="facilityDialogue('${fid}')">對話</button><button onclick="facilityIntel('${fid}')">情報</button>`;if(f.shop)b+=`<button onclick="shopBuy('${fid}')">${fid==="tavern"||fid==="inn"?"購買餐飲":"購買"}</button><button onclick="shopSell('${fid}')">${fid==="tavern"?"收購食材":"出售"}</button>`;if(fid==="guild")b+=`<button onclick="guildQuests()">公會委託</button><button onclick="openGuildBuyback()">收購櫃檯</button><button onclick="openRecruitTeammates('guild')">招募隊友</button><button onclick="openJoinAdventureParty()">加入冒險團</button><button onclick="classTraining()">本職技能</button><button onclick="guildBasicTraining()">跨職基礎技能</button><button onclick="openClassAdvancement()">職業進階</button>`;if(fid==="tavern")b+=`<button onclick="openRecruitTeammates('tavern')">招募隊友</button>`;if(fid==="tavern")b+=`<button onclick="openFaithEncounter('tavern')">信仰人物</button>`;if(fid==="tavern"||fid==="inn")b+=`<button class="good" onclick="openMealService('${fid}')">用餐${mealPeriod()?`・${DB.meal_service_system.service_windows[mealPeriod()].label}`:""}</button>`;if(fid==="mageguild")b+=`<button onclick="openSummonResearch()">召喚研究</button><button onclick="openContractRitual()">契約儀式</button>`;if(fid==="enchanter")b+=`<button onclick="openContractRitual()">契約儀式</button>`;if(["blacksmith","tailor","alchemy","enchanter"].includes(fid))b+=`<button onclick="openCrafting('${fid}')">製作</button>`;if(fid==="blacksmith")b+=`<button onclick="openRepair()">修理裝備</button>`;if(fid==="church"||fid==="clinic")b+=`<button onclick="facilityHeal('${fid}')">治療</button>`;if(fid==="church")b+=`<button onclick="openFaithDirectory()">神系與教會</button><button onclick="openFaithMissions()">神殿委託</button><button onclick="openFaithProfile()">祈禱／誓言</button><button onclick="openFaithEncounter('church')">地方神職</button>`;if(fid==="alchemy"||fid==="church")b+=`<button onclick="facilityQuest('${fid}')">臨時委託</button>`;if(DB.subjobs.some(s=>s.facilities.includes(fid)))b+=`<button onclick="learnSubjobHere('${fid}')">副職業學習</button>`;if(fid==="inn")b+=`<button onclick="innRest()">住宿</button>`;if(["guild","tavern","general","blacksmith","tailor","alchemy","enchanter","mageguild","clinic"].includes(fid))b+=`<button onclick="openFacilityOrganizations('${fid}')">組織／勢力</button>`;if(disciplineContactsHere(fid).length)b+=`<button onclick="openDisciplineDirectory('all','${fid}')">武技／魔法流派 ${disciplineContactsHere(fid).length}</button>`;if(fid===authorityLiaisonFacility()&&politicalContextForLocation().polity)b+=`<button onclick="openAuthorityRequests(\'${politicalContextForLocation().polity.id}\')">地方政務</button>`;b+="</div>";showModal(f.name,b,`renderFacility(\'${fid}\')`)}
 function gameHourDecimal(){return G.worldTime.hour+G.worldTime.minute/60}
 function mealPeriod(){
  const h=gameHourDecimal(),w=DB.meal_service_system.service_windows;
@@ -4990,6 +5012,14 @@ function runGeneratorAudit(){
    return d&&(d.type==="料理"||d.inventory_group==="食物"||d.food_subtype)&&prof&&!["料理","烹飪","cook","cooking","SJ-COOK"].includes(prof)
  });
  for(const r of cookingProfessionLeaks)issues.push(`料理配方專業分類異常:${r.id}/${r.profession}`);
+ if(DB.crafting_data_integrity_system?.version!=="CRAFTING-DATA-INTEGRITY-1.0")issues.push("CRAFTING-DATA-INTEGRITY-1.0缺失");
+ if(typeof craftingRecipeMatchesFacility!=="function"||typeof currentFacilityAllowsCrafting!=="function")issues.push("專業製作分類防線缺失");
+ for(const x of DB.crafting_data_integrity_system?.issues||[])issues.push(`專業製作資料異常:${x.id}/${x.reason}`);
+ for(const [fid,prof] of Object.entries(DB.crafting_system?.facility_profession||{})){
+   for(const d of (DB.items||[]).filter(x=>x?.craft_recipe?.requires_facility===fid)){
+     if(d.craft_recipe.profession!==prof)issues.push(`製作設施專業污染:${fid}/${d.id}/${d.craft_recipe.profession}`);
+   }
+ }
 
  if(DB.talent_system?.version!=="TALENT-CORE-2.0")issues.push("TALENT-CORE-2.0缺失");
  if((DB.talents||[]).length!==100)issues.push(`天賦數量異常:${(DB.talents||[]).length}`);
