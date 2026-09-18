@@ -16,6 +16,7 @@ const CORE=[
   "./src/crafting-recipe-semantic-v1.js",
   "./src/crafting-recipe-semantic-v2.js",
   "./src/runtime.js",
+  "./src/crafting-success-v2.js",
   "./src/market-economy-v2.js",
   "./src/world-autonomy-v1.js",
   "./src/runtime-patches.js",
