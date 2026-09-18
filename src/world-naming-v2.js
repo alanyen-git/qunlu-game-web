@@ -10,7 +10,7 @@
   if(!db||typeof db!=='object')return;
 
   const REVISION='WORLD-NAMING-2.0';
-  const PROTECTED_TOKENS=Object.freeze(['雷煌流','雷鳴流','名品武士刀「闇夜」','闇夜']);
+  const PROTECTED_TOKENS=Object.freeze(['雷煌流','雷鳴流','柳生惟心流','名品武士刀「闇夜」','闇夜']);
 
   const EXACT_RENAMES=Object.freeze({
     // 第一輪殘留的「雙名稱／斜線」與過度說明式名稱
@@ -44,7 +44,6 @@
     '初階法力補充藥水':'初階法力藥水',
 
     // 第二輪新增內容：移除日式專名與「○○流」模板感
-    '柳生唯心流':'白柳劍術學派',
     '鐵旗守勢流':'鐵旗盾劍戰法',
     '霧徑聽息流':'霧徑獵行戰技',
     '碎浪繩鬥術':'碎浪救難戰技',
@@ -142,7 +141,6 @@
     '萬泉流砂地':'萬泉陷落流沙荒漠',
     '鏡浦火山裂地':'鏡浦火山地熱裂谷',
     '鐘丘灰霧谷':'霧丘灰霧迷谷',
-    '柳生唯心流':'白柳劍術學派'
   });
 
   const TEXT_RENAMES=Object.freeze({...REFERENCE_RENAMES,...EXACT_RENAMES});
@@ -178,6 +176,7 @@
 
   function replaceKnown(value){
     if(typeof value!=='string'||!value)return value;
+    if(PROTECTED_TOKENS.some(token=>value.includes(token)))return value;
     let next=value;
     const exact=EXACT_RENAMES[next];
     if(exact&&exact!==next){
