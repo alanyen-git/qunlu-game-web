@@ -1037,3 +1037,26 @@ button:focus-visible{outline:2px solid #d9bd79;outline-offset:2px}
   .battle-skill-body .itemrow{grid-template-columns:minmax(0,1fr);align-items:stretch}.battle-skill-body .itemrow>button{width:100%;min-height:48px}
   .money-display{font-size:clamp(15px,5vw,20px)}
 }
+
+
+/* ===== CURRENT-1.69.8 BATTLE FORMATION LAYOUT ===== */
+.battlehead{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  gap:10px;
+  align-items:stretch;
+}
+.battlehead>.battleunit:first-child{grid-column:1;order:1}
+.battlehead>.battleversus{grid-column:2;order:2;align-self:center;justify-self:center}
+.battlehead>.battleunit.enemy{grid-column:3;order:3}
+.battlehead>.party-battle-strip{grid-column:1/-1;order:4;margin:0}
+.battlehead>.battleunit.companion{grid-column:1/-1;order:5}
+@media(max-width:620px){
+  .battlehead{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+  .battlehead>.battleunit:first-child{grid-column:1;grid-row:auto}
+  .battlehead>.battleunit.enemy{grid-column:2;grid-row:auto}
+  .battlehead>.battleversus{display:none}
+  .battlehead>.party-battle-strip,
+  .battlehead>.battleunit.companion{grid-column:1/-1}
+  .battlehead>.battleunit{padding:8px}
+}
