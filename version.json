@@ -1,21 +1,21 @@
 {
-  "version": "CURRENT-1.69.4",
-  "previous_version": "CURRENT-1.69.3",
+  "version": "CURRENT-1.69.5",
+  "previous_version": "CURRENT-1.69.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正低階生命回復配方的黏獸素材模板污染：小型生命藥水改為止血草＋林薄荷，並同步清理F-D級常規回血品的黏獸凝膠／核心需求。",
+  "summary": "全製作配方語意稽核：修正藥劑黏獸模板污染、裁縫/鍛造素材與專業錯配、弓與法杖主材缺失、F-C級裝備高頻魔物模板與料理名稱/食材錯位。",
   "changelog": [
-    "確認PC-LIFE-01小型生命藥水原配方為河岸止血草×1＋黏獸凝膠×1，來源是早期藥劑×魔物素材自動配對模板。",
-    "小型生命藥水正式改為河岸止血草×1＋林薄荷×1，不再需要獵殺黏獸才能製作基礎回血藥。",
-    "同步檢查F-D級生命回復品，共發現15個常規回血品被綁定黏獸凝膠／黏獸核心；全部改回草藥／醫療素材邏輯。",
-    "初階／微量／小型回血藥採止血草＋林薄荷；E級回血藥提高止血草用量並加入晨露花；D級回血藥加入星辰花與晨露花。",
-    "療傷膏、治療軟膏改用草藥配方；止血繃帶改為乾淨繃帶＋河岸止血草，不再使用黏獸凝膠。",
-    "治癒花蜜／精靈花蜜改為花性草藥配方；高級藥草改以血棘草作為主要素材。",
-    "只清理F-D級常規生命回復品的模板污染；真正具有特殊設定意義的高階／特殊藥劑仍可使用魔物素材。",
-    "新增ALCHEMY-HEALING-RECIPE-1.0完整性稽核，五回合自檢會檢查低階生命回復品是否再次被塞入黏獸素材。",
-    "所有修正保留既有物品ID、效果、配方取得方式與角色存檔；不刪除玩家既有藥水或素材。",
-    "PWA快取升級至v38。"
+    "完整掃描595筆鍛造／裁縫／藥劑／附魔製作資料與59筆料理配方，新增CRAFTING-RECIPE-SEMANTIC-1.0全域語意稽核。",
+    "共修正243個不同成品／配方、247次高信心錯配；套用後新增語意稽核為0未處理錯誤。",
+    "114筆一般藥劑移除無語意黏獸核心／酸囊等通用模板素材；真正黏膠、酸液、軟泥等主題配方保留。",
+    "27筆明顯軟裝由鍛造改回裁縫，27筆裁縫配方補回布／皮／纖維主材，11筆明顯金屬重裝改回鍛造。",
+    "4筆弓類補回木材與弦材；8筆法杖補回木材與魔法媒材。",
+    "50筆F-C級裝備移除高頻且與成品主題無關的魔物模板素材；B-A-S級稀有魔物催化劑保留並列為人工檢視候選，避免誤刪真正高階設計。",
+    "料理追加5筆高信心修正：森林菇餅、獵肉餅補穀粉；魔導香茶、祝禱草湯、星輝香茶改回符合名稱的食材。",
+    "獵手集中藥劑移除跨兩級素材錯配：賢者草[C]改為四葉草[E]。",
+    "五回合自檢沿用CRAFTING-DATA-INTEGRITY-1.0入口並接收新的語意稽核結果；保留既有存檔相容。",
+    "PWA快取升級至v39。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -53,10 +53,19 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-1.5",
+  "pwa_cache_revision": "PWA-CACHE-FIX-1.6",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
   "skill_learning_prereq_compare_revision": "SKILL-LEARNING-PREREQ-COMPARE-1.0",
-  "alchemy_healing_recipe_revision": "ALCHEMY-HEALING-RECIPE-1.0"
+  "alchemy_healing_recipe_revision": "ALCHEMY-HEALING-RECIPE-1.0",
+  "crafting_recipe_semantic_revision": "CRAFTING-RECIPE-SEMANTIC-1.0",
+  "crafting_recipe_semantic_audit": {
+    "professional_recipes": 595,
+    "cooking_recipes": 59,
+    "corrected_unique": 243,
+    "correction_events": 247,
+    "remaining_issues": 0,
+    "high_tier_review_candidates": 75
+  }
 }
