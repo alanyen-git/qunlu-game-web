@@ -907,6 +907,7 @@ body{background:#071014;color:var(--ui-text)}
 }
 .inventory-item-head{font-size:19px;font-weight:800;color:#f3efe7}
 .inventory-item-meta{margin-top:6px;color:#bac5c7;font-size:13px;line-height:1.5}
+.equip-compare-base{color:#f3efe7;font-weight:700}
 .equip-compare-better{color:var(--good);font-weight:700}
 .equip-compare-worse{color:var(--bad);font-weight:700}
 .equip-compare-equal{color:#f3efe7;font-weight:700}
