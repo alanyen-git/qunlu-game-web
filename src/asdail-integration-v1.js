@@ -158,12 +158,22 @@
     if(m.encounter_enabled==null)m.encounter_enabled=true;
   }
 
-  // 6) 新版委託語意。兩個「搜索/採樣」任務改成行動目標，避免把工具或自然脫落甲片誤當無限採集物。
+  // 6) 新版委託語意。hunt 為合法討伐目標；搜索/採樣不應被誤當無限採集物。
+  const roadWolf=monBy("LEGACY-MON-002");
+  if(roadWolf)roadWolf.habitats=uniq([...(roadWolf.habitats||[]),"ASD-WILD-CROWNROAD"]);
   const quest=id=>(DB.quest_templates||[]).find(x=>x.id===id);
+  for(const q of DB.quest_templates||[]){
+    if(!String(q.id||"").includes("ASD"))continue;
+    if(q.objective?.kind==="action"&&!q.objective.action)q.objective.action="探索";
+  }
   const mistQ=quest("Q158-ASD-MIST-LANTERN");
   if(mistQ)mistQ.objective={kind:"action",action:"探索",location_id:"ASD-WILD-MISTPINE",target:2,required_item_id:"ITEM-ASD-MIST-LANTERN"};
   const basaltQ=quest("Q1582-ASD-BASALT-SAMPLE");
   if(basaltQ)basaltQ.objective={kind:"action",action:"探索",location_id:"ASD2-WILD-BASALTHOLLOW",target:2};
+  const wetlandEvent=(DB.adventure_event_templates||[]).find(x=>x.id==="AE158-ASD-WETLAND-LIGHT");
+  if(wetlandEvent)wetlandEvent.reward={reputation:1,event_clock:1};
+  const mistEvent=(DB.adventure_event_templates||[]).find(x=>x.id==="AE158-ASD-MIST-BELL");
+  if(mistEvent)mistEvent.reward={reputation:1,event_clock:1};
 
   // 7) 世界誌：補 verification/scope/index。
   const verifyLevels=Object.keys(DB.lore_system?.verification_levels||{});
