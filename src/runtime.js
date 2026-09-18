@@ -3224,11 +3224,45 @@ function marketFacilityState(fid){
  let s=G.worldState.localMarkets[key];if(!s||s.day!==day)s=G.worldState.localMarkets[key]={day,budgetMax:Math.round(base*(fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1)),budgetRemaining:Math.round(base*(fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1)),stock:{}};
  s.stock=s.stock||{};s.budgetRemaining=clamp(Number(s.budgetRemaining??s.budgetMax),0,Math.max(1,s.budgetMax*2));return s
 }
+function isAbilityStatPotion(d){
+ return !!d&&d.type==="藥劑"&&Object.keys(d.buff||{}).some(k=>k.startsWith("stat_"))
+}
+function stableMarketRoll(text){
+ let h=2166136261;
+ for(let i=0;i<String(text).length;i++){h^=String(text).charCodeAt(i);h=Math.imul(h,16777619)}
+ return (h>>>0)/4294967296
+}
+function rareAbilityPotionChance(d){
+ if(!isAbilityStatPotion(d))return 1;
+ const settlementRank=tierOrder(loc(G.character.locationId)?.tier||"F"),itemRank=tierOrder(d?.tier||"F");
+ if(settlementRank<itemRank)return 0;
+ const base=[0,.08,.12,.18,.25,.35,.45][settlementRank]??0;
+ const gap=Math.max(0,settlementRank-itemRank);
+ return clamp(base+gap*.02,0,.55)
+}
+function rareShopStockAvailable(fid,d){
+ if(fid!=="alchemy"||!isAbilityStatPotion(d))return true;
+ const chance=rareAbilityPotionChance(d);
+ if(chance<=0)return false;
+ const seed=[G.character.locationId,fid,marketDayKey(),d.id].join("|");
+ return stableMarketRoll(seed)<chance
+}
 function marketStockLimit(d){
+ if(isAbilityStatPotion(d))return 1;
  const access=Math.max(0,tierOrder(loc(G.character.locationId)?.tier||"F")-tierOrder(d?.tier||"F")),bulk=["食材","素材","草藥素材","工藝素材","礦石","藥劑","料理","食物","補給"].includes(d?.type);
  return clamp((bulk?4:1)+access*(bulk?2:1),1,bulk?12:5)
 }
-function marketStockQty(fid,d){const s=marketFacilityState(fid);if(s.stock[d.id]==null)s.stock[d.id]=marketStockLimit(d);return Math.max(0,Math.floor(s.stock[d.id]))}
+function marketStockQty(fid,d){
+ const s=marketFacilityState(fid);
+ if(fid==="alchemy"&&isAbilityStatPotion(d)){
+   if(!rareShopStockAvailable(fid,d))return 0;
+   if(s.stock[d.id]==null)s.stock[d.id]=1;
+   else s.stock[d.id]=clamp(Math.floor(Number(s.stock[d.id])||0),0,1);
+   return s.stock[d.id]
+ }
+ if(s.stock[d.id]==null)s.stock[d.id]=marketStockLimit(d);
+ return Math.max(0,Math.floor(s.stock[d.id]))
+}
 function shopBuyUnitPrice(d){const disc=clamp(talentSpecial("buyDiscount"),0,.25);return Math.max(1,Math.ceil(d.value*1.15*regionalItemMarketFactor(d)*(1-disc)*affiliationPriceMultiplier("buy")))}
 function shopSellUnitPrice(d){const bonus=clamp(talentSpecial("sellBonus"),0,.25);return Math.max(1,Math.floor(d.value*.5*(1+bonus)*regionalItemMarketFactor(d)*affiliationPriceMultiplier("sell")))}
 function openGuildBuyback(){
@@ -3242,9 +3276,10 @@ function guildSellItem(index,unitPrice,qty=1){
 }
 function shopBuy(fid){
  if(G.character.currentFacility!==fid)return;
- const f=DB.facilities[fid],stock=(f.stock||[]).map(item).filter(Boolean),market=marketFacilityState(fid);
- const rows=stock.map(d=>{const p=shopBuyUnitPrice(d),qty=marketStockQty(fid,d);return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${itemStatsText(d)}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`}).join("")||"目前沒有庫存。";
- showModal(f.name+"・購買",`<div class="card small">商品有每日庫存上限，售罄後於隔日補貨。</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
+ const f=DB.facilities[fid],stock=(f.stock||[]).map(item).filter(Boolean).filter(d=>rareShopStockAvailable(fid,d)),market=marketFacilityState(fid);
+ const rows=stock.map(d=>{const p=shopBuyUnitPrice(d),qty=marketStockQty(fid,d),rare=isAbilityStatPotion(d);return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span>${rare?" <span class='small'>・稀有到貨</span>":""}<br><span class="small">${itemStatsText(d)}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`}).join("")||"目前沒有庫存。";
+ const rareNote=fid==="alchemy"?'<div class="card small">能力屬性強化藥水屬稀有到貨：只有符合城鎮層級時才可能每日輪替出現，出現時最多1瓶。</div>':"";
+ showModal(f.name+"・購買",`<div class="card small">商品有每日庫存上限，售罄後於隔日補貨。</div>${rareNote}${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
 }
 function buyItem(fid,id,p){
  if(G.character.currentFacility!==fid)return;const d=item(id),f=DB.facilities[fid];if(!d||!(f?.stock||[]).includes(id))return;const market=marketFacilityState(fid),price=shopBuyUnitPrice(d),qty=marketStockQty(fid,d);if(qty<=0){alert("今日庫存已售罄。");shopBuy(fid);return}if(G.character.moneySilver<price){alert("銀幣不足");return}
@@ -5222,6 +5257,11 @@ function runGeneratorAudit(){
  if((DB.items||[]).some(x=>!(Number(x.weight)>0)))issues.push("存在無正重量物品");
  if(typeof craftItemBatch!=="function"||typeof cookBatch!=="function")issues.push("批量製作runtime缺失");
  if(typeof openGuildBuyback!=="function")issues.push("公會收購櫃檯runtime缺失");
+ if(typeof isAbilityStatPotion!=="function"||typeof rareShopStockAvailable!=="function")issues.push("能力藥水稀有供應runtime缺失");
+ else{
+   const fixedAbility=(DB.facilities?.alchemy?.stock||[]).map(item).filter(Boolean).filter(isAbilityStatPotion);
+   if(fixedAbility.some(d=>marketStockLimit(d)!==1))issues.push("能力藥水商店庫存上限異常");
+ }
  if(typeof isAlchemyBuybackItem!=="function"||typeof alchemyBuybackIngredientIds!=="function")issues.push("煉金店收購分類runtime缺失");
  else{
    const rejectedAlchemyIngredients=[...alchemyBuybackIngredientIds()].map(item).filter(Boolean).filter(d=>!canSellTo("alchemy",d));
