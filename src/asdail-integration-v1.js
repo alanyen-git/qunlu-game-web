@@ -270,8 +270,17 @@
   for(const l of DB.locations||[])for(const id of l.gather||[])if(src[id])src[id].gather_locations=uniq([...src[id].gather_locations,l.id]);
   for(const m of DB.monsters||[])for(const d of m.loot_materials||[])if(src[d.id])src[d.id].monster_drops=uniq([...src[d.id].monster_drops,m.id]);
   for(const r of DB.recipes||[]){
-    for(const d of r.ingredients||[])if(src[d.item_id])src[d.item_id].recipe_inputs=uniq([...src[d.item_id].recipe_inputs,r.id]);
-    if(r.output?.item_id&&src[r.output.item_id])src[r.output.item_id].recipe_outputs=uniq([...src[r.output.item_id].recipe_outputs,r.id]);
+    const recipeId=r.id||`recipe:${r.name||"unnamed"}`;
+    for(const d of r.ingredients||[])if(d?.item_id&&src[d.item_id])src[d.item_id].recipe_inputs=uniq([...src[d.item_id].recipe_inputs,recipeId]);
+    for(const id of Object.keys(r.requires||{}))if(src[id])src[id].recipe_inputs=uniq([...src[id].recipe_inputs,recipeId]);
+    const outputId=r.output?.item_id||r.result||null;
+    if(outputId&&src[outputId])src[outputId].recipe_outputs=uniq([...src[outputId].recipe_outputs,recipeId]);
+  }
+  for(const d of DB.items||[]){
+    const cr=d.craft_recipe;if(!cr)continue;
+    const recipeId=d.recipe_id||`craft:${d.id}`;
+    for(const m of [...(cr.base_materials||[]),...(cr.monster_components||[])])if(m?.id&&src[m.id])src[m.id].recipe_inputs=uniq([...src[m.id].recipe_inputs,recipeId]);
+    if(src[d.id])src[d.id].recipe_outputs=uniq([...src[d.id].recipe_outputs,recipeId]);
   }
   for(const d of DB.items||[]){
     const s=src[d.id],has=["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"].some(k=>s[k]?.length);
@@ -294,7 +303,7 @@
   }
   DB.asdail_integration_system={
     version:"ASDAIL-INTEGRATION-1.0",
-    release:"CURRENT-1.65.3",
+    release:"CURRENT-1.65.8",
     region_id:"REG-ASD-01",
     policy:"normalize_expansion_schema_without_disabling_audits"
   };
