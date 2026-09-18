@@ -1,4 +1,4 @@
-/* 群陸旅誌：取水點、取水工具與水袋守恆 CURRENT-1.65.7
+/* 群陸旅誌：取水點、取水工具、水袋守恆與來源索引同步 CURRENT-1.65.8
  * WATER-SOURCE-1.1
  * 地點水源 -> 取水工具 -> 空水袋 -> 裝滿水袋(I-WATER) -> 飲用／料理 -> 空水袋
  */
@@ -6,7 +6,7 @@
   "use strict";
   if(typeof DB!=="object"||!DB)return;
 
-  const REVISION="WATER-SOURCE-1.1";
+  const REVISION="WATER-SOURCE-1.2";
   const WATER_ITEM_ID="I-WATER";
   const EMPTY_BAG_DEFAULT_ID="I-WATER-BAG-EMPTY";
   const FOLD_BUCKET_ID="I-FOLD-BUCKET";
@@ -101,6 +101,71 @@
   }
   const waterDefinition=ensureFilledWaterSemantics();
 
+  const uniqList=values=>[...new Set((Array.isArray(values)?values:[]).filter(Boolean))];
+
+  function syncContentLinkItemSources(){
+    DB.content_link_index=DB.content_link_index&&typeof DB.content_link_index==="object"?DB.content_link_index:{};
+    const old=DB.content_link_index.item_sources&&typeof DB.content_link_index.item_sources==="object"?DB.content_link_index.item_sources:{};
+    const validIds=new Set((DB.items||[]).map(d=>d?.id).filter(Boolean));
+    const src={};
+
+    for(const d of DB.items||[]){
+      if(!d?.id)continue;
+      src[d.id]={
+        shops:[],
+        gather_locations:[],
+        monster_drops:[],
+        recipe_inputs:[],
+        recipe_outputs:[],
+        special_sources:uniqList(old[d.id]?.special_sources||[])
+      };
+    }
+
+    for(const [fid,f] of Object.entries(DB.facilities||{})){
+      for(const id of f?.stock||[])if(src[id])src[id].shops=uniqList([...src[id].shops,fid]);
+    }
+    for(const l of DB.locations||[]){
+      for(const id of l?.gather||[])if(src[id])src[id].gather_locations=uniqList([...src[id].gather_locations,l.id]);
+    }
+    for(const m of DB.monsters||[]){
+      for(const drop of m?.loot_materials||[])if(drop?.id&&src[drop.id])src[drop.id].monster_drops=uniqList([...src[drop.id].monster_drops,m.id]);
+    }
+
+    for(const recipe of DB.recipes||[]){
+      const rid=recipe?.id||`recipe:${recipe?.name||"unnamed"}`;
+      for(const ing of recipe?.ingredients||[])if(ing?.item_id&&src[ing.item_id])src[ing.item_id].recipe_inputs=uniqList([...src[ing.item_id].recipe_inputs,rid]);
+      for(const id of Object.keys(recipe?.requires||{}))if(src[id])src[id].recipe_inputs=uniqList([...src[id].recipe_inputs,rid]);
+      const out=recipe?.output?.item_id||recipe?.result||null;
+      if(out&&src[out])src[out].recipe_outputs=uniqList([...src[out].recipe_outputs,rid]);
+    }
+
+    for(const d of DB.items||[]){
+      const cr=d?.craft_recipe;if(!d?.id||!cr)continue;
+      const rid=d.recipe_id||`craft:${d.id}`;
+      for(const ing of [...(cr.base_materials||[]),...(cr.monster_components||[])])if(ing?.id&&src[ing.id])src[ing.id].recipe_inputs=uniqList([...src[ing.id].recipe_inputs,rid]);
+      src[d.id].recipe_outputs=uniqList([...src[d.id].recipe_outputs,rid]);
+    }
+
+    const water=src[WATER_ITEM_ID];
+    if(water)water.special_sources=uniqList([...water.special_sources,"water_source"]);
+
+    const intrinsic=new Set(["quest","event","world_event","starting_item","initial","reward","special"]);
+    for(const d of DB.items||[]){
+      if(!d?.id||!src[d.id])continue;
+      for(const declared of d.acquisition_sources||[]){
+        if(intrinsic.has(declared))src[d.id].special_sources=uniqList([...src[d.id].special_sources,`declared:${declared}`]);
+      }
+    }
+
+    DB.content_link_index.item_sources=src;
+    DB.meta.content_link_item_source_count=Object.keys(src).length;
+    return {
+      item_count:validIds.size,
+      index_count:Object.keys(src).length,
+      blank_ids:Object.entries(src).filter(([,s])=>!["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"].some(k=>(s[k]||[]).length)).map(([id])=>id)
+    };
+  }
+
   function sourceTemplateFor(l){
     if(!l)return null;
     if(l.water_source===false)return null;
@@ -165,6 +230,7 @@
   }
 
   rebuildWaterSourcePoints();
+  syncContentLinkItemSources();
 
   function waterSourceAt(locationId){
     const l=(DB.locations||[]).find(x=>x?.id===locationId);
@@ -365,16 +431,20 @@
     const emptyBag=dbItem(EMPTY_BAG_ID);
     const bucket=(DB.items||[]).find(d=>d?.water_collection_tool===true||d?.tool_effect==="water_collect"||COLLECTION_TOOL_RE.test(String(d?.name||"")));
     const lifecycleOk=water?.container_return_id===EMPTY_BAG_ID&&emptyBag?.container_state==="empty";
+    const linkAudit=syncContentLinkItemSources();
     return {
       revision:REVISION,
-      pass:!!water&&!!emptyBag&&!!bucket&&lifecycleOk&&points.length>0&&missingTowns.length===0,
+      pass:!!water&&!!emptyBag&&!!bucket&&lifecycleOk&&points.length>0&&missingTowns.length===0&&linkAudit.index_count===linkAudit.item_count,
       source_count:points.length,
       town_count:towns.length,
       missing_towns:missingTowns,
       water_item_present:!!water,
       empty_bag_present:!!emptyBag,
       collection_tool_present:!!bucket,
-      container_lifecycle_ok:lifecycleOk
+      container_lifecycle_ok:lifecycleOk,
+      item_source_index_count:linkAudit.index_count,
+      item_count:linkAudit.item_count,
+      blank_item_source_ids:linkAudit.blank_ids
     };
   }
 
@@ -399,6 +469,7 @@
         if(!audit.empty_bag_present)issues.push("空水袋缺失");
         if(!audit.collection_tool_present)issues.push("取水工具缺失");
         if(!audit.container_lifecycle_ok)issues.push("水袋空／滿轉換異常");
+        if(audit.item_source_index_count!==audit.item_count)issues.push(`物品來源索引數量異常：${audit.item_source_index_count}/${audit.item_count}`);
         if(audit.missing_towns.length)issues.push(`城鎮取水點缺失：${audit.missing_towns.slice(0,6).join("、")}`);
         log("五回合自檢",`取水系統異常：${issues.join("；")}`,"danger");
       }
@@ -412,6 +483,7 @@
   globalThis.runWaterSourceAudit=runWaterSourceAudit;
   globalThis.rebuildWaterSourcePoints=rebuildWaterSourcePoints;
   globalThis.waterEmptyBagId=EMPTY_BAG_ID;
+  globalThis.syncContentLinkItemSources=syncContentLinkItemSources;
 
   if(typeof window!=="undefined")window.addEventListener("load",()=>setTimeout(syncWaterSourceUI,200),{once:true});
 })();
