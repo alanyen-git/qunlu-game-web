@@ -1,18 +1,16 @@
 {
-  "version": "CURRENT-1.67.2",
-  "previous_version": "CURRENT-1.67.1",
+  "version": "CURRENT-1.67.3",
+  "previous_version": "CURRENT-1.67.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "深化副職業學習前置條件顯示：每項需求直接對照角色目前基礎屬性，標示已達成、高出數值或不足差額，並同步顯示學費需求、持有金額與不足差額。",
+  "summary": "精簡副職業學習前置條件對比顯示，只保留需求值與角色目前值，移除不足、高出、剩餘等差異文字。",
   "changelog": [
-    "副職業學習視窗的前置屬性改為「需求值｜角色目前值｜差額」逐項顯示。",
-    "達成條件以已達成與高出數值呈現；未達條件直接顯示不足多少點。",
-    "學費同步顯示需求銀幣、角色持有銀幣及不足／剩餘差額。",
-    "學習按鈕在不可學習時會區分「屬性不足」、「銀幣不足」或兩者同時不足。",
-    "明確註記副職業學習門檻採角色基礎屬性判定，避免裝備與暫時增益造成誤解。",
-    "實際學習判定邏輯維持原規則，UI顯示與 meetsSubjob 判定共用同一份角色基礎屬性資料。",
-    "PWA快取升至v26。"
+    "副職業屬性前置顯示改為「需求｜目前」。",
+    "學費顯示同步改為「需求｜目前」。",
+    "移除「不足幾點」、「高出幾點」、「剩餘多少銀」等差異文字。",
+    "保留達成／未達成的視覺樣式與學習按鈕實際判定，不改動遊戲規則。",
+    "PWA快取升至v27。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -37,5 +35,5 @@
   "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0",
   "dungeon_depth_revision": "DUNGEON-DEPTH-2.0",
   "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0",
-  "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.0"
+  "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.1"
 }
