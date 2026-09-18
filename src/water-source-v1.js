@@ -1,49 +1,105 @@
-/* 群陸旅誌：取水點與容器閉環 CURRENT-1.65.6
- * WATER-SOURCE-1.0
- * 地點水源 -> 容器 -> 取水 -> I-WATER -> 料理／飲用
+/* 群陸旅誌：取水點、取水工具與水袋守恆 CURRENT-1.65.7
+ * WATER-SOURCE-1.1
+ * 地點水源 -> 取水工具 -> 空水袋 -> 裝滿水袋(I-WATER) -> 飲用／料理 -> 空水袋
  */
 (()=>{
   "use strict";
   if(typeof DB!=="object"||!DB)return;
 
-  const REVISION="WATER-SOURCE-1.0";
+  const REVISION="WATER-SOURCE-1.1";
   const WATER_ITEM_ID="I-WATER";
+  const EMPTY_BAG_DEFAULT_ID="I-WATER-BAG-EMPTY";
   const FOLD_BUCKET_ID="I-FOLD-BUCKET";
-  const CONTAINER_RE=/折疊水桶|水桶|提桶|水袋|水囊|水壺|皮囊|水罐/;
+  const COLLECTION_TOOL_RE=/折疊水桶|汲水桶|提桶|水桶/;
+  const EMPTY_BAG_RE=/空水袋|空水囊/;
   const SAFE_WATER_RE=/河|溪|泉|湖|瀑|水道|水渠|蓄水|水庫|井|水脈|潭|澗|渡口/;
   const UNSAFE_WATER_RE=/海|潮|鹽|沼|濕地|泥濘|黑水|污水|腐水|毒水|死水|熔|岩漿|硫磺/;
 
   DB.meta=DB.meta||{};
   DB.meta.water_source_revision=REVISION;
 
+  function dbItem(id){
+    try{if(typeof item==="function"){const d=item(id);if(d)return d}}catch(e){}
+    return (DB.items||[]).find(x=>x?.id===id)||null;
+  }
+
+  function registerItem(d){
+    if(!d?.id)return;
+    DB.items=Array.isArray(DB.items)?DB.items:[];
+    if(!(DB.items||[]).some(x=>x?.id===d.id))DB.items.push(d);
+    try{if(typeof IDX!=="undefined"&&IDX?.item)IDX.item.set(d.id,d)}catch(e){}
+  }
+
+  function addGeneralStock(id){
+    const general=DB.facilities?.general;
+    if(!general)return;
+    general.stock=Array.isArray(general.stock)?general.stock:[];
+    if(!general.stock.includes(id))general.stock.push(id);
+  }
+
   function ensureBucketDefinition(){
-    let bucket=(DB.items||[]).find(d=>d&&CONTAINER_RE.test(String(d.name||""))&&/桶/.test(String(d.name||"")));
+    let bucket=(DB.items||[]).find(d=>d&&COLLECTION_TOOL_RE.test(String(d.name||"")));
     if(!bucket){
       bucket={
         id:FOLD_BUCKET_ID,name:"折疊水桶",tier:"F",type:"道具",inventory_group:"道具",
-        weight:0.45,value:6,water_container:true,container_capacity:3,tool_effect:"water_collect",
+        weight:0.45,value:6,water_collection_tool:true,collection_capacity:3,tool_effect:"water_collect",
         acquisition_sources:["shop"],wild_gather_eligible:false,gather_tool:null,
-        description:"以防水布與薄木圈製成的旅行水桶，可折疊收納；用於水井、溪流與泉眼取水。",
+        description:"以防水布與薄木圈製成的旅行水桶，可折疊收納；用於水井、溪流與泉眼汲水，本身不作為長途儲水容器。",
         economic_role:"一般雜貨店→旅行取水工具"
       };
-      DB.items=Array.isArray(DB.items)?DB.items:[];
-      DB.items.push(bucket);
-      try{if(typeof IDX!=="undefined"&&IDX?.item)IDX.item.set(bucket.id,bucket)}catch(e){}
+      registerItem(bucket);
     }else{
-      bucket.water_container=true;
-      bucket.container_capacity=Math.max(3,Number(bucket.container_capacity||0));
+      bucket.water_collection_tool=true;
+      bucket.water_container=false;
+      bucket.collection_capacity=Math.max(3,Number(bucket.collection_capacity||bucket.container_capacity||0));
+      delete bucket.container_capacity;
       bucket.tool_effect=bucket.tool_effect||"water_collect";
+      if(!String(bucket.description||"").includes("空水袋")){
+        bucket.description=(String(bucket.description||"").replace(/\s+$/,"")+" 取到的水必須裝入空水袋。").trim();
+      }
     }
-
-    const general=DB.facilities?.general;
-    if(general){
-      general.stock=Array.isArray(general.stock)?general.stock:[];
-      if(!general.stock.includes(bucket.id))general.stock.push(bucket.id);
-    }
+    addGeneralStock(bucket.id);
     return bucket;
   }
 
+  function ensureEmptyBagDefinition(){
+    let bag=(DB.items||[]).find(d=>d&&EMPTY_BAG_RE.test(String(d.name||"")));
+    if(!bag){
+      bag={
+        id:EMPTY_BAG_DEFAULT_ID,name:"空水袋",tier:"F",type:"道具",inventory_group:"道具",
+        weight:0.08,value:1,water_storage_container:true,container_state:"empty",
+        capacity_units:1,acquisition_sources:["shop"],wild_gather_eligible:false,gather_tool:null,
+        description:"可重複使用的皮製水袋。取水時每裝一份清水會消耗一個空水袋；飲用或料理用水後會留下空水袋。",
+        economic_role:"一般雜貨店→裝水／重複使用"
+      };
+      registerItem(bag);
+    }else{
+      bag.water_storage_container=true;
+      bag.container_state="empty";
+      bag.capacity_units=Math.max(1,Number(bag.capacity_units||1));
+      if(!String(bag.description||"").includes("重複")){
+        bag.description=(String(bag.description||"").replace(/\s+$/,"")+" 可重複裝水使用。").trim();
+      }
+    }
+    addGeneralStock(bag.id);
+    return bag;
+  }
+
   const bucketDefinition=ensureBucketDefinition();
+  const emptyBagDefinition=ensureEmptyBagDefinition();
+  const EMPTY_BAG_ID=emptyBagDefinition.id;
+
+  function ensureFilledWaterSemantics(){
+    const water=dbItem(WATER_ITEM_ID);
+    if(!water)return null;
+    water.water_storage_container=true;
+    water.container_state="filled";
+    water.container_return_id=EMPTY_BAG_ID;
+    water.capacity_units=1;
+    water.refill_source="freshwater_point";
+    return water;
+  }
+  const waterDefinition=ensureFilledWaterSemantics();
 
   function sourceTemplateFor(l){
     if(!l)return null;
@@ -92,14 +148,17 @@
     DB.water_source_system={
       version:REVISION,
       water_item_id:WATER_ITEM_ID,
-      bucket_item_id:bucketDefinition?.id||FOLD_BUCKET_ID,
+      empty_bag_item_id:EMPTY_BAG_ID,
+      collection_tool_id:bucketDefinition?.id||FOLD_BUCKET_ID,
       source_count:rows.length,
+      container_conservation:true,
       rules:[
         "城鎮提供公共水井或蓄水槽；河流、溪流、泉眼、湖潭等淡水地形可形成野外取水點。",
         "海水、潮池、沼澤、污染水、黑水與熔岩相關地點不會直接產出可飲用清水。",
-        "取水需要折疊水桶、水桶、水袋、水壺等可用容器；容器不會在取水時被消耗。",
-        "每個取水點具有容量與每小時恢復量，不建立無限瞬時資源。",
-        "取水會消耗遊戲時間並取得既有 I-WATER，與料理配方及口渴系統直接串接。"
+        "折疊水桶／水桶是取水工具，不是可憑空生成的儲水容器。",
+        "每取得1份 I-WATER 必須先消耗1個空水袋；沒有空水袋時不能取水。",
+        "飲用 I-WATER 或把 I-WATER 用於料理後，會退回同數量的空水袋。",
+        "取水點具有容量與每小時恢復量，不建立無限瞬時資源。"
       ]
     };
     return rows;
@@ -146,23 +205,26 @@
     return node;
   }
 
-  function containerCapacity(){
-    if(typeof G==="undefined"||!G?.character?.inventory)return {capacity:0,name:null};
-    let best={capacity:0,name:null};
+  function inventoryQuantity(id){
+    if(typeof G==="undefined"||!G?.character?.inventory)return 0;
+    if(typeof inventoryQty==="function")try{return Number(inventoryQty(id)||0)}catch(e){}
+    return G.character.inventory.reduce((n,x)=>n+(x?.id===id?Number(x.qty||1):0),0);
+  }
+
+  function collectionTool(){
+    if(typeof G==="undefined"||!G?.character?.inventory)return null;
+    let best=null;
     for(const x of G.character.inventory){
-      if(x?.id===WATER_ITEM_ID)continue;
-      let d=null;try{d=typeof item==="function"?item(x.id):null}catch(e){}
-      if(!d)d=(DB.items||[]).find(v=>v?.id===x.id);
-      const name=String(d?.name||"");
-      const marked=d?.water_container===true||d?.tool_effect==="water_collect";
-      if(!marked&&!CONTAINER_RE.test(name))continue;
-      let cap=Math.max(1,Number(d?.container_capacity||0));
-      if(/折疊水桶|水桶|提桶/.test(name))cap=Math.max(cap,3);
-      else if(/水袋|水囊|水壺|皮囊|水罐/.test(name))cap=Math.max(cap,1);
-      if(cap>best.capacity)best={capacity:cap,name:name||"容器"};
+      const d=dbItem(x?.id);if(!d)continue;
+      const marked=d.water_collection_tool===true||d.tool_effect==="water_collect"||COLLECTION_TOOL_RE.test(String(d.name||""));
+      if(!marked)continue;
+      const capacity=Math.max(1,Number(d.collection_capacity||3));
+      if(!best||capacity>best.capacity)best={id:d.id,name:d.name||"取水工具",capacity};
     }
     return best;
   }
+
+  function emptyBagCount(){return inventoryQuantity(EMPTY_BAG_ID)}
 
   function currentWaterSource(){
     if(typeof G==="undefined"||!G?.character)return null;
@@ -188,15 +250,23 @@
     if(!box)return;
     box.querySelectorAll("[data-water-source-action]").forEach(n=>n.remove());
     if(!source||!G.character.alive)return;
-    const node=waterNode(source),container=containerCapacity();
+
+    const node=waterNode(source),tool=collectionTool(),bags=emptyBagCount();
     const button=document.createElement("button");
     button.type="button";
     button.dataset.waterSourceAction="1";
+
     if(!node||node.current<1){
       button.disabled=true;
       button.textContent=`取水（${source.name}・恢復中）`;
+    }else if(!tool){
+      button.textContent="取水（需要折疊水桶）";
+      button.addEventListener("click",takeWaterAtSource);
+    }else if(bags<1){
+      button.textContent="取水（需要空水袋）";
+      button.addEventListener("click",takeWaterAtSource);
     }else{
-      button.textContent=container.capacity>0?`取水（${source.name}）`:`取水（需水桶／水袋）`;
+      button.textContent=`取水（${source.name}｜空水袋 ${bags}）`;
       button.addEventListener("click",takeWaterAtSource);
     }
     box.appendChild(button);
@@ -206,35 +276,105 @@
     if(typeof G==="undefined"||!G?.character)return;
     const source=currentWaterSource();
     if(!source){alert("此地沒有可安全取用的淡水點。");return}
-    const container=containerCapacity();
-    if(container.capacity<=0){alert("需要折疊水桶、水桶、水袋或水壺等容器才能取水。");return}
+
+    const tool=collectionTool();
+    if(!tool){alert("需要折疊水桶或其他取水工具才能取水。");return}
+
+    const bags=emptyBagCount();
+    if(bags<=0){alert("需要空水袋才能裝水。取水不會憑空增加水袋。");return}
+
     const node=waterNode(source);
     if(!node||node.current<1){alert("這個取水點目前水量不足，稍後會逐步恢復。");syncWaterSourceUI();return}
-    const qty=Math.max(1,Math.min(Math.floor(node.current),Math.floor(source.per_action||3),Math.floor(container.capacity)));
+
+    const qty=Math.max(1,Math.min(
+      Math.floor(node.current),
+      Math.floor(source.per_action||3),
+      Math.floor(tool.capacity||3),
+      Math.floor(bags)
+    ));
+
     if(typeof beginTurn==="function"&&!beginTurn("取水"))return;
+
+    let removed=false;
+    if(typeof removeItem==="function")removed=removeItem(EMPTY_BAG_ID,qty);
+    if(!removed){
+      if(typeof log==="function")log("取水","空水袋數量變動，取水取消。","danger");
+      if(typeof endTurn==="function")endTurn(0);
+      return;
+    }
+
     node.current=Math.max(0,node.current-qty);
     node.lastHour=currentGameHour();
     if(typeof addItem==="function")addItem(WATER_ITEM_ID,qty);
-    if(typeof log==="function")log("取水",`在${source.name}使用${container.name}取得清水×${qty}；水源剩餘 ${Math.floor(node.current)}/${node.max}。`,"ok");
+
+    if(typeof log==="function"){
+      log("取水",`在${source.name}使用${tool.name}，將 ${qty} 個空水袋裝滿；取得清水×${qty}。空水袋剩餘 ${emptyBagCount()}，水源剩餘 ${Math.floor(node.current)}/${node.max}。`,"ok");
+    }
+
     if(typeof endTurn==="function")endTurn(Number(source.time_hours||.5));
     else{try{persist?.()}catch(e){};try{renderAll?.()}catch(e){}}
+  }
+
+  function returnEmptyBags(qty,reason){
+    qty=Math.max(0,Math.floor(Number(qty)||0));if(qty<=0)return 0;
+    if(typeof addItem==="function")addItem(EMPTY_BAG_ID,qty);
+    if(typeof log==="function"&&reason)log("水袋",`${reason}；留下空水袋×${qty}。`,"");
+    return qty;
+  }
+
+  if(typeof useItem==="function"&&!globalThis.__WATER_BAG_USE_PATCHED){
+    const baseUseItem=useItem;
+    useItem=function(index){
+      const before=inventoryQuantity(WATER_ITEM_ID);
+      const target=(typeof G!=="undefined"&&G?.character?.inventory)?G.character.inventory[index]:null;
+      const isWater=target?.id===WATER_ITEM_ID;
+      const result=baseUseItem.apply(this,arguments);
+      if(isWater){
+        const after=inventoryQuantity(WATER_ITEM_ID),used=Math.max(0,before-after);
+        if(used>0){
+          returnEmptyBags(used,"飲用水袋中的清水");
+          try{persist?.()}catch(e){}
+          try{renderAll?.()}catch(e){}
+          try{openInventory?.()}catch(e){}
+        }
+      }
+      return result;
+    };
+    globalThis.__WATER_BAG_USE_PATCHED=true;
+  }
+
+  if(typeof consumeIngredient==="function"&&!globalThis.__WATER_BAG_INGREDIENT_PATCHED){
+    const baseConsumeIngredient=consumeIngredient;
+    consumeIngredient=function(id,qty){
+      const before=id===WATER_ITEM_ID?inventoryQuantity(WATER_ITEM_ID):0;
+      const result=baseConsumeIngredient.apply(this,arguments);
+      if(id===WATER_ITEM_ID){
+        const after=inventoryQuantity(WATER_ITEM_ID),used=Math.max(0,before-after);
+        if(used>0)returnEmptyBags(used,null);
+      }
+      return result;
+    };
+    globalThis.__WATER_BAG_INGREDIENT_PATCHED=true;
   }
 
   function runWaterSourceAudit(){
     const points=Array.isArray(DB.water_source_points)?DB.water_source_points:[];
     const towns=(DB.locations||[]).filter(l=>l?.kind==="town");
     const missingTowns=towns.filter(l=>!waterSourceAt(l.id)).map(l=>l.name||l.id);
-    let waterItem=null;try{waterItem=typeof item==="function"?item(WATER_ITEM_ID):null}catch(e){}
-    if(!waterItem)waterItem=(DB.items||[]).find(x=>x?.id===WATER_ITEM_ID);
-    const bucket=(DB.items||[]).find(d=>d?.water_container===true||d?.tool_effect==="water_collect"||CONTAINER_RE.test(String(d?.name||"")));
+    const water=dbItem(WATER_ITEM_ID);
+    const emptyBag=dbItem(EMPTY_BAG_ID);
+    const bucket=(DB.items||[]).find(d=>d?.water_collection_tool===true||d?.tool_effect==="water_collect"||COLLECTION_TOOL_RE.test(String(d?.name||"")));
+    const lifecycleOk=water?.container_return_id===EMPTY_BAG_ID&&emptyBag?.container_state==="empty";
     return {
       revision:REVISION,
-      pass:!!waterItem&&!!bucket&&points.length>0&&missingTowns.length===0,
+      pass:!!water&&!!emptyBag&&!!bucket&&lifecycleOk&&points.length>0&&missingTowns.length===0,
       source_count:points.length,
       town_count:towns.length,
       missing_towns:missingTowns,
-      water_item_present:!!waterItem,
-      container_present:!!bucket
+      water_item_present:!!water,
+      empty_bag_present:!!emptyBag,
+      collection_tool_present:!!bucket,
+      container_lifecycle_ok:lifecycleOk
     };
   }
 
@@ -256,7 +396,9 @@
       if(!audit.pass&&typeof log==="function"){
         const issues=[];
         if(!audit.water_item_present)issues.push("I-WATER缺失");
-        if(!audit.container_present)issues.push("取水容器缺失");
+        if(!audit.empty_bag_present)issues.push("空水袋缺失");
+        if(!audit.collection_tool_present)issues.push("取水工具缺失");
+        if(!audit.container_lifecycle_ok)issues.push("水袋空／滿轉換異常");
         if(audit.missing_towns.length)issues.push(`城鎮取水點缺失：${audit.missing_towns.slice(0,6).join("、")}`);
         log("五回合自檢",`取水系統異常：${issues.join("；")}`,"danger");
       }
@@ -269,6 +411,7 @@
   globalThis.currentWaterSource=currentWaterSource;
   globalThis.runWaterSourceAudit=runWaterSourceAudit;
   globalThis.rebuildWaterSourcePoints=rebuildWaterSourcePoints;
+  globalThis.waterEmptyBagId=EMPTY_BAG_ID;
 
   if(typeof window!=="undefined")window.addEventListener("load",()=>setTimeout(syncWaterSourceUI,200),{once:true});
 })();
