@@ -1719,3 +1719,103 @@
   DB.meta.monster_threat_revision="MONSTER-THREAT-1.0";
 
 })();
+
+
+/* CURRENT-1.65.5｜日常飲水與高含水料理擴充
+ * HYDRATION-EXPANSION-1.0
+ * 補足低階城鎮、旅行與料理副職的穩定補水來源；不改口渴累積公式。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+
+  const addUnique=(key,rows)=>{
+    DB[key]=Array.isArray(DB[key])?DB[key]:[];
+    const ids=new Set(DB[key].map(x=>x&&x.id).filter(Boolean));
+    for(const row of rows)if(row&&row.id&&!ids.has(row.id)){DB[key].push(row);ids.add(row.id)}
+  };
+  const getItem=id=>(DB.items||[]).find(x=>x&&x.id===id);
+  const addStock=(fid,ids)=>{
+    const f=DB.facilities?.[fid];if(!f)return;
+    f.stock=Array.isArray(f.stock)?f.stock:[];
+    for(const id of ids)if(getItem(id)&&!f.stock.includes(id))f.stock.push(id);
+  };
+  const mergeUse=(id,use)=>{
+    const d=getItem(id);if(!d)return;
+    d.use={...(d.use||{}),...use};
+  };
+  const addSource=(id,source)=>{
+    const d=getItem(id);if(!d)return;
+    d.acquisition_sources=Array.isArray(d.acquisition_sources)?d.acquisition_sources:[];
+    if(!d.acquisition_sources.includes(source))d.acquisition_sources.push(source);
+  };
+
+  addUnique("items",[
+    {id:"I-HYD-F-01",name:"薄荷涼水",tier:"F",type:"料理",inventory_group:"食物",food_subtype:"飲品",weight:0.45,value:2,fresh_hours:72,use:{thirst:-20,stamina:2},acquisition_sources:["shop","cook"],wild_gather_eligible:false,gather_tool:null,economic_role:"一般雜貨／酒館／旅館→飲用；基礎料理可製作"},
+    {id:"I-HYD-F-02",name:"莓果稀飲",tier:"F",type:"料理",inventory_group:"食物",food_subtype:"飲品",weight:0.42,value:3,fresh_hours:48,use:{hunger:-4,thirst:-18},acquisition_sources:["shop","cook"],wild_gather_eligible:false,gather_tool:null,economic_role:"一般雜貨／酒館→飲用；基礎料理可製作"},
+    {id:"I-HYD-F-03",name:"蘋果清飲",tier:"F",type:"料理",inventory_group:"食物",food_subtype:"飲品",weight:0.44,value:3,fresh_hours:48,use:{hunger:-3,thirst:-19},acquisition_sources:["shop","cook"],wild_gather_eligible:false,gather_tool:null,economic_role:"一般雜貨／旅館→飲用；基礎料理可製作"},
+    {id:"I-HYD-E-01",name:"蜂蜜草茶",tier:"E",type:"料理",inventory_group:"食物",food_subtype:"飲品",weight:0.38,value:9,fresh_hours:48,use:{thirst:-25,stamina:4},acquisition_sources:["cook"],wild_gather_eligible:false,gather_tool:null,economic_role:"料理製作→飲用／交易"},
+    {id:"I-HYD-E-02",name:"乳香麥飲",tier:"E",type:"料理",inventory_group:"食物",food_subtype:"飲品",weight:0.40,value:10,fresh_hours:30,use:{hunger:-10,thirst:-18,stamina:3},acquisition_sources:["cook"],wild_gather_eligible:false,gather_tool:null,economic_role:"料理製作→飲用／交易"},
+    {id:"I-HYD-E-03",name:"松谷酸果飲",tier:"E",type:"料理",inventory_group:"食物",food_subtype:"飲品",weight:0.40,value:11,fresh_hours:42,use:{hunger:-3,thirst:-27,stamina:4},acquisition_sources:["cook"],wild_gather_eligible:false,gather_tool:null,economic_role:"料理製作→飲用／交易"},
+    {id:"I-HYD-D-01",name:"冰薄荷茶",tier:"D",type:"料理",inventory_group:"食物",food_subtype:"飲品",weight:0.36,value:28,fresh_hours:36,use:{thirst:-34,stamina:7},acquisition_sources:["cook"],wild_gather_eligible:false,gather_tool:null,economic_role:"進階料理製作→飲用／交易"}
+  ]);
+
+  addUnique("recipes",[
+    {id:"R-HYD-F-01",name:"薄荷涼水",tier:"F",result:"I-HYD-F-01",requires:{"I-WATER":1,"I-MINT":1},cook_grade:null},
+    {id:"R-HYD-F-02",name:"莓果稀飲",tier:"F",result:"I-HYD-F-02",requires:{"I-WATER":1,"I-BERRY":1},cook_grade:null},
+    {id:"R-HYD-F-03",name:"蘋果清飲",tier:"F",result:"I-HYD-F-03",requires:{"I-WATER":1,"MAT-FOOD-05":1},cook_grade:null},
+    {id:"R-HYD-E-01",name:"蜂蜜草茶",tier:"E",result:"I-HYD-E-01",requires:{"I-WATER":1,"MAT-FOOD-16":1,"I-MINT":1},cook_grade:"F"},
+    {id:"R-HYD-E-02",name:"乳香麥飲",tier:"E",result:"I-HYD-E-02",requires:{"MAT-FOOD-17":1,"MAT-FOOD-01":1,"I-WATER":1},cook_grade:"F"},
+    {id:"R-HYD-E-03",name:"松谷酸果飲",tier:"E",result:"I-HYD-E-03",requires:{"MAT31-FOOD-04":1,"I-WATER":1,"I-BERRY":1},cook_grade:"F"},
+    {id:"R-HYD-D-01",name:"冰薄荷茶",tier:"D",result:"I-HYD-D-01",requires:{"MAT-HERB-23":1,"I-WATER":1,"I-MINT":1},cook_grade:"E"}
+  ]);
+
+  // 已有名稱明確為湯、茶、莓露或草飲的品項，補上合理含水效果。
+  [
+    ["F-HERB-SOUP",{thirst:-14}],
+    ["F-MANA-BROTH",{thirst:-12}],
+    ["F-SILVER-SOUP",{thirst:-14}],
+    ["F-GUARD-BROTH",{thirst:-12}],
+    ["F-MAGE-DESSERT",{thirst:-18}],
+    ["F-GOLDEN-STEW",{thirst:-10}],
+    ["F7-03",{thirst:-12}],
+    ["F7-05",{thirst:-12}],
+    ["F7-11",{thirst:-11}],
+    ["F7-15",{thirst:-14}],
+    ["F7-21",{thirst:-10}],
+    ["F7-23",{thirst:-24}],
+    ["P31-005",{thirst:-12}],
+    ["P31-006",{thirst:-22}]
+  ].forEach(([id,use])=>mergeUse(id,use));
+
+  // 天然高含水食材可直接食用，但效果低於正式飲品，避免取代水袋與料理。
+  mergeUse("MAT-FOOD-04",{hunger:-3,thirst:-4});
+  mergeUse("MAT-FOOD-05",{hunger:-4,thirst:-5});
+  mergeUse("MAT-FOOD-17",{hunger:-7,thirst:-8});
+  mergeUse("MAT31-FOOD-04",{hunger:-3,thirst:-5});
+  mergeUse("MAT31-FOOD-13",{hunger:-3,thirst:-6});
+
+  // 有正式料理配方的補水料理，來源標記必須反映可製作性。
+  for(const r of DB.recipes||[]){
+    const d=getItem(r?.result);
+    if(d&&Number(d.use?.thirst)<0)addSource(d.id,"cook");
+  }
+
+  // F級日常飲品進入一般商店／酒館／旅館；仍沿用每日庫存上限與市場價格。
+  addStock("general",["I-HYD-F-01","I-HYD-F-02","I-HYD-F-03"]);
+  addStock("tavern",["I-HYD-F-01","I-HYD-F-02"]);
+  addStock("inn",["I-HYD-F-01","I-HYD-F-03"]);
+
+  DB.hydration_expansion_system={
+    version:"HYDRATION-EXPANSION-1.0",
+    release:"CURRENT-1.65.5",
+    survival_rate_unchanged:true,
+    portable_drink_ids:["I-HYD-F-01","I-HYD-F-02","I-HYD-F-03","I-HYD-E-01","I-HYD-E-02","I-HYD-E-03","I-HYD-D-01"],
+    rules:[
+      "F級聚落至少可透過一般商店、酒館或旅館取得不只水袋一種的日常補水品。",
+      "飲品與高含水料理降低口渴；乾糧與鹽漬食物不因本模組獲得補水效果。",
+      "F級飲品可由無烹飪副職角色製作；E級以上仍受料理副職等級限制。",
+      "商店飲品沿用每日庫存、地區市場價格與負重，不建立無限免費水源。",
+      "藥劑不作為日常飲水主體；補水藥液保留為輕量、高價的旅途備用品。"
+    ]
+  };
+})();
