@@ -4971,6 +4971,10 @@ function resetGame(){if(confirm("確定清除本機存檔？")){try{localStorage
 function runGeneratorAudit(){
  const issues=[];
  issues.push(...databaseGrowthAudit());
+  if(typeof globalThis.runAlchemyHealingRecipeAudit==="function"){
+    const a=globalThis.runAlchemyHealingRecipeAudit();
+    if(!a?.pass)issues.push(...(a?.issues||[]).map(x=>`生命藥劑配方:${x}`))
+  }else issues.push("生命藥劑配方完整性runtime缺失");
  for(const l of DB.locations){
    if(typeof l.safety_score!=="number"||l.safety_score<0||l.safety_score>100)issues.push(`地圖安全度異常:${l.name}`);
    if(!l.safety_label)issues.push(`地圖安全標籤缺失:${l.name}`);
