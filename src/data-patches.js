@@ -1819,3 +1819,70 @@
     ]
   };
 })();
+
+
+/* CURRENT-1.65.9｜料理配方語意與分類修正
+ * COOKING-DATA-INTEGRITY-1.0
+ * 修正 R7 系列名稱/素材錯位；料理頁的非料理配方由 runtime 嚴格排除。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+
+  const recipeById=id=>(DB.recipes||[]).find(r=>r?.id===id);
+  const itemById=id=>(DB.items||[]).find(d=>d?.id===id);
+  const setRequires=(id,requires)=>{
+    const r=recipeById(id);
+    if(!r)return false;
+    r.requires={...requires};
+    r.profession="料理";
+    return true;
+  };
+
+  // R7 批次曾以輪替素材生成，造成名稱與實際材料錯位；只校正語意明確的錯配項目。
+  const corrected={
+    "R7-01":{"I-ROOT":1,"I-MINT":1},
+    "R7-02":{"I-BERRY":2},
+    "R7-04":{"I-RAWMEAT":1,"I-ROOT":1},
+    "R7-05":{"I-RAWFISH":1,"I-WATER":1,"I-ROOT":1},
+    "R7-06":{"I-RAWMEAT":1,"I-WATER":1,"I-MINT":1},
+    "R7-08":{"I-RAWFISH":1,"I-BERRY":1,"I-MINT":1},
+    "R7-14":{"I-RAWMEAT":2,"I-ROOT":1,"I-MINT":1},
+    "R7-22":{"MAT-FOOD-12":1,"I-WATER":2,"I-ROOT":1,"I-MINT":1}
+  };
+  for(const [id,requires] of Object.entries(corrected))setRequires(id,requires);
+
+  // 既有真正料理配方補上明確 profession，避免與共用 DB.recipes 中的鍛造/藥劑配方混淆。
+  for(const r of DB.recipes||[]){
+    const result=itemById(r?.result);
+    if(result&&(result.type==="料理"||result.inventory_group==="食物"||result.food_subtype)){
+      r.profession=r.profession||"料理";
+    }
+  }
+
+  const ingredientNames=r=>Object.keys(r?.requires||{}).map(id=>itemById(id)?.name||id);
+  const semanticIssues=[];
+  for(const r of DB.recipes||[]){
+    const out=itemById(r?.result);
+    if(!out||!(out.type==="料理"||out.inventory_group==="食物"||out.food_subtype))continue;
+    const names=ingredientNames(r),joined=names.join("、"),name=String(r.name||"");
+    if(/肉/.test(name)&&!/魚肉/.test(name)&&!/肉/.test(joined))semanticIssues.push({id:r.id,reason:"名稱含肉但素材無肉"});
+    if(/魚|河鮮/.test(name)&&!/魚/.test(joined))semanticIssues.push({id:r.id,reason:"名稱含魚但素材無魚"});
+    if(/莓/.test(name)&&!/莓/.test(joined))semanticIssues.push({id:r.id,reason:"名稱含莓但素材無莓"});
+    if(/菇/.test(name)&&!/菇/.test(joined))semanticIssues.push({id:r.id,reason:"名稱含菇但素材無菇"});
+    if(/甜根|根莖/.test(name)&&!/根/.test(joined))semanticIssues.push({id:r.id,reason:"名稱含根莖但素材無根莖"});
+  }
+
+  DB.cooking_data_integrity_system={
+    version:"COOKING-DATA-INTEGRITY-1.0",
+    release:"CURRENT-1.65.9",
+    corrected_recipe_ids:Object.keys(corrected),
+    semantic_issue_count:semanticIssues.length,
+    semantic_issues:semanticIssues,
+    rules:[
+      "料理配方的名稱與主要素材必須語意一致；肉類料理必須實際消耗肉材，魚類料理必須實際消耗魚材。",
+      "DB.recipes 可容納跨專業配方，但料理介面只允許輸出為料理／食物的配方。",
+      "鍛造、藥劑、工具與裝備配方不得因缺少 cook_grade 而進入料理清單。",
+      "五回合自檢持續檢查料理名稱與主要食材語意，不以隱藏警告取代資料修正。"
+    ]
+  };
+})();
