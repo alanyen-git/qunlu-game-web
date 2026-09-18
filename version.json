@@ -1,21 +1,19 @@
 {
-  "version": "CURRENT-1.68.2",
-  "previous_version": "CURRENT-1.68.1",
+  "version": "CURRENT-1.68.3",
+  "previous_version": "CURRENT-1.68.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "背包裝備主要戰鬥屬性加入與目前穿戴裝備的同欄位數值對比；候選較佳綠色、較差紅色、相同白色，重量與耐久維持單值顯示。",
+  "summary": "調整背包裝備屬性對比著色：候選裝備數值固定白色，只對目前穿戴裝備數值依優劣顯示紅／綠／白。",
   "changelog": [
-    "背包中的武器、防具、披風與飾品主要戰鬥屬性改為「背包裝備值／目前裝備值」格式。",
-    "攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋、抗性皆支援對比。",
-    "候選裝備數值高於目前裝備時顯示綠色，低於目前裝備顯示紅色，相同顯示白色。",
-    "例如候選防禦+3、目前防禦+1時顯示「防禦+3/+1」並標綠色。",
-    "若候選裝備缺少目前裝備具有的主要屬性，會顯示0／目前值並標紅，避免換裝時漏看損失。",
-    "重量與耐久不參與數值對比，仍維持原本單值資訊。",
-    "盾牌對比副手；頭盔、盔甲、手套、鞋子、披風依相同欄位對比；飾品依實際預定裝入的飾品欄比較。",
-    "單手武器可主／副手裝備，但背包文字以主手作為主要比較基準。",
-    "五回合自檢加入背包裝備屬性對比runtime完整性檢查。",
-    "PWA快取升至v31。"
+    "背包裝備屬性對比格式維持「候選值／目前裝備值」。",
+    "候選裝備的屬性名稱與數值固定使用白色，不因比較結果變色。",
+    "目前裝備數值低於候選裝備時顯示紅色。",
+    "目前裝備數值高於候選裝備時顯示綠色。",
+    "目前裝備數值與候選裝備相同時維持白色。",
+    "例如「防禦+3/+1」中，防禦+3/維持白色，只有+1為紅色。",
+    "重量與耐久仍不參與比較。",
+    "PWA快取升至v32。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -52,5 +50,5 @@
     "eight_piece": 2
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
-  "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.0"
+  "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.1"
 }
