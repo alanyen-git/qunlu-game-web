@@ -1,20 +1,19 @@
 {
   "version": "CURRENT-1.69.6",
-  "previous_version": "CURRENT-1.69.6",
+  "previous_version": "CURRENT-1.69.5",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全面檢查所有製作配方的素材語意與階級：禁止素材高於成品，補足D～S核心素材門檻，處理高階魔物模板污染與料理層級失真。",
+  "summary": "全654筆配方二次深度稽核：素材不得高於成品，高階成品需足階核心素材；清除高階裝備與藥劑模板污染，修正料理空配方、名稱／食材與液態料理缺水問題。",
   "changelog": [
-    "完整重跑595筆鍛造／裁縫／藥劑／附魔配方與59筆料理配方；CRAFTING-RECIPE-INTEGRITY-2.0套用後未處理問題為0。",
-    "修正9筆素材階級高於成品的配方；新硬規則改為任何素材不得高於成品階級。",
-    "新增核心素材門檻：D/C級至少E級核心、B級至少C級、A級至少B級、S級至少A級；低階材料仍可作輔料。",
-    "逐一處理前版37個B～S高階裝備人工檢視候選，移除獨角獸角、奇美拉角、古龍素材等跨類型通用模板，保留真正符合聖性、龍系、弓材與風暴主題的素材。",
-    "修正高頻煉金模板：霜巨人冰鬚不再被多種無關B級藥劑共用，龍系、吸血、惡魔、淨化、魔力等配方改用對應主題素材。",
-    "修正金屬名稱與配方不一致，包括青銅／黑鐵／精鋼／秘銀／精金／殞鐵／星銀／恆金；不以升高裝備戰力方式掩蓋名稱錯配。",
-    "補正料理空配方與D～A高階料理核心食材；料理仍可使用低階日常食材作輔料。",
-    "本輪共149次配方修正，涉及131個不同成品／配方；CRAFTING-DATA-INTEGRITY與COOKING-DATA-INTEGRITY結果同步為0問題。",
-    "保留既有存檔相容；PWA快取升級至v40。"
+    "完整回歸595筆鍛造／裁縫／藥劑／附魔配方與59筆料理，共654筆；CRAFTING-RECIPE-SEMANTIC-2.0最終稽核0 issue。",
+    "新增硬性層級規則：任何素材不得高於成品；D/C至少需E級核心素材、B至少C、A至少B、S至少A，日常低階基材仍可保留。",
+    "修正9筆素材高於成品的現行配方，包含藍塔術杖、兩件F級附魔飾品與6筆藥劑。",
+    "清除高階裝備的獨角獸角／奇美拉角、古龍牙／龍骨髓等批次模板；按成品主題改用符文、星辰石、殞鐵、星銀、龍牙、龍翼、風暴素材等。",
+    "清除19筆B級藥劑共用霜巨人冰鬚模板，另修復死靈粉塵、獨角獸血、金龍鱗與烈焰椒等不相干模板素材。",
+    "料理補齊雜燴湯空配方、莓果麥粥穀物、鷹眼獵物盤肉材；湯／燉／茶／粥／飲統一檢查水源，高階料理補足足階核心食材。",
+    "本版共變更139個不同配方／成品、198次資料修正；專業製作與料理完整性檢核皆為0 issue。",
+    "PWA快取升級至v40，版本入口與Service Worker同步CURRENT-1.69.6。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -70,13 +69,5 @@
     "material_above_product": 0,
     "core_tier_issues": 0,
     "semantic_mismatch_issues": 0
-  },
-  "crafting_recipe_integrity_revision": "CRAFTING-RECIPE-INTEGRITY-2.0",
-  "crafting_recipe_integrity_audit": {
-    "professional_recipes": 595,
-    "cooking_recipes": 59,
-    "corrected_unique": 131,
-    "correction_events": 149,
-    "remaining_issues": 0
   }
 }
