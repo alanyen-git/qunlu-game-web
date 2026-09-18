@@ -1,4 +1,4 @@
-/* 群陸旅誌：全生產製作成功率 CURRENT-1.69.6
+/* 群陸旅誌：全生產製作成功率 CURRENT-1.69.9
  * PRODUCTION-CRAFT-SUCCESS-2.0
  * 鍛造／裁縫／藥劑／附魔／料理統一由能力、天賦、副職業階級與熟練等級、配方難度共同決定成功率。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.69.6";
+const RELEASE="CURRENT-1.69.9";
 const REV="PRODUCTION-CRAFT-SUCCESS-2.0";
 const PROFILE={
   鍛造:{sid:"SJ-SMITH",primary:"力量",secondary:"敏捷"},
