@@ -1,23 +1,23 @@
 {
-  "version": "CURRENT-1.65.6",
-  "previous_version": "CURRENT-1.65.5",
+  "version": "CURRENT-1.65.7",
+  "previous_version": "CURRENT-1.65.6",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "補上折疊水桶的實際用途與地點取水閉環：城鎮公共水井／蓄水槽、野外淡水點、有限容量與恢復、取水耗時及五回合自檢。",
+  "summary": "修正取水容器守恆：取水必須同時具備取水工具與空水袋，空水袋轉為裝滿水袋；飲用或料理後退回空水袋，不再憑空生成水袋。",
   "changelog": [
-    "新增地點型取水系統：城鎮自動配置公共水井或蓄水槽；河、溪、泉、湖、潭等淡水地形建立可取水點。",
-    "海水、潮池、沼澤、黑水、污染水與熔岩相關地點不直接產出可飲用清水。",
-    "折疊水桶、水桶、水袋、水壺等容器可用於取水；折疊水桶單次最多取得3份清水，容器不會被消耗。",
-    "取水直接取得既有 I-WATER，與目前飲品料理配方、口渴與負重系統相連。",
-    "所有取水點具有容量與每小時恢復量；城鎮40份/每小時8、野外18份/每小時3、地下淡水點10份/每小時1.25，避免無限瞬時採集。",
-    "取水耗時：城鎮約0.35小時、野外0.5小時、地下0.65小時。",
-    "所在地HUD新增「取水點」標示；可用行動新增「取水（地點名稱）」按鍵，無容器時直接提示需求。",
-    "若資料庫缺少折疊水桶，系統會補入F級折疊水桶並加入一般商店；既有同名水桶則直接啟用取水容器屬性。",
-    "五回合自檢新增取水系統檢查：I-WATER、取水容器、城鎮取水點與水源資料缺失時會回報。",
-    "PWA快取升至v18。"
+    "新增「空水袋」F級道具並加入一般雜貨店；空水袋可重複使用。",
+    "折疊水桶重新定義為取水工具，不再視為長途儲水容器。",
+    "每取得1份 I-WATER 必須先消耗1個空水袋；空水袋不足時最多只能取得對應數量的水。",
+    "沒有空水袋時，取水按鍵直接顯示「需要空水袋」，不會自動生成新水袋。",
+    "沒有折疊水桶／其他取水工具時也不能執行取水。",
+    "直接飲用 I-WATER 後會留下1個空水袋。",
+    "料理配方消耗 I-WATER 後會依實際消耗數量退回空水袋，維持容器總量守恆。",
+    "既有角色持有的 I-WATER 視為已裝滿的既有水袋，不額外補發空水袋；只有使用後才轉回空袋。",
+    "五回合自檢新增空水袋、取水工具與空／滿水袋生命週期檢查。",
+    "PWA快取升至v19。"
   ],
-  "content_revision": "WATER-SOURCE-1.0",
+  "content_revision": "WATER-SOURCE-1.1",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.0",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -32,5 +32,5 @@
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
   "save_compatible": true,
-  "water_source_revision": "WATER-SOURCE-1.0"
+  "water_source_revision": "WATER-SOURCE-1.1"
 }
