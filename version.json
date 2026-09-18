@@ -1,20 +1,20 @@
 {
-  "version": "CURRENT-1.70.0",
-  "previous_version": "CURRENT-1.69.9",
+  "version": "CURRENT-1.70.1",
+  "previous_version": "CURRENT-1.70.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "寵物／召喚獸獨有光環系統：每個夥伴物種依類型、AI定位、元素、族群與物種簽章生成固定光環；出戰生效、倒下失效，並隨階級、等級與羈絆成長。",
+  "summary": "夥伴專屬技能系統：所有200種寵物、召喚獸與契約獸依物種家族、元素、AI定位與階級各自擁有一招專屬技能；主動／輔助由AI施放，被動常駐，並與獨有光環並存。",
   "changelog": [
-    "新增 COMPANION-AURA-1.0；所有既有與未來寵物、召喚獸、契約獸物種自動取得唯一ID與固定名稱的獨有光環。",
-    "光環生成同時參考夥伴類型、AI定位（守護／猛攻／游擊／術法／支援／暗蝕／傳說）、九元素、族群特徵與物種固定簽章。",
-    "光環只有設為出戰的夥伴會啟動；戰鬥中夥伴HP歸零或失去戰鬥能力時立即失效，避免倒下後仍提供永久增益。",
-    "光環作用於玩家與冒險團隊友；光環來源本身不吃自己的光環，避免召喚獸自我循環放大。",
-    "光環強度隨夥伴階級、等級與羈絆成長；同一物種不會因重新取得或讀檔而隨機換光環。",
-    "玩家戰鬥數值、元素抗性、感知／潛行／掉寶等支援欄位正式接入光環；冒險團隊友同步取得相容的攻防、命中、閃避與速度增益。",
-    "寵物／召喚面板新增獨有光環名稱、目前效果與啟動狀態；戰鬥夥伴欄同步顯示目前啟動光環。",
-    "五回合自檢新增夥伴光環完整性、ID／名稱唯一性與未支援效果鍵檢查；既有存檔相容，不需重開角色。",
-    "保留 CURRENT-1.69.9 全生產製作成功率與 CURRENT-1.69.8 戰鬥隊形成果；PWA快取升級至v44。"
+    "新增 COMPANION-UNIQUE-SKILL-1.0；200/200種夥伴物種各自擁有且僅擁有1招固定專屬技能。",
+    "專屬技能依物種家族、AI定位、元素與F-S階級生成；技能名稱以物種命名，重新取得或讀檔不會隨機改變。",
+    "技能類型分布：主動125、被動38、輔助37；寵物70種、召喚獸85種、契約獸45種全數覆蓋。",
+    "主動技能依攻擊／魔法定位造成約120%起的階級成長傷害，暗影系可吸血、神聖傳奇系可回復主人，部分術法型可降低敵方命中。",
+    "輔助技能會依主人與夥伴生命狀態由AI自動判斷治療；守護型可同時進入護衛姿態。",
+    "被動技能直接作用於出戰夥伴自身戰鬥快照，可提高HP、物攻、魔攻、防禦、命中、閃避或速度。",
+    "寵物／召喚面板同時顯示獨有光環與專屬技能；戰鬥夥伴欄新增專屬技能名稱、類型與實際效果。",
+    "五回合自檢沿用生成器稽核入口，新增專屬技能缺失、ID／名稱重複、類型錯誤與階級不一致檢查。",
+    "保留 CURRENT-1.70.0 獨有光環與 CURRENT-1.69.9 全生產製作成功率；PWA快取升級至v45。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -52,7 +52,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-2.1",
+  "pwa_cache_revision": "PWA-CACHE-FIX-2.2",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -110,5 +110,22 @@
     ],
     "deterministic": true,
     "save_compatible": true
+  },
+  "companion_unique_skill_revision": "COMPANION-UNIQUE-SKILL-1.0",
+  "companion_unique_skill": {
+    "total_species": 200,
+    "pet": 70,
+    "summon": 85,
+    "contract": 45,
+    "kinds": {
+      "active": 125,
+      "passive": 38,
+      "support": 37
+    },
+    "ai_controlled": true,
+    "manual_control": false,
+    "deterministic": true,
+    "aura_compatible": true,
+    "save_compatible": true
   }
-}
+}\n
