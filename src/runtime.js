@@ -1074,7 +1074,7 @@ function questObjectiveText(q){
  const o=q.objective||{};
  if(o.kind==="item")return `取得 ${item(o.item_id)?.name||o.item_id} ×${o.target}`;
  if(o.kind==="gather")return `採集 ${item(o.item_id)?.name||o.item_id} ×${o.target}`;
- if(o.kind==="kill")return `討伐 ${(o.monster_keywords||[]).join("／")} 類敵人 ×${o.target}`;
+ if(["kill","hunt"].includes(o.kind)){const target=o.monster_id?(monster(o.monster_id)?.name||o.monster_id):(o.monster_keywords||[]).join("／");return `討伐 ${target} ×${o.target}`}
  if(o.kind==="patrol"){
    const done=q.patrolVisited||[];
    const cp=(o.checkpoints||[]).map((n,i)=>`${done.includes(n)?"✓":"□"}${i+1}.${n}`).join("、");
