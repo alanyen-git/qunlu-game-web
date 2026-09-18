@@ -2,7 +2,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="AFFILIATION-CONTRIBUTION-1.0", RELEASE="CURRENT-1.69.0";
+const REV="AFFILIATION-CONTRIBUTION-1.1", RELEASE="CURRENT-1.69.2";
 const THRESH=[0,80,220,500,950,1600];
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const DON_BASE={F:2,E:4,D:8,C:16,B:32,A:56,S:90};
@@ -213,7 +213,8 @@ function donate(type,id,index,qty){
 }
 
 function commissionPool(type,a){
- const cap=tierRank(affTier(a));
+ const scale=typeof globalThis.affiliationScaleProfile==="function"?globalThis.affiliationScaleProfile(type,a?.id):null;
+ const cap=tierRank(scale?.maxTier||affTier(a));
  return (DB.items||[]).filter(d=>canDonate(type,a,d)&&!d.affiliation_treasury_owner&&tierRank(d.tier||"F")<=cap&&Number(d.value??d.price??0)>0&&((d.acquisition_sources||[]).some(x=>x!=="affiliation_treasury")||d.craft_recipe))
 }
 function dailyTasks(type,id){
@@ -223,12 +224,24 @@ function dailyTasks(type,id){
  return out
 }
 function records(type,id){
- const p=progress(type,id),today=Number(G?.worldTime?.day||1);for(const r of Object.values(p.commissions))if(r?.status==="active"&&today>Number(r.deadlineDay||999999))r.status="expired";return p.commissions
+ const p=progress(type,id),today=Number(G?.worldTime?.day||1);let changed=false;
+ for(const r of Object.values(p.commissions))if(r?.status==="active"&&today>Number(r.deadlineDay||999999)){r.status="expired";changed=true}
+ const entries=Object.entries(p.commissions||{}),active=entries.filter(([,r])=>r?.status==="active"),history=entries.filter(([,r])=>r?.status!=="active").sort((a,b)=>Number(b[1]?.completedDay||b[1]?.deadlineDay||0)-Number(a[1]?.completedDay||a[1]?.deadlineDay||0));
+ if(history.length>60){p.commissions=Object.fromEntries([...active,...history.slice(0,60)]);changed=true}
+ if(changed&&typeof persist==="function")persist();
+ return p.commissions
+}
+function commissionCard(type,id,t,r,c){
+ const d=itemBy(t.itemId),have=inventoryQty(t.itemId);
+ let action=r?.status==="completed"?"<button disabled>已完成</button>":r?.status==="expired"?"<button disabled>已逾期</button>":r?.status==="active"?`<button ${c.ok&&have>=t.target?"class='good'":"disabled"} onclick="turnInAffiliationCommission('${type}','${esc(id)}','${esc(t.id)}')">${have>=t.target?(c.ok?"交付":"需回據點"):`持有 ${have}/${t.target}`}</button>`:`<button ${c.ok?"":"disabled"} onclick="acceptAffiliationCommission('${type}','${esc(id)}','${esc(t.id)}')">${c.ok?"接取":esc(c.text)}</button>`;
+ return `<div class="card"><b>${esc(t.label)}｜${esc(d?.name||t.itemId)}×${t.target}</b>${t.distinctive?" <span class='ok'>特色需求</span>":""}<br><span class="small">貢獻 +${t.reward}｜期限：第${t.deadlineDay}日｜目前持有 ${have}</span><div class="actions">${action}</div></div>`
 }
 function openCommissions(type,id){
- const a=aff(type,id);if(!a||!isMember(type,id))return;const c=contact(type,id),rs=records(type,id),tasks=dailyTasks(type,id);
- const rows=tasks.map(t=>{const d=itemBy(t.itemId),r=rs[t.id],have=inventoryQty(t.itemId);let action=r?.status==="completed"?"<button disabled>已完成</button>":r?.status==="expired"?"<button disabled>已逾期</button>":r?.status==="active"?`<button ${c.ok&&have>=t.target?"class='good'":"disabled"} onclick="turnInAffiliationCommission('${type}','${esc(id)}','${esc(t.id)}')">${have>=t.target?(c.ok?"交付":"需回據點"):`持有 ${have}/${t.target}`}</button>`:`<button ${c.ok?"":"disabled"} onclick="acceptAffiliationCommission('${type}','${esc(id)}','${esc(t.id)}')">${c.ok?"接取":esc(c.text)}</button>`;return `<div class="card"><b>${esc(t.label)}｜${esc(d?.name||t.itemId)}×${t.target}</b>${t.distinctive?" <span class='ok'>特色需求</span>":""}<br><span class="small">貢獻 +${t.reward}｜接取後3日內交付｜目前持有 ${have}</span><div class="actions">${action}</div></div>`}).join("")||"<div class='card small'>今日沒有可生成的內部物資委託。</div>";
- showModal(`${esc(a.name)}・內部委託`,`<div class="card small">只向正式成員開放；完成後取得貢獻值並小幅提升聲望。<br>${esc(c.text)}</div>${rows}<div class="actions"><button onclick="openAffiliationHub('${type}','${esc(id)}')">上一頁</button></div>`)
+ const a=aff(type,id);if(!a||!isMember(type,id))return;const c=contact(type,id),rs=records(type,id),tasks=dailyTasks(type,id),todayIds=new Set(tasks.map(t=>t.id));
+ const carry=Object.values(rs).filter(r=>r?.status==="active"&&r.task&&!todayIds.has(r.task.id)).sort((x,y)=>Number(x.deadlineDay||999999)-Number(y.deadlineDay||999999));
+ const carryHtml=carry.length?`<h3>進行中的既有委託</h3>${carry.map(r=>commissionCard(type,id,r.task,r,c)).join("")}`:"";
+ const rows=tasks.map(t=>commissionCard(type,id,t,rs[t.id],c)).join("")||"<div class='card small'>今日沒有可生成的內部物資委託。</div>";
+ showModal(`${esc(a.name)}・內部委託`,`<div class="card small">只向正式成員開放；完成後取得貢獻值並小幅提升聲望。已接取委託跨日後仍保留到期限，不會因每日公告刷新而消失。<br>${esc(c.text)}</div>${carryHtml}<h3>今日公告</h3>${rows}<div class="actions"><button onclick="openAffiliationHub('${type}','${esc(id)}')">上一頁</button></div>`)
 }
 function acceptCommission(type,id,taskId){
  if(!isMember(type,id))return;const c=contact(type,id);if(!c.ok)return alert(c.text);const t=dailyTasks(type,id).find(x=>x.id===taskId);if(!t)return;
@@ -247,7 +260,7 @@ function openTreasury(type,id){
  showModal(`${esc(a.name)}・寶庫`,`<div class="card"><b>${esc(z.title)}</b>｜可用貢獻 ${p.balance}<br><span class="small">職位決定可兌換層級；兌換只扣可用貢獻，不扣累積貢獻。${discount(z.rank)?`目前享有${Math.round(discount(z.rank)*100)}%減免。`:""}<br>${esc(c.text)}</span></div>${rows}<div class="actions"><button onclick="openAffiliationHub('${type}','${esc(id)}')">上一頁</button></div>`)
 }
 function exchange(type,id,itemId){
- if(!isMember(type,id))return;const c=contact(type,id);if(!c.ok)return alert(c.text);const d=itemBy(itemId),p=progress(type,id),z=pos(type,id);if(!d||d.affiliation_treasury_owner?.id!==id)return;
+ if(!isMember(type,id))return;const c=contact(type,id);if(!c.ok)return alert(c.text);const d=itemBy(itemId),p=progress(type,id),z=pos(type,id);if(!d||d.affiliation_treasury_owner?.type!==type||d.affiliation_treasury_owner?.id!==id||d.treasury_retired)return;
  const need=Number(d.treasury_rank||0),owned=Number(p.purchases[itemId]||0),lim=Number(d.treasury_limit||1),cost=Math.max(1,Math.ceil(Number(d.treasury_cost||1)*(1-discount(z.rank))));
  if(z.rank<need||owned>=lim||p.balance<cost)return;p.balance-=cost;p.purchases[itemId]=owned+1;addItem(itemId);persist();log("寶庫",`${affName(type,id)}：以${cost}貢獻兌換「${d.name}」。`,"ok");openTreasury(type,id)
 }
@@ -270,7 +283,7 @@ function audit(){
 
 DB.meta=DB.meta||{};DB.meta.affiliation_contribution_revision=REV;
 DB.affiliation_contribution_system={version:REV,release:RELEASE,save_compatible:true,thresholds:[...THRESH],rules:["只有已正式加入的組織或流派才開啟貢獻值。","聲望與貢獻分離；升職看累積貢獻，寶庫扣可用貢獻。","符合特色的捐贈物資貢獻值2倍。","每個可加入組織與流派都有獨有寶庫。"]};
-if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.0／${REV}：新增會員貢獻、六階職位、內部委託、特色捐贈2倍與專屬寶庫。`);
+if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.2／${REV}：新增會員貢獻、六階職位、內部委託、特色捐贈2倍與專屬寶庫。`);
 ensureTreasury();try{syncRuntimeIndexesAndMetadata()}catch(e){}ensureSources();patch();
 
 globalThis.openAffiliationHub=openHub;
