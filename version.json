@@ -1,16 +1,20 @@
 {
-  "version": "CURRENT-1.67.3",
-  "previous_version": "CURRENT-1.67.2",
+  "version": "CURRENT-1.67.4",
+  "previous_version": "CURRENT-1.67.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "精簡副職業學習前置條件對比顯示，只保留需求值與角色目前值，移除不足、高出、剩餘等差異文字。",
+  "summary": "降低能力屬性強化藥水的商店取得頻率：不再作為煉金店每日常駐補貨，改為依城鎮層級低機率輪替到貨，且每次最多1瓶。",
   "changelog": [
-    "副職業屬性前置顯示改為「需求｜目前」。",
-    "學費顯示同步改為「需求｜目前」。",
-    "移除「不足幾點」、「高出幾點」、「剩餘多少銀」等差異文字。",
-    "保留達成／未達成的視覺樣式與學習按鈕實際判定，不改動遊戲規則。",
-    "PWA快取升至v27。"
+    "力量、敏捷及其他帶 stat_ 能力屬性增益的藥水改為稀有商店商品。",
+    "低於藥水世界層級的城鎮不會販售該能力藥水。",
+    "同階城鎮每日到貨率顯著降低：E級約5%、D級約8%、C級約12%，高階城市再依規模逐步提高。",
+    "E級能力藥水在D級城鎮約9.5%、C級城鎮約15%；A/S級大型市場上限仍控制在40%以內。",
+    "能力藥水一旦到貨，單一品項當日最多1瓶；舊存檔若當日已有超額庫存也會立即壓到1瓶。",
+    "未到貨的能力藥水不再以固定常駐商品顯示；到貨時會標示「稀有到貨」。",
+    "普通恢復、魔力、解毒、抗性等藥劑仍維持原市場庫存規則。",
+    "五回合自檢加入能力藥水稀有供應runtime與庫存上限檢查。",
+    "PWA快取升至v28。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -35,5 +39,6 @@
   "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0",
   "dungeon_depth_revision": "DUNGEON-DEPTH-2.0",
   "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0",
-  "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.1"
+  "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.1",
+  "ability_potion_market_revision": "ABILITY-POTION-MARKET-1.0"
 }
