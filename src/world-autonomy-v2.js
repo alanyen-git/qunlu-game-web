@@ -1,11 +1,10 @@
-/* 群陸旅誌：自主世界第二階段 CURRENT-1.61.0
+/* 群陸旅誌：自主世界第二階段
  * WORLD-AUTONOMY-2.0
  * NPC日程／商隊物流／資源再生／地下城重生與佔領／跨區天候鋒面
  */
 (()=>{
   if(typeof DB!=="object"||!DB)return;
 
-  const RELEASE="CURRENT-1.61.0";
   const REVISION="WORLD-AUTONOMY-2.0";
   const CFG={
     heartbeat_ms:30000,
@@ -19,7 +18,6 @@
   };
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version=RELEASE;
   DB.meta.world_autonomy_revision=REVISION;
   DB.world_autonomy_phase2_system={
     version:REVISION,
@@ -274,7 +272,7 @@
   function patchMoreMenu(){if(globalThis.__WORLD_AUTONOMY2_MENU_PATCHED||typeof globalThis.openMoreMenu!=="function")return;const original=globalThis.openMoreMenu;globalThis.openMoreMenu=function(){const result=original.apply(this,arguments);setTimeout(()=>{const grid=document.querySelector("#modalBody .more-grid");if(grid&&!grid.querySelector("[data-world-autonomy2]")){const b=document.createElement("button");b.className="more-card";b.dataset.worldAutonomy2="1";b.innerHTML='<span class="more-icon">◌</span><span>世界動態</span>';b.addEventListener("click",openWorldAutonomyPanel);grid.appendChild(b)}},0);return result};globalThis.__WORLD_AUTONOMY2_MENU_PATCHED=true}
   function patchActionTimeTrigger(){if(globalThis.__WORLD_AUTONOMY2_ENDTURN_PATCHED||typeof globalThis.endTurn!=="function")return;const original=globalThis.endTurn;globalThis.endTurn=function(){const result=original.apply(this,arguments);setTimeout(()=>phase2Heartbeat("action"),0);return result};globalThis.__WORLD_AUTONOMY2_ENDTURN_PATCHED=true}
   function initializePhase2(){
-    if(typeof G==="undefined"||!G?.worldState)return false;G.meta=G.meta||{};G.meta.version=RELEASE;applyGatherPatches();const s=phase2State();
+    if(typeof G==="undefined"||!G?.worldState)return false;G.meta=G.meta||{};applyGatherPatches();const s=phase2State();
     if(!s.initialized){s.initialized=true;s.initializedHour=nowHour();updateNpcSchedules(true);syncResourceNodes(true);syncDungeonStates(true);ensureWeatherFronts();rebuildRegionalWeather(nowHour());syncLocalWeather();for(const route of CARAVAN_ROUTES)if(routeValid(route))ensureCaravanState(route);pushWorldEvent("phase2_init","自主世界第二階段已啟動：NPC、商隊、資源、地下城與區域天候開始依世界時間運作。",{})}
     patchGatherRuntime();patchDungeonKillRuntime();patchMoreMenu();patchActionTimeTrigger();return true;
   }
