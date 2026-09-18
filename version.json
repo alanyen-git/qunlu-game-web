@@ -1,21 +1,23 @@
 {
-  "version": "CURRENT-1.65.9",
-  "previous_version": "CURRENT-1.65.8",
+  "version": "CURRENT-1.66.0",
+  "previous_version": "CURRENT-1.65.9",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正料理資料污染與素材語意錯配：料理介面只顯示真正料理，鍛造／藥劑配方不再混入；炙烤肉串等 R7 配方改用符合名稱的食材。",
+  "summary": "全面稽核並強化鍛造、裁縫、藥劑／煉金與附魔製作系統：專業、設施、成品類型與素材必須一致；跨格式配方正式歸入正確專業，附魔補上製作入口。",
   "changelog": [
-    "料理清單新增嚴格分類：成品必須是料理／食物，且配方 profession 不得是鍛造、藥劑等其他專業。",
-    "cookBatch 增加伺服邏輯層防線，即使以舊按鍵或手動呼叫非料理配方，也會拒絕從料理介面製作。",
-    "霧徑遮霧燈、灰門守備盾、鐵杉止血膏等非料理配方不再出現在料理清單。",
-    "修正 R7-04 炙烤肉串：素材改為生肉×1＋甜根×1。",
-    "修正 R7-01 香烤甜根、R7-02 莓果串、R7-05 河魚燉湯、R7-06 香草燉肉、R7-08 莓香烤魚、R7-14 戰士炙肉盤、R7-22 龍焰燉肉等名稱與素材錯配。",
-    "真正料理配方補上 profession=料理，與共用 DB.recipes 的鍛造／藥劑配方明確分流。",
-    "五回合自檢新增料理資料完整性與配方專業分類檢查。",
-    "PWA快取升至v21。"
+    "全面稽核520個既有專業製作品；原核心資料的專業／設施錯綁、素材缺失與跨類型污染均為0。",
+    "將阿斯戴爾 legacy 非料理配方正規化：霧徑遮霧燈與灰門守備盾歸入鍛造，鐵杉止血膏歸入藥劑。",
+    "正規化後專業製作品共523個：鍛造214、裁縫60、藥劑241、附魔8。",
+    "新增 craftingRecipeMatchesFacility：製作清單必須同時符合正確設施、正確專業且成品不得是料理／食物。",
+    "craftItemBatch 增加執行層驗證：不在對應設施、專業與設施錯配、或成品分類異常時直接禁止製作。",
+    "學習配方同樣要求玩家實際位於正確製作設施，避免跨設施學習或呼叫。",
+    "附魔工坊新增正式「製作」入口，8個附魔配方現在可由附魔副職業依規則使用。",
+    "專業製作資料新增素材存在性、素材數量、專業／設施、成品類型與完成料理誤作素材等完整性檢查。",
+    "五回合自檢新增 CRAFTING-DATA-INTEGRITY-1.0 與製作設施專業污染檢查。",
+    "PWA快取升至v22。"
   ],
-  "content_revision": "COOKING-DATA-INTEGRITY-1.0",
+  "content_revision": "CRAFTING-DATA-INTEGRITY-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.0",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -32,5 +34,6 @@
   "save_compatible": true,
   "water_source_revision": "WATER-SOURCE-1.2",
   "item_source_index_revision": "ITEM-SOURCE-INDEX-1.1",
-  "cooking_data_integrity_revision": "COOKING-DATA-INTEGRITY-1.0"
+  "cooking_data_integrity_revision": "COOKING-DATA-INTEGRITY-1.0",
+  "crafting_data_integrity_revision": "CRAFTING-DATA-INTEGRITY-1.0"
 }
