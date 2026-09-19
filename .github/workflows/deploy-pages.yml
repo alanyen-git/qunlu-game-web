@@ -113,6 +113,7 @@ jobs:
             "src/game-data.js",
             "src/data-patches.js",
             "src/asdail-depth-v2.js",
+            "src/asdail-narrative-depth-v1.js",
             "src/asdail-integration-v1.js",
             "src/alchemy-healing-recipe-v1.js",
             "src/equipment-depth-v1.js",

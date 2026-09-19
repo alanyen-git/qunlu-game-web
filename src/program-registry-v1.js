@@ -1,22 +1,22 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.72.3
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.73.0
  * PROGRAM-REGISTRY-1.0
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.72.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.72.3";
+const RELEASE=CORE?.release?.("CURRENT-1.73.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.73.0";
 const REV="PROGRAM-REGISTRY-1.0";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
   data:[
-    "src/game-data.js","src/data-patches.js","src/asdail-depth-v2.js","src/asdail-integration-v1.js",
+    "src/game-data.js","src/data-patches.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js",
     "src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js",
     "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js"
   ],
   runtime:[
-    "src/runtime.js","src/companion-growth-v1.js","src/crafting-success-v2.js","src/market-economy-v2.js",
+    "src/runtime.js","src/asdail-narrative-runtime-v1.js","src/companion-growth-v1.js","src/crafting-success-v2.js","src/market-economy-v2.js",
     "src/world-autonomy-v1.js","src/runtime-patches.js"
   ],
   world:[
@@ -94,7 +94,8 @@ function audit(){
     ["系統完整性",()=>typeof globalThis.runSystemIntegrityAudit==="function"],
     ["取水稽核",()=>typeof globalThis.runWaterSourceAudit==="function"],
     ["統一命名",()=>typeof globalThis.runNameGeneratorAudit==="function"],
-    ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"]
+    ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
+    ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass]
   ];
   for(const [name,test] of critical){let ok=false;try{ok=!!test()}catch(error){}if(!ok)issues.push("關鍵程序不可用:"+name)}
 

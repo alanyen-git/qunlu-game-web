@@ -1,16 +1,17 @@
 {
-  "version": "CURRENT-1.72.3",
-  "previous_version": "CURRENT-1.72.2",
+  "version": "CURRENT-1.73.0",
+  "previous_version": "CURRENT-1.72.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "最高權限總測試完成：43/43模組、8/8真實遊戲狀態閉環、24/24完整稽核全部通過，runAudit與runGeneratorAudit正式納入發布閘門。",
+  "summary": "阿斯戴爾劇情深化：新增可連鎖委託、地方奇遇與劇情進度追蹤，前置條件、成功／失敗線索與地方後果正式寫回存檔。",
   "changelog": [
-    "最高權限總測試最終結果：43/43正式src程序載入成功、8/8有狀態閉環成功、24/24完整稽核成功、DB版本CURRENT-1.72.3一致。",
-    "runAudit與runGeneratorAudit現在使用createCharacter()建立的正式角色狀態執行，不再跳過。",
-    "涵蓋正式建角、自動存檔round-trip、CURRENT-1.57.0舊存檔遷移、第5回合自檢、戰鬥建立／結束、死亡／教會復活、製作扣料／回合、市場買賣／庫存。",
-    "發布工作流新增tools/*.js語法檢查；測試器錯誤會在部署前直接阻擋。",
-    "各有狀態關卡使用隔離基準存檔並還原，固定亂數避免CI偶發失敗；遊戲規則與存檔schema不變。"
+    "ASDAIL-NARRATIVE-DEPTH-1.0：新增13個連鎖委託、12個地方奇遇、7條劇情脈絡、6條區域故事線與6組冒險鉤子。",
+    "既有高階「偽造封條流向／王冠根脈封庫巡檢／沼下遺構取樣」加入合理前置，不再與前段調查脫節。",
+    "ASDAIL-NARRATIVE-RUNTIME-1.0：公會委託依前置成果解鎖；舊存檔會由委託歷史自動回推已完成節點。",
+    "奇遇成功、失敗或離開會留下劇情紀錄；地方狀態與調查後果寫回worldState，不以隨機奇遇鎖死主要委託鏈。",
+    "更多選單新增「區域劇情」面板，可查看各劇情線完成度、下一步與近期後果。",
+    "維持阿斯戴爾F～B級世界尺度；未知遺構不強行定源，地方異常不自動合併成國戰或單一幕後陰謀。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -393,7 +394,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.0",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 43,
+    "active_src_programs": 45,
     "groups": [
       "core",
       "data",
@@ -416,12 +417,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.1",
   "full_program_debug": {
-    "programs_total": 43,
-    "programs_loaded": 43,
+    "programs_total": 45,
+    "programs_loaded": 45,
     "stateful_tests": 8,
     "stateful_tests_passed": 8,
-    "full_audits_executed": 24,
-    "full_audits_passed": 24,
+    "full_audits_executed": 25,
+    "full_audits_passed": 25,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -446,8 +447,8 @@
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-1.0",
   "program_optimization": {
-    "audited_src_programs": 43,
-    "stateless_audits": 24,
+    "audited_src_programs": 45,
+    "stateless_audits": 25,
     "production_artifact_runtime_only": true,
     "excluded_from_public_artifact": [
       "tools",
@@ -457,6 +458,20 @@
     "redundant_persist_writes_removed": 1,
     "gameplay_rules_changed": false,
     "save_schema_changed": false,
+    "save_compatible": true
+  },
+  "asdail_narrative_depth_revision": "ASDAIL-NARRATIVE-DEPTH-1.0",
+  "asdail_narrative_runtime_revision": "ASDAIL-NARRATIVE-RUNTIME-1.0",
+  "asdail_narrative_depth": {
+    "region_id": "REG-ASD-01",
+    "quest_additions": 13,
+    "adventure_event_additions": 12,
+    "narrative_threads": 7,
+    "storyline_additions": 6,
+    "adventure_hook_additions": 6,
+    "prerequisite_gating": true,
+    "legacy_history_recovery": true,
+    "outcome_journal": true,
     "save_compatible": true
   }
 }

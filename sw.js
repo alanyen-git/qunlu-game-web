@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v66";
+const CACHE_NAME=CACHE_PREFIX+"v67";
 const CORE=[
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const CORE=[
   "./src/game-data.js",
   "./src/data-patches.js",
   "./src/asdail-depth-v2.js",
+  "./src/asdail-narrative-depth-v1.js",
   "./src/asdail-integration-v1.js",
   "./src/alchemy-healing-recipe-v1.js",
   "./src/equipment-depth-v1.js",
@@ -18,6 +19,7 @@ const CORE=[
   "./src/equipment-recipe-balance-v1.js",
   "./src/recipe-economy-balance-v1.js",
   "./src/runtime.js",
+  "./src/asdail-narrative-runtime-v1.js",
   "./src/companion-growth-v1.js",
   "./src/crafting-success-v2.js",
   "./src/market-economy-v2.js",
