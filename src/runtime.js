@@ -1,5 +1,5 @@
 
-const CURRENT_VERSION="CURRENT-1.57.0";
+const CURRENT_VERSION=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.72.0";
 const AUDIT_INTERVAL_TURNS=5;
 DB.meta.current_version=CURRENT_VERSION;
 DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
