@@ -1,15 +1,16 @@
 {
-  "version": "CURRENT-1.72.2",
-  "previous_version": "CURRENT-1.72.1",
+  "version": "CURRENT-1.72.3",
+  "previous_version": "CURRENT-1.72.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全程序最佳化：維持43/43正式模組與24項無狀態稽核通過，縮減GitHub Pages正式部署包並移除手動存檔一次冗餘本機寫入。",
+  "summary": "最高權限總測試：43模組全載入＋8項真實遊戲狀態閉環＋26項完整稽核，runAudit與runGeneratorAudit不再跳過。",
   "changelog": [
-    "完成43個正式src程序的現行載入鏈、程序清單、發布閘門與跨模組稽核複核；既有43/43 headless載入與24項無狀態稽核維持為正式發布條件。",
-    "GitHub Pages改為先建立純正式_site部署目錄，只發布index、manifest、service worker、version、assets、icons與src；tools與DEBUG_ALL_PROGRAMS.json不再進入公開網站部署包。",
-    "手動存檔槽儲存流程移除log前一次冗餘persist()；保留log後單次持久化，減少一次localStorage序列化／寫入且不改變存檔內容與格式。",
-    "PWA快取代號提升至v65，入口與正式模組cache-busting同步至CURRENT-1.72.2；存檔相容。"
+    "總測試改用現行createCharacter()正式建立測試角色，驗證建角、自動存檔與CURRENT版本一致性。",
+    "新增存檔round-trip、CURRENT-1.57.0舊存檔遷移、第5回合完整自檢、戰鬥生命週期、死亡／教會復活、製作扣料／回合、商店買賣／庫存共8項有狀態測試。",
+    "runAudit與runGeneratorAudit改為在正式角色狀態下執行並納入發布失敗條件，不再跳過。",
+    "各有狀態測試使用隔離基準存檔並在關卡後還原；亂數固定以避免CI偶發失敗。",
+    "PWA快取升至v66；遊戲規則與存檔schema不變。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -47,7 +48,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.4",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.5",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -413,19 +414,27 @@
     "load_order_audit": true,
     "save_compatible": true
   },
-  "full_program_debug_revision": "FULL-PROGRAM-DEBUG-1.0",
+  "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.0",
   "full_program_debug": {
     "programs_total": 43,
     "programs_loaded": 43,
-    "stateless_audits_executed": 24,
-    "state_required_audits_skipped": [
-      "runAudit",
-      "runGeneratorAudit"
+    "stateful_tests": 8,
+    "full_audits_expected": 26,
+    "state_required_audits_skipped": [],
+    "stateful_scopes": [
+      "正式建角",
+      "存檔round-trip",
+      "舊存檔遷移",
+      "第5回合自檢",
+      "戰鬥生命週期",
+      "死亡與教會復活",
+      "製作交易",
+      "市場買賣交易"
     ],
     "release_drift_guard": true,
     "readonly_mutation_guard": true,
     "deployment_gate": true,
-    "last_result": "pass",
+    "last_result": "pending_ci",
     "save_compatible": true
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-1.0",
