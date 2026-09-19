@@ -160,6 +160,8 @@ jobs:
           console.log(`recipe runtime audit OK: ${stats.professional} professional + ${stats.cooking} cooking; canonical low potions locked`);
           NODE
 
+          node tools/debug-all-programs.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
