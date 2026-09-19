@@ -1,21 +1,20 @@
 {
-  "version": "CURRENT-1.70.4",
-  "previous_version": "CURRENT-1.70.3",
+  "version": "CURRENT-1.70.5",
+  "previous_version": "CURRENT-1.70.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "職業名稱參考層：把物理、魔法、魔武雙修三大戰鬥路線整理為23個職業家族與五階進階語法，並區分戰鬥職業、官職、生活職業、血統與世界觀未開放的火器職業。",
+  "summary": "技能名稱參考層：將大型技能清單萃取為17個技能家族，並把破甲、控制、治療、召喚、汲取等名稱語義與實際技能資料綁定，避免只換名稱或名實不符。",
   "changelog": [
-    "新增 CLASS-NAMING-REFERENCE-1.0：物理7家族、魔法8家族、魔武雙修8家族，共23個通用職業家族；不直接把參考清單膨脹成600個正式職業。",
-    "建立五階職業語法並映射CURRENT F-S世界階級：F=基礎、E=進階、D/C=專精、B/A=大師、S=傳奇。",
-    "所有現有100個戰鬥職業新增runtime progression_stage、progression_stage_name與命名家族參考標記，不變更存檔schema。",
-    "職業名稱驗證會區分戰鬥職業與社會身份；教皇、大元帥、領主、衛隊長等官職／爵位／宗教位階不得直接充當戰鬥職業名稱。",
-    "工匠、鎖匠等生活職業維持副職業／生活職業；火槍、手槍、重砲、砲台等火器職業在世界觀未正式建立相關科技前禁止生成。",
-    "龍脈、狼人、妖精等種族／血統詞可用於特殊職業，但會要求正式血統或種族前置資料；武神、主宰、帝王等傳奇稱號僅允許S級正式傳承。",
-    "修正13條既有職業進階方向錯誤：移除F→F、D/C→同階以及B→E等倒掛前置，改為低階到高階的合法來源；保留原前置於legacy_progression_from供稽核追溯。",
-    "36個原本沒有progression_from的非F職業保留為人工複核警告，不在缺乏正史依據時自動亂接特殊傳承。",
-    "GEN-NAME與AI-NAMING加入職業系別、家族、階級、身份分離與火器禁則；RELEASE-INTEGRITY-1.2加入職業命名／進階完整性稽核。",
-    "PWA快取升級至v48；保留CURRENT-1.70.3裝備命名規則與既有存檔。"
+    "新增 SKILL-NAMING-REFERENCE-1.0：萃取使用者提供15類技能語彙，並補CURRENT九元素所需的泛元素術式、神聖與生命2類，共17個技能參照家族。",
+    "保留既有465筆正式技能，不批量新增上千個換皮技能；新增技能必須先通過家族、階級、類型、元素、狀態與實際效果驗證。",
+    "破甲、穿甲、麻痺、中毒、燃燒、冰封、定身、眩暈、恐懼、魅惑、沉默、混亂、石化、治癒、召喚、吸血、汲取、反射、隱形等名稱詞彙需有對應實裝效果。",
+    "F/E級技能優先使用直觀招式語彙；無雙、裁決、萬法、主宰、極致等高階稱號設置tier門檻，避免低階技能名稱膨脹。",
+    "英文殘字與明顯外部作品專屬招式不進入CURRENT生成詞庫；例如混入strike的名稱與特定外部招式會被驗證器拒絕。",
+    "AI-SKILL加入技能名稱、家族、元素、狀態與效果一致性驗證；GEN-NAME新增技能參照、驗證與建議函式入口。",
+    "現有465筆技能經新稽核後硬性錯誤為0；同名同階技能群保留為查重統計，不在缺乏語義證據時自動刪除。",
+    "RELEASE-INTEGRITY-1.3將技能命名、階級、元素與語義效果加入五回合完整性稽核；PWA快取升級至v49。",
+    "保留CURRENT-1.70.4職業命名參考、13條進階鏈修正、CURRENT-1.70.3裝備命名參考與既有存檔。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -53,7 +52,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-2.5",
+  "pwa_cache_revision": "PWA-CACHE-FIX-2.6",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -129,7 +128,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.2",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.3",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -161,6 +160,22 @@
     "unlinked_non_f_review_candidates": 36,
     "authority_role_separation": true,
     "firearm_generation_blocked": true,
+    "save_compatible": true
+  },
+  "skill_naming_reference_revision": "SKILL-NAMING-REFERENCE-1.0",
+  "skill_naming_reference": {
+    "existing_skills_audited": 465,
+    "reference_families": 17,
+    "core_user_reference_families": 15,
+    "current_world_extensions": [
+      "泛元素術式",
+      "神聖與生命"
+    ],
+    "semantic_effect_validation": true,
+    "tiered_grand_name_gating": true,
+    "english_fragment_blocking": true,
+    "external_move_name_blocking": true,
+    "hard_errors": 0,
     "save_compatible": true
   }
 }
