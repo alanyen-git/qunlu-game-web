@@ -1,4 +1,4 @@
-/* 群陸旅誌：全生產製作成功率 CURRENT-1.69.9
+/* 群陸旅誌：全生產製作成功率 CURRENT-1.71.2
  * PRODUCTION-CRAFT-SUCCESS-2.0
  * 鍛造／裁縫／藥劑／附魔／料理統一由能力、天賦、副職業階級與熟練等級、配方難度共同決定成功率。
  */
@@ -6,8 +6,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.69.9";
-const REV="PRODUCTION-CRAFT-SUCCESS-2.0";
+const RELEASE="CURRENT-1.71.2";
+const REV="PRODUCTION-CRAFT-SUCCESS-2.1";
 const PROFILE={
   鍛造:{sid:"SJ-SMITH",primary:"力量",secondary:"敏捷"},
   裁縫:{sid:"SJ-TAILOR",primary:"敏捷",secondary:"智力"},
@@ -117,7 +117,8 @@ openCrafting=function(fid,category=null){
   const prof=DB.crafting_system.facility_profession[fid];if(!prof)return;
   if(!currentFacilityAllowsCrafting(fid)){alert("必須先進入對應製作設施。");return}
   const locTier=loc(G.character.locationId).tier,j=subjobForProfession(prof);
-  const base=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier));
+  const base=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier)&&craftingRecipeVisible(d,j));
+  const trainable=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier)&&!recipeKnown(d)&&recipeCanLearn(d));
   const categories=itemListCategories(base);
   if(["F","E","D","C","B","A","S"].includes(category))category=null;
   if(category&&category!=="全部"&&!categories.includes(category))category=null;
@@ -137,7 +138,7 @@ openCrafting=function(fid,category=null){
     return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${craftResultLine(d)}<br>${mats}<br>${known?`${chanceLine}<br>${craftTimeHours(d,j)}小時｜可連做${maxBatch}次`:`配方：${d.recipe_access==="special"?"特殊來源":d.recipe_access==="trainer"?"師傅教授":"公開"}`}${missing.length?`｜缺料${missing.length}種`:""}</span></span><span>${canLearn?`<button onclick="learnCraftRecipe('${d.id}')">學配方 ${recipeLearnFee(d)}銀</button>`:""} ${known?`<span class="craft-batch"><button ${canCraft&&maxBatch>=1?"":"disabled"} onclick="craftItemBatch('${d.id}',1)">製作1</button><button ${canCraft&&maxBatch>=5?"":"disabled"} onclick="craftItemBatch('${d.id}',5)">×5</button><button ${canCraft&&maxBatch>=10?"":"disabled"} onclick="craftItemBatch('${d.id}',10)">×10</button></span>`:""}</span></div>`
   },"此類別沒有可用配方。");
   const sj=j?`${sub(j.id).name}［${j.grade}］ 熟練Lv${productionSubjobLevel(j)}｜XP ${j.xp||0}`:"尚未取得對應副職業";
-  showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>成功率＝能力值＋幸運＋副職業階級／熟練Lv＋天賦＋組織加成－配方難度；最低20%、最高95%。</div><h3>製作類別</h3><div class="actions">${tabs}</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting('${fid}','${selected}')`)
+  showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>製作清單最多顯示高於目前副職業2階的配方；D級以上未學配方不顯示。成功率＝能力值＋幸運＋副職業階級／熟練Lv＋天賦＋組織加成－配方難度。</div><h3>製作類別</h3><div class="actions">${tabs}</div>${rows}<div class="actions">${trainable.length?`<button onclick="openCraftRecipeTraining('${fid}')">學習配方 ${trainable.length}</button>`:""}<button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting('${fid}','${selected}')`)
 };
 
 function cookingSuccessBreakdown(r){
@@ -214,11 +215,13 @@ DB.hard_rules=DB.hard_rules||{};
 DB.hard_rules.production_success_rate_all_crafting=true;
 DB.hard_rules.production_success_factors=["能力值","幸運","天賦","副職業階級","副職業熟練Lv","配方階級","組織加成"];
 DB.crafting_system=DB.crafting_system||{};
-DB.crafting_system.version="CRAFTING-1.11";
+DB.crafting_system.version="CRAFTING-1.12";
 DB.crafting_system.success_revision=REV;
+DB.crafting_system.recipe_visibility_revision="CRAFTING-RECIPE-VISIBILITY-1.0";
+DB.crafting_system.recipe_visibility={max_future_tier_gap:2,hide_unlearned_from_tier:"D",known_recipe_still_subject_to_future_gap:true,trainer_learning_separate_view:true};
 DB.crafting_system.subjob_level_cap=10;
 DB.crafting_system.subjob_level_xp=[...SUBJOB_LEVEL_XP];
-DB.crafting_system.rules=[...(DB.crafting_system.rules||[]).filter(x=>!String(x).includes("成功率")), "所有生產製作皆有獨立成功率；能力、幸運、對應天賦、副職業階級與熟練Lv提高成功率，配方階級提高難度。"];
+DB.crafting_system.rules=[...(DB.crafting_system.rules||[]).filter(x=>!String(x).includes("成功率")&&!String(x).includes("製作清單")), "所有生產製作皆有獨立成功率；能力、幸運、對應天賦、副職業階級與熟練Lv提高成功率，配方階級提高難度。","製作清單最多顯示高於對應副職業2個階級的配方；D級以上未學配方不顯示，師傅可教授配方改由獨立學習清單呈現。"];
 DB.production_crafting_success_system={
   version:REV,release:RELEASE,
   scope:["鍛造","裁縫","藥劑","附魔","料理"],
@@ -241,6 +244,7 @@ DB.production_crafting_success_system={
   ability_profiles:PROFILE,
   failure_rule:"每次失敗仍消耗該次完整配方材料；不產生成品；仍取得實作副職業XP。",
   batch_rule:"批量1/5/10逐次擲定；批次途中副職業升階或熟練Lv提升，後續嘗試立即套用新成功率。",
+  recipe_visibility:{max_future_tier_gap:2,hide_unlearned_from_tier:"D",trainer_learning_separate_view:true},
   save_compatible:true
 };
 

@@ -1,19 +1,19 @@
 {
-  "version": "CURRENT-1.71.1",
-  "previous_version": "CURRENT-1.71.0",
+  "version": "CURRENT-1.71.2",
+  "previous_version": "CURRENT-1.71.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正五回合發布完整性自檢：巨魔皮輕靴配方專業／素材同步，以及組織與流派技能光暗元素別名造成的大量無效元素誤報。",
+  "summary": "製作配方可見性優化：依副職業階級限制最多預覽高2階，D級以上未學配方從製作清單隱藏，師傅教授配方移至獨立學習清單。",
   "changelog": [
-    "修正配方V1警告：EQ7-S05在V2由秘銀輕靴改名為巨魔皮輕靴後，舊鍛造專業未同步；現改為裁縫／tailor。",
-    "巨魔皮輕靴主材同步為硬化皮革×2＋蜘蛛絲線×1，特色素材為巨魔厚皮×1，材質標籤改為硬化皮革／巨魔厚皮，不再保留秘銀鍛造語意。",
-    "修正AFFILIATION-TREASURY-DEPTH生成器：組織／流派獨有技能的光、暗元素現在直接生成正式鍵值光明、黑暗。",
-    "SKILL-NAMING-REFERENCE-1.1加入光→光明、暗→黑暗正式別名正規化；DB技能與既有存檔中已學技能會安全遷移，不只關閉稽核警告。",
-    "技能命名稽核與名稱元素一致性檢查統一先走canonicalElement，避免舊資料縮寫再次造成發布完整性誤報。",
-    "同源區域魔物資料中的暗元素縮寫同步改為黑暗，與玩家元素抗性及元素傷害鍵值一致。",
-    "不變更技能威力、技能階級、組織解鎖條件或戰鬥數值；本次屬資料一致性與發布完整性修復。",
-    "PWA快取升級至v55；既有角色、技能、配方與存檔相容。"
+    "製作清單新增副職業層級可見性：配方最多只顯示到目前對應副職業階級+2；未取得對應副職業時只顯示已公開的F級基礎配方。",
+    "D級、C級、B級、A級、S級配方若尚未學會，不再出現在鍛造、裁縫、藥劑、附魔製作清單。",
+    "已學高階配方仍受副職業+2階可見範圍限制；副職業成長到接近該配方後才重新顯示，避免過早塞滿製作介面。",
+    "為避免D級以上師傅配方被隱藏後無法學習，新增獨立「學習配方」入口；只列出當前設施、地區、角色等級與副職業資格均符合的可教授配方。",
+    "特殊來源配方不會在學習清單洩露；仍需透過世界事件、掉落或其他正式來源取得後才會出現在製作清單。",
+    "料理系統維持既有cook_grade資格規則；料理目前沒有knownRecipes學習旗標，因此不套用D級未學隱藏，避免高階料理永久無法取得。",
+    "製作成功率、批量1/5/10、材料消耗、配方學習費與既有存檔不變。",
+    "PWA快取升級至v56並同步GitHub Pages。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -51,7 +51,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-2.9",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.0",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -71,7 +71,7 @@
     "semantic_mismatch_issues": 0
   },
   "battle_layout_revision": "BATTLE-FORMATION-LAYOUT-1.0",
-  "production_crafting_success_revision": "PRODUCTION-CRAFT-SUCCESS-2.0",
+  "production_crafting_success_revision": "PRODUCTION-CRAFT-SUCCESS-2.1",
   "production_crafting_success": {
     "scope": [
       "鍛造",
@@ -290,6 +290,22 @@
       "暗": "黑暗"
     },
     "saved_skill_migration": true,
+    "save_compatible": true
+  },
+  "crafting_recipe_visibility_revision": "CRAFTING-RECIPE-VISIBILITY-1.0",
+  "crafting_recipe_visibility": {
+    "max_future_tier_gap": 2,
+    "hide_unlearned_from_tier": "D",
+    "applies_to": [
+      "鍛造",
+      "裁縫",
+      "藥劑",
+      "附魔"
+    ],
+    "no_subjob_visibility": "F級公開配方",
+    "trainer_recipe_learning_view": true,
+    "special_recipe_source_hidden_until_learned": true,
+    "cooking_note": "料理使用獨立cook_grade資格，尚無knownRecipes學習旗標",
     "save_compatible": true
   }
 }
