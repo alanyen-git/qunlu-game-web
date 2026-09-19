@@ -1,12 +1,12 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.70.5
- * RELEASE-INTEGRITY-1.3
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.70.6
+ * RELEASE-INTEGRITY-1.4
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE="CURRENT-1.70.5";
-const REV="RELEASE-INTEGRITY-1.3";
+const RELEASE="CURRENT-1.70.6";
+const REV="RELEASE-INTEGRITY-1.4";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -53,6 +53,8 @@ function audit(){
   else issues.push("職業命名:稽核runtime缺失");
   if(typeof globalThis.runSkillNamingReferenceAudit==="function")pushResult(issues,"技能命名:",globalThis.runSkillNamingReferenceAudit());
   else issues.push("技能命名:稽核runtime缺失");
+  if(typeof globalThis.runNameGeneratorAudit==="function")pushResult(issues,"統一命名:",globalThis.runNameGeneratorAudit());
+  else issues.push("統一命名:稽核runtime缺失");
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{items:(DB.items||[]).length,monsters:(DB.monsters||[]).length,locations:(DB.locations||[]).length,companions:(DB.companion_species||[]).length,static_issue_count:STATIC_ISSUES.length}};
 }
 const base=globalThis.runGeneratorAudit;
@@ -67,6 +69,6 @@ if(typeof base==="function"&&!base.__releaseIntegrityPatched){
 }
 DB.meta=DB.meta||{};
 DB.meta.release_integrity_revision=REV;
-DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","技能命名／階級／元素／語義效果","五回合自檢橋接"],save_compatible:true,initial_audit:audit()};
+DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","技能命名／階級／元素／語義效果","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接"],save_compatible:true,initial_audit:audit()};
 globalThis.runReleaseIntegrityAudit=audit;
 })();
