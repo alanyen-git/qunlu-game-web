@@ -1,13 +1,13 @@
-/* 群陸旅誌：裝備配方物量與語意平衡 CURRENT-1.71.6
- * EQUIPMENT-RECIPE-BALANCE-1.0
+/* 群陸旅誌：裝備配方物量與語意平衡 CURRENT-1.71.7
+ * EQUIPMENT-RECIPE-BALANCE-1.1
  * 檢查鍛造、裁縫、附魔的成品體積、結構素材、素材成本與名稱／材質語意。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.71.6";
-const REV="EQUIPMENT-RECIPE-BALANCE-1.0";
+const RELEASE="CURRENT-1.71.7";
+const REV="EQUIPMENT-RECIPE-BALANCE-1.1";
 const PROF={鍛造:"blacksmith",裁縫:"tailor",附魔:"enchanter"};
 const TARGET={
   body:{F:2,E:3,D:3,C:4,B:5,A:6,S:7},
@@ -36,6 +36,10 @@ function setRecipe(id,profession,base,monster,reason){
 function rename(id,name,reason){
   const d=byId(id);if(!d||d.name===name)return;
   d.name=name;note(id,"rename",reason);
+}
+function setMaterialLabel(id,label,reason){
+  const d=byId(id);if(!d||d.material===label)return;
+  d.material=label;note(id,"material_label",reason||label);
 }
 
 function applySemanticOverrides(){
@@ -66,6 +70,26 @@ function applySemanticOverrides(){
 
   setRecipe("EQ-BONE-WAND","鍛造",[["MAT-CRAFT-02",1],["MAT-CRAFT-16",1],["MAT-GEM-06",1]],[],"骨木咒杖補回骨材、木材與法術媒材");
   setRecipe("EQ31-076","附魔",[["MAT-CRAFT-16",1],["MAT-GEM-06",1]],[],"赤牙骨墜補回骨材，保留白水晶媒材");
+
+  setRecipe("EQ-GAUNTLET","鍛造",[["MAT-ORE-18",2],["MAT-CRAFT-13",1]],[],"精鋼護手改為精鋼外殼＋皮革內襯，避免素材成本高於成品");
+  setRecipe("EQ10-H04","裁縫",[["MAT-CRAFT-13",1],["MAT-CRAFT-08",1]],[],"盜賊兜帽依皮革設定補回硬化皮革");
+  setRecipe("EQ31-062","裁縫",[["MAT-CRAFT-13",2],["MAT-CRAFT-09",1]],[],"灰刃行軍靴依硬化皮革設定補回皮革結構");
+  setRecipe("EQ-HUNTER-TALISMAN","鍛造",[["MAT-GEM-06",1],["MAT-ORE-17",1]],[["DROP-BE-02",1]],"獵人牙飾補入兇狼牙作主題素材");
+  rename("EQ-AMBER-RING","白晶戒指","現有世界素材庫無琥珀，名稱改與白水晶配方一致");
+
+  setMaterialLabel("EQ-ROBE","絲線","移除舊黑鐵／優質皮革模板");
+  setMaterialLabel("EQ-RANGER-CLOAK","絲線／麻布／白水晶","移除舊黑鐵／優質皮革模板");
+  setMaterialLabel("EQ-CHARM","黑鐵／白水晶","移除舊黑鐵／優質皮革模板");
+  setMaterialLabel("EQ-TOWER-SWORD","黑鐵","移除舊優質皮革模板");
+  setMaterialLabel("EQ-TWIN-BLADE","黑鐵","移除舊優質皮革模板");
+  setMaterialLabel("EQ-AMBER-RING","黑鐵／白水晶","同步白晶戒指配方");
+  setMaterialLabel("EQ-HUNTER-TALISMAN","黑鐵／白水晶／兇狼牙","同步牙飾配方");
+  setMaterialLabel("EQ7-W09","橡木／白水晶","移除舊黑鐵／優質皮革模板");
+  setMaterialLabel("EQ7-W10","黑鐵","移除舊優質皮革模板");
+  setMaterialLabel("EQ7-A05","絲線","移除舊黑鐵／優質皮革模板");
+  setMaterialLabel("EQ7-C02","絲線／麻布／白水晶","移除舊黑鐵／優質皮革模板");
+  setMaterialLabel("EQ7-R02","黑鐵／白水晶","移除舊優質皮革模板");
+  setMaterialLabel("EQX-S16","青銅","F級短刃與實際青銅配方一致");
 }
 
 function category(d){
@@ -129,9 +153,9 @@ function audit(){
     const c=category(d),target=c?(TARGET[c]?.[d.tier]??1):1,total=qty(d);
     if(c&&total<target)issues.push(d.id+":"+c+"素材總量不足 "+total+"<"+target);
     if(cost(d)>Number(d.value??d.price??0)&&Number(d.value??d.price??0)>0)issues.push(d.id+":素材成本高於成品價值 "+cost(d)+">"+Number(d.value??d.price??0));
-    if(/木材|硬木/.test(material)&&!/木|板|枝/.test(names))issues.push(d.id+":木材設定但配方無木材");
-    if(/皮革|獸皮|毛皮/.test(material)&&!/皮|革|毛/.test(names))issues.push(d.id+":皮革設定但配方無皮革");
-    if(/自然素材/.test(material)&&!/木|枝|樹|藤|纖|皮|革|絲/.test(names))issues.push(d.id+":自然素材成品缺自然結構素材");
+    if(/^(木材|硬木)$/.test(material)&&!/木|板|枝/.test(names))issues.push(d.id+":木材設定但配方無木材");
+    if(/^(硬化皮革|皮革|獸皮|毛皮)$/.test(material)&&!/皮|革|毛/.test(names))issues.push(d.id+":皮革設定但配方無皮革");
+    if(material==="自然素材"&&!/木|枝|樹|藤|纖|皮|革|絲/.test(names))issues.push(d.id+":自然素材成品缺自然結構素材");
     if(/骨/.test(String(d.name||""))&&!/骨/.test(names))issues.push(d.id+":名稱含骨但配方無骨材");
   }
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{equipment,changed_unique:new Set(changes.map(x=>x.id)).size,change_events:changes.length}};

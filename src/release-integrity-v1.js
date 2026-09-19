@@ -1,11 +1,11 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.71.6
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.71.7
  * RELEASE-INTEGRITY-1.6
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE="CURRENT-1.71.6";
+const RELEASE="CURRENT-1.71.7";
 const REV="RELEASE-INTEGRITY-1.7";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
