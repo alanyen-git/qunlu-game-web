@@ -23,7 +23,7 @@ const FORMULAS={
   "PC-LIFE-01":[["I-HERB",1],["I-MINT",1]],
   "PC-LIFE-02":[["I-HERB",2],["MAT-HERB-05",1]],
   "PC-LIFE-03":[["I-HERB",2],["MAT-HERB-03",1],["MAT-HERB-05",1]],
-  "PC-LIFE-06":[["MAT-HERB-06",1]],
+  "PC-LIFE-06":[["MAT-HERB-06",2]],
   "PC-LIFE-07":[["MAT-HERB-02",1],["MAT-HERB-05",1],["I-MINT",1]],
   "PC-LIFE-08":[["MAT-HERB-03",1],["MAT-HERB-05",1],["MAT-HERB-02",1]],
   "PC-LIFE-10":[["I-HERB",1],["I-MINT",1]],
