@@ -318,7 +318,8 @@ function boostRumorNetwork(r,amount=.04){
  const s=state();if(!s||!r)return;const origin=r.originRumorId||r.id;
  for(const x of s.rumors){
    if(x===r||(x.originRumorId||x.id)!==origin)continue;
-   x.confidence=clamp(Number(x.confidence||.5)+Number(amount||0),.05,Math.min(.95,Number(r.confidence||.95)));
+   const current=Number(x.confidence||.5),cap=Math.max(current,Math.min(.95,Number(r.confidence||.95)));
+   x.confidence=Math.min(cap,current+Number(amount||0));
    x.status=x.confidence>=.86?"verified":x.confidence>=.68?"credible":"unverified";x.lastUpdatedHour=nowHour();
  }
 }
