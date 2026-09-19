@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v75";
+const CACHE_NAME=CACHE_PREFIX+"v76";
 const CORE=[
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const CORE=[
   "./src/data-patches.js",
   "./src/origin-depth-v1.js",
   "./src/combat-class-identity-depth-v1.js",
+  "./src/talent-identity-depth-v1.js",
   "./src/asdail-depth-v2.js",
   "./src/asdail-narrative-depth-v1.js",
   "./src/asdail-integration-v1.js",
