@@ -4,7 +4,7 @@
  const RELEASE="CURRENT-1.64.0",REV="CLASS-SKILL-OPT-1.0",R={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
  const B={F:[100,2,4,85,150],E:[110,2,5,95,165],D:[122,3,6,105,185],C:[136,3,8,115,205],B:[152,4,10,130,230],A:[172,4,12,145,260],S:[196,5,15,165,300]};
  const CFG={passive_growth:.015,passive_xp:1,mastery_min:.15,mastery_max:2.6};
- DB.meta=DB.meta||{};DB.meta.current_version=RELEASE;DB.meta.class_skill_revision=REV;
+ DB.meta=DB.meta||{};DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||RELEASE;DB.meta.class_skill_revision=REV;
  DB.class_skill_optimization_system={version:REV,scope:["職業定位","起始技能","Lv1-10技能成長","被動成長","跨職訓練","職業熟練"],save_schema_changed:false,rules:["新角色起始兩招至少一招為F級主動傷害技能。","只補齊技能缺失欄位與明確無效值，不覆寫既有有效設計值。","被動技能會隨技能等級增強並從勝利戰鬥緩慢取得技能XP。","具有至少兩個本地F級技能的職業保留一項基礎招牌技能，不可由跨職基礎訓練直接取得。","職業熟練依敵我階級與等級差調整，低階刷取效率降低。","B級以上資格與特殊路線前置維持不變。"]};
  const g=()=>{try{return typeof G!=="undefined"?G:null}catch(e){return null}},cl=(v,a,b)=>Math.max(a,Math.min(b,Number(v||0))),rk=t=>R[t]??0;
  const cls=id=>(DB.combat_classes||[]).find(x=>x.id===id)||null,pool=id=>Array.isArray(DB.skill_pools?.[id])?DB.skill_pools[id]:[];
