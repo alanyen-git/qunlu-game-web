@@ -2,7 +2,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.69.2",REV="AFFILIATION-INTEGRITY-1.0";
+const RELEASE="CURRENT-1.79.0",REV="AFFILIATION-INTEGRITY-1.1";
 const R={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const LEVEL={F:1,E:8,D:20,C:35,B:50,A:70,S:90};
 const THRESH=[0,80,220,500,950,1600];
@@ -160,8 +160,11 @@ function audit(){
  if(contribution&&!contribution.pass)issues.push(...contribution.issues.map(x=>`貢獻子系統:${x}`));
  const treasury=typeof globalThis.runAffiliationTreasuryDepthAudit==="function"?globalThis.runAffiliationTreasuryDepthAudit():null;
  if(treasury&&!treasury.pass)issues.push(...treasury.issues.map(x=>`寶庫子系統:${x}`));
+ const identity=typeof globalThis.runAffiliationIdentityDepthAudit==="function"?globalThis.runAffiliationIdentityDepthAudit():null;
+ if(!identity)issues.push("辨識度深化子系統缺失");
+ else if(!identity.pass)issues.push(...identity.issues.map(x=>`辨識度深化:${x}`));
 
- return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats,contribution,treasury}
+ return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats,contribution,treasury,identity}
 }
 
 function patchFiveTurnAudit(){
@@ -174,8 +177,8 @@ function patchFiveTurnAudit(){
 }
 
 DB.meta=DB.meta||{};DB.meta.affiliation_integrity_revision=REV;
-DB.affiliation_integrity_system={version:REV,release:RELEASE,authority:"highest",save_compatible:true,destructive_repairs:false,scope:["組織會員","流派會員","聲望","貢獻","職位","內部委託","捐贈","規模","寶庫","獨有裝備","獨有技能","來源索引","五回合自檢","系統完整性"]};
-if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.2／${REV}：最高權限稽核組織／流派全鏈路，並把異常接入五回合自檢。`);
+DB.affiliation_integrity_system={version:REV,release:RELEASE,authority:"highest",save_compatible:true,destructive_repairs:false,scope:["組織會員","流派會員","聲望","貢獻","職位","內部委託","捐贈","規模","寶庫","獨有裝備","獨有技能","來源索引","同質合併","世界4／王國3／地區2上限","歷史／現狀／特色","舊ID映射","五回合自檢","系統完整性"]};
+if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.79.0／${REV}：最高權限稽核組織／流派全鏈路，納入同質合併、辨識度與作用域上限，並把異常接入五回合自檢。`);
 patchFiveTurnAudit();
 globalThis.repairAffiliationIntegrityState=repair;
 globalThis.runAffiliationIntegrityAudit=audit;
