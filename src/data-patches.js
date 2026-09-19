@@ -1469,7 +1469,7 @@
     save_schema_changed:false,
     existing_save_compatible:true
   };
-  DB.meta.current_version="CURRENT-1.55.0";
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||"CURRENT-1.55.0";
   DB.meta.content_depth_revision="CONTENT-DEPTH-1.0";
 
   // ASDAIL-KINGDOM-EXPANSION-1.0：阿斯戴爾王國 F～B 級可遊玩內容。
@@ -1715,7 +1715,7 @@
     changed_by_tier:{"F":14,"E":36,"D":45,"B":43,"C":47,"A":13,"S":4},
     harmless_count:8
   };
-  DB.meta.current_version="CURRENT-1.57.0";
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||"CURRENT-1.57.0";
   DB.meta.monster_threat_revision="MONSTER-THREAT-1.0";
 
 })();
@@ -2079,6 +2079,6 @@
   link("DROP-SG-08","MON-SG-ACID-D");
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version="CURRENT-1.69.7";
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||"CURRENT-1.69.7";
   DB.meta.item_source_index_revision="ITEM-SOURCE-INDEX-1.3";
 })();
