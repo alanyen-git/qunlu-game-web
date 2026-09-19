@@ -1,33 +1,19 @@
 {
-  "version": "CURRENT-1.70.7",
-  "previous_version": "CURRENT-1.70.6",
+  "version": "CURRENT-1.70.8",
+  "previous_version": "CURRENT-1.70.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "地下城Boss掉落平衡：拆分Boss本體與寶箱獎勵，限制額外裝備來源與掉率，保留怪物生態素材並避免高幸運值造成高階裝備近乎必掉。",
+  "summary": "地下城Boss掉落二次稽核：修正B/A/S封印裝備無解封runtime卻被設定為同階可掉的邏輯落差，Boss直接可用裝備明確上限為C級，並公開有效掉率稽核資料。",
   "changelog": [
-    "地下城 Boss 掉落稽核：確認舊版Boss會先套用原怪物一般掉落，再額外開Boss寶箱；人型Boss因此可能出現一般裝備掉落＋Boss裝備雙重判定。",
-    "Boss本體現在只保留怪物生態素材掉落；Boss變體停用原怪物的money_drop與equipment_drop，金錢與裝備統一由最深處Boss寶箱處理。",
-    "Boss額外道具基準率調整為F 30%、E 34%、D 38%、C 42%、B 46%、A 50%、S 54%；Boss額外裝備率調整為10%、14%、18%、22%、26%、30%、34%。",
-    "角色掉寶倍率仍影響Boss寶箱，但最高只放大1.25倍，因此S級裝備寶箱判定最高約42.5%，不再接近舊版70%基準。",
-    "Boss裝備池新增取得來源限制：明確標示為商店／製作／組織等非地下城來源的裝備不再被Boss寶箱抽到；loot／dungeon／exploration來源正常保留。",
-    "Boss裝備新增同階掉落占比；F→S為10%、14%、18%、22%、26%、30%、35%，未抽中同階時主要落在低一階，少量再低一階，降低高階裝備市場灌入。",
-    "Boss裝備耐久調整為約68%～88%；地下城重整冷卻與既有存檔保持相容，五回合地下城自檢新增Boss掉落率範圍驗證。",
-    "新增 NAME-GENERATOR-2.0 統一名稱生成器：先判斷內容類型，再套用人物、聚落／地點、組織、流派、怪物、委託、物品等各自命名文法。",
-    "技能、裝備、戰鬥職業不再由通用音節生成器硬拼名稱，改分流至 SKILL-NAMING、EQUIPMENT-NAMING、CLASS-NAMING 專用驗證／建議函式。",
-    "查重升級為NFKC正規化＋移除空白與裝飾標點後比對；技能另外提示只差初階／高階／強化等弱修飾的近似重複。",
-    "取消舊 generateWorldName 失敗後固定回傳「洛恩／河灣鎮」的邏輯；候選全部失敗時回傳null，避免重複或不合法名稱被強行落庫。",
-    "新增人物連續重字、地名重複後綴、斜線雙名稱、現代／占位術語、英文識別字、低階高階稱號與正史鎖定名稱保護。",
-    "RELEASE-INTEGRITY-1.4 將統一名稱生成器結構與負向測試接入五回合自檢；PWA快取升級至v50。",
-    "新增 SKILL-NAMING-REFERENCE-1.0：萃取使用者提供15類技能語彙，並補CURRENT九元素所需的泛元素術式、神聖與生命2類，共17個技能參照家族。",
-    "保留既有465筆正式技能，不批量新增上千個換皮技能；新增技能必須先通過家族、階級、類型、元素、狀態與實際效果驗證。",
-    "破甲、穿甲、麻痺、中毒、燃燒、冰封、定身、眩暈、恐懼、魅惑、沉默、混亂、石化、治癒、召喚、吸血、汲取、反射、隱形等名稱詞彙需有對應實裝效果。",
-    "F/E級技能優先使用直觀招式語彙；無雙、裁決、萬法、主宰、極致等高階稱號設置tier門檻，避免低階技能名稱膨脹。",
-    "英文殘字與明顯外部作品專屬招式不進入CURRENT生成詞庫；例如混入strike的名稱與特定外部招式會被驗證器拒絕。",
-    "AI-SKILL加入技能名稱、家族、元素、狀態與效果一致性驗證；GEN-NAME新增技能參照、驗證與建議函式入口。",
-    "現有465筆技能經新稽核後硬性錯誤為0；同名同階技能群保留為查重統計，不在缺乏語義證據時自動刪除。",
-    "RELEASE-INTEGRITY-1.3將技能命名、階級、元素與語義效果加入五回合完整性稽核；PWA快取升級至v49。",
-    "保留CURRENT-1.70.4職業命名參考、13條進階鏈修正、CURRENT-1.70.3裝備命名參考與既有存檔。"
+    "二次檢視Boss掉落後確認：現有B級26件、A級11件、S級7件裝備全數sealed，且目前沒有裝備解封runtime；舊版sameTierShare因此在B/A/S實際不可能成立。",
+    "DUNGEON-DEPTH-2.2新增Boss直接裝備上限C級，封印B/A/S裝備不會被當成可直接取得裝備；高階裝備仍維持資格／封印規則。",
+    "Boss裝備總判定率維持F 10%、E 14%、D 18%、C 22%、B 26%、A 30%、S 34%；掉寶倍率最多1.25倍，最高分別為12.5%、17.5%、22.5%、27.5%、32.5%、37.5%、42.5%。",
+    "原sameTierShare改為topUsableShare：F 100%、E 14%、D 18%、C 22%、B 80%、A 90%、S 100%；B以上指目前最高可直接使用的C級裝備，而非宣稱能直接掉B/A/S裝備。",
+    "正式載入資料稽核後Boss可直接掉落裝備池為F 54件、E 86件、D 93件、C 75件、B/A/S 0件；五回合地下城稽核會檢查裝備池是否低於設定上限。",
+    "Boss本體仍只保留符合怪物生態的素材掉落；人型Boss一般金錢／裝備掉落維持停用，最深處寶箱不會與一般裝備掉落重複判定。",
+    "新增dungeonBossLootAuditReport()，可輸出各階Boss額外道具率、裝備率、最高可用階與幸運上限後的有效機率，供後續平衡檢查。",
+    "PWA快取升級至v52；既有地下城進度、角色存檔與CURRENT-1.70.7其他系統保持相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -50,7 +36,7 @@
   "crafting_data_integrity_revision": "CRAFTING-DATA-INTEGRITY-1.0",
   "database_growth_compat_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0",
-  "dungeon_depth_revision": "DUNGEON-DEPTH-2.1",
+  "dungeon_depth_revision": "DUNGEON-DEPTH-2.2",
   "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0",
   "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.1",
   "ability_potion_market_revision": "ABILITY-POTION-MARKET-1.0",
@@ -65,7 +51,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-2.6",
+  "pwa_cache_revision": "PWA-CACHE-FIX-2.7",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -217,7 +203,7 @@
     "semantic_near_duplicate_warning": true,
     "save_compatible": true
   },
-  "dungeon_boss_loot_revision": "DUNGEON-BOSS-LOOT-1.0",
+  "dungeon_boss_loot_revision": "DUNGEON-BOSS-LOOT-1.1",
   "dungeon_boss_loot": {
     "bonus_item_chance": {
       "F": 0.3,
@@ -237,19 +223,31 @@
       "A": 0.3,
       "S": 0.34
     },
-    "same_tier_share": {
-      "F": 0.1,
+    "top_usable_share": {
+      "F": 1,
       "E": 0.14,
       "D": 0.18,
       "C": 0.22,
-      "B": 0.26,
-      "A": 0.3,
-      "S": 0.35
+      "B": 0.8,
+      "A": 0.9,
+      "S": 1
+    },
+    "direct_equipment_tier_cap": "C",
+    "direct_equipment_pool": {
+      "F": 54,
+      "E": 86,
+      "D": 93,
+      "C": 75,
+      "B": 0,
+      "A": 0,
+      "S": 0
     },
     "loot_rate_multiplier_cap": 1.25,
     "ordinary_humanoid_money_equipment_suppressed": true,
     "explicit_non_dungeon_source_equipment_blocked": true,
+    "sealed_high_tier_equipment_blocked": true,
     "monster_material_loot_preserved": true,
+    "effective_probability_audit": true,
     "save_compatible": true
   }
 }
