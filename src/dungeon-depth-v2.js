@@ -466,6 +466,34 @@ function openDungeonMap(){
    '<div class="card"><b>'+status+'</b><br><span class="small">'+l.tier+'級地下城｜'+run.totalFloors+'張內部地圖｜Boss 固定在最深層。NPC 團隊基礎遭遇率 '+Math.round(profile.npcChance*100)+'%；越高世界層級越常出現競爭或合作。</span></div>'+cooldown+floors+
    (run.completed&&remain<=0?'<div class="actions"><button class="good" onclick="startNewDungeonRun()">開始新一輪遠征</button></div>':""))
 }
+function dungeonBossLootAuditReport(){
+ const lootable=(DB.items||[]).filter(d=>{
+   if(!d||d.sealed||d.unique||!EQUIPMENT_TYPES.has(d.type))return false;
+   const src=Array.isArray(d.acquisition_sources)?d.acquisition_sources:[];
+   return !src.length||src.some(x=>["loot","dungeon","exploration"].includes(x))
+ });
+ const maxStatic=lootable.length?Math.max(...lootable.map(d=>tierOrder(d.tier))):-1;
+ const tiers=["F","E","D","C","B","A","S"];
+ return {
+   revision:REVISION,
+   direct_equipment_cap:BOSS_DIRECT_EQUIPMENT_TIER_CAP,
+   available_equipment_by_tier:Object.fromEntries(tiers.map(t=>[t,lootable.filter(d=>d.tier===t).length])),
+   profiles:Object.fromEntries(tiers.map(t=>{
+     const cfg=BOSS_LOOT_PROFILES[t],worldRank=tierOrder(t),directRank=Math.max(-1,Math.min(worldRank,tierOrder(BOSS_DIRECT_EQUIPMENT_TIER_CAP),maxStatic));
+     const directTier=directRank>=0?tiers[directRank]:null;
+     return [t,{
+       bonus_item_base:cfg.bonusItemChance,
+       bonus_item_max:Math.min(.68,cfg.bonusItemChance*BOSS_LOOT_LUCK_CAP),
+       equipment_base:cfg.equipmentChance,
+       equipment_max:Math.min(.43,cfg.equipmentChance*BOSS_LOOT_LUCK_CAP),
+       direct_top_tier:directTier,
+       top_usable_share:cfg.topUsableShare,
+       top_usable_equipment_base:directTier?cfg.equipmentChance*cfg.topUsableShare:0,
+       top_usable_equipment_max:directTier?Math.min(.43,cfg.equipmentChance*BOSS_LOOT_LUCK_CAP)*cfg.topUsableShare:0
+     }]
+   }))
+ };
+}
 function dungeonAuditIssues(){
  const issues=[];
  if(!DB.dungeon_depth_system||DB.dungeon_depth_system.version!==REVISION)issues.push("地下城深化系統版本缺失");
@@ -491,7 +519,6 @@ function dungeonAuditIssues(){
  const maxStatic=staticLootable.length?Math.max(...staticLootable.map(d=>tierOrder(d.tier))):-1;
  if(maxStatic<0)issues.push("Boss直接裝備池為空");
  if(maxStatic>=0&&maxStatic<tierOrder(BOSS_DIRECT_EQUIPMENT_TIER_CAP))issues.push("Boss直接裝備池低於設定上限:"+["F","E","D","C","B","A","S"][maxStatic]);
- if((DB.items||[]).some(d=>EQUIPMENT_TYPES.has(d?.type)&&["B","A","S"].includes(d?.tier)&&d?.sealed===true)&&!String(DB.dungeon_depth_system?.rules||[]).includes("封印")){}
  if(typeof G!=="undefined"&&G){
    ensureState();
    for(const [id,run] of Object.entries(G.dungeonRuns||{})){
@@ -600,4 +627,5 @@ globalThis.openPendingDungeonEvent=openPendingDungeonEvent;
 globalThis.resolveDungeonEvent=resolveDungeonEvent;
 globalThis.startNewDungeonRun=startNewDungeonRun;
 globalThis.dungeonAuditIssues=dungeonAuditIssues;
+globalThis.dungeonBossLootAuditReport=dungeonBossLootAuditReport;
 })();
