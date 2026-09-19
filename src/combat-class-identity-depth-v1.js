@@ -1,4 +1,4 @@
-/* 群陸旅誌：戰鬥職業同質整併與職能深化 CURRENT-1.80.0
+/* 群陸旅誌：戰鬥職業同質整併與職能深化 CURRENT-1.81.0
  * COMBAT-CLASS-IDENTITY-DEPTH-1.0
  * 合併只換名稱／技能高度重疊的職業，保留真正可形成不同戰術循環的分支。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const REV="COMBAT-CLASS-IDENTITY-DEPTH-1.0";
-const RELEASE="CURRENT-1.80.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.81.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.81.0";
 const MERGE_MAP=Object.freeze({
   "C9-BATTLEMAGE":"C-SPELLBLADE",
   "C-ARCHSAGE":"C9-ARCHMAGE",
