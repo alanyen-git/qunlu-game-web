@@ -70,6 +70,7 @@ jobs:
             "src/equipment-depth-v1.js",
             "src/crafting-recipe-semantic-v1.js",
             "src/crafting-recipe-semantic-v2.js",
+            "src/equipment-recipe-balance-v1.js",
             "src/recipe-economy-balance-v1.js",
             "src/recipe-finalization-v1.js"
           ];
@@ -80,6 +81,7 @@ jobs:
             const mats=id=>(get(id)?.craft_recipe?.base_materials||[]).map(x=>[x.id,Number(x.qty)]);
             return {
               semantic:runCraftingRecipeSemanticAuditV2(),
+              equipment:runEquipmentRecipeBalanceAudit(),
               economy:runRecipeEconomyBalanceAudit(),
               finalization:runRecipeFinalizationAudit(),
               formulas:{
@@ -91,7 +93,7 @@ jobs:
             }
           })()`, context);
 
-          for (const [name,result] of Object.entries({semantic:report.semantic,economy:report.economy,finalization:report.finalization})) {
+          for (const [name,result] of Object.entries({semantic:report.semantic,equipment:report.equipment,economy:report.economy,finalization:report.finalization})) {
             if (!result?.pass) throw new Error(`${name} audit failed: ${JSON.stringify(result?.issues||[]).slice(0,4000)}`);
           }
           const expected={

@@ -1,17 +1,19 @@
 {
-  "version": "CURRENT-1.71.5",
-  "previous_version": "CURRENT-1.71.4",
+  "version": "CURRENT-1.71.6",
+  "previous_version": "CURRENT-1.71.5",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "配方平衡二次加固：修正低階藥劑補材可能誤選高階草藥的跨階問題，補材現在同時受成品階級與名稱語意限制；595個專業配方與59個料理配方需同時通過語意、經濟與最終載入稽核。",
+  "summary": "全面檢查鍛造、裁縫、附魔配方：修正大型裝備素材量過少與木材／皮革／自然素材語意錯配，並新增裝備物量稽核與最終載入鎖定。",
   "changelog": [
-    "修正配方平衡器的跨階補材漏洞：F／E級藥劑不再可能因效果文字命中而加入D級魔力薊等高階素材。",
-    "補充素材候選現在必須滿足『素材階級不得高於成品階級』；經濟稽核本身也新增跨階素材檢查，不再只依賴配方語意稽核。",
-    "活力、耐力、迅步等配方優先依成品名稱判斷用途；魔力類則優先採寧神花＋月光草等同階素材，降低廣義buff文字造成誤判的機率。",
-    "實際模擬修正8個受影響配方：活力藥劑、微量活力藥劑、強化活力藥劑、魔力藥水、中型魔力藥水、魔力花蜜、魔力果露、耐力藥水。",
-    "清醒藥劑P7-03仍鎖定寧神花×1＋林薄荷×1；止血藥液P31-002仍鎖定河岸止血草×1＋晨露花×1。",
-    "GitHub Pages部署繼續以實際資料載入測試阻擋任何語意／經濟／最終載入稽核失敗；PWA快取升級至v59，存檔相容。"
+    "新增EQUIPMENT-RECIPE-BALANCE-1.0，對鍛造、裁縫、附魔全部裝備配方檢查成品體積、素材總量、材質語意與素材成本。",
+    "大型裝備新增物量門檻：身甲、盾牌、雙手武器、披風依F-S階級逐步提高最低素材量；不再允許大型成品沿用一份材料模板。",
+    "修正木盾只吃青銅錠、西境硬皮短甲吃黑鐵且誤歸鍛造、德魯伊藤蔓甲以精鋼為主材、柳橋皮帽使用麻布等明顯語意錯配。",
+    "同步修正松木法杖、松木長槍、硬木戰錘、木石護身符、赤牙獵矛、西境獵衛盾、銀岸決鬥帽、赤牙獵首帶、骨木咒杖、赤牙骨墜等結構素材。",
+    "巨力腰帶、盜賊腰帶、冒險腰帶改以皮革結構為主並移至裁縫；高階媒材與特殊魔物素材仍保留必要部分。",
+    "提高素材量時優先增加既有主材；若會使素材成本高於成品價值，改補符合用途的次要結構素材，不以無關魔物素材填數。",
+    "RELEASE-INTEGRITY升級至1.7；GitHub Pages部署會實際載入裝備配方平衡模組，與語意、經濟、最終載入稽核一起阻擋回歸。",
+    "PWA快取升級至v60；既有存檔相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -125,7 +127,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.6",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.7",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -342,6 +344,33 @@
   "recipe_finalization": {
     "final_load_normalization": true,
     "canonical_low_potion_lock": true,
+    "deployment_headless_audit": true,
+    "save_compatible": true
+  },
+  "equipment_recipe_balance_revision": "EQUIPMENT-RECIPE-BALANCE-1.0",
+  "equipment_recipe_balance": {
+    "scope": [
+      "鍛造",
+      "裁縫",
+      "附魔"
+    ],
+    "volume_guard": [
+      "身甲",
+      "盾牌",
+      "雙手武器",
+      "披風"
+    ],
+    "material_semantic_guard": [
+      "木材",
+      "硬木",
+      "皮革",
+      "獸皮",
+      "毛皮",
+      "自然素材",
+      "骨材"
+    ],
+    "output_cost_ceiling": true,
+    "final_load_repair": true,
     "deployment_headless_audit": true,
     "save_compatible": true
   }
