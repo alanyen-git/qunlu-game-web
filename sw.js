@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v62";
+const CACHE_NAME=CACHE_PREFIX+"v63";
 const CORE=[
   "./",
   "./index.html",
@@ -19,10 +19,6 @@ const CORE=[
   "./src/recipe-economy-balance-v1.js",
   "./src/runtime.js",
   "./src/companion-growth-v1.js",
-  "./src/companion-aura-v1.js",
-  "./src/companion-unique-skill-v1.js",
-  "./src/recipe-finalization-v1.js",
-  "./src/release-integrity-v1.js",
   "./src/crafting-success-v2.js",
   "./src/market-economy-v2.js",
   "./src/world-autonomy-v1.js",
@@ -46,8 +42,13 @@ const CORE=[
   "./src/equipment-naming-reference-v1.js",
   "./src/name-generator-v2.js",
   "./src/water-source-v1.js",
+  "./src/companion-aura-v1.js",
+  "./src/companion-unique-skill-v1.js",
+  "./src/recipe-finalization-v1.js",
+  "./src/release-integrity-v1.js",
   "./src/release-version-sync-v1.js",
   "./src/pwa.js",
+  "./src/program-registry-v1.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];
