@@ -26,7 +26,7 @@
   };
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version=RELEASE;
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||RELEASE;
   DB.meta.world_autonomy_revision=REVISION;
   DB.world_autonomy_system={
     version:REVISION,
