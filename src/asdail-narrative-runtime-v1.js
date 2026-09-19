@@ -5,7 +5,7 @@
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const DBX=globalThis.DB;
+const DBX=typeof DB!=="undefined"?DB:null;
 if(!DBX)return;
 const RELEASE=CORE?.release?.("CURRENT-1.73.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.73.0";
 const REV="ASDAIL-NARRATIVE-RUNTIME-1.0";
