@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.70.6",
-  "previous_version": "CURRENT-1.70.5",
+  "version": "CURRENT-1.70.7",
+  "previous_version": "CURRENT-1.70.6",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "名稱生成器2.0：由單一音節拼接改為類型先行的統一協調層，人物、地點、組織、流派、怪物與委託分流生成，技能／裝備／戰鬥職業接既有專用驗證器，並取消固定名稱fallback。",
+  "summary": "地下城Boss掉落平衡：拆分Boss本體與寶箱獎勵，限制額外裝備來源與掉率，保留怪物生態素材並避免高幸運值造成高階裝備近乎必掉。",
   "changelog": [
+    "地下城 Boss 掉落稽核：確認舊版Boss會先套用原怪物一般掉落，再額外開Boss寶箱；人型Boss因此可能出現一般裝備掉落＋Boss裝備雙重判定。",
+    "Boss本體現在只保留怪物生態素材掉落；Boss變體停用原怪物的money_drop與equipment_drop，金錢與裝備統一由最深處Boss寶箱處理。",
+    "Boss額外道具基準率調整為F 30%、E 34%、D 38%、C 42%、B 46%、A 50%、S 54%；Boss額外裝備率調整為10%、14%、18%、22%、26%、30%、34%。",
+    "角色掉寶倍率仍影響Boss寶箱，但最高只放大1.25倍，因此S級裝備寶箱判定最高約42.5%，不再接近舊版70%基準。",
+    "Boss裝備池新增取得來源限制：明確標示為商店／製作／組織等非地下城來源的裝備不再被Boss寶箱抽到；loot／dungeon／exploration來源正常保留。",
+    "Boss裝備新增同階掉落占比；F→S為10%、14%、18%、22%、26%、30%、35%，未抽中同階時主要落在低一階，少量再低一階，降低高階裝備市場灌入。",
+    "Boss裝備耐久調整為約68%～88%；地下城重整冷卻與既有存檔保持相容，五回合地下城自檢新增Boss掉落率範圍驗證。",
     "新增 NAME-GENERATOR-2.0 統一名稱生成器：先判斷內容類型，再套用人物、聚落／地點、組織、流派、怪物、委託、物品等各自命名文法。",
     "技能、裝備、戰鬥職業不再由通用音節生成器硬拼名稱，改分流至 SKILL-NAMING、EQUIPMENT-NAMING、CLASS-NAMING 專用驗證／建議函式。",
     "查重升級為NFKC正規化＋移除空白與裝飾標點後比對；技能另外提示只差初階／高階／強化等弱修飾的近似重複。",
@@ -43,7 +50,7 @@
   "crafting_data_integrity_revision": "CRAFTING-DATA-INTEGRITY-1.0",
   "database_growth_compat_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "runtime_index_sync_revision": "RUNTIME-INDEX-SYNC-1.0",
-  "dungeon_depth_revision": "DUNGEON-DEPTH-2.0",
+  "dungeon_depth_revision": "DUNGEON-DEPTH-2.1",
   "alchemy_buyback_revision": "ALCHEMY-BUYBACK-1.0",
   "subjob_prerequisite_ui_revision": "SUBJOB-PREREQ-COMPARE-1.1",
   "ability_potion_market_revision": "ABILITY-POTION-MARKET-1.0",
@@ -208,6 +215,41 @@
     "protected_canonical_names": true,
     "fixed_fallback_disabled": true,
     "semantic_near_duplicate_warning": true,
+    "save_compatible": true
+  },
+  "dungeon_boss_loot_revision": "DUNGEON-BOSS-LOOT-1.0",
+  "dungeon_boss_loot": {
+    "bonus_item_chance": {
+      "F": 0.3,
+      "E": 0.34,
+      "D": 0.38,
+      "C": 0.42,
+      "B": 0.46,
+      "A": 0.5,
+      "S": 0.54
+    },
+    "equipment_chance": {
+      "F": 0.1,
+      "E": 0.14,
+      "D": 0.18,
+      "C": 0.22,
+      "B": 0.26,
+      "A": 0.3,
+      "S": 0.34
+    },
+    "same_tier_share": {
+      "F": 0.1,
+      "E": 0.14,
+      "D": 0.18,
+      "C": 0.22,
+      "B": 0.26,
+      "A": 0.3,
+      "S": 0.35
+    },
+    "loot_rate_multiplier_cap": 1.25,
+    "ordinary_humanoid_money_equipment_suppressed": true,
+    "explicit_non_dungeon_source_equipment_blocked": true,
+    "monster_material_loot_preserved": true,
     "save_compatible": true
   }
 }
