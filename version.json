@@ -4,13 +4,13 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "最高權限總測試：43模組全載入＋8項真實遊戲狀態閉環＋26項完整稽核，runAudit與runGeneratorAudit不再跳過。",
+  "summary": "最高權限總測試完成：43/43模組、8/8真實遊戲狀態閉環、24/24完整稽核全部通過，runAudit與runGeneratorAudit正式納入發布閘門。",
   "changelog": [
-    "總測試改用現行createCharacter()正式建立測試角色，驗證建角、自動存檔與CURRENT版本一致性。",
-    "新增存檔round-trip、CURRENT-1.57.0舊存檔遷移、第5回合完整自檢、戰鬥生命週期、死亡／教會復活、製作扣料／回合、商店買賣／庫存共8項有狀態測試。",
-    "runAudit與runGeneratorAudit改為在正式角色狀態下執行並納入發布失敗條件，不再跳過。",
-    "各有狀態測試使用隔離基準存檔並在關卡後還原；亂數固定以避免CI偶發失敗。",
-    "PWA快取升至v66；遊戲規則與存檔schema不變。"
+    "最高權限總測試最終結果：43/43正式src程序載入成功、8/8有狀態閉環成功、24/24完整稽核成功、DB版本CURRENT-1.72.3一致。",
+    "runAudit與runGeneratorAudit現在使用createCharacter()建立的正式角色狀態執行，不再跳過。",
+    "涵蓋正式建角、自動存檔round-trip、CURRENT-1.57.0舊存檔遷移、第5回合自檢、戰鬥建立／結束、死亡／教會復活、製作扣料／回合、市場買賣／庫存。",
+    "發布工作流新增tools/*.js語法檢查；測試器錯誤會在部署前直接阻擋。",
+    "各有狀態關卡使用隔離基準存檔並還原，固定亂數避免CI偶發失敗；遊戲規則與存檔schema不變。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -414,13 +414,19 @@
     "load_order_audit": true,
     "save_compatible": true
   },
-  "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.0",
+  "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.1",
   "full_program_debug": {
     "programs_total": 43,
     "programs_loaded": 43,
     "stateful_tests": 8,
-    "full_audits_expected": 26,
+    "stateful_tests_passed": 8,
+    "full_audits_executed": 24,
+    "full_audits_passed": 24,
     "state_required_audits_skipped": [],
+    "stateful_audits_now_included": [
+      "runAudit",
+      "runGeneratorAudit"
+    ],
     "stateful_scopes": [
       "正式建角",
       "存檔round-trip",
@@ -433,8 +439,9 @@
     ],
     "release_drift_guard": true,
     "readonly_mutation_guard": true,
+    "tools_syntax_gate": true,
     "deployment_gate": true,
-    "last_result": "pending_ci",
+    "last_result": "pass",
     "save_compatible": true
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-1.0",
