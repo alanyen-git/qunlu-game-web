@@ -1,19 +1,21 @@
 {
-  "version": "CURRENT-1.70.9",
-  "previous_version": "CURRENT-1.70.8",
+  "version": "CURRENT-1.71.0",
+  "previous_version": "CURRENT-1.70.9",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "地下城Boss掉落平衡修正：維持裝備總判定率與C級直掉上限，修正E/D/C最高可用階裝備實際率過低及高階曲線突跳，並加入Boss生態素材分階機率倍率。",
+  "summary": "寵物／召喚獸能力與升級稽核：修正階級基礎值與絕對等級重複放大、主人等級上限XP囤積與光環絕對等級重複加成，保留既有專屬技能AI與存檔。",
   "changelog": [
-    "Boss掉落有效率重新計算後確認：舊版E/D/C最高可用階裝備基礎率只有1.96%／3.24%／4.84%，與完整多層地下城攻略成本不相稱。",
-    "裝備總判定率維持F 10%、E 14%、D 18%、C 22%、B 26%、A 30%、S 34%，不直接增加市場裝備總供給。",
-    "topUsableShare調整為F 100%、E 60%、D 55%、C 50%、B 75%、A 85%、S 95%；E/D/C最高可用階裝備有效基礎率調整為10%／8.4%／9.9%／11%中的E/D/C分別8.4%／9.9%／11%，幸運上限後約10.5%／12.38%／13.75%。",
-    "B/A/S裝備仍全數受封印且沒有正式解封runtime，Boss直接可用裝備上限維持C級；B/A/S的topUsableShare代表抽中目前最高可直接使用C級裝備的占比，不代表掉落B/A/S封印裝備。",
-    "Boss本體生態素材新增分階機率倍率：F 1.10x、E 1.15x、D 1.20x、C 1.30x、B 1.40x、A 1.55x、S 1.75x；單筆素材基礎機率最高85%，素材數量不額外增加。",
-    "最深處寶箱一般道具率、金錢品質、掉寶倍率上限1.25x與人型Boss一般金錢／裝備抑制規則維持不變，避免多重獎勵造成通膨。",
-    "dungeonBossLootAuditReport()新增Boss素材倍率與單筆上限輸出；五回合地下城稽核同步檢查素材倍率合法範圍。",
-    "PWA快取升級至v53；既有地下城進度、角色存檔與CURRENT-1.70.8其他系統保持相容。"
+    "全面稽核200種寵物、召喚獸與契約獸：物種base_stats本身已依F-S階級配置，舊runtime再以Lv1為基準每級+3.5%放大，造成D級以上能力重複計算。",
+    "舊公式使平均S級夥伴在Lv90剛取得時僅等級倍率就達4.115x，平均HP約由173放大至711、物攻約45放大至187、魔攻約49放大至201，明顯高於同階一般怪基準。",
+    "COMPANION-GROWTH-1.0改以各物種min_owner_level／階級門檻作為成長基準；剛取得時使用物種base_stats，只有超過取得基準的有效成長等級才增加能力。",
+    "核心HP／物攻／魔攻／防禦每個有效成長等級+2.5%；命中每級+0.35、閃避+0.16、速度+0.10；羈絆與召喚力乘區保留。",
+    "夥伴等級仍不得高於主人，戰鬥勝利仍使用既有35%敵人XP份額；追上主人後改為暫停XP，不再無限囤積未來等級經驗。",
+    "COMPANION-AURA-1.1同步把光環等級倍率改為有效成長等級，不再讓A/S級夥伴剛取得就因絕對Lv70/Lv90直接吃滿15%等級光環加成。",
+    "200種夥伴的專屬技能生成與AI施放邏輯保持不變：主動、輔助、被動皆維持有效；主動／治療技能仍會隨修正後的物攻／魔攻自然成長。",
+    "夥伴面板新增即時HP、物攻、魔攻、防禦、命中、閃避、速度，以及成長基準、有效成長等級、XP暫停狀態。",
+    "既有夥伴物種、等級、羈絆、來源與存檔全部保留；舊存檔若在主人等級上限累積了超額XP，會安全限制在下一級需求以下，不刪除正常等級進度。",
+    "PWA快取升級至v54，公開GitHub Pages同步部署。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -51,7 +53,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-2.7",
+  "pwa_cache_revision": "PWA-CACHE-FIX-2.8",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -88,7 +90,7 @@
     "batch_recalculate_each_attempt": true,
     "save_compatible": true
   },
-  "companion_aura_revision": "COMPANION-AURA-1.0",
+  "companion_aura_revision": "COMPANION-AURA-1.1",
   "companion_aura": {
     "applies_to": [
       "寵物",
@@ -260,5 +262,25 @@
     },
     "boss_material_entry_pre_luck_cap": 0.85,
     "material_quantity_unchanged": true
-  }
+  },
+  "companion_growth_revision": "COMPANION-GROWTH-1.0",
+  "companion_growth": {
+    "species_total": 200,
+    "supported_kinds": [
+      "pet",
+      "summon",
+      "contract"
+    ],
+    "growth_anchor": "species_min_owner_level",
+    "core_stat_growth_per_effective_level": 0.025,
+    "accuracy_per_effective_level": 0.35,
+    "evasion_per_effective_level": 0.16,
+    "speed_per_effective_level": 0.1,
+    "owner_level_cap": true,
+    "xp_share_from_enemy": 0.35,
+    "xp_paused_at_owner_cap": true,
+    "bond_gain_per_victory": 0.35,
+    "existing_save_compatible": true
+  },
+  "companion_unique_skill_runtime_revision": "COMPANION-UNIQUE-SKILL-RUNTIME-1.1"
 }

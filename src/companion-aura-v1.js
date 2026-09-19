@@ -1,4 +1,4 @@
-/* 群陸旅誌：寵物／召喚獸獨有光環 CURRENT-1.70.0
+/* 群陸旅誌：寵物／召喚獸獨有光環 CURRENT-1.71.0
  * COMPANION-AURA-1.0
  * 每個夥伴物種依夥伴類型、AI定位、元素、族群與固定物種簽章生成唯一光環。
  * 出戰時作用於主人與冒險團隊友；夥伴倒下時立即失效。既有存檔不增欄位。
@@ -7,7 +7,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REVISION="COMPANION-AURA-1.0";
+const REVISION="COMPANION-AURA-1.1";
 const TIER_SCALE={F:.75,E:.9,D:1.05,C:1.2,B:1.4,A:1.65,S:1.9};
 const KIND_SCALE={pet:.9,summon:1,contract:1.05};
 const PROFILE={
@@ -124,13 +124,15 @@ function auraStateFor(inst,sp){
   if(!inst||!sp)return null;
   const base=sp.unique_aura||auraBlueprint(sp);
   const tier=TIER_SCALE[sp.tier]??.75,kind=KIND_SCALE[sp.companion_kind]??.9;
-  const level=1+Math.min(.15,Math.max(0,(Number(inst.level||1)-1)*.004));
+  const anchor=Math.max(1,Number(sp.min_owner_level||DB.companion_system?.tier_gates?.[sp.tier]||1));
+  const effectiveLevels=Math.max(0,Number(inst.level||1)-anchor);
+  const level=1+Math.min(.15,effectiveLevels*.004);
   const bond=1+Math.min(.2,Math.max(0,Number(inst.bond||0))/500);
   const factor=tier*kind*level*bond;
   const effects={},resist={};
   for(const [k,v] of Object.entries(base.effects||{}))effects[k]=scaleNumber(v,factor,k);
   for(const [k,v] of Object.entries(base.element_resistances||{}))resist[k]=Math.round(Number(v||0)*factor);
-  return {...base,level:Number(inst.level||1),bond:Number(inst.bond||0),factor:Math.round(factor*1000)/1000,effects,element_resistances:resist}
+  return {...base,level:Number(inst.level||1),growth_anchor_level:anchor,effective_growth_levels:effectiveLevels,bond:Number(inst.bond||0),factor:Math.round(factor*1000)/1000,effects,element_resistances:resist}
 }
 function activeAura(){
   if(typeof activeCompanionInstance!=="function"||typeof companionSpecies!=="function")return null;
@@ -204,7 +206,8 @@ function decorateBattleAura(){
 DB.companion_aura_system={
   version:REVISION,
   rule:"每個寵物、召喚獸與契約獸物種各有固定獨有光環；出戰且未倒下時作用於主人與冒險團隊友，來源本身不吃自己的光環。",
-  generation_axes:["companion_kind","ai_profile","element","family","species_signature","tier","level","bond"],
+  generation_axes:["companion_kind","ai_profile","element","family","species_signature","tier","effective_level","bond"],
+  level_growth_anchor:"species_min_owner_level",
   supported_kinds:["pet","summon","contract"],
   supported_profiles:Object.keys(PROFILE),
   tier_scale:{...TIER_SCALE},
@@ -216,7 +219,7 @@ for(const sp of (DB.companion_species||[]))sp.unique_aura=auraBlueprint(sp);
 DB.companion_aura_system.species_total=(DB.companion_species||[]).length;
 DB.companion_aura_system.aura_total=(DB.companion_species||[]).filter(sp=>sp.unique_aura).length;
 if(DB.integration_registry?.optimization_notes&&!DB.integration_registry.optimization_notes.some(x=>String(x).includes(REVISION))){
-  DB.integration_registry.optimization_notes.push("CURRENT-1.70.0／COMPANION-AURA-1.0：全寵物、召喚獸與契約獸依類型、AI、元素、族群與物種簽章生成固定獨有光環；出戰生效、倒下失效，既有存檔相容。")
+  DB.integration_registry.optimization_notes.push("CURRENT-1.71.0／COMPANION-AURA-1.1：獨有光環等級倍率改採物種最低取得等級後的有效成長等級，避免高階夥伴剛取得時直接吃滿絕對等級加成；出戰／倒下規則維持不變。")
 }
 
 if(typeof combatStats==="function"){

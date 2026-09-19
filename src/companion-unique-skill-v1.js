@@ -1,4 +1,4 @@
-/* 群陸旅誌：夥伴專屬技能 CURRENT-1.70.1
+/* 群陸旅誌：夥伴專屬技能 CURRENT-1.71.0
  * COMPANION-UNIQUE-SKILL-1.0
  * 每一種寵物／召喚獸／契約獸依物種家族、元素與AI定位擁有且僅擁有一招專屬技能。
  * 主動／輔助由AI自動判斷使用；被動於出戰時常駐。既有存檔相容。
@@ -7,9 +7,9 @@
 "use strict";
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.companion_species))return;
 
-const RELEASE="CURRENT-1.70.1";
+const RELEASE="CURRENT-1.71.0";
 const REV="COMPANION-UNIQUE-SKILL-1.0";
-const RUNTIME_REV="COMPANION-UNIQUE-SKILL-RUNTIME-1.0";
+const RUNTIME_REV="COMPANION-UNIQUE-SKILL-RUNTIME-1.1";
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const VALID_KINDS=new Set(["主動","被動","輔助"]);
 const round1=n=>Math.round(Number(n||0)*10)/10;
@@ -274,6 +274,15 @@ function auraFor(inst,sp){
 function auraText(aura){
   try{return globalThis.QUNLU_COMPANION_AURA?.text?.(aura)||"無"}catch(_){return "無"}
 }
+function companionGrowthText(c){
+  const stats=typeof companionCombatStats==="function"?companionCombatStats(c):null;
+  const growth=globalThis.QUNLU_COMPANION_GROWTH?.state?.(c)||null;
+  if(!stats)return "";
+  const base=`HP ${stats.hp}｜物攻 ${stats.attack}｜魔攻 ${stats.magic}｜防禦 ${stats.defense}｜命中 ${stats.accuracy}｜閃避 ${stats.evasion}｜速度 ${stats.speed}`;
+  if(!growth)return base;
+  const progress=growth.at_owner_cap?`已達主人Lv${growth.owner_level_cap}上限，XP暫停`:`成長基準Lv${growth.growth_anchor_level}｜有效成長+${growth.effective_growth_levels}級｜下一級XP ${growth.xp}/${growth.xp_to_next}`;
+  return base+`<br><span class="muted">${progress}</span>`
+}
 if(typeof openCompanionPanel==="function"){
   openCompanionPanel=function(filter="pet"){
     const isSummon=filter==="summon",list=companions().filter(c=>{
@@ -285,7 +294,8 @@ if(typeof openCompanionPanel==="function"){
       const auraBlock=aura?`<div class="card small"><b>獨有光環：${aura.name}</b> <span class="${active?"ok":""}">［${state}］</span><br>己方全體：${auraText(aura)}<br><span class="muted">類型：${aura.signature}｜出戰且未倒下時生效；光環來源不自我增幅。</span></div>`:"";
       const skillBlock=skill?`<div class="card small"><b>專屬技能：${skill.name}</b>［${skill.kind}］<br>${skill.description}<br><span class="muted">${skill.kind==="被動"?"出戰時常駐生效":"由夥伴AI自動判斷使用；玩家不可手動控制。"}</span></div>`:"";
       return `<div class="card"><b>${sp.name}</b> <span class="tier">${sp.tier}</span>［${sp.companion_kind_label}／${sp.ai_label}］${active?" <span class='ok'>出戰中</span>":""}<br>
-      <span class="small">Lv${c.level}｜XP ${c.xp||0}/${c.level>=G.character.level?"主人等級上限":companionXpToNext(c.level)}｜羈絆${(c.bond||0).toFixed(1)}%${sp.element?`｜${sp.element}`:""}<br>${behavior}</span>
+      <span class="small">Lv${c.level}｜XP ${c.level>=G.character.level?"暫停":Math.round((c.xp||0)*10)/10}/${c.level>=G.character.level?"主人等級上限":companionXpToNext(c.level)}｜羈絆${(c.bond||0).toFixed(1)}%${sp.element?`｜${sp.element}`:""}<br>${behavior}</span>
+      <div class="card small"><b>目前能力</b><br>${companionGrowthText(c)}</div>
       ${auraBlock}${skillBlock}
       <div class="actions">${active?`<button disabled>出戰中</button>`:`<button class="good" onclick="setActiveCompanion('${c.uid}')">設為出戰</button>`}<button class="bad" onclick="releaseCompanion('${c.uid}')">離隊</button></div></div>`
     }).join("")||`<div class="card small">目前沒有${isSummon?"召喚獸":"寵物／契約獸"}。</div>`;
@@ -310,7 +320,8 @@ DB.companion_unique_skill_runtime_system={
     "主動專屬技能依冷卻由夥伴AI自動施放，不能由玩家手動控制。",
     "輔助專屬技能依主人／夥伴生命狀態自動判斷；守護型可同時進入護衛姿態。",
     "被動專屬技能直接修改出戰夥伴戰鬥快照的HP、攻擊、魔法、防禦、命中、閃避或速度。",
-    "專屬技能與既有獨有光環可同時生效，但光環仍不作用於光環來源本身。"
+    "專屬技能與既有獨有光環可同時生效，但光環仍不作用於光環來源本身。",
+    "夥伴面板顯示修正後的即時能力、成長基準、有效成長等級與主人等級上限狀態。"
   ],
   save_compatible:true
 };
