@@ -95,7 +95,8 @@ function audit(){
     ["取水稽核",()=>typeof globalThis.runWaterSourceAudit==="function"],
     ["統一命名",()=>typeof globalThis.runNameGeneratorAudit==="function"],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
-    ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],\n    ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]
+    ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
+    ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]
   ];
   for(const [name,test] of critical){let ok=false;try{ok=!!test()}catch(error){}if(!ok)issues.push("關鍵程序不可用:"+name)}
 
