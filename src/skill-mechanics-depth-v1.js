@@ -17,7 +17,7 @@ const game=()=>{try{return typeof G!=="undefined"?G:null}catch(e){return null}};
 const num=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
 const pct=(v,min=0,max=100)=>Math.max(min,Math.min(max,num(v)));
 const has=(text,re)=>re.test(String(text||""));
-const skillText=s=>[s?.name,s?.base_name,s?.school,s?.family,s?.desc,s?.effect_text,(s?.weapon_requirements||[]).join(" ")].filter(Boolean).join(" ");
+const skillText=s=>[s?.name,s?.base_name,s?.school,s?.family,(s?.weapon_requirements||[]).join(" ")].filter(Boolean).join(" ");
 
 function allSkills(){
  const out=[];
