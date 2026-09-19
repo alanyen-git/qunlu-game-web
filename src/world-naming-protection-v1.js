@@ -3,11 +3,11 @@
   'use strict';
   if(typeof DB!=="object"||!DB)return;
 
-  const REVISION="NAMING-PROTECTION-1.0";
+  const REVISION="NAMING-PROTECTION-1.1";
   const CANONICAL="柳生惟心流";
   const LEGACY_NAMES=new Set(["柳生唯心流","白柳劍術學派"]);
   const seen=new WeakSet();
-  let restored=0;
+  let restored=0,readOnlySkipped=0;
 
   function normalize(value){
     if(typeof value!=="string")return value;
@@ -15,8 +15,19 @@
     for(const oldName of LEGACY_NAMES){
       if(next.includes(oldName))next=next.split(oldName).join(CANONICAL);
     }
-    if(next!==value)restored+=1;
     return next;
+  }
+
+  function assignNormalized(node,key,value){
+    const next=normalize(value);
+    if(next===value)return;
+    const descriptor=Object.getOwnPropertyDescriptor(node,key);
+    if(descriptor&&descriptor.writable===false&&typeof descriptor.set!=="function"){readOnlySkipped+=1;return}
+    try{
+      node[key]=next;
+      if(node[key]===next)restored+=1;
+      else readOnlySkipped+=1;
+    }catch(error){readOnlySkipped+=1}
   }
 
   function walk(node){
@@ -24,13 +35,13 @@
     seen.add(node);
     if(Array.isArray(node)){
       for(let i=0;i<node.length;i++){
-        if(typeof node[i]==="string")node[i]=normalize(node[i]);
+        if(typeof node[i]==="string")assignNormalized(node,i,node[i]);
         else walk(node[i]);
       }
       return;
     }
     for(const key of Object.keys(node)){
-      if(typeof node[key]==="string")node[key]=normalize(node[key]);
+      if(typeof node[key]==="string")assignNormalized(node,key,node[key]);
       else walk(node[key]);
     }
   }
@@ -45,6 +56,6 @@
     "雷煌流","雷鳴流",CANONICAL,"名品武士刀「闇夜」"
   ]);
   globalThis.QUNLU_NAMING_PROTECTION=Object.freeze({
-    version:REVISION,canonical:CANONICAL,restored,protected:true
+    version:REVISION,canonical:CANONICAL,restored,read_only_skipped:readOnlySkipped,protected:true
   });
 })();
