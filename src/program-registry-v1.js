@@ -1,17 +1,17 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.78.0
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.79.0
  * PROGRAM-REGISTRY-1.1
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.78.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.78.0";
+const RELEASE=CORE?.release?.("CURRENT-1.79.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.79.0";
 const REV="PROGRAM-REGISTRY-1.1";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
   data:[
-    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js",
+    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js",
     "src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js",
     "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js"
   ],
@@ -96,6 +96,7 @@ function audit(){
     ["統一命名",()=>typeof globalThis.runNameGeneratorAudit==="function"],
     ["技能機制深化",()=>typeof globalThis.runSkillMechanicsDepthAudit==="function"&&globalThis.runSkillMechanicsDepthAudit().pass],
     ["角色出身深化",()=>typeof globalThis.runOriginDepthAudit==="function"&&globalThis.runOriginDepthAudit().pass],
+    ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"&&globalThis.runAffiliationIdentityDepthAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
     ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]
