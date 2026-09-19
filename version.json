@@ -1,19 +1,19 @@
 {
-  "version": "CURRENT-1.79.0",
-  "previous_version": "CURRENT-1.78.0",
+  "version": "CURRENT-1.80.0",
+  "previous_version": "CURRENT-1.79.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "組織／流派深化：依作用域與核心職能／戰術方法收斂高同質勢力，世界級同質群最多4個、王國級最多3個、地區級最多2個；保留舊ID映射，並補齊歷史、現況、制度文化、核心特色與弱點／張力。",
+  "summary": "戰鬥職業深化：將只換名稱、技能與戰術循環高度重疊的職業合併為canonical職業；100筆舊職業收斂為93個現行職業，保留7組舊ID遷移，並讓每個職業具備招牌機制、戰鬥循環、強項、代價與實際戰鬥數值修正。",
   "changelog": [
-    "AFFILIATION-IDENTITY-DEPTH-1.0：建立組織／流派同質性模型；只有「同作用域＋同地域錨點＋同核心職能／戰術方法」才會合併，避免把鍛造、煉金、醫療、礦務等不同職能硬併。",
-    "加入硬性密度上限：世界級同質組織／流派最多4個、王國級最多3個、地區級最多2個；超額者轉為主體的分會、部門或支系，而非繼續新增平行勢力。",
-    "阿斯戴爾明確整併：王冠公證人會→阿斯戴爾王國外廷公證部門；河谷渠務聯會→王國商路聯盟水運渠務部；琥珀田農產協會→銀穗糧議會農產分會。",
-    "所有現行組織補齊歷史摘要、CURRENT現況、招牌職能、制度文化、當前張力與特色欄位；不再只靠名稱、分類或數值加成區分。",
-    "所有現行流派補齊核心打法、訓練哲學、明確弱點、歷史來源、CURRENT現況與特色；名稱相近但戰術方法不同者保留，真正同質者改列支系。",
-    "舊組織／流派ID保留alias映射；NPC、關係、寶庫、技能、任務、存檔會員、發現、熟練度與聲望在載入時轉向canonical主體，避免舊存檔斷鏈。",
-    "組織與流派視窗新增『歷史與現狀／不可替代特色／核心打法／訓練哲學／明確弱點』資訊，玩家可直接看出每個勢力的差異。",
-    "發布完整性、程序註冊、五回合自檢與PWA快取同步納入AFFILIATION-IDENTITY-DEPTH-1.0。"
+    "COMBAT-CLASS-IDENTITY-DEPTH-1.0：合併7組高度同質職業，包括魔劍士／戰鬥法師、大魔導師／大法師、獸獵人／獵人、神官／聖職者、牧師／祭司、戰鬥司祭／戰鬥牧師、影舞者／暗影刺客。",
+    "保留真正能形成不同玩法的近似職業：遊俠改以陷阱、感知與游擊為核心；弓箭手維持精準遠程火力；盾衛偏格擋反擊；重裝系偏韌性承傷。",
+    "93個canonical戰鬥職業全部補齊職業核心、戰鬥循環、強項、代價、武器特色與招牌機制標籤，不再只靠名稱／攻防百分比區分。",
+    "職業特色正式接入戰鬥數值：物魔攻防、命中、閃避、爆擊、攻速／詠唱、穿透、韌性、治療、異常、召喚、先攻、移速等依職業戰術定位給予小幅但可感知的差異。",
+    "創角、角色視窗與職業進階畫面顯示職業核心、戰鬥循環、強項與代價，玩家可在選職前理解玩法。",
+    "舊存檔的classId、職業歷程與已解鎖進階路線會透過combat_class_merge_map自動轉為canonical ID；既有技能與進度保留。",
+    "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
+    "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -51,7 +51,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.8",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.9",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -143,10 +143,10 @@
   },
   "class_naming_reference_revision": "CLASS-NAMING-REFERENCE-1.0",
   "class_naming_reference": {
-    "current_classes": 100,
-    "physical_classes": 40,
-    "magic_classes": 45,
-    "hybrid_classes": 15,
+    "current_classes": 93,
+    "physical_classes": 38,
+    "magic_classes": 42,
+    "hybrid_classes": 13,
     "reference_families": 23,
     "progression_stages": 5,
     "tier_stage_map": {
@@ -404,7 +404,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.1",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 48,
+    "active_src_programs": 49,
     "groups": [
       "core",
       "data",
@@ -666,6 +666,25 @@
       "制度／訓練文化",
       "弱點／張力"
     ],
+    "save_compatible": true
+  },
+  "combat_class_identity_depth_revision": "COMBAT-CLASS-IDENTITY-DEPTH-1.0",
+  "combat_class_identity_depth": {
+    "legacy_classes": 100,
+    "canonical_classes": 93,
+    "merged_classes": 7,
+    "merge_policy": "只合併核心戰鬥循環與技能功能高度重疊者；同武器但玩法不同者保留",
+    "required_fields": [
+      "職業核心",
+      "戰鬥循環",
+      "強項",
+      "代價",
+      "武器特色",
+      "招牌機制",
+      "實際戰鬥修正"
+    ],
+    "runtime_stat_integration": true,
+    "legacy_id_migration": true,
     "save_compatible": true
   }
 }
