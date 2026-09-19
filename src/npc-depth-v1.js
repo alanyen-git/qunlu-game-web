@@ -75,7 +75,7 @@
   };
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version=RELEASE;
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||RELEASE;
   DB.meta.npc_depth_revision=REVISION;
   DB.npc_depth_system={
     version:REVISION,
