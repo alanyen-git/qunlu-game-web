@@ -380,7 +380,7 @@ function townBand(v){
 function openLiveWorldPanel(){
  liveWorldTick("panel");const s=state(),here=game()?.character?.locationId||null,t=ensureTown(here),town=settlementFor(here);
  const metrics=t?DIMENSIONS.map(k=>`<div class="small"><b>${LABEL[k]}</b> ${Math.round(t[k])}（${townBand(t[k])}）</div>`).join(""):"<div class='small'>尚無城鎮狀態。</div>";
- const chains=chainRows().filter(c=>!c.region_id||c.region_id===regionFor(here)||c.region_id==="REG-ASD-01").map(c=>{const p=chainProgress(c);return `<div class="small"><b>${esc(c.name||c.id)}</b>｜${p.done}/${p.total}${p.next?`｜下一步：${esc(p.next.name)}`:p.completed?"｜本階段完成":"｜等待前置"}</div>`}).join("")||"<div class='small'>目前沒有可追蹤事件鏈。</div>";
+ const chains=chainRows().filter(c=>!c.region_id||c.region_id===regionFor(here)).map(c=>{const p=chainProgress(c);return `<div class="small"><b>${esc(c.name||c.id)}</b>｜${p.done}/${p.total}${p.next?`｜下一步：${esc(p.next.name)}`:p.completed?"｜本階段完成":"｜等待前置"}</div>`}).join("")||"<div class='small'>目前沒有可追蹤事件鏈。</div>";
  const rumors=s.rumors.filter(r=>!r.locationId||r.locationId===here||r.regionId===regionFor(here)).slice(0,8);
  const rumorHtml=rumors.map(r=>`<div class="card small"><b>${esc(r.title)}</b>｜${r.status==="verified"?"已核實":r.status==="credible"?"可信傳聞":"未核實"}<br>${esc(r.text)}<br><button type="button" data-live-rumor="${esc(r.id)}">調查</button></div>`).join("")||"<div class='small'>目前沒有與所在地相關的動態傳聞。</div>";
  const npcs=nearbyNpcRows(here).slice(0,8),npcHtml=npcs.map(n=>`<div class="small"><b>${esc(n.name)}</b>｜${esc(n.availability||n.activity)}<br>${esc(n.agenda)}</div>`).join("")||"<div class='small'>此刻沒有已建檔固定NPC在附近。</div>";
@@ -419,7 +419,7 @@ function patchQuestRuntime(){
  if(typeof baseTurnIn==="function")globalThis.turnInQuest=function(id){
    const q=arr(game()?.quests).find(x=>x.id===id),t=q?questBy(q.templateId):null,wasReady=q?.status==="ready";
    const result=baseTurnIn.apply(this,arguments);
-   if(q&&t&&wasReady&&!arr(game()?.quests).some(x=>x.id===q.id))applyDescriptorCompletion(t,q);
+   if(q&&t&&wasReady&&!arr(game()?.quests).some(x=>x.id===q.id)){applyDescriptorCompletion(t,q);try{if(typeof persist==="function")persist()}catch(error){}}
    return result
  };
  if(typeof globalThis.turnInQuest==="function")globalThis.turnInGuildQuest=function(id){return globalThis.turnInQuest.apply(this,arguments)};
@@ -434,7 +434,7 @@ function patchAdventureRuntime(){
    let success=null;
    const latest=arr(game()?.worldState?.integratedEvents).slice(0,Math.max(6,arr(game()?.worldState?.integratedEvents).length-before+2)).find(x=>x?.data?.templateId===t?.id);
    if(typeof latest?.data?.success==="boolean")success=latest.data.success;
-   if(t)recordAdventure(t,choice,success);
+   if(t){recordAdventure(t,choice,success);try{if(typeof persist==="function")persist()}catch(error){}}
    return result
  };
  globalThis.__LIVE_WORLD_ADVENTURE_PATCHED=true
@@ -455,7 +455,7 @@ function patchProductionRuntime(){
    if(gained>0)recordProduction(itemId,gained,"craft");return result
  };
  if(typeof baseCook==="function")globalThis.cookBatch=function(rid,count=1){
-   const r=(DB.recipes||[]).find(x=>x?.id===rid),out=r?(r.output_item_id||r.item_id||r.output):null,before=out?inventoryQty(out):0;
+   const r=(DB.recipes||[]).find(x=>x?.id===rid),out=r?(r.result||r.output?.item_id||r.output_item_id||r.item_id||null):null,before=out?inventoryQty(out):0;
    const result=baseCook.apply(this,arguments),gained=out?Math.max(0,inventoryQty(out)-before):0;if(gained>0)recordProduction(out,gained,"cooking");return result
  };
  globalThis.__LIVE_WORLD_PRODUCTION_PATCHED=true
