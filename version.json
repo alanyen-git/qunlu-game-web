@@ -1,11 +1,17 @@
 {
-  "version": "CURRENT-1.80.0",
-  "previous_version": "CURRENT-1.79.0",
+  "version": "CURRENT-1.81.0",
+  "previous_version": "CURRENT-1.80.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "戰鬥職業深化：將只換名稱、技能與戰術循環高度重疊的職業合併為canonical職業；100筆舊職業收斂為93個現行職業，保留7組舊ID遷移，並讓每個職業具備招牌機制、戰鬥循環、強項、代價與實際戰鬥數值修正。",
+  "summary": "介面美術全面重設計：建立「深色羊皮卷 × 黃銅 × 旅行誌」共同視覺底層，統一創角、冒險HUD、旅誌、行動區、角色／背包等彈窗、戰鬥與技能視窗、底部導航及手機版資訊層級；不變更遊戲規則與存檔格式。",
   "changelog": [
+    "UI-ART-SYSTEM-2.0：統一全站色彩、字體層級、圓角、陰影、按鈕、卡片與狀態語意，移除不同版本介面風格互相衝突。",
+    "冒險主畫面改為旅行誌視覺：旅途橫幅、時間／位置／回合HUD、旅誌紀錄與可用行動建立清楚主次層級，桌機與手機共同適配。",
+    "所有主要彈窗改為固定標題＋獨立內容捲動區，右側明確顯示拖曳條；角色快捷Dock維持固定，不再跟內容一起捲走。",
+    "戰鬥視窗與技能彈出視窗納入同一美術系統，保留角色／敵方並排與技能彈窗邏輯，提升血量條、戰鬥紀錄與行動按鍵辨識度。",
+    "手機版改為底部工作表式視窗、五鍵底部導航與安全區適配；420px以下進一步收斂HUD與欄位，避免金額及重要資訊不必要跳行。",
+    "UI重設計僅覆寫呈現層，舊存檔、資料庫、戰鬥、經濟、製作、活世界循環全部保持相容。",
     "COMBAT-CLASS-IDENTITY-DEPTH-1.0：合併7組高度同質職業，包括魔劍士／戰鬥法師、大魔導師／大法師、獸獵人／獵人、神官／聖職者、牧師／祭司、戰鬥司祭／戰鬥牧師、影舞者／暗影刺客。",
     "保留真正能形成不同玩法的近似職業：遊俠改以陷阱、感知與游擊為核心；弓箭手維持精準遠程火力；盾衛偏格擋反擊；重裝系偏韌性承傷。",
     "93個canonical戰鬥職業全部補齊職業核心、戰鬥循環、強項、代價、武器特色與招牌機制標籤，不再只靠名稱／攻防百分比區分。",
@@ -51,7 +57,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.9",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.0",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -686,5 +692,6 @@
     "runtime_stat_integration": true,
     "legacy_id_migration": true,
     "save_compatible": true
-  }
-}
+  },
+  "ui_art_revision": "UI-ART-SYSTEM-2.0"
+}\n
