@@ -1,7 +1,7 @@
 (()=>{
 "use strict";
 
-const REVISION="DUNGEON-DEPTH-2.0";
+const REVISION="DUNGEON-DEPTH-2.1";
 const EQUIPMENT_TYPES=new Set(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"]);
 const TYPE_LABELS={
  corridor:"通道／探索區",
@@ -37,6 +37,17 @@ const PROFILES={
  A:{floors:[7,9],rooms:[5,7],trapDc:17,npcChance:.33,eliteScale:1.52,bossScale:2.28,respawn:120,weights:{corridor:9,combat:29,trap:17,treasure:8,equipment:8,special:12,elite:17}},
  S:{floors:[9,12],rooms:[6,8],trapDc:19,npcChance:.44,eliteScale:1.65,bossScale:2.55,respawn:168,weights:{corridor:7,combat:28,trap:18,treasure:7,equipment:7,special:12,elite:21}}
 };
+
+const BOSS_LOOT_PROFILES={
+ F:{bonusItemChance:.30,equipmentChance:.10,sameTierShare:.10,moneyQuality:1.25},
+ E:{bonusItemChance:.34,equipmentChance:.14,sameTierShare:.14,moneyQuality:1.28},
+ D:{bonusItemChance:.38,equipmentChance:.18,sameTierShare:.18,moneyQuality:1.32},
+ C:{bonusItemChance:.42,equipmentChance:.22,sameTierShare:.22,moneyQuality:1.36},
+ B:{bonusItemChance:.46,equipmentChance:.26,sameTierShare:.26,moneyQuality:1.40},
+ A:{bonusItemChance:.50,equipmentChance:.30,sameTierShare:.30,moneyQuality:1.45},
+ S:{bonusItemChance:.54,equipmentChance:.34,sameTierShare:.35,moneyQuality:1.50}
+};
+const BOSS_LOOT_LUCK_CAP=1.25;
 
 const SPECIALS=[
  {id:"DS-ECHO",min:"F",name:"前代遠征記號",stat:"智力",dc:10,text:"牆面留下前代探索者的路標與危險符號。",success:"你辨讀出安全路線，附近房間的輪廓被標記。",fail:"符號年代過久，只能確認這裡曾有其他隊伍活動。",effect:"reveal"},
@@ -166,26 +177,40 @@ function safeTreasurePool(l){
 }
 function equipmentPool(l){
  const cap=dungeonCapTier(l);
- return (DB.items||[]).filter(d=>d&&!d.sealed&&!d.unique&&EQUIPMENT_TYPES.has(d.type)&&tierOrder(d.tier)<=cap)
+ return (DB.items||[]).filter(d=>{
+   if(!d||d.sealed||d.unique||!EQUIPMENT_TYPES.has(d.type)||tierOrder(d.tier)>cap)return false;
+   const src=Array.isArray(d.acquisition_sources)?d.acquisition_sources:[];
+   if(src.length&&!src.some(x=>["loot","dungeon","exploration"].includes(x)))return false;
+   return true
+ })
 }
-function grantTreasure(l,quality=1){
- const p=tierProfile(l.tier),cap=typeof adventureEventMoneyCap==="function"?adventureEventMoneyCap(l,l.tier):20;
+function grantTreasure(l,quality=1,itemChanceOverride=null){
+ const cap=typeof adventureEventMoneyCap==="function"?adventureEventMoneyCap(l,l.tier):20;
  const money=Math.max(3,Math.round(cap*(.25+Math.random()*.35)*quality));
  G.character.moneySilver+=money;
- const got=[money+"銀"];
- const pool=safeTreasurePool(l);
- if(pool.length&&Math.random()<Math.min(.75,.28+.08*tierOrder(l.tier)+.12*(quality-1))){
+ const got=[money+"銀"],pool=safeTreasurePool(l);
+ const baseChance=Math.min(.75,.28+.08*tierOrder(l.tier)+.12*(quality-1));
+ const itemChance=itemChanceOverride==null?baseChance:clamp(Number(itemChanceOverride)||0,0,.75);
+ if(pool.length&&Math.random()<itemChance){
    const d=pool[rand(pool.length)],qty=Math.max(1,Math.min(2,Math.round(quality)));
    addItem(d.id,qty);got.push(d.name+"×"+qty)
  }
  return got
 }
-function grantEquipment(l,boss=false){
+function grantEquipment(l,boss=false,targetTierRank=null){
  const pool=equipmentPool(l);if(!pool.length)return null;
- const cap=dungeonCapTier(l);
- const preferred=pool.filter(d=>tierOrder(d.tier)>=Math.max(0,cap-(boss?1:2)));
- const d=(preferred.length?preferred:pool)[rand((preferred.length?preferred:pool).length)];
- const durability=Math.max(1,Math.round((d.durability||100)*(boss ? .72 : .48+Math.random()*.22)));
+ const cap=dungeonCapTier(l);let candidates=pool;
+ if(boss){
+   let target=targetTierRank==null?cap:clamp(Math.round(targetTierRank),0,cap);
+   let exact=pool.filter(d=>tierOrder(d.tier)===target);
+   while(!exact.length&&target>0){target--;exact=pool.filter(d=>tierOrder(d.tier)===target)}
+   if(exact.length)candidates=exact
+ }else{
+   const preferred=pool.filter(d=>tierOrder(d.tier)>=Math.max(0,cap-2));
+   if(preferred.length)candidates=preferred
+ }
+ const d=candidates[rand(candidates.length)];
+ const durability=Math.max(1,Math.round((d.durability||100)*(boss ? .68+Math.random()*.20 : .48+Math.random()*.22)));
  addItem(d.id,1,{durability});
  return d
 }
@@ -214,6 +239,8 @@ function dungeonEnemy(l,kind){
    accuracy:Math.min(95,Math.round((base.accuracy||68)+(kind==="boss"?5:3))),
    initiative:Math.round((base.initiative||10)+(kind==="boss"?3:1)),
    xp_reward:Math.max(base.xp_reward||0,Math.round((DB.progression_system?.monster_xp_by_tier?.[l.tier]||12)*(kind==="boss"?2.4:1.45))),
+   money_drop:kind==="boss"?null:base.money_drop,
+   equipment_drop:kind==="boss"?null:base.equipment_drop,
    dungeon_variant:kind
  }
 }
@@ -347,10 +374,20 @@ function resolveDungeonEvent(choice){
  if(ev.kind==="npc")resolveNpcEvent(ev,run,room,choice);else resolveSpecialEvent(ev,run,room,choice);
  G.pendingDungeonEvent=null;if(ev.kind==="special")markRoomCleared(run,room);closeModal();persist();renderAll()
 }
+function bossLootProfile(l){return BOSS_LOOT_PROFILES[l?.tier]||BOSS_LOOT_PROFILES.F}
+function bossLootLuckMultiplier(){
+ const raw=typeof combatStats==="function"?(combatStats().lootRate||100)/100:1;
+ return clamp(raw,1,BOSS_LOOT_LUCK_CAP)
+}
 function bossVictoryReward(run){
- const l=loc(run.locationId),p=tierProfile(l.tier),got=grantTreasure(l,1.6);
- if(Math.random()<Math.min(.72,.22+tierOrder(l.tier)*.08)){
-   const d=grantEquipment(l,true);if(d)got.push(d.name+"［"+d.tier+"］")
+ const l=loc(run.locationId),cfg=bossLootProfile(l),luck=bossLootLuckMultiplier();
+ const itemChance=Math.min(.68,cfg.bonusItemChance*luck),equipChance=Math.min(.43,cfg.equipmentChance*luck);
+ const got=grantTreasure(l,cfg.moneyQuality,itemChance);
+ if(Math.random()<equipChance){
+   const cap=dungeonCapTier(l),sameTier=Math.random()<cfg.sameTierShare;
+   let target=sameTier?cap:Math.max(0,cap-1);
+   if(!sameTier&&cap>=2&&Math.random()<.20)target=cap-2;
+   const d=grantEquipment(l,true,target);if(d)got.push(d.name+"［"+d.tier+"］")
  }
  if(run.cooperationBonus>0)got.push("合作地圖紀錄");
  log("Boss 戰利品","最深處寶箱：取得 "+got.join("、")+"。","ok")
@@ -426,6 +463,16 @@ function dungeonAuditIssues(){
    if(l.kind!=="dungeon")continue;
    if(!PROFILES[l.tier])issues.push("地下城層級無設定:"+l.name)
  }
+ for(const tier of ["F","E","D","C","B","A","S"]){
+   const b=BOSS_LOOT_PROFILES[tier];
+   if(!b)issues.push("Boss掉落設定缺失:"+tier);
+   else{
+     if(!(b.bonusItemChance>=0&&b.bonusItemChance<=.60))issues.push("Boss額外道具率異常:"+tier);
+     if(!(b.equipmentChance>=0&&b.equipmentChance<=.40))issues.push("Boss裝備率異常:"+tier);
+     if(!(b.sameTierShare>=0&&b.sameTierShare<=.40))issues.push("Boss同階裝備占比異常:"+tier);
+     if(b.equipmentChance>b.bonusItemChance)issues.push("Boss裝備率高於一般額外道具率:"+tier)
+   }
+ }
  if(typeof G!=="undefined"&&G){
    ensureState();
    for(const [id,run] of Object.entries(G.dungeonRuns||{})){
@@ -442,13 +489,18 @@ DB.dungeon_depth_system={
  version:REVISION,
  mode:"multi_map",
  world_tier_profiles:PROFILES,
+ boss_loot_profiles:BOSS_LOOT_PROFILES,
+ boss_loot_luck_cap:BOSS_LOOT_LUCK_CAP,
  room_types:Object.keys(TYPE_LABELS),
- features:["依世界層級產生多張地下城內部地圖","機關陷阱房","財寶房","裝備房","地下城專屬奇遇","精英怪物","最深處Boss房","高階地下城NPC團隊競爭／合作","完成後依層級重整冷卻","地下城進度寫入既有本機存檔"],
+ features:["依世界層級產生多張地下城內部地圖","機關陷阱房","財寶房","裝備房","地下城專屬奇遇","精英怪物","最深處Boss房","Boss獨立掉落率與來源限制","高階地下城NPC團隊競爭／合作","完成後依層級重整冷卻","地下城進度寫入既有本機存檔"],
  rules:[
    "世界地圖的地下城 location ID 保持不變，內部樓層使用獨立可存檔狀態。",
    "最深層固定且僅有一個 Boss 房；Boss 未擊敗前不得標記本輪完成。",
    "寶藏與裝備獎勵受地下城層級及角色可承受層級雙重限制，不直接越階。",
    "高階地下城提高 NPC 團隊遭遇率，但合作與競爭結果仍由 D20 與角色能力決定。",
+   "Boss本體只保留符合怪物生態的素材掉落；人型Boss的一般金錢／裝備掉落停用，改由最深處寶箱統一處理。",
+   "Boss寶箱裝備只允許loot／dungeon／exploration來源或未標示舊資料，不會抽到明確限定商店／製作／組織來源的裝備。",
+   "Boss掉寶倍率最多將寶箱機率放大至1.25倍；S級額外裝備基準34%，避免幸運值把高階裝備推近必掉。",
    "地下城完成後有重整時間，避免無限重複刷取 Boss 與寶藏。"
  ],
  npc_team_chance:Object.fromEntries(Object.entries(PROFILES).map(([k,v])=>[k,v.npcChance])),
