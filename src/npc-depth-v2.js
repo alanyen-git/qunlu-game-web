@@ -79,7 +79,7 @@
   };
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version=RELEASE;
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||RELEASE;
   DB.meta.npc_depth_revision=REVISION;
   DB.npc_depth_phase2_system={
     version:REVISION,
@@ -467,7 +467,7 @@
   }
 
   function initialize(){
-    DB.meta.current_version=RELEASE;DB.meta.npc_depth_revision=REVISION;
+    DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||RELEASE;DB.meta.npc_depth_revision=REVISION;
     const g=game();if(!g?.worldState)return false;
     g.meta=g.meta||{};g.meta.version=RELEASE;rootState();for(const p of profiles())ensureNpc2(p.npc_id);
     patchModal();patchMoreMenu();patchQuestFailure();ingestNewEvents();runPropagationCatchup();refreshAgendas();return true;
