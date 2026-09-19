@@ -1,17 +1,18 @@
 {
-  "version": "CURRENT-1.73.0",
-  "previous_version": "CURRENT-1.72.3",
+  "version": "CURRENT-1.74.0",
+  "previous_version": "CURRENT-1.73.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "阿斯戴爾劇情深化：新增可連鎖委託、地方奇遇與劇情進度追蹤，前置條件、成功／失敗線索與地方後果正式寫回存檔。",
+  "summary": "全世界命名重構：以文化圈、地理、用途與歷史取代萬用華麗詞根；修復東方劍術正史被西化與柳生唯心流拼寫衝突，名稱生成器改為文化語義先行。",
   "changelog": [
-    "ASDAIL-NARRATIVE-DEPTH-1.0：新增13個連鎖委託、12個地方奇遇、7條劇情脈絡、6條區域故事線與6組冒險鉤子。",
-    "既有高階「偽造封條流向／王冠根脈封庫巡檢／沼下遺構取樣」加入合理前置，不再與前段調查脫節。",
-    "ASDAIL-NARRATIVE-RUNTIME-1.0：公會委託依前置成果解鎖；舊存檔會由委託歷史自動回推已完成節點。",
-    "奇遇成功、失敗或離開會留下劇情紀錄；地方狀態與調查後果寫回worldState，不以隨機奇遇鎖死主要委託鏈。",
-    "更多選單新增「區域劇情」面板，可查看各劇情線完成度、下一步與近期後果。",
-    "維持阿斯戴爾F～B級世界尺度；未知遺構不強行定源，地方異常不自動合併成國戰或單一幕後陰謀。"
+    "WORLD-NAMING-3.0：8個文化圈分區治理，世界內名稱與管理AI／生成器內部名稱分開稽核。",
+    "東方劍術正史恢復：武士刀、道場、家系與『○○流』在東方文化圈合法；撤銷先前自動西化成長劍／大劍的映射。",
+    "正史統一採『柳生唯心流』；舊拼寫『柳生惟心流』與『白柳劍術學派』安全正規化，不改ID或存檔schema。",
+    "NAME-GENERATOR-3.0：人物、聚落、組織、流派、怪物、委託各自依文化與語義來源生成；普通內容不濫用史詩華麗詞。",
+    "EQUIPMENT-NAMING-REFERENCE-1.1：武士刀正式納入裝備詞庫並使用東方獨立意象池。",
+    "修正柳橋鎮鎮守官、松谷村村長、石渡鎮鎮長、白石城城務官、自由傭兵工會等重複或不合用語名稱。",
+    "保留全部資料ID、戰鬥數值、經濟規則與既有存檔相容性。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -21,8 +22,8 @@
   "class_skill_passive_compat_revision": "CLASS-SKILL-PASSIVE-COMPAT-1.0",
   "system_integrity_revision": "SYSTEM-INTEGRITY-2.2",
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
-  "world_naming_revision": "WORLD-NAMING-2.1",
-  "naming_protection_revision": "NAMING-PROTECTION-1.1",
+  "world_naming_revision": "WORLD-NAMING-3.0",
+  "naming_protection_revision": "NAMING-PROTECTION-2.0",
   "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.3",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
@@ -126,15 +127,18 @@
     "save_compatible": true
   },
   "release_integrity_revision": "RELEASE-INTEGRITY-1.9",
-  "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
+  "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
-    "weapon_types": 25,
+    "weapon_types": 26,
     "armor_types": 21,
     "accessory_types": 14,
     "tier_range": "F-S",
     "semantic_effect_validation": true,
     "external_proper_name_blocking": true,
-    "save_compatible": true
+    "save_compatible": true,
+    "revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
+    "culture_aware": true,
+    "eastern_katana_lexicon": true
   },
   "class_naming_reference_revision": "CLASS-NAMING-REFERENCE-1.0",
   "class_naming_reference": {
@@ -175,7 +179,7 @@
     "hard_errors": 0,
     "save_compatible": true
   },
-  "name_generator_revision": "NAME-GENERATOR-2.0",
+  "name_generator_revision": "NAME-GENERATOR-3.0",
   "name_generator": {
     "supported_types": [
       "person",
@@ -199,7 +203,12 @@
     "protected_canonical_names": true,
     "fixed_fallback_disabled": true,
     "semantic_near_duplicate_warning": true,
-    "save_compatible": true
+    "save_compatible": true,
+    "revision": "NAME-GENERATOR-3.0",
+    "culture_registers": 8,
+    "world_internal_name_separation": true,
+    "semantic_origin_required": true,
+    "eastern_canon_preserved": true
   },
   "dungeon_boss_loot_revision": "DUNGEON-BOSS-LOOT-1.2",
   "dungeon_boss_loot": {
@@ -472,6 +481,28 @@
     "prerequisite_gating": true,
     "legacy_history_recovery": true,
     "outcome_journal": true,
+    "save_compatible": true
+  },
+  "world_naming": {
+    "revision": "WORLD-NAMING-3.0",
+    "culture_registers": 8,
+    "principles": [
+      "文化",
+      "地理",
+      "用途",
+      "歷史",
+      "階級",
+      "正史來源"
+    ],
+    "internal_system_names_excluded": true,
+    "canonical_eastern_sword_terms": [
+      "武士刀",
+      "道場",
+      "雷鳴流",
+      "雷煌流",
+      "柳生唯心流"
+    ],
+    "duplicate_suffix_repairs": true,
     "save_compatible": true
   }
 }
