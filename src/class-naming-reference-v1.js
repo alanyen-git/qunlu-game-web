@@ -65,6 +65,21 @@ const FIREARM_TOKENS=Object.freeze(["火槍","手槍","雙槍","重炮","重砲"
 const LEGENDARY_TOKENS=Object.freeze(["武神","化身","主宰","帝王","無上","終極","萬法","萬物","世界之王"]);
 const SPECIES_IDENTITY_TOKENS=Object.freeze(["狼人","吸血鬼","龍裔","龍血","龍脈","妖精","精靈","魔族"]);
 const SAFE_TRACKS=new Set(Object.keys(TRACKS));
+const PROGRESSION_REPAIRS=Object.freeze({
+  "C9-SWORDSMAN":[],
+  "C9-HEAVY":["C-WAR"],
+  "C9-ARCHER":[],
+  "C9-BARD":[],
+  "C9-DANCER":[],
+  "C9-NECROMANCER":["C-HEXER"],
+  "C9-PRIEST":[],
+  "C9-PRIESTESS":[],
+  "C9-DRUID":["C-MONK"],
+  "C9-SHAMAN":["C-MONK"],
+  "C9-ORACLE":["C9-ASTROLOGER"],
+  "C9-SPIRITCALLER":["C9-DRUID"],
+  "C9-DRAGONTRAINER":["C-SUMMONER"]
+});
 
 function clean(v){return String(v||"").trim()}
 function tierOf(v){const t=clean(v).toUpperCase();return TIER_RANK[t]!=null?t:"F"}
@@ -149,6 +164,17 @@ function suggestCombatClassName(track="physical",familyId=null,tier="F",context=
   return null;
 }
 
+for(const [id,next] of Object.entries(PROGRESSION_REPAIRS)){
+  const c=(DB.combat_classes||[]).find(x=>x?.id===id);
+  if(!c)continue;
+  const old=Array.isArray(c.progression_from)?[...c.progression_from]:[];
+  if(JSON.stringify(old)!==JSON.stringify(next)){
+    c.legacy_progression_from=old;
+    c.progression_from=[...next];
+    c.progression_repair_revision=REV;
+  }
+}
+
 for(const c of DB.combat_classes||[]){
   c.progression_stage=stageForTier(c.tier);
   c.progression_stage_name=STAGES[c.progression_stage].name;
@@ -201,7 +227,7 @@ function audit(){
   return {
     revision:REV,release:RELEASE,pass:issues.length===0,
     issues:[...new Set(issues)],warnings:[...new Set(warnings)],
-    stats:{classes:classes.length,...counts,families:Object.values(TRACKS).reduce((n,x)=>n+x.families.length,0),progression_linked:classes.filter(x=>(x.progression_from||[]).length).length}
+    stats:{classes:classes.length,...counts,families:Object.values(TRACKS).reduce((n,x)=>n+x.families.length,0),progression_linked:classes.filter(x=>(x.progression_from||[]).length).length,progression_repairs:Object.keys(PROGRESSION_REPAIRS).length}
   };
 }
 
@@ -218,6 +244,7 @@ DB.combat_class_naming_reference={
     "火器與近現代機械職業預設封鎖；世界觀未正式建立火藥／魔導槍械科技前不得生成。"
   ],
   authority_tokens:AUTHORITY_TOKENS,
+  progression_repairs:PROGRESSION_REPAIRS,
   firearm_tokens:FIREARM_TOKENS,
   legendary_tokens:LEGENDARY_TOKENS,
   save_compatible:true
