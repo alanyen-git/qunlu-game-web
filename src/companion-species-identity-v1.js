@@ -87,8 +87,8 @@ function signatureFor(sp){
  return sp?.species_signature||null;
 }
 function signatureIndex(sp,index){
- // 以資料庫固定排序為主，ID雜湊作次偏移；相鄰／同區物種不會一直落入同一簽章。
- return (index+(hashText(sp?.id)%5))%SIGNATURES.length;
+ // 200種物種依固定資料庫順序輪替20種簽章：相鄰物種必定不同，整體分布維持均衡。
+ return index%SIGNATURES.length;
 }
 function makeUniqueName(base,sp,used){
  let name=base;
