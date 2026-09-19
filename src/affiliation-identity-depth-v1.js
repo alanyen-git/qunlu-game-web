@@ -259,7 +259,7 @@ const DISC_IDENTITY={
 };
 function tacticOf(d){return disciplineFamily(d).split(":")[2]||"balanced";}
 function enrichOrg(o){
-  const f=orgFamily(o),p=ORG_IDENTITY[f]||ORG_IDENTITY.other;
+  const cluster=orgFamily(o),f=cluster.split(":")[0],p=ORG_IDENTITY[f]||ORG_IDENTITY.other;
   o.identity_family=f;
   o.signature=o.signature||p[0];
   o.institutional_culture=o.institutional_culture||p[1];
@@ -271,7 +271,7 @@ function enrichOrg(o){
   o.history=uniq(old);
   o.history_summary=o.history_summary||o.history.join(" ");
   o.current_state=o.current_state||p[3]+"；組織正優先維持核心職能，而非無限制擴張分會數量。";
-  o.identity_profile={scope_level:scopeLevel(o),family:f,signature:o.signature,culture:o.institutional_culture,tension:o.strategic_tension};
+  o.identity_profile={scope_level:scopeLevel(o),family:f,identity_cluster:cluster,signature:o.signature,culture:o.institutional_culture,tension:o.strategic_tension};
 }
 function enrichDiscipline(d){
   const t=tacticOf(d),p=DISC_IDENTITY[t]||DISC_IDENTITY.balanced;
