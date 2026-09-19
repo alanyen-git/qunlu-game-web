@@ -268,6 +268,12 @@ function migrateSave(){
  const defaultOriginFacet=DB.origin_system?.default_facets?.[G?.character?.originId];
  if(defaultOriginFacet&&!G?.character?.originFacetId)G.character.originFacetId=defaultOriginFacet;
 
+ const classMerge=DB.combat_class_merge_map||{};
+ const remapClassId=id=>classMerge[id]||id;
+ if(G?.character?.classId)G.character.classId=remapClassId(G.character.classId);
+ if(Array.isArray(G?.character?.classHistory))for(const row of G.character.classHistory)if(row?.id)row.id=remapClassId(row.id);
+ if(Array.isArray(G?.character?.unlockedClassRoutes))G.character.unlockedClassRoutes=[...new Set(G.character.unlockedClassRoutes.map(remapClassId))];
+
  if(!G||G.meta?.version===CURRENT_VERSION)return;
  G.meta.version=CURRENT_VERSION;
  const c=G.character;c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
@@ -677,14 +683,22 @@ function advancedBuffs(){
  if(G.battle?.active&&G.battle.playerBuff)for(const k of Object.keys(out))out[k]+=Number(G.battle.playerBuff[k]||0);
  return out
 }
+function classCombatIdentityEffects(){
+ const raw=cls(G.character.classId)?.combat_identity?.combat_effects||{};
+ const keys=["attack_pct","magic_attack_pct","defense_pct","magic_defense_pct","accuracy","evasion","crit_rate","crit_damage","attack_speed_pct","cast_speed_pct","armor_pen_pct","magic_pen_pct","block_value","poise","status_accuracy","status_resist","healing_power","mana_regen","threat","stealth","perception","summon_power","initiative","move_speed","life_steal"];
+ return Object.fromEntries(keys.map(k=>[k,Number(raw[k]||0)]))
+}
 function classCombatAdvanced(){
- const role=cls(G.character.classId)?.combat_role||"",out={initiative:0,moveSpeed:0,blockValue:0,poise:0,statusAccuracy:0,healingPower:0,manaRegen:0,threat:0,stealth:0,perception:0,summonPower:0};
+ const role=cls(G.character.classId)?.combat_role||"",ci=classCombatIdentityEffects(),out={initiative:0,moveSpeed:0,blockValue:0,poise:0,statusAccuracy:0,healingPower:0,manaRegen:0,threat:0,stealth:0,perception:0,summonPower:0};
  if(role.includes("防禦")){out.threat+=25;out.blockValue+=7;out.poise+=8}
  if(role.includes("敏捷")){out.initiative+=4;out.stealth+=6}
  if(role.includes("遠程")){out.perception+=5;out.initiative+=2}
  if(role.includes("治療")){out.healingPower+=10;out.manaRegen+=.4}
  if(role.includes("施法")){out.statusAccuracy+=4;out.manaRegen+=.3}
  if(role.includes("支援")){out.summonPower+=5}
+ out.initiative+=ci.initiative;out.moveSpeed+=ci.move_speed;out.blockValue+=ci.block_value;out.poise+=ci.poise;
+ out.statusAccuracy+=ci.status_accuracy;out.healingPower+=ci.healing_power;out.manaRegen+=ci.mana_regen;
+ out.threat+=ci.threat;out.stealth+=ci.stealth;out.perception+=ci.perception;out.summonPower+=ci.summon_power;
  return out
 }
 
@@ -791,7 +805,7 @@ function elementalResistances(){
 }
 function poisonResistance(){return clamp(combatStats().statusResist+talentSpecial("poisonResist"),0,95)}
 function combatStats(){
- const e=equipmentCombat(),s=skillCombat(),b=buffCombat(),bp=battlePercentBuffs(),af=affiliationEffects(),r=raceCombat(),t=talentCombat(),ae=advancedEquipment(),ab=advancedBuffs(),ca=classCombatAdvanced(),wp=mainWeaponProfile();
+ const e=equipmentCombat(),s=skillCombat(),b=buffCombat(),bp=battlePercentBuffs(),af=affiliationEffects(),r=raceCombat(),t=talentCombat(),ae=advancedEquipment(),ab=advancedBuffs(),ca=classCombatAdvanced(),ci=classCombatIdentityEffects(),wp=mainWeaponProfile();
  const str=effectiveStat("力量"),dex=effectiveStat("敏捷"),con=effectiveStat("體力"),intl=effectiveStat("智力"),wis=effectiveStat("意志"),cha=effectiveStat("魅力"),luck=effectiveStat("幸運");
  const cc=cls(G.character.classId),role=cc?.combat_role||"",group=wp.group;
  let atkBase;
@@ -803,32 +817,32 @@ function combatStats(){
  if(role.includes("治療")||/牧師|神官|祭司|聖職/.test(cc?.name||""))magicBase=2+wis*.95+intl*.45;
  else if(/吟遊|舞者/.test(cc?.name||""))magicBase=2+cha*.82+intl*.38+wis*.20;
  else magicBase=2+intl*1.05+wis*.30;
- const attackSpeed=clamp((.82+dex*.012+e.attackSpeed+s.attackSpeed+b.attackSpeed+r.attackSpeed+t.attackSpeed)*(1+af.attack_speed_pct/100),.55,2.5);
- const castSpeed=clamp((.78+intl*.009+wis*.008+e.castSpeed+s.castSpeed+b.castSpeed+r.castSpeed+t.castSpeed)*(1+af.cast_speed_pct/100),.55,2.5);
+ const attackSpeed=clamp((.82+dex*.012+e.attackSpeed+s.attackSpeed+b.attackSpeed+r.attackSpeed+t.attackSpeed)*(1+(af.attack_speed_pct+ci.attack_speed_pct)/100),.55,2.5);
+ const castSpeed=clamp((.78+intl*.009+wis*.008+e.castSpeed+s.castSpeed+b.castSpeed+r.castSpeed+t.castSpeed)*(1+(af.cast_speed_pct+ci.cast_speed_pct)/100),.55,2.5);
  const carry=resourceCaps().carry+ae.carryCapacity+ab.carryCapacity+af.carryCapacity;
  const loadRatio=carry>0?calcWeight()/carry:0,overloadMove=loadRatio>1?Math.min(35,(loadRatio-1)*50):0;
  const blockRate=clamp(Math.round(2+con*.18+e.blockRate+s.blockRate+b.blockRate+r.blockRate+t.blockRate+(ae.blockRate||0)+af.blockRate),0,75);
  const cs={
-   attack:Math.round((atkBase+e.attack+s.attack+b.attack+r.attack+t.attack)*(1+af.attack_pct/100)),
-   magicPower:Math.round((magicBase+e.magicPower+s.magicPower+b.magicPower+r.magicPower+t.magicPower)*(1+af.magic_attack_pct/100)),
-   defense:Math.round((2+con*.78+str*.18+e.defense+s.defense+b.defense+r.defense+t.defense)*(1+bp.defensePct/100)*(1+af.defense_pct/100)),
-   magicDefense:Math.round((2+wis*.82+con*.26+e.magicDefense+s.magicDefense+b.magicDefense+r.magicDefense+t.magicDefense)*(1+bp.magicDefensePct/100)*(1+af.magic_defense_pct/100)),
-   accuracy:clamp(Math.round(50+dex*1.6+luck*.2+e.accuracy+s.accuracy+b.accuracy+r.accuracy+t.accuracy+af.accuracy),5,99),
-   evasion:clamp(Math.round(2+dex*.65+luck*.20+e.evasion+s.evasion+b.evasion+r.evasion+t.evasion+af.evasion),0,80),
-   critRate:clamp(Math.round(2+luck*.5+dex*.10+e.critRate+s.critRate+b.critRate+r.critRate+t.critRate+af.critRate),0,75),
-   critDamage:clamp(Math.round(145+str*.25+dex*.20+intl*.10+e.critDamage+s.critDamage+b.critDamage+r.critDamage+t.critDamage+af.critDamage),125,300),
+   attack:Math.round((atkBase+e.attack+s.attack+b.attack+r.attack+t.attack)*(1+(af.attack_pct+ci.attack_pct)/100)),
+   magicPower:Math.round((magicBase+e.magicPower+s.magicPower+b.magicPower+r.magicPower+t.magicPower)*(1+(af.magic_attack_pct+ci.magic_attack_pct)/100)),
+   defense:Math.round((2+con*.78+str*.18+e.defense+s.defense+b.defense+r.defense+t.defense)*(1+bp.defensePct/100)*(1+(af.defense_pct+ci.defense_pct)/100)),
+   magicDefense:Math.round((2+wis*.82+con*.26+e.magicDefense+s.magicDefense+b.magicDefense+r.magicDefense+t.magicDefense)*(1+bp.magicDefensePct/100)*(1+(af.magic_defense_pct+ci.magic_defense_pct)/100)),
+   accuracy:clamp(Math.round(50+dex*1.6+luck*.2+e.accuracy+s.accuracy+b.accuracy+r.accuracy+t.accuracy+af.accuracy+ci.accuracy),5,99),
+   evasion:clamp(Math.round(2+dex*.65+luck*.20+e.evasion+s.evasion+b.evasion+r.evasion+t.evasion+af.evasion+ci.evasion),0,80),
+   critRate:clamp(Math.round(2+luck*.5+dex*.10+e.critRate+s.critRate+b.critRate+r.critRate+t.critRate+af.critRate+ci.crit_rate),0,75),
+   critDamage:clamp(Math.round(145+str*.25+dex*.20+intl*.10+e.critDamage+s.critDamage+b.critDamage+r.critDamage+t.critDamage+af.critDamage+ci.crit_damage),125,300),
    initiative:Math.round((5+dex*1.35+luck*.35+(attackSpeed-1)*10+ae.initiative+ab.initiative+ca.initiative+talentSpecial("initiative"))*(1+af.initiative_pct/100)),
    moveSpeed:Math.round(clamp(100+dex*1.35+ae.moveSpeed+ab.moveSpeed+ca.moveSpeed+talentSpecial("moveSpeed")+af.moveSpeed-overloadMove,55,180)),
    attackSpeed,castSpeed,
    range:Math.round((Math.max(.8,wp.range+ae.range+ab.range))*10)/10,
-   armorPenPct:Math.round(clamp((wp.armor_pen_pct||0)+str*.12+ae.armorPenPct+ab.armorPenPct+talentSpecial("armorPierce")+af.armorPenPct,0,60)*10)/10,
-   magicPenPct:Math.round(clamp(intl*.10+wis*.06+ae.magicPenPct+ab.magicPenPct+talentSpecial("magicPierce")+af.magicPenPct,0,60)*10)/10,
+   armorPenPct:Math.round(clamp((wp.armor_pen_pct||0)+str*.12+ae.armorPenPct+ab.armorPenPct+talentSpecial("armorPierce")+af.armorPenPct+ci.armor_pen_pct,0,60)*10)/10,
+   magicPenPct:Math.round(clamp(intl*.10+wis*.06+ae.magicPenPct+ab.magicPenPct+talentSpecial("magicPierce")+af.magicPenPct+ci.magic_pen_pct,0,60)*10)/10,
    blockRate,
    blockValue:Math.round(clamp(20+con*.7+ae.blockValue+ab.blockValue+ca.blockValue+talentSpecial("blockValue"),10,80)),
    poise:Math.round(10+con*1.1+str*.35+ae.poise+ab.poise+ca.poise+talentSpecial("poise")),
    statusAccuracy:Math.round(clamp(5+wis*.65+intl*.35+luck*.2+ae.statusAccuracy+ab.statusAccuracy+ca.statusAccuracy+talentSpecial("statusAccuracy")+af.statusAccuracy,0,95)),
-   statusResist:clamp(Math.round(5+wis*1.0+con*.45+e.statusResist+s.statusResist+b.statusResist+r.statusResist+t.statusResist+af.statusResist),0,90),
-   lifeSteal:Math.round(clamp(talentSpecial("lifeSteal")*100+ae.lifeSteal+ab.lifeSteal+(G.battle?.weaponOil?.lifeSteal||0)*100,0,50)*10)/10,
+   statusResist:clamp(Math.round(5+wis*1.0+con*.45+e.statusResist+s.statusResist+b.statusResist+r.statusResist+t.statusResist+af.statusResist+ci.status_resist),0,90),
+   lifeSteal:Math.round(clamp(talentSpecial("lifeSteal")*100+ae.lifeSteal+ab.lifeSteal+(G.battle?.weaponOil?.lifeSteal||0)*100+ci.life_steal,0,50)*10)/10,
    healingPower:Math.round(clamp(100+wis*1.2+intl*.35+talentSpecial("healingBonus")*100+ae.healingPower+ab.healingPower+ca.healingPower+af.healingPower,70,250)),
    manaRegen:Math.round((.5+wis*.10+intl*.03+ae.manaRegen+ab.manaRegen+ca.manaRegen+talentSpecial("manaRegen")+af.manaRegen)*100)/100,
    hpRegen:Math.round((.15+con*.04+talentSpecial("hpRegenPerHour")+ae.hpRegen+ab.hpRegen)*100)/100,
@@ -4163,7 +4177,7 @@ function openClassAdvancement(){
    const ok=c.level>=needLv&&(c.classMastery||0)>=needM&&specialOk;
    rows+=`<div class="card"><b>${cur.name}［${cur.tier}］解封</b><br><span class="small">Lv${needLv}｜職業熟練${needM}%${special?"｜特殊資格":""}</span><div class="actions"><button ${ok?"":"disabled"} onclick="unsealCurrentClass()">${ok?"正式解封":"未達條件"}</button></div></div>`
  }
- rows+=classAdvanceCandidates().map(x=>`<div class="card"><b>${x.c.name}</b> <span class="tier">${x.c.tier}</span>｜${x.c.combat_role||""}<br><span class="small">需要：Lv${x.c.unlock_level||1}、目前職業熟練${classMasteryNeed(x.c.tier)}%${x.special?"、特殊路線資格":""}<br>目前：Lv${c.level}／${(c.classMastery||0).toFixed(1)}%</span><div class="actions"><button ${x.ok?"":"disabled"} onclick="advanceCombatClass('${x.c.id}')">${x.ok?"轉職":"未達條件"}</button></div></div>`).join("");
+ rows+=classAdvanceCandidates().map(x=>`<div class="card"><b>${x.c.name}</b> <span class="tier">${x.c.tier}</span>｜${x.c.combat_role||""}<br><span class="small">${x.c.combat_identity?`<b>核心：</b>${x.c.combat_identity.signature}<br><b>循環：</b>${x.c.combat_identity.battle_loop}<br><b>強項：</b>${x.c.combat_identity.strengths.join("／")}｜<b>代價：</b>${x.c.combat_identity.tradeoffs.join("／")}<br>`:""}需要：Lv${x.c.unlock_level||1}、目前職業熟練${classMasteryNeed(x.c.tier)}%${x.special?"、特殊路線資格":""}<br>目前：Lv${c.level}／${(c.classMastery||0).toFixed(1)}%</span><div class="actions"><button ${x.ok?"":"disabled"} onclick="advanceCombatClass('${x.c.id}')">${x.ok?"轉職":"未達條件"}</button></div></div>`).join("");
  showModal("冒險者公會・職業進階",(rows||"<div class='small'>目前沒有直接進階路線。</div>")+`<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`)
 }
 function advanceCombatClass(targetId){
@@ -4736,6 +4750,7 @@ function openCharacter(){
    <div class="profile-row"><span class="profile-key">副職業</span><span class="profile-value">${subjobText}</span></div>
  </div>
  <div class="card origin-depth-card"><b>出身特色｜${origin?.signature||"—"}</b><br><span class="small">代價｜${origin?.burden||"—"}<br>行動動機｜${origin?.drive||"—"}<br>人脈／接觸｜${origin?.social_access||"—"}${originFacet?`<br>背景側寫｜${originFacet.note}`:""}${origin?.hooks?.length?`<br>故事鉤子｜${origin.hooks.join("／")}`:""}</span></div>
+ ${cc.combat_identity?`<div class="card class-identity-card"><b>職業核心｜${cc.combat_identity.signature}</b><br><span class="small">戰鬥循環｜${cc.combat_identity.battle_loop}<br>強項｜${cc.combat_identity.strengths.join("／")}<br>代價｜${cc.combat_identity.tradeoffs.join("／")}<br>武器特色｜${cc.combat_identity.weapon_identity}｜機制：${cc.combat_identity.mechanic_tags.join("／")}</span></div>`:""}
  <div class="money-card"><div class="money-title">持有金額</div><div class="money-display">${denominationMoney(c.moneySilver||0)}</div></div>
  <div class="resource-list-card">
    <div class="resource-list-row"><span class="resource-list-key">HP</span><span class="resource-list-value">${Math.round(c.hp)}/${c.maxHp}</span></div>
