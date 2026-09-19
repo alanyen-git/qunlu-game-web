@@ -1,6 +1,6 @@
 /*
  * 群陸旅誌世界命名一致性補丁
- * WORLD-NAMING-1.0
+ * WORLD-NAMING-1.2
  * 原則：僅調整顯示名稱值，不更動資料 ID、規則、數值與引用鍵。
  * 鎖定：雷煌流、雷鳴流除技能名稱外，所有相關資料保持原樣。
  */
@@ -83,7 +83,7 @@
     '白棘修會':'白棘聖修士會',
     '聖衡教會':'聖天衡平大教堂',
     '靛星觀測院':'靛藍星辰皇家天文台',
-    '鏡京藩使書契院':'鏡輝王國大使館外交總署',
+    '鏡京藩使書契院':'鏡京使節院',
 
     // 武術流派（雷煌流、雷鳴流刻意排除）
     '不動山流':'磐石守護流派',
@@ -109,14 +109,14 @@
     '白棘回生藥劑':'白棘復生靈藥',
 
     // 裝備
-    '名品武士刀「吹雪」':'名劍「吹雪・霜痕」',
-    '名品武士刀「玉獅子」':'寶劍「金獅之咬」',
-    '名品武士刀「闇夜」':'暗影長劍「永夜」',
-    '名品武士刀「雷電鬼」':'狂雷斬魔大劍「雷鬼」',
-    '夜紋精鋼武士刀':'夜紋精鋼護手劍',
-    '溪楓精鋼武士刀':'溪楓精鋼弧刃彎刀',
-    '鏡京秘銀武士刀':'鏡輝秘銀騎士長劍',
-    '黑鐵武士刀':'黑鐵雙手開鋒大劍',
+    '名品武士刀「吹雪」':'名品武士刀「吹雪」',
+    '名品武士刀「玉獅子」':'名品武士刀「玉獅子」',
+    '名品武士刀「闇夜」':'名品武士刀「闇夜」',
+    '名品武士刀「雷電鬼」':'名品武士刀「雷電鬼」',
+    '夜紋精鋼武士刀':'夜紋精鋼武士刀',
+    '溪楓精鋼武士刀':'溪楓精鋼武士刀',
+    '鏡京秘銀武士刀':'鏡京秘銀武士刀',
+    '黑鐵武士刀':'黑鐵武士刀',
 
     // 怪物
     '九脊天蠍':'九脊魔蠍',
@@ -135,7 +135,7 @@
     '翠枝王庭':'翠綠枝庭王宮',
     '萬帳盟地':'萬帳游牧同盟領',
     '萬泉城':'萬泉綠洲城',
-    '鏡京':'鏡輝星都・斯佩庫拉',
+    '鏡京':'鏡京',
     '霜壁城':'霜壁要塞城',
 
     // 地下城
@@ -152,7 +152,7 @@
     ...SKILL_RENAMES
   });
 
-  const stats={version:'WORLD-NAMING-1.1',changed:0,skillChanged:0,protectedRecords:0,protectedBranches:0,readOnlySkipped:0,byOldName:{}};
+  const stats={version:'WORLD-NAMING-1.2',changed:0,skillChanged:0,protectedRecords:0,protectedBranches:0,readOnlySkipped:0,byOldName:{}};
   const seen=new WeakMap();
 
   const protectedText=value=>typeof value==='string'&&PROTECTED_STYLE_NAMES.some(name=>value.includes(name));
@@ -244,5 +244,5 @@
   walk(db,'regular');
   const report=Object.freeze({...stats,protectedStyles:[...PROTECTED_STYLE_NAMES],appliedAt:new Date().toISOString()});
   if(typeof window!=='undefined')window.QUNLU_WORLD_NAMING=report;
-  if(typeof console!=='undefined'&&console.info)console.info('[QUNLU] WORLD-NAMING-1.0 applied',report);
+  if(typeof console!=='undefined'&&console.info)console.info('[QUNLU] WORLD-NAMING-1.2 applied',report);
 })();
