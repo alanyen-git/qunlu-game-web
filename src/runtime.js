@@ -1709,7 +1709,10 @@ function openFaithEncounter(fid){
  const x=generateFaithEncounter(fid);if(!x){showModal("信仰人物","<div class='card small'>目前沒有公開活動的神職人物。</div>");return}
  showModal(`${fid==="tavern"?"酒館":"教會"}・信仰人物`,`<div class="card"><b>${x.role}</b>｜${x.entity.name}<br><span class="small">${x.pantheon.name}｜${x.text}</span></div><div class="actions"><button onclick="openFaithEntity('${x.entity.id}')">了解其組織</button><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
 }
-function worldOrg(id){return IDX.worldOrg.get(id)}
+function worldOrg(id){
+ const canonical=typeof globalThis.resolveOrganizationAlias==="function"?globalThis.resolveOrganizationAlias(id):(DB.organization_merge_map?.[id]||id);
+ return IDX.worldOrg.get(canonical)
+}
 function loreRecord(id){return IDX.lore.get(id)}
 function politicalEntity(id){return IDX.polity.get(id)}
 function cultureProfile(id){return IDX.culture.get(id)}
@@ -1880,7 +1883,10 @@ function openEasternSwordFigure(id){
  const weapon=(DB.named_weapons||[]).find(x=>x.id===f.weapon_id),fam=notableFamily(f.family_id);
  showModal(f.name,`<div class="card"><b>${f.name}</b>${f.aliases?.length?`｜${f.aliases.join("／")}`:""}<br>${tier}<br><span class="small">${fam?`家系：${fam.name}<br>`:""}${weapon?`持有：${weapon.name}［${weapon.tier}］<br>`:""}現況：${f.current_status||"未公開"}</span></div><div class="card"><b>經歷</b><br><span class="small">${(f.history||[]).join("<br>")}</span></div><div class="card"><b>人物</b><br><span class="small">${f.personality||"資料未公開"}</span></div><div class="actions"><button onclick="openEasternSwordTraditions()">返回東方劍術</button></div>`)
 }
-function disciplineFor(id){return IDX.discipline.get(DB.discipline_merge_map?.[id]||id)}
+function disciplineFor(id){
+ const canonical=typeof globalThis.resolveDisciplineAlias==="function"?globalThis.resolveDisciplineAlias(id):(DB.discipline_merge_map?.[id]||id);
+ return IDX.discipline.get(canonical)
+}
 function allCanonicalNames(){
  const arr=[];for(const key of ["political_entities","world_regions","locations","world_organizations","discipline_factions","faith_entities","deities","combat_classes","monsters","talents","s_tier_combatants"])for(const x of (DB[key]||[]))if(x?.name)arr.push(x.name);return arr
 }
@@ -1925,9 +1931,14 @@ function generateWorldName(type="person",culture="asdale_west",context={}){
 function disciplineState(){
  const c=G.character;
  c.disciplines=c.disciplines||{discovered:[],mastery:{},reputation:{},membershipId:null};
- c.disciplines.discovered=Array.isArray(c.disciplines.discovered)?c.disciplines.discovered:[];
- c.disciplines.mastery=c.disciplines.mastery||{};
- c.disciplines.reputation=c.disciplines.reputation||{};
+ const canon=id=>typeof globalThis.resolveDisciplineAlias==="function"?globalThis.resolveDisciplineAlias(id):(DB.discipline_merge_map?.[id]||id);
+ c.disciplines.discovered=[...new Set((Array.isArray(c.disciplines.discovered)?c.disciplines.discovered:[]).map(canon).filter(id=>disciplineFor(id)))];
+ const mastery={},reputation={};
+ for(const [id,v] of Object.entries(c.disciplines.mastery||{})){const k=canon(id);mastery[k]=Math.max(Number(mastery[k]||0),Number(v||0))}
+ for(const [id,v] of Object.entries(c.disciplines.reputation||{})){const k=canon(id),n=Number(v||0);if(reputation[k]==null||Math.abs(n)>Math.abs(reputation[k]))reputation[k]=n}
+ c.disciplines.mastery=mastery;c.disciplines.reputation=reputation;
+ if(c.disciplines.contribution&&typeof c.disciplines.contribution==="object"){const next={};for(const [id,v] of Object.entries(c.disciplines.contribution)){const k=canon(id);if(next[k]==null)next[k]=v}c.disciplines.contribution=next}
+ c.disciplines.membershipId=canon(c.disciplines.membershipId);
  if(!c.disciplines.membershipId||!disciplineFor(c.disciplines.membershipId))c.disciplines.membershipId=null;
  return c.disciplines
 }
@@ -2001,13 +2012,14 @@ function leaveDiscipline(id){
  s.membershipId=null;persist();log("流派",`你退出${d.name}，「${d.member_bonus?.name||"流派加成"}」已取消。`);openDiscipline(id)
 }
 function openDiscipline(id){
- const d=disciplineFor(id);if(!d)return;if(d.discovery==="hidden_restricted"&&!disciplineState().discovered.includes(id)){alert("你目前沒有可靠來源能確認這個流派。");return}discoverDiscipline(id,"查閱流派");
+ const d=disciplineFor(id);if(!d)return;id=d.id;if(d.discovery==="hidden_restricted"&&!disciplineState().discovered.includes(id)){alert("你目前沒有可靠來源能確認這個流派。");return}discoverDiscipline(id,"查閱流派");
  const m=disciplineMastery(id),rep=disciplineRep(id),reason=disciplineStudyReason(d),cost=disciplineStudyCost(d),s=disciplineState(),member=s.membershipId===id,joinGate=canJoinDiscipline(d);
  const orgName=d.parent_org_id?worldOrg(d.parent_org_id)?.name:"獨立傳承";
  const clsNames=(d.related_class_ids||[]).map(x=>cls(x)?.name||x).slice(0,8).join("、"),b=d.member_bonus;
  const firstRecord=d.first_attested_year!=null?`群陸紀元${d.first_attested_year}年前後`:"未詳",originText=d.historical_origin||d.description||"正式沿革資料尚待整理。";
  showModal(d.name,`<div class="card"><b>${d.name}</b>［${disciplineTrackLabel(d)}］<br>${disciplineKindLabel(d)||"傳承流派"}｜${d.family||"未分類傳承"}<br><span class="small">隸屬／合作：${orgName}<br>最早紀錄：${firstRecord}<br>${originText}</span></div>
  <div class="card"><b>流派加成｜${b?.name||"未設定"}</b><br><span class="small">${affiliationBonusText(b)}<br>${member?"目前生效中；退出流派後立即取消。":"正式加入後生效；角色同時只能加入一個流派。"}</span></div>
+ <div class="card"><b>流派特色與現況</b><br><span class="small"><b>核心打法：</b>${d.combat_identity||d.signature||"尚未整理"}<br><b>訓練哲學：</b>${d.training_philosophy||d.specialty}<br><b>明確弱點：</b>${d.weakness||"依對手與場地而異"}<br><b>現況：</b>${d.current_state||"維持既有師承。"}${d.distinctive_features?.length?`<br>特色：${d.distinctive_features.join("／")}`:""}</span></div>
  <div class="card"><b>教範</b><br><span class="small">${d.specialty}<br>${d.institutional_culture}${d.substyles?.length?`<br>內部分支：${d.substyles.join("、")}`:""}<br>相關職業：${clsNames||"依個別師承判定"}<br>訓練內容上限：${d.training_tier_ceiling}</span></div>
  <div class="card"><b>你的進度</b><br>${disciplineMasteryLabel(m)} ${m.toFixed(1)}%｜流派聲望 ${rep}<br><span class="small">${reason?`目前不可研習：${reason}`:`可進行基礎研習，費用${cost}銀／${DB.discipline_system.study_hours}小時。`}<br>正式加入條件：基礎研習${DB.discipline_bonus_system?.minimum_mastery_to_join||10}%以上；研習不會直接授予C級以上裝備或跳過技能學習條件。</span></div>
  <div class="actions"><button ${reason?"disabled":""} class="good" onclick="studyDiscipline('${id}')">研習</button>${member?`<button class="bad" onclick="leaveDiscipline('${id}')">退出流派</button>`:`<button ${joinGate.ok?"":"disabled"} onclick="joinDiscipline('${id}')">${joinGate.ok?"正式加入":joinGate.reason}</button>`}<button onclick="openLoreScope('discipline','${id}','${d.name}・沿革')">歷史脈絡</button><button onclick="openDisciplineDirectory('${d.track}',${G.character.currentFacility?`'${G.character.currentFacility}'`:"null"})">上一頁</button></div>`)
@@ -2638,18 +2650,18 @@ function dynamicOrgIntelRows(fid){
 function orgState(){
  const c=G.character;
  c.organizations=c.organizations||{membershipId:null,memberships:[],formerMemberships:[],reputation:{},discovered:[]};
- c.organizations.memberships=Array.isArray(c.organizations.memberships)?c.organizations.memberships:[];
- c.organizations.formerMemberships=Array.isArray(c.organizations.formerMemberships)?c.organizations.formerMemberships:[];
- c.organizations.reputation=c.organizations.reputation||{};
- c.organizations.discovered=Array.isArray(c.organizations.discovered)?c.organizations.discovered:[];
+ const canon=id=>typeof globalThis.resolveOrganizationAlias==="function"?globalThis.resolveOrganizationAlias(id):(DB.organization_merge_map?.[id]||id);
+ c.organizations.memberships=[...new Set((Array.isArray(c.organizations.memberships)?c.organizations.memberships:[]).map(canon).filter(Boolean))];
+ c.organizations.formerMemberships=[...new Set((Array.isArray(c.organizations.formerMemberships)?c.organizations.formerMemberships:[]).map(canon).filter(Boolean))];
+ c.organizations.discovered=[...new Set((Array.isArray(c.organizations.discovered)?c.organizations.discovered:[]).map(canon).filter(id=>worldOrg(id)))];
+ const rep={};for(const [id,v] of Object.entries(c.organizations.reputation||{})){const k=canon(id),n=Number(v||0);if(rep[k]==null||Math.abs(n)>Math.abs(rep[k]))rep[k]=n}c.organizations.reputation=rep;
+ if(c.organizations.contribution&&typeof c.organizations.contribution==="object"){const next={};for(const [id,v] of Object.entries(c.organizations.contribution)){const k=canon(id);if(next[k]==null)next[k]=v}c.organizations.contribution=next}
  const valid=[...new Set(c.organizations.memberships.filter(id=>worldOrg(id)))];
- let active=worldOrg(c.organizations.membershipId)?c.organizations.membershipId:null;
+ const requested=canon(c.organizations.membershipId);let active=worldOrg(requested)?requested:null;
  if(!active&&valid.length)active=valid.at(-1);
  for(const id of valid)if(id!==active&&!c.organizations.formerMemberships.includes(id))c.organizations.formerMemberships.push(id);
- c.organizations.membershipId=active||null;
- c.organizations.memberships=active?[active]:[];
- G.worldState.orgRelations=G.worldState.orgRelations||{};
- G.worldState.orgEvents=G.worldState.orgEvents||[];
+ c.organizations.membershipId=active||null;c.organizations.memberships=active?[active]:[];
+ G.worldState.orgRelations=G.worldState.orgRelations||{};G.worldState.orgEvents=G.worldState.orgEvents||[];
  return c.organizations
 }
 function orgRep(id){return orgState().reputation[id]||0}
@@ -2754,12 +2766,14 @@ function openWorldOrganizations(){
  showModal("世界組織",`<div class="card small">目前加入：${active?`${active.name}<br>加成：${affiliationBonusText(active.member_bonus)}`:"無"}<br>角色同時只能正式加入一個組織；退出後加成立即取消。公開組織可直接查看；地下組織需透過情報、奇遇或其他關係發現。</div><div class="card"><b>近期勢力動向</b>${events}</div>${body}`)
 }
 function openOrganization(id){
- const o=worldOrg(id);if(!o)return;discoverOrganization(id);
+ const o=worldOrg(id);if(!o)return;id=o.id;discoverOrganization(id);
  const s=orgState(),member=s.membershipId===id,gate=canJoinOrganization(o);
  const rels=(DB.world_organizations||[]).filter(x=>x.id!==id).map(x=>({o:x,r:currentOrgRelation(id,x.id)})).filter(x=>Math.abs(x.r.score)>=25).sort((a,b)=>Math.abs(b.r.score)-Math.abs(a.r.score)).slice(0,5);
  const relHtml=rels.map(x=>`<div class="small">${x.o.name}：${orgRelationLabel(x.r.state)} ${x.r.score>=0?"+":""}${x.r.score}</div>`).join("")||"<div class='small'>目前沒有明顯外交關係。</div>";
- const b=o.member_bonus;
+ const b=o.member_bonus,features=(o.distinctive_features||[]).slice(0,5),branches=(o.branches||[]).slice(0,8);
  showModal(o.name,`<div class="card"><b>${o.name}</b> <span class="tier">${o.alignment==="light"?"光明":o.alignment==="dark"?"黑暗":"中立"}</span><br>${o.category}｜${o.scope}<br><span class="small">${o.description}<br>聲望 ${orgRep(id)}｜主要據點介面：${DB.facilities[o.primary_facility]?.name||o.primary_facility}</span></div>
+ <div class="card"><b>歷史與現狀</b><br><span class="small">${o.history_summary||"沿革資料尚待整理。"}<br><br><b>現況：</b>${o.current_state||"目前維持既有職能。"}</span></div>
+ <div class="card"><b>不可替代的特色</b><br><span class="small">${features.length?"• "+features.join("<br>• "):o.signature||"尚未整理"}${o.institutional_culture?`<br><br><b>制度文化：</b>${o.institutional_culture}`:""}${o.strategic_tension?`<br><b>當前張力：</b>${o.strategic_tension}`:""}${branches.length?`<br><br><b>已整併分會／部門：</b>${branches.map(x=>x.name).join("、")}`:""}</span></div>
  <div class="card"><b>組織加成｜${b?.name||"未設定"}</b><br><span class="small">${affiliationBonusText(b)}<br>${member?"目前生效中；退出組織後立即取消。":"正式加入後生效；角色同時只能加入一個組織。"}</span></div>
  <div class="card"><b>主要關係</b>${relHtml}</div>
  <div class="actions">${member?`<button class="bad" onclick="leaveOrganization('${id}')">退出組織</button>`:`<button ${gate.ok?"":"disabled"} onclick="attemptJoinOrganization('${id}')">${gate.ok?`申請加入（接受度${organizationCompatibility(o)}/100）`:gate.reason}</button>`}
