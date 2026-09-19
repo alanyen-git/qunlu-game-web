@@ -1,17 +1,16 @@
 {
-  "version": "CURRENT-1.71.8",
-  "previous_version": "CURRENT-1.71.7",
+  "version": "CURRENT-1.72.0",
+  "previous_version": "CURRENT-1.71.8",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全面加固鍛造、裁縫、附魔配方：身甲、盾牌、披風、手套與鞋子不再只靠單一材料重複堆量，新增成對物件最低量、至少兩種結構素材、素材階級限制與銀飾主材修正。",
+  "summary": "程序架構整理：建立共用核心、正式程序清單與載入順序稽核，移除未載入舊模組，並讓入口、PWA快取與GitHub部署驗證維持同一套程式集合。",
   "changelog": [
-    "EQUIPMENT-RECIPE-BALANCE升級至1.2；二次稽核確認1.71.7仍有『總量達標但結構過度簡化』的配方，例如精鋼鎖甲只用精鋼錠、硬皮甲只用硬化皮革、旅行靴只用一份皮革。",
-    "身甲、盾牌、披風、手套、鞋子現在至少需要2種結構素材；依主材自動補內襯、束帶、線材、皮革或固定／研磨材料，且補材階級不得高於成品。",
-    "手套與鞋子新增成對物件最低素材量：F/E至少2、D/C至少3、B/A/S依階級提高；小型帽子、戒指、護符與短刃不強制雙素材，避免反向過度耗材。",
-    "典型修正：厚布甲＝麻布＋亞麻、硬皮甲＝硬化皮革＋絲線、精鋼鎖甲＝精鋼＋硬化皮革、黑鐵圓盾＝黑鐵＋硬化皮革、低階皮手套／旅行靴＝皮革＋布料內襯。",
-    "銀戒指與銀月耳環改用銀礦石＋白水晶；皮手套加入內襯後基準價由6調為10，避免素材成本高於成品價值。",
-    "最終模擬要求：裝備語意、裝備結構、全配方經濟與最終載入稽核均為0問題；PWA快取升級至v62，存檔相容。"
+    "bootstrap.js由空殼升級為QUNLU-CORE-1.0，共用發布版本、F-S階級、資料查找、數值工具、去重與程序註冊；不改遊戲規則與存檔格式。",
+    "新增PROGRAM-REGISTRY-1.0，將43個正式src程序依核心、資料、runtime、世界、成長、命名、生存、最終稽核分組，並驗證入口缺漏、重複載入與載入順序。",
+    "index.html所有src程序統一使用CURRENT-1.72.0快取版本參數；Service Worker同步相同程序集合並升級快取。",
+    "移除未被正式入口載入的舊player-experience-v1、system-integrity-v1、system-integrity-v3；歷史仍保留在Git版本紀錄。",
+    "發布完整性與版本同步改讀共用版本來源；GitHub Actions新增程序集合一致性與孤兒src檔案檢查，避免後續再次出現多版程式混用。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -23,7 +22,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-2.1",
   "naming_protection_revision": "NAMING-PROTECTION-1.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.2",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.3",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -49,7 +48,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.1",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.2",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -125,7 +124,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.8",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.9",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -389,6 +388,30 @@
     "remaining_structural_single_material": 0,
     "final_load_repair": true,
     "deployment_headless_audit": true,
+    "save_compatible": true
+  },
+  "program_registry_revision": "PROGRAM-REGISTRY-1.0",
+  "program_refactor": {
+    "revision": "QUNLU-CORE-1.0",
+    "active_src_programs": 43,
+    "groups": [
+      "core",
+      "data",
+      "runtime",
+      "world",
+      "progression",
+      "naming",
+      "survival",
+      "finalization"
+    ],
+    "removed_inactive_legacy_modules": [
+      "src/player-experience-v1.js",
+      "src/system-integrity-v1.js",
+      "src/system-integrity-v3.js"
+    ],
+    "index_service_worker_sync": true,
+    "orphan_src_guard": true,
+    "load_order_audit": true,
     "save_compatible": true
   }
 }
