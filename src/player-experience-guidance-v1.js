@@ -5,7 +5,7 @@
 (()=>{
   if(typeof DB!=="object"||!DB)return;
   const RELEASE="CURRENT-1.65.0",REV="PLAYER-EXPERIENCE-1.1",PREF_KEY="qunlu_journey_guidance";
-  DB.meta=DB.meta||{};DB.meta.current_version=RELEASE;DB.meta.player_experience_revision=REV;
+  DB.meta=DB.meta||{};DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||RELEASE;DB.meta.player_experience_revision=REV;
   DB.player_experience_system={
     version:REV,save_schema_changed:false,forced_actions:false,
     persona_playtest:{
