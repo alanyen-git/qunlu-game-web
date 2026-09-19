@@ -1,11 +1,11 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.74.0
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.75.0
  * PROGRAM-REGISTRY-1.0
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.74.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.74.0";
+const RELEASE=CORE?.release?.("CURRENT-1.75.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.75.0";
 const REV="PROGRAM-REGISTRY-1.0";
 
 const GROUPS=Object.freeze({
@@ -95,7 +95,8 @@ function audit(){
     ["取水稽核",()=>typeof globalThis.runWaterSourceAudit==="function"],
     ["統一命名",()=>typeof globalThis.runNameGeneratorAudit==="function"],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
-    ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass]
+    ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
+    ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]
   ];
   for(const [name,test] of critical){let ok=false;try{ok=!!test()}catch(error){}if(!ok)issues.push("關鍵程序不可用:"+name)}
 

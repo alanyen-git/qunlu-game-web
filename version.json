@@ -1,18 +1,17 @@
 {
-  "version": "CURRENT-1.74.0",
-  "previous_version": "CURRENT-1.73.0",
+  "version": "CURRENT-1.75.0",
+  "previous_version": "CURRENT-1.74.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全世界命名重構：以文化圈、地理、用途與歷史取代萬用華麗詞根；修復東方劍術正史被西化與柳生唯心流拼寫衝突，名稱生成器改為文化語義先行。",
+  "summary": "活世界循環成為共同底層：世界事件鏈、城鎮狀態、動態傳聞調查與NPC反應統一接軌，後續劇情、委託、怪物與生產內容可自動進入同一循環。",
   "changelog": [
-    "WORLD-NAMING-3.0：8個文化圈分區治理，世界內名稱與管理AI／生成器內部名稱分開稽核。",
-    "東方劍術正史恢復：武士刀、道場、家系與『○○流』在東方文化圈合法；撤銷先前自動西化成長劍／大劍的映射。",
-    "正史統一採『柳生唯心流』；舊拼寫『柳生惟心流』與『白柳劍術學派』安全正規化，不改ID或存檔schema。",
-    "NAME-GENERATOR-3.0：人物、聚落、組織、流派、怪物、委託各自依文化與語義來源生成；普通內容不濫用史詩華麗詞。",
-    "EQUIPMENT-NAMING-REFERENCE-1.1：武士刀正式納入裝備詞庫並使用東方獨立意象池。",
-    "修正柳橋鎮鎮守官、松谷村村長、石渡鎮鎮長、白石城城務官、自由傭兵工會等重複或不合用語名稱。",
-    "保留全部資料ID、戰鬥數值、經濟規則與既有存檔相容性。"
+    "LIVE-WORLD-LOOP-1.0：建立共用事件匯流排，整合既有自主世界事件、劇情委託成果、奇遇、怪物壓力與生產活動。",
+    "城鎮狀態新增治安、供應、秩序、繁榮、情報、生態六維度；商隊抵達、資源枯竭、地下城佔領、委託成果等會寫回地方狀態。",
+    "動態傳聞由世界事件生成，具未核實／可信／已核實層級；玩家可在相關地點進行D20調查並留下證據。",
+    "NPC-DEPTH-2.0沿用既有知識與關係網，不建立平行AI；活世界事件會送入NPC工作情報，使議程、勤務與對話反應接續現有機制。",
+    "阿斯戴爾13個連鎖委託、12個奇遇與7條劇情脈絡由地區專用runtime遷移到共同底層；舊asdailNarrative存檔自動匯入並持續鏡像相容。",
+    "建立內容自動接入索引：新增委託、奇遇、怪物、可製作物與料理資料會自動納入活世界上下文；保留現有ID、角色進度與存檔相容性。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -430,8 +429,8 @@
     "programs_loaded": 45,
     "stateful_tests": 8,
     "stateful_tests_passed": 8,
-    "full_audits_executed": 25,
-    "full_audits_passed": 25,
+    "full_audits_executed": 26,
+    "full_audits_passed": 26,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -457,7 +456,7 @@
   "program_optimization_revision": "PROGRAM-OPTIMIZE-1.0",
   "program_optimization": {
     "audited_src_programs": 45,
-    "stateless_audits": 25,
+    "stateless_audits": 26,
     "production_artifact_runtime_only": true,
     "excluded_from_public_artifact": [
       "tools",
@@ -470,7 +469,7 @@
     "save_compatible": true
   },
   "asdail_narrative_depth_revision": "ASDAIL-NARRATIVE-DEPTH-1.0",
-  "asdail_narrative_runtime_revision": "ASDAIL-NARRATIVE-RUNTIME-1.0",
+  "asdail_narrative_runtime_revision": "ASDAIL-NARRATIVE-RUNTIME-2.0",
   "asdail_narrative_depth": {
     "region_id": "REG-ASD-01",
     "quest_additions": 13,
@@ -503,6 +502,46 @@
       "柳生唯心流"
     ],
     "duplicate_suffix_repairs": true,
+    "save_compatible": true
+  },
+  "live_world_loop_revision": "LIVE-WORLD-LOOP-1.0",
+  "live_world_loop": {
+    "revision": "LIVE-WORLD-LOOP-1.0",
+    "state_root": "G.worldState.liveWorld",
+    "layers": [
+      "世界事件匯流排",
+      "事件鏈",
+      "城鎮六維狀態",
+      "動態傳聞與調查",
+      "NPC知識／議程橋接",
+      "內容自動接入索引"
+    ],
+    "auto_connect": [
+      "劇情",
+      "委託",
+      "奇遇",
+      "怪物",
+      "生產",
+      "商隊",
+      "資源",
+      "地下城"
+    ],
+    "town_dimensions": [
+      "治安",
+      "供應",
+      "秩序",
+      "繁榮",
+      "情報",
+      "生態"
+    ],
+    "rumor_confidence_levels": [
+      "未核實",
+      "可信",
+      "已核實"
+    ],
+    "legacy_asdail_migration": true,
+    "npc_parallel_ai": false,
+    "save_schema_changed": false,
     "save_compatible": true
   }
 }
