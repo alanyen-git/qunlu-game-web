@@ -6,7 +6,7 @@
   if(typeof DB!=="object"||!DB)return;
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version="CURRENT-1.59.0";
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||"CURRENT-1.59.0";
   DB.meta.market_economy_revision="MARKET-PRICE-SYNC-2.0";
   DB.market_economy_system=DB.market_economy_system||{};
   DB.market_economy_system.local_trade_flow={
