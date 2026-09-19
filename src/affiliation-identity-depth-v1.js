@@ -32,10 +32,12 @@ function scopeLevel(x){
   return r>=5?"world":r>=4?"kingdom":"region";
 }
 function regionAnchor(x){
-  return text(x&&x.region_id)||text(x&&x.world_region_id)||text(x&&x.province_id)||text(x&&x.base_location_id)||"global";
+  const a=text(x&&x.region_id)||text(x&&x.world_region_id)||text(x&&x.province_id)||text(x&&x.base_location_id);
+  return a||("unanchored:"+text(x&&x.id));
 }
 function kingdomAnchor(x){
-  return text(x&&x.political_entity_id)||text(x&&x.kingdom_id)||text(x&&x.country_id)||text(x&&x.region_id)||"world";
+  const a=text(x&&x.political_entity_id)||text(x&&x.kingdom_id)||text(x&&x.country_id)||text(x&&x.region_id);
+  return a||("unanchored:"+text(x&&x.id));
 }
 function anchor(x,scope){
   return scope==="world"?"world":scope==="kingdom"?kingdomAnchor(x):regionAnchor(x);
