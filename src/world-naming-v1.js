@@ -152,7 +152,7 @@
     ...SKILL_RENAMES
   });
 
-  const stats={version:'WORLD-NAMING-1.0',changed:0,skillChanged:0,protectedRecords:0,protectedBranches:0,byOldName:{}};
+  const stats={version:'WORLD-NAMING-1.1',changed:0,skillChanged:0,protectedRecords:0,protectedBranches:0,readOnlySkipped:0,byOldName:{}};
   const seen=new WeakMap();
 
   const protectedText=value=>typeof value==='string'&&PROTECTED_STYLE_NAMES.some(name=>value.includes(name));
@@ -173,11 +173,21 @@
     if(isSkill)stats.skillChanged+=1;
     stats.byOldName[oldName]=(stats.byOldName[oldName]||0)+1;
   };
-  const replaceExact=(value,map,isSkill)=>{
+  const replaceExact=(value,map)=>{
     if(typeof value!=='string')return value;
     const next=map[value];
-    if(next&&next!==value){recordChange(value,isSkill);return next;}
-    return value;
+    return next&&next!==value?next:value;
+  };
+  const assignReplacement=(node,key,value,map,isSkill)=>{
+    const next=replaceExact(value,map);
+    if(next===value)return;
+    const descriptor=Object.getOwnPropertyDescriptor(node,key);
+    if(descriptor&&descriptor.writable===false&&typeof descriptor.set!=="function"){stats.readOnlySkipped+=1;return}
+    try{
+      node[key]=next;
+      if(node[key]===next)recordChange(value,isSkill);
+      else stats.readOnlySkipped+=1;
+    }catch(error){stats.readOnlySkipped+=1}
   };
 
   const walk=(node,mode='regular')=>{
@@ -193,8 +203,8 @@
       for(let i=0;i<node.length;i++){
         const value=node[i];
         if(typeof value==='string'){
-          if(mode==='regular')node[i]=replaceExact(value,NAME_RENAMES,false);
-          else if(mode==='skill')node[i]=replaceExact(value,SKILL_RENAMES,true);
+          if(mode==='regular')assignReplacement(node,i,value,NAME_RENAMES,false);
+          else if(mode==='skill')assignReplacement(node,i,value,SKILL_RENAMES,true);
         }else if(value&&typeof value==='object'){
           walk(value,mode);
         }
@@ -211,7 +221,7 @@
 
       if(mode==='protected'){
         if(SKILL_KEY_RE.test(key)){
-          if(typeof value==='string')node[key]=replaceExact(value,SKILL_RENAMES,true);
+          if(typeof value==='string')assignReplacement(node,key,value,SKILL_RENAMES,true);
           else if(value&&typeof value==='object')walk(value,'skill');
         }else if(value&&typeof value==='object'){
           // 僅向下尋找技能分支；保護模式不修改其他欄位。
@@ -226,7 +236,7 @@
         continue;
       }
 
-      if(typeof value==='string')node[key]=replaceExact(value,NAME_RENAMES,Object.prototype.hasOwnProperty.call(SKILL_RENAMES,value));
+      if(typeof value==='string')assignReplacement(node,key,value,NAME_RENAMES,Object.prototype.hasOwnProperty.call(SKILL_RENAMES,value));
       else if(value&&typeof value==='object')walk(value,'regular');
     }
   };
