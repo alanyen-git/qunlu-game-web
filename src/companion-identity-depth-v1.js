@@ -358,7 +358,7 @@ function supportSkill(c,skill){
  }else if(pattern==="grave_veil"){
    heal=healTarget(c,choice.target,.30,.01);const clean=cleanseOwnerOne();if(clean)extra.push(`驅散${clean}`);addDepthBuff("grave_veil","墓影帷幕",{evasion:4+Math.floor(rank/2),critResist:4+rank,statusResist:4+rank},{},2);
  }else if(pattern==="sanctuary"){
-   heal=healTarget(c,G.character,.72,.035);const clean=cleanseOwnerOne();if(clean)extra.push(`淨化${clean}`);G.battle.companionDepthRescue={source:"sanctuary",untilRound:currentRound()+2,hpPct:18+rank*2};extra.push("短暫預備致命傷救援");
+   choice.label="主人";heal=healTarget(c,G.character,.72,.035);const clean=cleanseOwnerOne();if(clean)extra.push(`淨化${clean}`);G.battle.companionDepthRescue={source:"sanctuary",untilRound:currentRound()+2,hpPct:18+rank*2};extra.push("短暫預備致命傷救援");
  }else heal=healTarget(c,choice.target,.55,.02);
  skillLog(c,skill,`${choice.label}恢復${heal}HP${extra.length?"；"+extra.join("、"):""}。`);return true;
 }
