@@ -525,7 +525,12 @@ globalThis.asdailNarrativeQuestGate=questGate;
 DB.asdail_narrative_runtime_system={version:"ASDAIL-NARRATIVE-RUNTIME-2.0",release:RELEASE,delegated_to:REV,save_compatible:true};
 globalThis.QUNLU_LIVE_WORLD=Object.freeze({revision:REV,emit,context,townState,questGate,publishRumor,investigateRumor,tick:liveWorldTick});
 initialize();
-if(CORE?.registerModule)CORE.registerModule("src/live-world-loop-v1.js",{domain:"world",revision:REV,release:RELEASE});
+setTimeout(()=>{
+ globalThis.__LIVE_WORLD_PRODUCTION_PATCHED=false;
+ patchProductionRuntime();
+ liveWorldTick("post-load");
+},0);
+if(CORE?.registerModule)CORE.registerModule("src/asdail-narrative-runtime-v1.js",{domain:"runtime",revision:REV,release:RELEASE});
 if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>liveWorldTick("visible"),160)});
 if(typeof window!=="undefined")window.addEventListener("focus",()=>setTimeout(()=>liveWorldTick("focus"),160));
 setInterval(()=>liveWorldTick("interval"),CFG.heartbeat_ms);
