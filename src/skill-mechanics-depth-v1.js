@@ -233,7 +233,7 @@ function applySupportMechanics(s,m){
  if(m.traits?.includes("counter_stance"))st.counterReady={power_pct:m.counter_power_pct,name:s.name};
  if(m.guard_stance)b.defending=true;
  if(m.traits?.includes("mobility_stance")){addTemporaryEvasion(m.temporary_evasion);setNextSkill(m)}
- if(m.traits?.includes("focus")||m.traits?.includes("imbue_focus")||m.traits?.includes("battle_preparation"))setNextSkill(m);
+ if(m.traits?.includes("focus")||m.traits?.includes("imbue_focus")||m.traits?.includes("imbue_status")||m.traits?.includes("battle_preparation"))setNextSkill(m);
  if(m.traits?.includes("resource_recovery"))recoverResource(m,s);
  if(m.traits?.includes("party_aura"))applyPartyAura(m);
  if(m.reactive_status)st.reactiveStatus={id:m.reactive_status,chance:m.reactive_status_chance,rounds:2,name:s.name}
