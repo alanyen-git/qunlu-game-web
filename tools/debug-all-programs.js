@@ -203,7 +203,9 @@ try{
   auditNames=vm.runInContext('Object.getOwnPropertyNames(globalThis).filter(k=>/^run[A-Za-z0-9_$]*Audit/.test(k)&&typeof globalThis[k]==="function").sort()',context);
 }catch(error){problems.push("cannot enumerate audits: "+error)}
 const auditReport=[];
+const stateRequiredAuditNames=new Set(["runAudit","runGeneratorAudit"]);
 for(const name of auditNames){
+  if(stateRequiredAuditNames.has(name)){auditReport.push({name,skipped:"requires active game state"});continue}
   try{
     const result=vm.runInContext(`globalThis[${JSON.stringify(name)}]()`,context,{timeout:15000});
     const compact={name,pass:result?.pass};
