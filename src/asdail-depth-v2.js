@@ -276,7 +276,7 @@
   ]);
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version="CURRENT-1.58.0";
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||"CURRENT-1.58.0";
   DB.meta.asdail_depth_revision="ASDAIL-DEPTH-2.0";
   DB.meta.asdail_depth_rules={
     region_id:"REG-ASD-01",
