@@ -1,7 +1,7 @@
 (()=>{
 "use strict";
 
-const REVISION="DUNGEON-DEPTH-2.1";
+const REVISION="DUNGEON-DEPTH-2.2";
 const EQUIPMENT_TYPES=new Set(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"]);
 const TYPE_LABELS={
  corridor:"通道／探索區",
@@ -39,15 +39,16 @@ const PROFILES={
 };
 
 const BOSS_LOOT_PROFILES={
- F:{bonusItemChance:.30,equipmentChance:.10,sameTierShare:.10,moneyQuality:1.25},
- E:{bonusItemChance:.34,equipmentChance:.14,sameTierShare:.14,moneyQuality:1.28},
- D:{bonusItemChance:.38,equipmentChance:.18,sameTierShare:.18,moneyQuality:1.32},
- C:{bonusItemChance:.42,equipmentChance:.22,sameTierShare:.22,moneyQuality:1.36},
- B:{bonusItemChance:.46,equipmentChance:.26,sameTierShare:.26,moneyQuality:1.40},
- A:{bonusItemChance:.50,equipmentChance:.30,sameTierShare:.30,moneyQuality:1.45},
- S:{bonusItemChance:.54,equipmentChance:.34,sameTierShare:.35,moneyQuality:1.50}
+ F:{bonusItemChance:.30,equipmentChance:.10,topUsableShare:1.00,moneyQuality:1.25},
+ E:{bonusItemChance:.34,equipmentChance:.14,topUsableShare:.14,moneyQuality:1.28},
+ D:{bonusItemChance:.38,equipmentChance:.18,topUsableShare:.18,moneyQuality:1.32},
+ C:{bonusItemChance:.42,equipmentChance:.22,topUsableShare:.22,moneyQuality:1.36},
+ B:{bonusItemChance:.46,equipmentChance:.26,topUsableShare:.80,moneyQuality:1.40},
+ A:{bonusItemChance:.50,equipmentChance:.30,topUsableShare:.90,moneyQuality:1.45},
+ S:{bonusItemChance:.54,equipmentChance:.34,topUsableShare:1.00,moneyQuality:1.50}
 };
 const BOSS_LOOT_LUCK_CAP=1.25;
+const BOSS_DIRECT_EQUIPMENT_TIER_CAP="C";
 
 const SPECIALS=[
  {id:"DS-ECHO",min:"F",name:"前代遠征記號",stat:"智力",dc:10,text:"牆面留下前代探索者的路標與危險符號。",success:"你辨讀出安全路線，附近房間的輪廓被標記。",fail:"符號年代過久，只能確認這裡曾有其他隊伍活動。",effect:"reveal"},
@@ -175,14 +176,19 @@ function safeTreasurePool(l){
    return src.includes("loot")||src.includes("exploration")||src.includes("dungeon")
  })
 }
-function equipmentPool(l){
- const cap=dungeonCapTier(l);
+function equipmentPool(l,capOverride=null){
+ const cap=capOverride==null?dungeonCapTier(l):Math.min(dungeonCapTier(l),Math.max(0,Math.round(capOverride)));
  return (DB.items||[]).filter(d=>{
    if(!d||d.sealed||d.unique||!EQUIPMENT_TYPES.has(d.type)||tierOrder(d.tier)>cap)return false;
    const src=Array.isArray(d.acquisition_sources)?d.acquisition_sources:[];
    if(src.length&&!src.some(x=>["loot","dungeon","exploration"].includes(x)))return false;
    return true
  })
+}
+function maxDirectEquipmentTierRank(l){
+ const cap=Math.min(dungeonCapTier(l),tierOrder(BOSS_DIRECT_EQUIPMENT_TIER_CAP));
+ const pool=equipmentPool(l,cap);
+ return pool.length?Math.max(...pool.map(d=>tierOrder(d.tier))):-1
 }
 function grantTreasure(l,quality=1,itemChanceOverride=null){
  const cap=typeof adventureEventMoneyCap==="function"?adventureEventMoneyCap(l,l.tier):20;
@@ -198,8 +204,9 @@ function grantTreasure(l,quality=1,itemChanceOverride=null){
  return got
 }
 function grantEquipment(l,boss=false,targetTierRank=null){
- const pool=equipmentPool(l);if(!pool.length)return null;
- const cap=dungeonCapTier(l);let candidates=pool;
+ const bossCap=boss?maxDirectEquipmentTierRank(l):dungeonCapTier(l);
+ const pool=equipmentPool(l,boss?bossCap:null);if(!pool.length)return null;
+ const cap=boss?bossCap:dungeonCapTier(l);let candidates=pool;
  if(boss){
    let target=targetTierRank==null?cap:clamp(Math.round(targetTierRank),0,cap);
    let exact=pool.filter(d=>tierOrder(d.tier)===target);
@@ -384,10 +391,13 @@ function bossVictoryReward(run){
  const itemChance=Math.min(.68,cfg.bonusItemChance*luck),equipChance=Math.min(.43,cfg.equipmentChance*luck);
  const got=grantTreasure(l,cfg.moneyQuality,itemChance);
  if(Math.random()<equipChance){
-   const cap=dungeonCapTier(l),sameTier=Math.random()<cfg.sameTierShare;
-   let target=sameTier?cap:Math.max(0,cap-1);
-   if(!sameTier&&cap>=2&&Math.random()<.20)target=cap-2;
-   const d=grantEquipment(l,true,target);if(d)got.push(d.name+"［"+d.tier+"］")
+   const cap=maxDirectEquipmentTierRank(l);
+   if(cap>=0){
+     const top=Math.random()<cfg.topUsableShare;
+     let target=top?cap:Math.max(0,cap-1);
+     if(!top&&cap>=2&&Math.random()<.20)target=cap-2;
+     const d=grantEquipment(l,true,target);if(d)got.push(d.name+"［"+d.tier+"］")
+   }
  }
  if(run.cooperationBonus>0)got.push("合作地圖紀錄");
  log("Boss 戰利品","最深處寶箱：取得 "+got.join("、")+"。","ok")
@@ -469,10 +479,19 @@ function dungeonAuditIssues(){
    else{
      if(!(b.bonusItemChance>=0&&b.bonusItemChance<=.60))issues.push("Boss額外道具率異常:"+tier);
      if(!(b.equipmentChance>=0&&b.equipmentChance<=.40))issues.push("Boss裝備率異常:"+tier);
-     if(!(b.sameTierShare>=0&&b.sameTierShare<=.40))issues.push("Boss同階裝備占比異常:"+tier);
+     if(!(b.topUsableShare>=0&&b.topUsableShare<=1))issues.push("Boss最高可用階裝備占比異常:"+tier);
      if(b.equipmentChance>b.bonusItemChance)issues.push("Boss裝備率高於一般額外道具率:"+tier)
    }
  }
+ const staticLootable=(DB.items||[]).filter(d=>{
+   if(!d||d.sealed||d.unique||!EQUIPMENT_TYPES.has(d.type))return false;
+   const src=Array.isArray(d.acquisition_sources)?d.acquisition_sources:[];
+   return !src.length||src.some(x=>["loot","dungeon","exploration"].includes(x))
+ });
+ const maxStatic=staticLootable.length?Math.max(...staticLootable.map(d=>tierOrder(d.tier))):-1;
+ if(maxStatic<0)issues.push("Boss直接裝備池為空");
+ if(maxStatic>=0&&maxStatic<tierOrder(BOSS_DIRECT_EQUIPMENT_TIER_CAP))issues.push("Boss直接裝備池低於設定上限:"+["F","E","D","C","B","A","S"][maxStatic]);
+ if((DB.items||[]).some(d=>EQUIPMENT_TYPES.has(d?.type)&&["B","A","S"].includes(d?.tier)&&d?.sealed===true)&&!String(DB.dungeon_depth_system?.rules||[]).includes("封印")){}
  if(typeof G!=="undefined"&&G){
    ensureState();
    for(const [id,run] of Object.entries(G.dungeonRuns||{})){
@@ -491,6 +510,8 @@ DB.dungeon_depth_system={
  world_tier_profiles:PROFILES,
  boss_loot_profiles:BOSS_LOOT_PROFILES,
  boss_loot_luck_cap:BOSS_LOOT_LUCK_CAP,
+ boss_direct_equipment_tier_cap:BOSS_DIRECT_EQUIPMENT_TIER_CAP,
+ boss_direct_equipment_policy:"B/A/S裝備仍受封印且目前無裝備解封runtime，因此Boss寶箱只直接掉落最高C級可用裝備；高階裝備待解封系統完成後再開放。",
  room_types:Object.keys(TYPE_LABELS),
  features:["依世界層級產生多張地下城內部地圖","機關陷阱房","財寶房","裝備房","地下城專屬奇遇","精英怪物","最深處Boss房","Boss獨立掉落率與來源限制","高階地下城NPC團隊競爭／合作","完成後依層級重整冷卻","地下城進度寫入既有本機存檔"],
  rules:[
@@ -500,6 +521,7 @@ DB.dungeon_depth_system={
    "高階地下城提高 NPC 團隊遭遇率，但合作與競爭結果仍由 D20 與角色能力決定。",
    "Boss本體只保留符合怪物生態的素材掉落；人型Boss的一般金錢／裝備掉落停用，改由最深處寶箱統一處理。",
    "Boss寶箱裝備只允許loot／dungeon／exploration來源或未標示舊資料，不會抽到明確限定商店／製作／組織來源的裝備。",
+   "B/A/S裝備目前全部仍屬封印裝備且沒有正式解封runtime，因此Boss直接可用裝備最高只到C級；高階Boss提高抽中最高可用階裝備的占比，不假裝存在B/A/S直接掉落。",
    "Boss掉寶倍率最多將寶箱機率放大至1.25倍；S級額外裝備基準34%，避免幸運值把高階裝備推近必掉。",
    "地下城完成後有重整時間，避免無限重複刷取 Boss 與寶藏。"
  ],
@@ -507,7 +529,10 @@ DB.dungeon_depth_system={
  save_compatible:true
 };
 DB.meta.dungeon_depth_revision=REVISION;
-if(DB.integration_registry?.optimization_notes)DB.integration_registry.optimization_notes.push("CURRENT-1.67.0／DUNGEON-DEPTH-2.0：地下城改為依世界層級生成多樓層地圖，加入陷阱、財寶、裝備、專屬奇遇、精英、最深處Boss與高階NPC團隊競合；既有地點ID與舊存檔原地相容。");
+if(DB.integration_registry?.optimization_notes){
+ DB.integration_registry.optimization_notes.push("CURRENT-1.67.0／DUNGEON-DEPTH-2.0：地下城改為依世界層級生成多樓層地圖，加入陷阱、財寶、裝備、專屬奇遇、精英、最深處Boss與高階NPC團隊競合；既有地點ID與舊存檔原地相容。");
+ DB.integration_registry.optimization_notes.push("CURRENT-1.70.8／DUNGEON-DEPTH-2.2：Boss掉落稽核確認B/A/S裝備仍全數封印且無解封runtime；直接可用Boss裝備上限改為C級，改以最高可用階權重取代不存在的高階同階掉落宣稱。");
+}
 
 ensureState();
 
