@@ -47,6 +47,8 @@ function audit(){
   else issues.push("配方V2:稽核runtime缺失");
   if(typeof globalThis.runWaterSourceAudit==="function")pushResult(issues,"取水:",globalThis.runWaterSourceAudit());
   else issues.push("取水:稽核runtime缺失");
+  if(typeof globalThis.runEquipmentNamingReferenceAudit==="function")pushResult(issues,"裝備命名:",globalThis.runEquipmentNamingReferenceAudit());
+  else issues.push("裝備命名:稽核runtime缺失");
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{items:(DB.items||[]).length,monsters:(DB.monsters||[]).length,locations:(DB.locations||[]).length,companions:(DB.companion_species||[]).length,static_issue_count:STATIC_ISSUES.length}};
 }
 const base=globalThis.runGeneratorAudit;
