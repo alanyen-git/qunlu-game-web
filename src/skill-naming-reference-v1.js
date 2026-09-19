@@ -1,6 +1,6 @@
 /* 群陸旅誌：技能命名與語義參考 CURRENT-1.70.4
  * SKILL-NAMING-REFERENCE-1.0
- * 將使用者提供的大型技能名稱清單萃取為15類通用技能語彙與效果驗證規則。
+ * 將使用者提供的大型技能名稱清單萃取為15類核心語彙，並補CURRENT九元素所需2類延伸，共17類技能參照與效果驗證規則。
  * 不直接批量新增換皮技能；新增技能仍必須符合CURRENT技能欄位、階級、職業、元素與實際runtime效果。
  */
 (()=>{
@@ -24,6 +24,8 @@ const FAMILIES=Object.freeze({
   unarmed:Object.freeze({label:"徒手與格鬥",track:"physical",weapons:["徒手","拳套","棍"],schools:["格鬥","武僧"],verbs:["拳","踢","掌","摔","擒拿","肘擊"],motifs:["連擊","卸力","破防","震波","護體","點穴"]}),
   defense:Object.freeze({label:"防禦與戰術架式",track:"physical",weapons:["盾牌","任意"],schools:["盾技","戰術"],verbs:["格檔","招架","援護","閃避","指揮"],motifs:["姿態","架式","壁壘","陣型","殿後","迎擊"]}),
   rage:Object.freeze({label:"野性與怒氣",track:"physical",weapons:["斧錘","大劍","徒手"],schools:["狂戰","野性"],verbs:["狂暴","怒吼","衝鋒","撕裂","踐踏"],motifs:["怒火","嗜血","不屈","荒野","巨力","死戰"]}),
+  elemental_general:Object.freeze({label:"泛元素術式",track:"magic",schools:["元素","元素法術"],verbs:["元素","元素彈","元素衝擊","元素洪流"],motifs:["共鳴","結界","爆發","引導","融合"]}),
+  sacred_life:Object.freeze({label:"神聖與生命",track:"magic",elements:["光明","生命"],schools:["神聖","治療","生命"],verbs:["聖光","治癒","祝福","淨化","祈禱"],motifs:["護佑","結界","恢復","裁決","復甦","庇護"]}),
   fire:Object.freeze({label:"火焰與熱能",track:"magic",element:"火",schools:["火焰"],verbs:["火球","爆炎","烈焰","熔岩","灼熱"],motifs:["飛彈","風暴","新星","護盾","結界","烙印"]}),
   frost:Object.freeze({label:"冰霜與寒氣",track:"magic",element:"水",schools:["冰霜"],verbs:["冰箭","寒冰","霜凍","冰晶","冰封"],motifs:["射線","風暴","新星","護盾","地刺","枷鎖"]}),
   storm:Object.freeze({label:"雷霆與疾風",track:"magic",elements:["雷","風"],schools:["雷電","風"],verbs:["雷擊","閃電","風刃","旋風","真空"],motifs:["風暴","射線","護盾","鎖鏈","新星","結界"]}),
@@ -84,6 +86,8 @@ function inferFamily(skill={}){
     ["unarmed",/徒手|拳|掌|踢|擒拿|摔|肘|武僧/],
     ["defense",/盾|防禦|格檔|招架|援護|陣型|姿態|架式|壁壘/],
     ["rage",/狂暴|怒氣|怒火|野性|嗜血|怒吼/],
+    ["sacred_life",/聖光|神聖|治癒|療癒|祝福|祈禱|淨化|生命|復甦|庇護/],
+    ["elemental_general",/元素|星芒|星光|星軌|星落|占星/],
     ["fire",/火|炎|熔岩|灰燼/],
     ["frost",/冰|霜|寒/],
     ["storm",/雷|電|風|真空|龍捲/],
@@ -106,7 +110,7 @@ function validateSkillName(name,tier="F",context={}){
   if(/(?:火|炎|熔岩)/.test(s)&&model.element&&model.element!=="火")warnings.push("名稱為火系但element不是火");
   if(/(?:冰|霜|寒)/.test(s)&&model.element&&model.element!=="水")warnings.push("名稱為冰霜系但element不是水");
   if(/(?:雷|電)/.test(s)&&model.element&&model.element!=="雷")warnings.push("名稱為雷系但element不是雷");
-  if(/(?:風|真空|龍捲)/.test(s)&&model.element&&model.element!=="風")warnings.push("名稱為風系但element不是風");
+  if(/(?:疾風|狂風|旋風|龍捲|真空|風刃|風切|風行|風之|風輪|風壁)/.test(s)&&model.element&&model.element!=="風")warnings.push("名稱為風系但element不是風");
   if(context.allowExisting!==true&&allSkills().some(x=>clean(x.name)===s&&tierOf(x.tier)===t))warnings.push("CURRENT已有同名同階技能，新增前應先查重");
   return {ok:issues.length===0,name:s,tier:t,issues:[...new Set(issues)],warnings:[...new Set(warnings)],revision:REV};
 }
@@ -160,7 +164,7 @@ function audit(){
 
 DB.skill_naming_reference={
   version:REV,release:RELEASE,
-  source_policy:"使用者提供的大型技能清單僅萃取為通用技能語彙、動作結構與效果語義；不批量建立換皮技能。",
+  source_policy:"使用者提供的大型技能清單萃取15類核心語彙；另依CURRENT九元素補泛元素與神聖／生命2類。僅作動作結構與效果語義參考，不批量建立換皮技能。",
   families:FAMILIES,
   rules:[
     "技能名稱必須對應實際技能資料；破甲、麻痺、中毒、治癒、召喚、汲取、反射、隱形等詞不可只作裝飾。",
