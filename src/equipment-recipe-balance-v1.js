@@ -1,19 +1,20 @@
-/* 群陸旅誌：裝備配方物量與語意平衡 CURRENT-1.71.7
- * EQUIPMENT-RECIPE-BALANCE-1.1
+/* 群陸旅誌：裝備配方物量與語意平衡 CURRENT-1.71.8
+ * EQUIPMENT-RECIPE-BALANCE-1.2
  * 檢查鍛造、裁縫、附魔的成品體積、結構素材、素材成本與名稱／材質語意。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.71.7";
-const REV="EQUIPMENT-RECIPE-BALANCE-1.1";
+const RELEASE="CURRENT-1.71.8";
+const REV="EQUIPMENT-RECIPE-BALANCE-1.2";
 const PROF={鍛造:"blacksmith",裁縫:"tailor",附魔:"enchanter"};
 const TARGET={
   body:{F:2,E:3,D:3,C:4,B:5,A:6,S:7},
   shield:{F:2,E:3,D:3,C:4,B:5,A:6,S:7},
   twohand:{F:2,E:3,D:3,C:4,B:5,A:6,S:7},
-  cape:{F:2,E:2,D:3,C:4,B:5,A:6,S:7}
+  cape:{F:2,E:2,D:3,C:4,B:5,A:6,S:7},
+  pair:{F:2,E:2,D:3,C:3,B:4,A:5,S:6}
 };
 
 const byId=id=>(DB.items||[]).find(x=>x?.id===id)||null;
@@ -40,6 +41,10 @@ function rename(id,name,reason){
 function setMaterialLabel(id,label,reason){
   const d=byId(id);if(!d||d.material===label)return;
   d.material=label;note(id,"material_label",reason||label);
+}
+function setValueFloor(id,min,reason){
+  const d=byId(id);if(!d||Number(d.value||0)>=min)return;
+  d.value=min;note(id,"value_floor",reason||String(min));
 }
 
 function applySemanticOverrides(){
@@ -70,6 +75,9 @@ function applySemanticOverrides(){
 
   setRecipe("EQ-BONE-WAND","鍛造",[["MAT-CRAFT-02",1],["MAT-CRAFT-16",1],["MAT-GEM-06",1]],[],"骨木咒杖補回骨材、木材與法術媒材");
   setRecipe("EQ31-076","附魔",[["MAT-CRAFT-16",1],["MAT-GEM-06",1]],[],"赤牙骨墜補回骨材，保留白水晶媒材");
+  setRecipe("EQ10-R01","鍛造",[["MAT-ORE-02",1],["MAT-GEM-06",1]],[],"銀戒指補回銀材與白水晶鑲嵌");
+  setRecipe("EQ10-E01","鍛造",[["MAT-ORE-02",1],["MAT-GEM-06",1]],[],"銀月耳環補回銀材與白水晶鑲嵌");
+  setValueFloor("EQ-GLOVE",10,"皮手套加入內襯後同步校正基準價，避免素材成本高於成品");
 
   setRecipe("EQ-GAUNTLET","鍛造",[["MAT-ORE-18",2],["MAT-CRAFT-13",1]],[],"精鋼護手改為精鋼外殼＋皮革內襯，避免素材成本高於成品");
   setRecipe("EQ10-H04","裁縫",[["MAT-CRAFT-13",1],["MAT-CRAFT-08",1]],[],"盜賊兜帽依皮革設定補回硬化皮革");
@@ -84,6 +92,8 @@ function applySemanticOverrides(){
   setMaterialLabel("EQ-TWIN-BLADE","黑鐵","移除舊優質皮革模板");
   setMaterialLabel("EQ-AMBER-RING","黑鐵／白水晶","同步白晶戒指配方");
   setMaterialLabel("EQ-HUNTER-TALISMAN","黑鐵／白水晶／兇狼牙","同步牙飾配方");
+  setMaterialLabel("EQ10-R01","銀／白水晶","同步銀戒指配方");
+  setMaterialLabel("EQ10-E01","銀／白水晶","同步銀月耳環配方");
   setMaterialLabel("EQ7-W09","橡木／白水晶","移除舊黑鐵／優質皮革模板");
   setMaterialLabel("EQ7-W10","黑鐵","移除舊優質皮革模板");
   setMaterialLabel("EQ7-A05","絲線","移除舊黑鐵／優質皮革模板");
@@ -97,6 +107,7 @@ function category(d){
   if(d?.offhand_profile?.kind==="shield"||/盾牌/.test(String(d?.catalog_subcategory||"")))return "shield";
   if(d?.type==="主武器"&&Number(d?.weapon_profile?.hands||1)>=2)return "twohand";
   if(d?.type==="披風")return "cape";
+  if(d?.type==="手套"||d?.type==="鞋子")return "pair";
   return null;
 }
 function anchor(d){
@@ -107,19 +118,38 @@ function anchor(d){
   return base.find(m=>/錠|礦|木|板|布|皮|革/.test(name(m)))||base[0]||null;
 }
 function fallbackSupport(d,ids){
-  const pick=(...list)=>list.find(id=>byId(id)&&!ids.has(id))||null;
-  const c=category(d),n=String(d?.name||"");
-  if(d?.craft_recipe?.profession==="裁縫")return pick(d.tier==="F"?"MAT-CRAFT-06":"MAT-CRAFT-08","MAT-CRAFT-12","MAT-CRAFT-09");
-  if(c==="shield"||c==="body")return pick("MAT-CRAFT-13","MAT-CRAFT-12","MAT-ORE-26");
+  const rank={F:0,E:1,D:2,C:3,B:4,A:5,S:6},dr=rank[d?.tier]??0;
+  const pick=(...list)=>list.find(id=>{const m=byId(id);return m&&!ids.has(id)&&(rank[m.tier]??99)<=dr})||null;
+  const c=category(d),n=String(d?.name||""),names=mats(d).map(m=>String(byId(m.id)?.name||"")).join("、");
+  if(d?.craft_recipe?.profession==="裁縫"){
+    if(/皮|革/.test(names))return pick("MAT-CRAFT-08","MAT-CRAFT-10","MAT-CRAFT-06","MAT-CRAFT-07");
+    return pick(d.tier==="F"?"MAT-CRAFT-06":"MAT-CRAFT-08","MAT-CRAFT-10","MAT-CRAFT-07","MAT-CRAFT-12","MAT-CRAFT-09");
+  }
+  if(c==="shield"||c==="body"||c==="pair")return pick("MAT-CRAFT-13","MAT-CRAFT-12","MAT-ORE-26","MAT-CRAFT-18");
   if(c==="twohand"&&/槍|戟/.test(n))return pick("MAT-CRAFT-04","MAT-CRAFT-02","MAT-CRAFT-03","MAT-ORE-26");
   if(c==="twohand")return pick("MAT-ORE-26","MAT-CRAFT-13","MAT-CRAFT-12");
   return null;
+}
+
+function needsStructuralMix(d){
+  const c=category(d);
+  return c==="body"||c==="shield"||c==="cape"||c==="pair"
+}
+function ensureStructuralMix(d){
+  if(!needsStructuralMix(d))return;
+  const ids=new Set(mats(d).map(m=>m.id).filter(Boolean));
+  if(ids.size>=2)return;
+  const sid=fallbackSupport(d,ids);if(!sid)return;
+  d.craft_recipe.base_materials=Array.isArray(d.craft_recipe.base_materials)?d.craft_recipe.base_materials:[];
+  d.craft_recipe.base_materials.push({id:sid,qty:1});
+  note(d.id,"structural_support",byId(sid)?.name||sid)
 }
 
 function normalizePhysical(){
   for(const d of DB.items||[]){
     const r=d?.craft_recipe;if(!r||!PROF[r.profession])continue;
     const c=category(d),target=c?(TARGET[c]?.[d.tier]??1):1;
+    ensureStructuralMix(d);
     let total=qty(d);
     while(total<target){
       const a=anchor(d),out=Number(d.value??d.price??0);
@@ -152,6 +182,8 @@ function audit(){
     const material=String(d.material||"");
     const c=category(d),target=c?(TARGET[c]?.[d.tier]??1):1,total=qty(d);
     if(c&&total<target)issues.push(d.id+":"+c+"素材總量不足 "+total+"<"+target);
+    if(needsStructuralMix(d)&&new Set(mats(d).map(m=>m.id).filter(Boolean)).size<2)issues.push(d.id+":"+c+"結構素材種類不足");
+    if((d.id==="EQ10-R01"||d.id==="EQ10-E01")&&!/銀礦石/.test(names))issues.push(d.id+":銀飾配方缺銀材");
     if(cost(d)>Number(d.value??d.price??0)&&Number(d.value??d.price??0)>0)issues.push(d.id+":素材成本高於成品價值 "+cost(d)+">"+Number(d.value??d.price??0));
     if(/^(木材|硬木)$/.test(material)&&!/木|板|枝/.test(names))issues.push(d.id+":木材設定但配方無木材");
     if(/^(硬化皮革|皮革|獸皮|毛皮)$/.test(material)&&!/皮|革|毛/.test(names))issues.push(d.id+":皮革設定但配方無皮革");
@@ -177,7 +209,8 @@ DB.equipment_recipe_balance_system={
   version:REV,release:RELEASE,
   target_quantity:TARGET,
   rules:[
-    "大型裝備依成品體積設定最低素材量；身甲、盾牌、雙手武器與披風不得只沿用通用一單位模板。",
+    "大型與成對裝備依成品體積設定最低素材量；身甲、盾牌、雙手武器、披風、手套與鞋子不得只沿用通用一單位模板。",
+    "身甲、盾牌、披風、手套與鞋子至少需要兩種結構素材，例如外層主材搭配內襯、束帶、線材或研磨／固定材料。",
     "提高素材量時優先增加既有結構主材；若主材成本會高於成品價值，才補入符合部位用途的次要結構素材。",
     "材質標示為木材、硬木、皮革、獸皮、毛皮、自然素材或名稱明示骨材時，配方必須存在對應結構素材。",
     "不為追求數量任意加入不相關魔物素材；特殊魔物素材仍由既有語意規則治理。"

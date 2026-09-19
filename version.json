@@ -1,18 +1,17 @@
 {
-  "version": "CURRENT-1.71.7",
-  "previous_version": "CURRENT-1.71.6",
+  "version": "CURRENT-1.71.8",
+  "previous_version": "CURRENT-1.71.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "完成鍛造、裁縫、附魔配方二次稽核：分離舊材質欄位假警報與真配方異常，補修精鋼護手成本倒掛、皮革裝備缺皮革、牙飾缺牙材等問題。",
+  "summary": "全面加固鍛造、裁縫、附魔配方：身甲、盾牌、披風、手套與鞋子不再只靠單一材料重複堆量，新增成對物件最低量、至少兩種結構素材、素材階級限制與銀飾主材修正。",
   "changelog": [
-    "EQUIPMENT-RECIPE-BALANCE升級至1.1；材質稽核改為只對明確單一材質標籤做硬性判斷，避免舊『黑鐵／優質皮革』模板造成假警報。",
-    "精鋼護手改為精鋼錠×2＋硬化皮革×1，修正原配方素材成本126高於成品價值125的倒掛。",
-    "盜賊兜帽與灰刃行軍靴依材質設定補回硬化皮革；獵人牙飾加入兇狼牙，名稱與實際素材一致。",
-    "現有素材庫沒有琥珀，因此琥珀戒指改名為白晶戒指，與白水晶＋黑鐵配方一致。",
-    "清理術士長袍、林行披風、旅人護符、塔盾配劍、成對短刃、燼火杖、月鋒短刃、導魔長衣、林地斗篷、獵手戒指、巷戰短刃等殘留材質模板標籤。",
-    "保留1.71.6新增的大型裝備物量門檻與木盾、硬皮短甲、藤蔓甲、皮帽、骨木咒杖等結構配方修正。",
-    "PWA快取升級至v61；GitHub Pages仍以語意、裝備物量、經濟與最終載入四層稽核阻擋失衡版本。"
+    "EQUIPMENT-RECIPE-BALANCE升級至1.2；二次稽核確認1.71.7仍有『總量達標但結構過度簡化』的配方，例如精鋼鎖甲只用精鋼錠、硬皮甲只用硬化皮革、旅行靴只用一份皮革。",
+    "身甲、盾牌、披風、手套、鞋子現在至少需要2種結構素材；依主材自動補內襯、束帶、線材、皮革或固定／研磨材料，且補材階級不得高於成品。",
+    "手套與鞋子新增成對物件最低素材量：F/E至少2、D/C至少3、B/A/S依階級提高；小型帽子、戒指、護符與短刃不強制雙素材，避免反向過度耗材。",
+    "典型修正：厚布甲＝麻布＋亞麻、硬皮甲＝硬化皮革＋絲線、精鋼鎖甲＝精鋼＋硬化皮革、黑鐵圓盾＝黑鐵＋硬化皮革、低階皮手套／旅行靴＝皮革＋布料內襯。",
+    "銀戒指與銀月耳環改用銀礦石＋白水晶；皮手套加入內襯後基準價由6調為10，避免素材成本高於成品價值。",
+    "最終模擬要求：裝備語意、裝備結構、全配方經濟與最終載入稽核均為0問題；PWA快取升級至v62，存檔相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -126,7 +125,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.7",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.8",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -346,7 +345,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "equipment_recipe_balance_revision": "EQUIPMENT-RECIPE-BALANCE-1.1",
+  "equipment_recipe_balance_revision": "EQUIPMENT-RECIPE-BALANCE-1.2",
   "equipment_recipe_balance": {
     "scope": [
       "鍛造",
@@ -357,8 +356,19 @@
       "身甲",
       "盾牌",
       "雙手武器",
-      "披風"
+      "披風",
+      "手套",
+      "鞋子"
     ],
+    "structural_mix_guard": [
+      "身甲",
+      "盾牌",
+      "披風",
+      "手套",
+      "鞋子"
+    ],
+    "paired_item_guard": true,
+    "material_tier_cap": true,
     "material_semantic_guard": [
       "木材",
       "硬木",
@@ -366,12 +376,19 @@
       "獸皮",
       "毛皮",
       "自然素材",
-      "骨材"
+      "骨材",
+      "銀飾"
+    ],
+    "small_item_exception": [
+      "帽子",
+      "戒指",
+      "護符",
+      "單手小型武器"
     ],
     "output_cost_ceiling": true,
+    "remaining_structural_single_material": 0,
     "final_load_repair": true,
     "deployment_headless_audit": true,
-    "save_compatible": true,
-    "material_label_false_positive_guard": true
+    "save_compatible": true
   }
 }
