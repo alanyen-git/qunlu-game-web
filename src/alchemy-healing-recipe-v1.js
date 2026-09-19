@@ -1,5 +1,5 @@
-/* 群陸旅誌：生命回復藥劑配方完整性 CURRENT-1.69.4
- * ALCHEMY-HEALING-RECIPE-1.0
+/* 群陸旅誌：生命回復藥劑配方完整性 CURRENT-1.72.1
+ * ALCHEMY-HEALING-RECIPE-1.1
  * 修正低階生命回復品被通用魔物素材模板誤綁黏獸凝膠／核心。
  */
 (()=>{
