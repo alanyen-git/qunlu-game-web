@@ -30,6 +30,7 @@ jobs:
           set -euo pipefail
           node --check sw.js
           for file in src/*.js; do node --check "$file"; done
+          for file in tools/*.js; do node --check "$file"; done
           node <<'NODE'
           const fs = require("fs");
           const path = require("path");

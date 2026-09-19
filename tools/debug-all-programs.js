@@ -317,7 +317,7 @@ statefulStep("death_revival_cycle",()=>{
     reviveAtChurch();
     const after=normalizeRevivalState().remaining;
     if(!G.character.alive||G.character.hp<=0||G.pendingRevival!==null)throw new Error("教會復活未恢復有效角色狀態");
-    if(after!==before-1)throw new Error(`復活次數扣除異常:${before}->${after}`);
+    if(after!==before-1)throw new Error("復活次數扣除異常:"+before+"->"+after);
     return {before,after,locationId:G.character.locationId,hp:G.character.hp};
   })()`,30000);
   ctx("G=structuredClone(__baselineState)");
@@ -352,7 +352,7 @@ statefulStep("crafting_transaction",()=>{
     openCrafting=original;
     const after=Object.fromEntries(mats.map(m=>[m.id,inventoryQty(m.id)]));
     if(G.turn!==turn+1)throw new Error("製作未正確消耗1回合");
-    for(const m of mats)if(after[m.id]!==before[m.id]-m.qty)throw new Error(`製作扣料異常:${m.id} ${before[m.id]}->${after[m.id]}`);
+    for(const m of mats)if(after[m.id]!==before[m.id]-m.qty)throw new Error("製作扣料異常:"+m.id+" "+before[m.id]+"->"+after[m.id]);
     return {item:candidate.id,profession:r.profession,facility:fid,materials:mats.length,turn:G.turn};
   })()`,30000);
   ctx("G=structuredClone(__baselineState)");
