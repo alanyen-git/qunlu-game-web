@@ -403,7 +403,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.1",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 46,
+    "active_src_programs": 47,
     "groups": [
       "core",
       "data",
