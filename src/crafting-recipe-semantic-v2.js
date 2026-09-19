@@ -1,4 +1,4 @@
-/* 群陸旅誌：全配方素材語意與層級完整性 CURRENT-1.69.6
+/* 群陸旅誌：全配方素材語意與層級完整性 CURRENT-1.71.1
  * CRAFTING-RECIPE-SEMANTIC-2.0
  * 在1.69.5語意稽核之上，治理高階模板素材、素材高於成品、料理空配方與高階成品低階素材失真。
  */
@@ -6,8 +6,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.69.6";
-const REV="CRAFTING-RECIPE-SEMANTIC-2.0";
+const RELEASE="CURRENT-1.71.1";
+const REV="CRAFTING-RECIPE-SEMANTIC-2.1";
 const RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const MIN_CORE={F:0,E:0,D:1,C:1,B:3,A:4,S:5};
 const byId=id=>(DB.items||[]).find(x=>x?.id===id)||null;
@@ -90,6 +90,10 @@ setProfession("EQ7-G04","鍛造","blacksmith","精鋼護腕改由鍛造製作");
 setBase("EQ7-G04",[["MAT-ORE-18",1],["MAT-CRAFT-13",1]],"精鋼護腕補回精鋼主材");
 setMonster("EQ7-G04",[],"移除精鋼護腕的毛皮模板");
 rename("EQ7-S05","巨魔皮輕靴","配方以硬化皮革、蜘蛛絲與巨魔厚皮製作");
+setProfession("EQ7-S05","裁縫","tailor","巨魔皮輕靴屬皮革軟裝，改由裁縫製作");
+setBase("EQ7-S05",[["MAT-CRAFT-13",2],["MAT-CRAFT-09",1]],"巨魔皮輕靴主材改為硬化皮革與蜘蛛絲線");
+setMonster("EQ7-S05",[["DROP-GG-18",1]],"巨魔皮輕靴保留巨魔厚皮作為C級特色素材");
+{const d=item("EQ7-S05");if(d){d.material="硬化皮革／巨魔厚皮";mark("EQ7-S05","material_label","移除舊秘銀材質標籤，與實際裁縫配方同步")}}
 rename("EQ7-C04","晶絲披風","配方以寶石與絲材製作，不再誤稱秘銀絲");
 
 // 高階裝備模板。

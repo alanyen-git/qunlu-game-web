@@ -2,7 +2,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.69.3",REV="AFFILIATION-TREASURY-DEPTH-2.2";
+const RELEASE="CURRENT-1.71.1",REV="AFFILIATION-TREASURY-DEPTH-2.3";
 const R={F:0,E:1,D:2,C:3,B:4,A:5,S:6},TIERS=["F","E","D","C","B","A","S"];
 const LEVEL={F:1,E:8,D:20,C:35,B:50,A:70,S:90};
 const RANK_REQ={F:0,E:1,D:2,C:3,B:4,A:5,S:5};
@@ -96,7 +96,7 @@ function archetype(type,a){
 }
 function elementOf(a){
  const t=[a?.name,a?.description,a?.specialty].filter(Boolean).join(" ");
- for(const [re,e] of [[/光|聖/,"光"],[/暗|影|夜/,"暗"],[/火|炎|熔/,"火"],[/風|霧|嵐/,"風"],[/水|潮|海|冰|霜/,"水"],[/地|岩|石/,"地"],[/雷|電/,"雷"],[/生命|森|林|治療/,"生命"],[/死亡|死靈|亡/,"死亡"]])if(re.test(t))return e;
+ for(const [re,e] of [[/光|聖/,"光明"],[/暗|影|夜/,"黑暗"],[/火|炎|熔/,"火"],[/風|霧|嵐/,"風"],[/水|潮|海|冰|霜/,"水"],[/地|岩|石/,"地"],[/雷|電/,"雷"],[/生命|森|林|治療/,"生命"],[/死亡|死靈|亡/,"死亡"]])if(re.test(t))return e;
  return null
 }
 function weaponGroup(type,a,arc){
@@ -314,7 +314,7 @@ DB.affiliation_treasury_depth_system={version:REV,release:RELEASE,save_compatibl
  "B級以上技能仍需職位、角色等級、能力值與技能槽前置，不因加入大型組織直接解鎖。",
  "所有獨有技能使用既有技能XP Lv1-10與Lv6/Lv10里程碑runtime。","獨有技能研習比照副職業學習逐條顯示職位、角色等級、基礎屬性、技能欄、貢獻與據點的需求／目前值。","舊版誓徽／傳承裝僅保留既有持有品，不再與規模化裝備重複供應。"
 ]};
-if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.69.3／${REV}：寶庫依勢力規模擴充數種獨有裝備與技能，規模越大種類與最高層級越高。`);
+if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(`CURRENT-1.71.1／${REV}：寶庫獨有技能元素統一使用CURRENT正式九元素鍵值；光／暗生成結果改為光明／黑暗，避免發布完整性與戰鬥抗性鍵值不一致。`);
 ensureContent();try{if(typeof syncRuntimeIndexesAndMetadata==="function")syncRuntimeIndexesAndMetadata()}catch(e){}ensureSources();patchSync();
 globalThis.openAffiliationTreasury=openTreasury;
 globalThis.learnAffiliationTreasurySkill=learnSkill;

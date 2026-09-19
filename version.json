@@ -1,21 +1,19 @@
 {
-  "version": "CURRENT-1.71.0",
-  "previous_version": "CURRENT-1.70.9",
+  "version": "CURRENT-1.71.1",
+  "previous_version": "CURRENT-1.71.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "寵物／召喚獸能力與升級稽核：修正階級基礎值與絕對等級重複放大、主人等級上限XP囤積與光環絕對等級重複加成，保留既有專屬技能AI與存檔。",
+  "summary": "修正五回合發布完整性自檢：巨魔皮輕靴配方專業／素材同步，以及組織與流派技能光暗元素別名造成的大量無效元素誤報。",
   "changelog": [
-    "全面稽核200種寵物、召喚獸與契約獸：物種base_stats本身已依F-S階級配置，舊runtime再以Lv1為基準每級+3.5%放大，造成D級以上能力重複計算。",
-    "舊公式使平均S級夥伴在Lv90剛取得時僅等級倍率就達4.115x，平均HP約由173放大至711、物攻約45放大至187、魔攻約49放大至201，明顯高於同階一般怪基準。",
-    "COMPANION-GROWTH-1.0改以各物種min_owner_level／階級門檻作為成長基準；剛取得時使用物種base_stats，只有超過取得基準的有效成長等級才增加能力。",
-    "核心HP／物攻／魔攻／防禦每個有效成長等級+2.5%；命中每級+0.35、閃避+0.16、速度+0.10；羈絆與召喚力乘區保留。",
-    "夥伴等級仍不得高於主人，戰鬥勝利仍使用既有35%敵人XP份額；追上主人後改為暫停XP，不再無限囤積未來等級經驗。",
-    "COMPANION-AURA-1.1同步把光環等級倍率改為有效成長等級，不再讓A/S級夥伴剛取得就因絕對Lv70/Lv90直接吃滿15%等級光環加成。",
-    "200種夥伴的專屬技能生成與AI施放邏輯保持不變：主動、輔助、被動皆維持有效；主動／治療技能仍會隨修正後的物攻／魔攻自然成長。",
-    "夥伴面板新增即時HP、物攻、魔攻、防禦、命中、閃避、速度，以及成長基準、有效成長等級、XP暫停狀態。",
-    "既有夥伴物種、等級、羈絆、來源與存檔全部保留；舊存檔若在主人等級上限累積了超額XP，會安全限制在下一級需求以下，不刪除正常等級進度。",
-    "PWA快取升級至v54，公開GitHub Pages同步部署。"
+    "修正配方V1警告：EQ7-S05在V2由秘銀輕靴改名為巨魔皮輕靴後，舊鍛造專業未同步；現改為裁縫／tailor。",
+    "巨魔皮輕靴主材同步為硬化皮革×2＋蜘蛛絲線×1，特色素材為巨魔厚皮×1，材質標籤改為硬化皮革／巨魔厚皮，不再保留秘銀鍛造語意。",
+    "修正AFFILIATION-TREASURY-DEPTH生成器：組織／流派獨有技能的光、暗元素現在直接生成正式鍵值光明、黑暗。",
+    "SKILL-NAMING-REFERENCE-1.1加入光→光明、暗→黑暗正式別名正規化；DB技能與既有存檔中已學技能會安全遷移，不只關閉稽核警告。",
+    "技能命名稽核與名稱元素一致性檢查統一先走canonicalElement，避免舊資料縮寫再次造成發布完整性誤報。",
+    "同源區域魔物資料中的暗元素縮寫同步改為黑暗，與玩家元素抗性及元素傷害鍵值一致。",
+    "不變更技能威力、技能階級、組織解鎖條件或戰鬥數值；本次屬資料一致性與發布完整性修復。",
+    "PWA快取升級至v55；既有角色、技能、配方與存檔相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -53,13 +51,13 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-2.8",
+  "pwa_cache_revision": "PWA-CACHE-FIX-2.9",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
-  "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.2",
+  "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
   "skill_learning_prereq_compare_revision": "SKILL-LEARNING-PREREQ-COMPARE-1.0",
   "alchemy_healing_recipe_revision": "ALCHEMY-HEALING-RECIPE-1.0",
-  "crafting_recipe_semantic_revision": "CRAFTING-RECIPE-SEMANTIC-2.0",
+  "crafting_recipe_semantic_revision": "CRAFTING-RECIPE-SEMANTIC-2.1",
   "crafting_recipe_semantic_audit": {
     "professional_recipes": 595,
     "cooking_recipes": 59,
@@ -163,7 +161,7 @@
     "firearm_generation_blocked": true,
     "save_compatible": true
   },
-  "skill_naming_reference_revision": "SKILL-NAMING-REFERENCE-1.0",
+  "skill_naming_reference_revision": "SKILL-NAMING-REFERENCE-1.1",
   "skill_naming_reference": {
     "existing_skills_audited": 465,
     "reference_families": 17,
@@ -282,5 +280,16 @@
     "bond_gain_per_victory": 0.35,
     "existing_save_compatible": true
   },
-  "companion_unique_skill_runtime_revision": "COMPANION-UNIQUE-SKILL-RUNTIME-1.1"
+  "companion_unique_skill_runtime_revision": "COMPANION-UNIQUE-SKILL-RUNTIME-1.1",
+  "release_integrity_hotfix": {
+    "revision": "RELEASE-INTEGRITY-HOTFIX-1.0",
+    "fixed_recipe": "EQ7-S05",
+    "recipe_profession": "裁縫",
+    "element_aliases": {
+      "光": "光明",
+      "暗": "黑暗"
+    },
+    "saved_skill_migration": true,
+    "save_compatible": true
+  }
 }

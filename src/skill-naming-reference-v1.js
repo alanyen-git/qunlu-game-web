@@ -1,4 +1,4 @@
-/* 群陸旅誌：技能命名與語義參考 CURRENT-1.70.5
+/* 群陸旅誌：技能命名與語義參考 CURRENT-1.71.1
  * SKILL-NAMING-REFERENCE-1.0
  * 將使用者提供的大型技能名稱清單萃取為15類核心語彙，並補CURRENT九元素所需2類延伸，共17類技能參照與效果驗證規則。
  * 不直接批量新增換皮技能；新增技能仍必須符合CURRENT技能欄位、階級、職業、元素與實際runtime效果。
@@ -7,13 +7,14 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="SKILL-NAMING-REFERENCE-1.0";
-const RELEASE="CURRENT-1.70.5";
+const REV="SKILL-NAMING-REFERENCE-1.1";
+const RELEASE="CURRENT-1.71.1";
 const TIER_RANK=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
 const VALID_TIERS=new Set(Object.keys(TIER_RANK));
 const VALID_KINDS=new Set(["主動","輔助","被動"]);
 const VALID_DAMAGE=new Set(["physical","magic","hybrid","heal","cleanse","buff","debuff","passive"]);
 const VALID_ELEMENTS=new Set([null,"","光明","黑暗","火","風","水","地","雷","生命","死亡"]);
+const ELEMENT_ALIASES=Object.freeze({"光":"光明","暗":"黑暗"});
 
 const FAMILIES=Object.freeze({
   blade:Object.freeze({label:"刃術與劍法",track:"physical",weapons:["長劍","短劍","匕首","武士刀"],schools:["劍技","刀術"],verbs:["斬","刺","劈","挑","格檔","招架","反擊"],motifs:["疾風","殘影","破甲","裂地","破空","十字"]}),
@@ -66,6 +67,28 @@ const EFFECT_RULES=Object.freeze([
 ]);
 
 function clean(v){return String(v||"").trim()}
+function canonicalElement(v){
+  if(v==null)return null;
+  const t=clean(v);if(!t)return "";
+  return ELEMENT_ALIASES[t]||t
+}
+function normalizeElementAliases(){
+  let normalized=0,saveChanged=false;
+  const apply=s=>{
+    if(!s||s.element==null)return;
+    const before=s.element,after=canonicalElement(before);
+    if(after!==before){s.element=after;normalized++;return true}
+    return false
+  };
+  for(const pool of Object.values(DB.skill_pools||{}))for(const s of pool||[])apply(s);
+  for(const s of DB.shared_skills||[])apply(s);
+  if(typeof G!=="undefined"&&G?.character?.skills){
+    for(const s of G.character.skills||[])if(apply(s))saveChanged=true;
+    if(saveChanged&&typeof persist==="function")persist()
+  }
+  return normalized
+}
+const NORMALIZED_ELEMENT_ALIAS_COUNT=normalizeElementAliases();
 function tierOf(v){const t=clean(v).toUpperCase();return VALID_TIERS.has(t)?t:"F"}
 function allSkills(){
   const out=[];
@@ -107,10 +130,11 @@ function validateSkillName(name,tier="F",context={}){
   for(const [token,minTier] of Object.entries(GRAND_TOKENS))if(s.includes(token)&&TIER_RANK[t]<TIER_RANK[minTier])issues.push(token+"至少需"+minTier+"級");
   const model=context.skill||context;
   for(const rule of EFFECT_RULES)if(s.includes(rule.token)&&!rule.ok(model))issues.push(rule.token+"名稱缺少對應實裝效果");
-  if(/(?:火|炎|熔岩)/.test(s)&&model.element&&model.element!=="火")warnings.push("名稱為火系但element不是火");
-  if(/(?:冰|霜|寒)/.test(s)&&model.element&&model.element!=="水")warnings.push("名稱為冰霜系但element不是水");
-  if(/(?:雷|電)/.test(s)&&model.element&&model.element!=="雷")warnings.push("名稱為雷系但element不是雷");
-  if(/(?:疾風|狂風|旋風|龍捲|真空|風刃|風切|風行|風之|風輪|風壁)/.test(s)&&model.element&&model.element!=="風")warnings.push("名稱為風系但element不是風");
+  const modelElement=canonicalElement(model.element);
+  if(/(?:火|炎|熔岩)/.test(s)&&modelElement&&modelElement!=="火")warnings.push("名稱為火系但element不是火");
+  if(/(?:冰|霜|寒)/.test(s)&&modelElement&&modelElement!=="水")warnings.push("名稱為冰霜系但element不是水");
+  if(/(?:雷|電)/.test(s)&&modelElement&&modelElement!=="雷")warnings.push("名稱為雷系但element不是雷");
+  if(/(?:疾風|狂風|旋風|龍捲|真空|風刃|風切|風行|風之|風輪|風壁)/.test(s)&&modelElement&&modelElement!=="風")warnings.push("名稱為風系但element不是風");
   if(context.allowExisting!==true&&allSkills().some(x=>clean(x.name)===s&&tierOf(x.tier)===t))warnings.push("CURRENT已有同名同階技能，新增前應先查重");
   return {ok:issues.length===0,name:s,tier:t,issues:[...new Set(issues)],warnings:[...new Set(warnings)],revision:REV};
 }
@@ -140,7 +164,7 @@ function audit(){
     if(!VALID_TIERS.has(clean(s.tier).toUpperCase()))issues.push("技能階級無效:"+skillKey(s));
     if(!VALID_KINDS.has(s.kind||s.display_type))issues.push("技能類型無效:"+skillKey(s));
     if(s.damage_type&&!VALID_DAMAGE.has(s.damage_type))issues.push("技能damage_type無效:"+skillKey(s)+":"+s.damage_type);
-    if(!VALID_ELEMENTS.has(s.element??null))issues.push("技能元素無效:"+skillKey(s)+":"+s.element);
+    if(!VALID_ELEMENTS.has(canonicalElement(s.element??null)))issues.push("技能元素無效:"+skillKey(s)+":"+s.element);
     if(s.skill_level_cap!=null&&Number(s.skill_level_cap)!==10)issues.push("技能等級上限不是10:"+skillKey(s));
     const cid=clean(s.canonical_skill_id);
     if(cid){
@@ -170,13 +194,15 @@ DB.skill_naming_reference={
     "技能名稱必須對應實際技能資料；破甲、麻痺、中毒、治癒、召喚、汲取、反射、隱形等詞不可只作裝飾。",
     "F/E級優先使用斬、刺、射擊、格檔、火球、冰箭等直觀名稱；高階才逐步使用無雙、裁決、萬法、主宰等稱號。",
     "同名同階技能新增前先查canonical_skill_id、技能家族與實際效果，避免只改名稱的重複技能。",
-    "元素名稱須與CURRENT九元素一致：光明、黑暗、火、風、水、地、雷、生命、死亡；冰霜歸水元素。",
+    "元素名稱須與CURRENT九元素一致：光明、黑暗、火、風、水、地、雷、生命、死亡；舊資料光／暗會自動正規化為光明／黑暗，冰霜歸水元素。",
     "主動／輔助／被動、物理／魔法／混合／治療／淨化／增益／減益必須由資料欄位決定，不由名稱猜測。",
     "技能等級上限維持10；Lv6與Lv10里程碑由既有技能成長系統管理。",
     "明顯外部作品招式或混入英文殘字的候選名稱不得加入CURRENT生成詞庫。"
   ],
   grand_tokens:GRAND_TOKENS,
   blocked_tokens:EXTERNAL_OR_BAD_TOKENS,
+  element_aliases:ELEMENT_ALIASES,
+  normalized_element_alias_count:NORMALIZED_ELEMENT_ALIAS_COUNT,
   save_compatible:true
 };
 DB.meta=DB.meta||{};

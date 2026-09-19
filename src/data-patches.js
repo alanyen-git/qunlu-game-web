@@ -1568,7 +1568,7 @@
     {id:"MON-ASD-008",name:"黎明潮骨蟹",tier:"E",lore_role:"一般",habitat:["ASD-WILD-DAWNCOAST"],hp:52,attack:17,defense:9,accuracy:70,damage:[5,10],element:"水",description:"外殼堅硬、行動緩慢的沿岸魔物。"},
     {id:"MON-ASD-009",name:"潮洞歌蛙",tier:"D",lore_role:"一般",habitat:["ASD-DUNGEON-DAWN-TIDE"],hp:78,attack:22,defense:11,accuracy:73,damage:[7,14],element:"水",description:"叫聲會使探索者短暫失去方向，需依潮標辨路。"},
     {id:"MON-ASD-010",name:"灰堡鎧骸",tier:"C",lore_role:"菁英",habitat:["ASD-DUNGEON-GRAY-FORT"],hp:140,attack:33,defense:20,accuracy:75,damage:[11,23],element:"死亡",description:"穿著古代軍鎧的死靈守衛，與地下層封印狀態連動。"},
-    {id:"MON-ASD-011",name:"黑水源噬獸",tier:"B",lore_role:"一般",habitat:["ASD-WILD-BLACKWATER"],hp:165,attack:39,defense:24,accuracy:78,damage:[13,28],element:"暗",description:"黑水源頭的B級魔物，未取得許可不得作為普通遭遇。"},
+    {id:"MON-ASD-011",name:"黑水源噬獸",tier:"B",lore_role:"一般",habitat:["ASD-WILD-BLACKWATER"],hp:165,attack:39,defense:24,accuracy:78,damage:[13,28],element:"黑暗",description:"黑水源頭的B級魔物，未取得許可不得作為普通遭遇。"},
     {id:"MON-ASD-012",name:"王冠石翼獅",tier:"B",lore_role:"菁英",habitat:["ASD-WILD-KINGSWOOD"],hp:190,attack:43,defense:27,accuracy:80,damage:[15,31],element:"風",description:"王家外林內圈的稀有魔物，擊敗後會引起王家封獵與生態調查。"}
   ]);
 
