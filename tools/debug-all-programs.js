@@ -209,7 +209,7 @@ function statefulStep(name,fn){
   }catch(error){
     const message=String(error?.stack||error);
     statefulReport.push({name,pass:false,ms:+(Number(process.hrtime.bigint()-started)/1e6).toFixed(2),error:message});
-    problems.push(\`stateful \${name}: \${message}\`);
+    problems.push(`stateful ${name}: ${message}`);
     return null;
   }
 }
@@ -217,7 +217,7 @@ function ctx(code,timeout=15000){return vm.runInContext(code,context,{timeout})}
 
 let baselineState=null;
 statefulStep("official_character_creation",()=>{
-  const detail=ctx(\`(()=>{
+  const detail=ctx(`(()=>{
     Math.random=()=>0.3141592653589793;
     if(typeof renderAll==="function")renderAll=()=>{};
     if(typeof showModal==="function")showModal=()=>{};
@@ -234,14 +234,14 @@ statefulStep("official_character_creation",()=>{
     const saved=localStorage.getItem("chronicle_save");
     if(!saved)throw new Error("正式建角未產生自動存檔");
     return {characterId:G.character.id,classId:G.character.classId,raceId:G.character.raceId,originId:G.character.originId,saveBytes:saved.length};
-  })()\`);
+  })()`);
   baselineState=ctx("structuredClone(G)");
   return detail;
 });
 
 statefulStep("save_roundtrip",()=>{
   if(!baselineState)throw new Error("缺少建角基準狀態");
-  return ctx(\`(()=>{
+  return ctx(`(()=>{
     persist();
     const raw=localStorage.getItem("chronicle_save");
     if(!raw)throw new Error("persist未寫入chronicle_save");
@@ -249,13 +249,13 @@ statefulStep("save_roundtrip",()=>{
     if(parsed?.meta?.characterId!==G.meta.characterId)throw new Error("存檔characterId round-trip不一致");
     if(parsed?.character?.id!==G.character.id)throw new Error("角色ID round-trip不一致");
     return {bytes:raw.length,turn:parsed.turn,version:parsed.meta.version};
-  })()\`);
+  })()`);
 });
 
 statefulStep("legacy_save_migration",()=>{
   if(!baselineState)throw new Error("缺少建角基準狀態");
   context.__baselineState=structuredClone(baselineState);
-  const detail=ctx(\`(()=>{
+  const detail=ctx(`(()=>{
     G=structuredClone(__baselineState);
     G.meta.version="CURRENT-1.57.0";
     delete G.character.abilityPointEntitlement;
@@ -264,14 +264,14 @@ statefulStep("legacy_save_migration",()=>{
     if(G.meta.version!==QUNLU_RELEASE_VERSION)throw new Error("舊存檔未升至目前版本");
     if(!G.character||!G.worldState||!Array.isArray(G.character.inventory))throw new Error("舊存檔遷移破壞核心欄位");
     return {version:G.meta.version,level:G.character.level,inventory:G.character.inventory.length};
-  })()\`);
+  })()`);
   ctx("G=structuredClone(__baselineState)");
   return detail;
 });
 
 statefulStep("five_turn_full_audit",()=>{
   context.__baselineState=structuredClone(baselineState);
-  const detail=ctx(\`(()=>{
+  const detail=ctx(`(()=>{
     G=structuredClone(__baselineState);
     G.turn=4;
     G.pendingOrganizationEncounter=null;G.pendingPartyOpportunity=null;G.pendingPetOpportunity=null;G.pendingAdventureEvent=null;
@@ -281,14 +281,14 @@ statefulStep("five_turn_full_audit",()=>{
     if(!G.lastAudit)throw new Error("第5回合未觸發runAudit");
     if((G.lastAudit.issues||[]).length)throw new Error("第5回合自檢失敗:"+G.lastAudit.issues.slice(0,12).join("｜"));
     return {turn:G.turn,auditIssues:G.lastAudit.issues.length,saveIndex:G.meta.saveIndex.length};
-  })()\`,30000);
+  })()`,30000);
   ctx("G=structuredClone(__baselineState)");
   return detail;
 });
 
 statefulStep("battle_lifecycle",()=>{
   context.__baselineState=structuredClone(baselineState);
-  const detail=ctx(\`(()=>{
+  const detail=ctx(`(()=>{
     G=structuredClone(__baselineState);
     const enemy=(DB.monsters||[]).filter(x=>x?.tier==="F"&&Number(x.hp)>0).sort((a,b)=>(a.initiative||0)-(b.initiative||0))[0];
     if(!enemy)throw new Error("找不到F級戰鬥測試敵人");
@@ -300,14 +300,14 @@ statefulStep("battle_lifecycle",()=>{
     if(G.battle!==null)throw new Error("finishBattle未清理戰鬥狀態");
     G.character.stats["敏捷"]=oldAgi;
     return {enemy:enemy.id,alive:G.character.alive};
-  })()\`,30000);
+  })()`,30000);
   ctx("G=structuredClone(__baselineState)");
   return detail;
 });
 
 statefulStep("death_revival_cycle",()=>{
   context.__baselineState=structuredClone(baselineState);
-  const detail=ctx(\`(()=>{
+  const detail=ctx(`(()=>{
     G=structuredClone(__baselineState);
     const enemy=(DB.monsters||[]).find(x=>x?.tier==="F"&&Number(x.hp)>0);
     if(!enemy)throw new Error("找不到復活測試敵人");
@@ -317,16 +317,16 @@ statefulStep("death_revival_cycle",()=>{
     reviveAtChurch();
     const after=normalizeRevivalState().remaining;
     if(!G.character.alive||G.character.hp<=0||G.pendingRevival!==null)throw new Error("教會復活未恢復有效角色狀態");
-    if(after!==before-1)throw new Error(\`復活次數扣除異常:\${before}->\${after}\`);
+    if(after!==before-1)throw new Error(`復活次數扣除異常:${before}->${after}`);
     return {before,after,locationId:G.character.locationId,hp:G.character.hp};
-  })()\`,30000);
+  })()`,30000);
   ctx("G=structuredClone(__baselineState)");
   return detail;
 });
 
 statefulStep("crafting_transaction",()=>{
   context.__baselineState=structuredClone(baselineState);
-  const detail=ctx(\`(()=>{
+  const detail=ctx(`(()=>{
     G=structuredClone(__baselineState);
     G.pendingOrganizationEncounter=null;G.pendingPartyOpportunity=null;G.pendingPetOpportunity=null;G.pendingAdventureEvent=null;
     const candidate=(DB.items||[]).find(d=>{
@@ -352,16 +352,16 @@ statefulStep("crafting_transaction",()=>{
     openCrafting=original;
     const after=Object.fromEntries(mats.map(m=>[m.id,inventoryQty(m.id)]));
     if(G.turn!==turn+1)throw new Error("製作未正確消耗1回合");
-    for(const m of mats)if(after[m.id]!==before[m.id]-m.qty)throw new Error(\`製作扣料異常:\${m.id} \${before[m.id]}->\${after[m.id]}\`);
+    for(const m of mats)if(after[m.id]!==before[m.id]-m.qty)throw new Error(`製作扣料異常:${m.id} ${before[m.id]}->${after[m.id]}`);
     return {item:candidate.id,profession:r.profession,facility:fid,materials:mats.length,turn:G.turn};
-  })()\`,30000);
+  })()`,30000);
   ctx("G=structuredClone(__baselineState)");
   return detail;
 });
 
 statefulStep("market_buy_sell_transaction",()=>{
   context.__baselineState=structuredClone(baselineState);
-  const detail=ctx(\`(()=>{
+  const detail=ctx(`(()=>{
     G=structuredClone(__baselineState);G.character.moneySilver=100000;
     let pick=null;
     for(const [fid,f] of Object.entries(DB.facilities||{})){
@@ -389,7 +389,7 @@ statefulStep("market_buy_sell_transaction",()=>{
     shopBuy=originalBuy;shopSell=originalSell;
     if(inventoryQty(d.id)!==beforeQty||G.character.moneySilver<=beforeSellMoney||market.budgetRemaining>=beforeBudget)throw new Error("商店出售交易狀態不一致");
     return {facility:fid,item:d.id,buyPrice:pick.price,sellPrice:shopSellUnitPrice(d),stockBefore:beforeStock,stockAfter:afterBuyStock};
-  })()\`,30000);
+  })()`,30000);
   ctx("G=structuredClone(__baselineState)");
   return detail;
 });
@@ -409,7 +409,7 @@ for(const name of auditNames){
       const issues=vm.runInContext("Array.isArray(G?.lastAudit?.issues)?G.lastAudit.issues:[]",context);
       const compact={name,pass:issues.length===0,issues:issues.slice(0,20),stateful:true};
       auditReport.push(compact);
-      if(issues.length)problems.push(\`\${name}: audit failed: \${JSON.stringify(issues).slice(0,2000)}\`);
+      if(issues.length)problems.push(`${name}: audit failed: ${JSON.stringify(issues).slice(0,2000)}`);
       continue;
     }
     if(name==="runGeneratorAudit"){
@@ -417,18 +417,18 @@ for(const name of auditNames){
       const list=Array.isArray(issues)?issues:[];
       const compact={name,pass:list.length===0,issues:list.slice(0,20),stateful:true};
       auditReport.push(compact);
-      if(list.length)problems.push(\`\${name}: audit failed: \${JSON.stringify(list).slice(0,2000)}\`);
+      if(list.length)problems.push(`${name}: audit failed: ${JSON.stringify(list).slice(0,2000)}`);
       continue;
     }
-    const result=vm.runInContext(\`globalThis[\${JSON.stringify(name)}]()\`,context,{timeout:15000});
+    const result=vm.runInContext(`globalThis[${JSON.stringify(name)}]()`,context,{timeout:15000});
     const compact={name,pass:result?.pass};
     if(Array.isArray(result?.issues))compact.issues=result.issues.slice(0,20);
     if(result?.stats)compact.stats=result.stats;
     auditReport.push(compact);
-    if(result&&result.pass===false)problems.push(\`\${name}: audit failed: \${JSON.stringify(result.issues||[]).slice(0,2000)}\`);
+    if(result&&result.pass===false)problems.push(`${name}: audit failed: ${JSON.stringify(result.issues||[]).slice(0,2000)}`);
   }catch(error){
     auditReport.push({name,error:String(error?.stack||error)});
-    problems.push(\`\${name}: audit threw: \${error?.stack||error}\`);
+    problems.push(`${name}: audit threw: ${error?.stack||error}`);
   }
 }
 
