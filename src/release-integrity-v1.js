@@ -1,12 +1,12 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.70.2
- * RELEASE-INTEGRITY-1.0
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.70.3
+ * RELEASE-INTEGRITY-1.1
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE="CURRENT-1.70.2";
-const REV="RELEASE-INTEGRITY-1.0";
+const RELEASE="CURRENT-1.70.3";
+const REV="RELEASE-INTEGRITY-1.1";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -61,6 +61,6 @@ if(typeof base==="function"&&!base.__releaseIntegrityPatched){
 }
 DB.meta=DB.meta||{};
 DB.meta.release_integrity_revision=REV;
-DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","取水資料","五回合自檢橋接"],save_compatible:true,initial_audit:audit()};
+DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","取水資料","裝備命名參考與外部專名避讓","五回合自檢橋接"],save_compatible:true,initial_audit:audit()};
 globalThis.runReleaseIntegrityAudit=audit;
 })();
