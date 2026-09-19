@@ -1,19 +1,19 @@
-/* 群陸旅誌：裝備命名參考規則 CURRENT-1.70.3
- * EQUIPMENT-NAMING-REFERENCE-1.0
+/* 群陸旅誌：裝備命名參考規則 CURRENT-1.74.0
+ * EQUIPMENT-NAMING-REFERENCE-1.1
  * 由傳統西方奇幻／RPG命名語彙萃取通用文法，不保存或生成外部作品角色、神祇、地名等專有名稱。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="EQUIPMENT-NAMING-REFERENCE-1.0";
-const RELEASE="CURRENT-1.70.3";
+const REV="EQUIPMENT-NAMING-REFERENCE-1.1";
+const RELEASE="CURRENT-1.74.0";
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const CATEGORY_ALIASES={
   weapon:"武器","武器":"武器",armor:"防具","防具":"防具",accessory:"飾品","飾品":"飾品"
 };
 const CATEGORIES=Object.freeze({
-  武器:Object.freeze(["長劍","細劍","短劍","匕首","彎刀","手半劍","雙手大劍","巨劍","戰斧","巨斧","戰鎚","釘頭錘","連枷","長槍","戰戟","三叉戟","戰鐮","長弓","短弓","複合弓","手弩","重弩","法杖","魔杖","權杖"]),
+  武器:Object.freeze(["長劍","細劍","短劍","匕首","彎刀","手半劍","武士刀","雙手大劍","巨劍","戰斧","巨斧","戰鎚","釘頭錘","連枷","長槍","戰戟","三叉戟","戰鐮","長弓","短弓","複合弓","手弩","重弩","法杖","魔杖","權杖"]),
   防具:Object.freeze(["頭盔","戰盔","冠冕","兜帽","面具","胸甲","板甲","重鎧","鎖子甲","皮甲","法袍","手套","護手","臂甲","護腿","戰靴","脛甲","圓盾","鳶盾","塔盾","大盾"]),
   飾品:Object.freeze(["指環","戒指","項鍊","護身符","吊墜","護心鏡","披風","斗篷","腰帶","束帶","徽章","聖物","奇物","護符"])
 });
@@ -29,6 +29,7 @@ const TIER_MATERIALS=Object.freeze({
 const MOTIFS=Object.freeze([
   "晨曦","暮影","灰燼","霜痕","雷紋","潮痕","裂風","月泉","赤岩","深林","銀穗","星砂","靜心","鷹眼","不屈","守望","巡獵","祈誓","熔脈"
 ]);
+const EASTERN_MOTIFS=Object.freeze(["松風","秋水","遠雷","白鷺","薄雲","月影","楓痕","夕潮"]);
 const ELEMENT_MOTIFS=Object.freeze({
   光明:["晨曦","聖光","輝耀"],黑暗:["暮影","幽影","夜紋"],火:["熾焰","熔脈","赤炎"],
   風:["疾風","裂風","逐風"],水:["潮痕","浪紋","月泉"],地:["磐石","赤岩","山衛"],
@@ -75,7 +76,9 @@ function semanticWords(ctx={}){
 function motifPool(ctx={}){
   const e=clean(ctx.element);
   const ep=ELEMENT_MOTIFS[e]||[];
-  return ep.length?[...ep,...MOTIFS]:[...MOTIFS];
+  const eastern=clean(ctx.culture)==='eastern_sword'||clean(ctx.subtype||ctx.type)==='武士刀';
+  const base=eastern?[...EASTERN_MOTIFS]:[...MOTIFS];
+  return ep.length?[...ep,...base]:base;
 }
 function materialFor(tier,ctx={}){
   const explicit=clean(ctx.material);
@@ -146,8 +149,8 @@ function audit(){
 
 DB.equipment_naming_reference={
   version:REV,release:RELEASE,
-  source_policy:"僅萃取使用者提供的傳統奇幻RPG通用命名文法；外部作品人物、神祇、地名與專有名不得進入可生成詞庫。",
-  categories:CATEGORIES,tier_materials:TIER_MATERIALS,motifs:MOTIFS,element_motifs:ELEMENT_MOTIFS,
+  source_policy:"依CURRENT文化圈使用通用奇幻RPG命名文法；武士刀使用獨立東方自然／師承語彙，外部作品專名不得進入可生成詞庫。",
+  categories:CATEGORIES,tier_materials:TIER_MATERIALS,motifs:MOTIFS,eastern_motifs:EASTERN_MOTIFS,element_motifs:ELEMENT_MOTIFS,
   tier_rules:{
     F:"實用品：材質／職能＋裝備類型，避免史詩稱號。",
     E:"可加入單一自然意象、地域習慣或明確用途。",
