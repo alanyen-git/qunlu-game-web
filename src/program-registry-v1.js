@@ -1,12 +1,12 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.82.0
- * PROGRAM-REGISTRY-1.2
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.83.0
+ * PROGRAM-REGISTRY-1.3
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.82.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.82.0";
-const REV="PROGRAM-REGISTRY-1.2";
+const RELEASE=CORE?.release?.("CURRENT-1.83.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.83.0";
+const REV="PROGRAM-REGISTRY-1.3";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -33,7 +33,7 @@ const GROUPS=Object.freeze({
     "src/equipment-naming-reference-v1.js","src/name-generator-v2.js"
   ],
   survival:[
-    "src/water-source-v1.js","src/companion-aura-v1.js","src/companion-unique-skill-v1.js"
+    "src/water-source-v1.js","src/companion-aura-v1.js","src/companion-unique-skill-v1.js","src/companion-identity-depth-v1.js"
   ],
   finalization:[
     "src/recipe-finalization-v1.js","src/release-integrity-v1.js","src/release-version-sync-v1.js",
@@ -98,6 +98,7 @@ function audit(){
     ["角色出身深化",()=>typeof globalThis.runOriginDepthAudit==="function"&&globalThis.runOriginDepthAudit().pass],
     ["戰鬥職業深化",()=>typeof globalThis.runCombatClassIdentityDepthAudit==="function"&&globalThis.runCombatClassIdentityDepthAudit().pass],
     ["天賦深化",()=>typeof globalThis.runTalentIdentityDepthAudit==="function"&&globalThis.runTalentIdentityDepthAudit().pass],
+    ["夥伴特色深化",()=>typeof globalThis.runCompanionIdentityDepthAudit==="function"&&globalThis.runCompanionIdentityDepthAudit().pass],
     ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"&&globalThis.runAffiliationIdentityDepthAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
