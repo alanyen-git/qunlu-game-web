@@ -42,19 +42,21 @@ function anchor(x,scope){
 }
 function orgFamily(o){
   const s=[o&&o.kind,o&&o.category,o&&o.name,o&&o.description,o&&o.specialty].map(text).join(" ");
-  if(has(s,/鍛造|鐵匠|鍛冶|鍛造院|smith|forge/i))return "craft_smith";
-  if(has(s,/煉金|藥劑|藥師|alchemy/i))return "craft_alchemy";
-  if(has(s,/礦務|礦業|採礦|礦材|assay|mining/i))return "resource_mining";
-  if(has(s,/農產|糧|農民|穀|蜂農|畜產|grain|farm/i))return "supply_food";
-  if(has(s,/救難|救護|醫療|診療|傷兵|rescue|medical/i))return "welfare_rescue";
-  if(has(s,/教會|神殿|聖堂|宗教|封印|仲裁所|church|relig/i))return "faith_legal";
-  if(has(s,/外廷|王廷|公證|官署|行政|稅|court|notar|political/i))return "governance";
-  if(has(s,/守備|軍|騎士|衛隊|兵團|military/i))return "military";
-  if(has(s,/林務|巡林|遊俠|獵團|探索|冒險|ranger|explor/i))return "exploration";
-  if(has(s,/商路|商會|商業|貿易|運輸|驛站|河運|渠務|trade|merchant/i))return "trade_logistics";
-  if(has(s,/盜賊|黑市|地下|密會|刺客|criminal|underground/i))return "underworld";
-  if(has(s,/魔法|法師|奧術|術士|學院|學術|arcane|magic/i))return "magic_academic";
-  return "other";
+  let base="other";
+  if(has(s,/鍛造|鐵匠|鍛冶|鍛造院|smith|forge/i))base="craft_smith";
+  else if(has(s,/煉金|藥劑|藥師|alchemy/i))base="craft_alchemy";
+  else if(has(s,/礦務|礦業|採礦|礦材|assay|mining/i))base="resource_mining";
+  else if(has(s,/農產|糧|農民|穀|蜂農|畜產|grain|farm/i))base="supply_food";
+  else if(has(s,/救難|救護|醫療|診療|傷兵|rescue|medical/i))base="welfare_rescue";
+  else if(has(s,/教會|神殿|聖堂|宗教|封印|仲裁所|church|relig/i))base="faith_legal";
+  else if(has(s,/外廷|王廷|公證|官署|行政|稅|court|notar|political/i))base="governance";
+  else if(has(s,/守備|軍|騎士|衛隊|兵團|military/i))base="military";
+  else if(has(s,/林務|巡林|遊俠|獵團|探索|冒險|ranger|explor/i))base="exploration";
+  else if(has(s,/商路|商會|商業|貿易|運輸|驛站|河運|渠務|trade|merchant/i))base="trade_logistics";
+  else if(has(s,/盜賊|黑市|地下|密會|刺客|criminal|underground/i))base="underworld";
+  else if(has(s,/魔法|法師|奧術|術士|學院|學術|arcane|magic/i))base="magic_academic";
+  const subtype=text(o&&o.kind)||text(o&&o.category)||"unspecified";
+  return base+":"+subtype;
 }
 function disciplineFamily(d){
   const s=[d&&d.name,d&&d.description,d&&d.specialty,d&&d.family,(d&&d.requirements&&d.requirements.weapon_types||[]).join(" ")].map(text).join(" ");
@@ -91,7 +93,10 @@ function disciplineFamily(d){
   else if(/光|聖/.test(s))element="light";
   else if(/暗|影|死亡/.test(s))element="dark";
   else if(/生命|自然|林/.test(s))element="life";
-  return [track,weapon,tactic,element].join(":");
+  const institution=text(d&&d.kind)||"tradition";
+  const lineage=text(d&&d.family)||"unclassified";
+  const skillFamily=asArray(d&&d.skill_family_ids)[0]||"none";
+  return [track,weapon,tactic,element,institution,lineage,skillFamily].join(":");
 }
 function mergeScore(x){
   let n=tier(x&&x.tier)*20;
@@ -123,8 +128,12 @@ function appendBranch(target,src,kind){
     target.contact_location_ids=uniq([...(target.contact_location_ids||[]),...(src.contact_location_ids||[]),src.base_location_id]);
   }
 }
-const orgMap=Object.assign({},DB.organization_merge_map||{});
-const discMap=Object.assign({},DB.discipline_merge_map||{});
+const inheritedOrgMap=Object.assign({},DB.organization_merge_map||{});
+const inheritedDiscMap=Object.assign({},DB.discipline_merge_map||{});
+const orgMap=Object.assign({},inheritedOrgMap);
+const discMap=Object.assign({},inheritedDiscMap);
+const protectedOrgTargets=new Set(Object.values(inheritedOrgMap).map(id=>resolveMap(inheritedOrgMap,id)));
+const protectedDiscTargets=new Set(Object.values(inheritedDiscMap).map(id=>resolveMap(inheritedDiscMap,id)));
 
 Object.assign(orgMap,{
   "ORG-ASD2-CROWN-NOTARIES":"ORG-ASD-CROWN-COURT",
@@ -132,8 +141,9 @@ Object.assign(orgMap,{
   "ORG-ASD2-AMBER-GROWERS":"ORG-ASD-GRAIN-COMPACT"
 });
 
-function consolidate(rows,map,familyFn,kind){
+function consolidate(rows,map,familyFn,kind,protectedTargets){
   const byId=new Map((rows||[]).map(x=>[x.id,x]));
+  const extensionPrefix=kind==="organization"?/^ORG-ASD2-/:/^DISC-ASD2-/;
   for(const [from,to0] of Object.entries(map)){
     const src=byId.get(from),to=resolveMap(map,to0),dst=byId.get(to);
     if(src&&dst&&src!==dst)appendBranch(dst,src,kind);
@@ -149,12 +159,15 @@ function consolidate(rows,map,familyFn,kind){
     const scope=key.split("|")[0],cap=CAPS[scope]||2;
     if(list.length<=cap)continue;
     const ranked=list.slice().sort((a,b)=>mergeScore(b)-mergeScore(a)||text(a.id).localeCompare(text(b.id)));
-    const keep=ranked.slice(0,cap),overflow=ranked.slice(cap);
+    const keep=ranked.slice(0,cap);
+    let excess=list.length-cap;
+    const overflow=ranked.filter(x=>!protectedTargets.has(x.id)&&(extensionPrefix.test(text(x.id))||x.consolidation_candidate===true)).reverse();
     for(const src of overflow){
-      let dst=keep.find(x=>x.base_location_id&&x.base_location_id===src.base_location_id);
-      if(!dst)dst=keep[0];
-      map[src.id]=dst.id;
-      appendBranch(dst,src,kind);
+      if(excess<=0)break;
+      let dst=keep.find(x=>x.id!==src.id&&x.base_location_id&&x.base_location_id===src.base_location_id);
+      if(!dst)dst=keep.find(x=>x.id!==src.id&&!map[x.id]);
+      if(!dst)continue;
+      map[src.id]=dst.id;appendBranch(dst,src,kind);excess--;
     }
   }
   for(const key of Object.keys(map))map[key]=resolveMap(map,map[key]);
@@ -164,8 +177,8 @@ function consolidate(rows,map,familyFn,kind){
   return (rows||[]).filter(x=>x&&x.id&&!aliases.has(x.id));
 }
 
-DB.world_organizations=consolidate(DB.world_organizations||[],orgMap,orgFamily,"organization");
-DB.discipline_factions=consolidate(DB.discipline_factions||[],discMap,disciplineFamily,"discipline");
+DB.world_organizations=consolidate(DB.world_organizations||[],orgMap,orgFamily,"organization",protectedOrgTargets);
+DB.discipline_factions=consolidate(DB.discipline_factions||[],discMap,disciplineFamily,"discipline",protectedDiscTargets);
 DB.organization_merge_map=orgMap;
 DB.discipline_merge_map=discMap;
 
