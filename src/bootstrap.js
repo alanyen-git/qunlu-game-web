@@ -1,11 +1,11 @@
-/* 群陸旅誌：共用核心與程序註冊 CURRENT-1.79.0
+/* 群陸旅誌：共用核心與程序註冊 CURRENT-1.80.0
  * QUNLU-CORE-1.0
  * 純工具層：不改遊戲規則、不改存檔格式，集中版本、階級、查找、去重與程序註冊。
  */
 (()=>{
 "use strict";
 
-const FALLBACK_RELEASE="CURRENT-1.79.0";
+const FALLBACK_RELEASE="CURRENT-1.80.0";
 const titleRelease=typeof document!=="undefined"
   ?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||"")
   :"";
