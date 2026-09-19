@@ -269,8 +269,10 @@ function chainProgress(chain){
  for(const id of stages){
    if(completed(id))continue;const q=questBy(id);if(q&&questGate(q).ok){next=q;break}
  }
+ const snapshot={id:chain?.id||null,done:done.length,total:stages.length,nextQuestId:next?.id||null,completed:!!stages.length&&done.length===stages.length,updatedHour:nowHour()};
+ if(!s)return {...snapshot,next};
  const row=s.eventChains[chain.id]||(s.eventChains[chain.id]={id:chain.id});
- row.done=done.length;row.total=stages.length;row.nextQuestId=next?.id||null;row.completed=!!stages.length&&done.length===stages.length;row.updatedHour=nowHour();
+ Object.assign(row,snapshot);
  return {...row,next}
 }
 function syncChains(){for(const c of chainRows())chainProgress(c)}
