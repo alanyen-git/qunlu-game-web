@@ -6,7 +6,7 @@
   "entrypoint": "index.html",
   "summary": "裝備命名參考層：將武器、防具、飾品的傳統奇幻RPG命名語彙整理為可驗證的類型、材質、元素、地域與機制命名規則，禁止外部作品專名直接進入生成詞庫。",
   "changelog": [
-    "新增 EQUIPMENT-NAMING-REFERENCE-1.0，建立武器26類、防具21類、飾品14類的通用命名類型池與F-S階級命名規則。",
+    "新增 EQUIPMENT-NAMING-REFERENCE-1.0，建立武器25類、防具21類、飾品14類的通用命名類型池與F-S階級命名規則。",
     "命名生成依裝備tier、材質、類型、地域／組織來源、元素與已實裝戰鬥效果組合；F/E級優先實用品名稱，B/A/S才逐步允許高階稱號。",
     "破甲、破法、汲魂、祈療、匿形、浮空、反射、免疫等功能詞必須能由實際裝備機制驗證，避免名稱宣稱不存在的能力。",
     "封鎖外部作品人物、神祇、地名與作品名稱進入可生成裝備詞庫；使用者提供清單只作為通用語彙與結構參考，不直接複製專有名稱。",
@@ -129,7 +129,7 @@
   "release_integrity_revision": "RELEASE-INTEGRITY-1.1",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
-    "weapon_types": 26,
+    "weapon_types": 25,
     "armor_types": 21,
     "accessory_types": 14,
     "tier_range": "F-S",
