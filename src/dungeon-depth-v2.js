@@ -1,7 +1,7 @@
 (()=>{
 "use strict";
 
-const REVISION="DUNGEON-DEPTH-2.2";
+const REVISION="DUNGEON-DEPTH-2.3";
 const EQUIPMENT_TYPES=new Set(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"]);
 const TYPE_LABELS={
  corridor:"通道／探索區",
@@ -39,15 +39,16 @@ const PROFILES={
 };
 
 const BOSS_LOOT_PROFILES={
- F:{bonusItemChance:.30,equipmentChance:.10,topUsableShare:1.00,moneyQuality:1.25},
- E:{bonusItemChance:.34,equipmentChance:.14,topUsableShare:.14,moneyQuality:1.28},
- D:{bonusItemChance:.38,equipmentChance:.18,topUsableShare:.18,moneyQuality:1.32},
- C:{bonusItemChance:.42,equipmentChance:.22,topUsableShare:.22,moneyQuality:1.36},
- B:{bonusItemChance:.46,equipmentChance:.26,topUsableShare:.80,moneyQuality:1.40},
- A:{bonusItemChance:.50,equipmentChance:.30,topUsableShare:.90,moneyQuality:1.45},
- S:{bonusItemChance:.54,equipmentChance:.34,topUsableShare:1.00,moneyQuality:1.50}
+ F:{bonusItemChance:.30,equipmentChance:.10,topUsableShare:1.00,moneyQuality:1.25,materialChanceMultiplier:1.10},
+ E:{bonusItemChance:.34,equipmentChance:.14,topUsableShare:.60,moneyQuality:1.28,materialChanceMultiplier:1.15},
+ D:{bonusItemChance:.38,equipmentChance:.18,topUsableShare:.55,moneyQuality:1.32,materialChanceMultiplier:1.20},
+ C:{bonusItemChance:.42,equipmentChance:.22,topUsableShare:.50,moneyQuality:1.36,materialChanceMultiplier:1.30},
+ B:{bonusItemChance:.46,equipmentChance:.26,topUsableShare:.75,moneyQuality:1.40,materialChanceMultiplier:1.40},
+ A:{bonusItemChance:.50,equipmentChance:.30,topUsableShare:.85,moneyQuality:1.45,materialChanceMultiplier:1.55},
+ S:{bonusItemChance:.54,equipmentChance:.34,topUsableShare:.95,moneyQuality:1.50,materialChanceMultiplier:1.75}
 };
 const BOSS_LOOT_LUCK_CAP=1.25;
+const BOSS_MATERIAL_CHANCE_CAP=.85;
 const BOSS_DIRECT_EQUIPMENT_TIER_CAP="C";
 
 const SPECIALS=[
@@ -235,10 +236,13 @@ function dungeonEnemy(l,kind){
  const p=tierProfile(l.tier),scale=kind==="boss"?p.bossScale:p.eliteScale;
  const weaken=kind==="boss"&&getRun(l,false)?.bossWeakened?.90:1;
  const name=(kind==="boss"?"守層首領・":"菁英・")+base.name;
+ const materialMult=kind==="boss"?(Number(bossLootProfile(l).materialChanceMultiplier)||1):1;
+ const lootMaterials=Array.isArray(base.loot_materials)?base.loot_materials.map(entry=>kind==="boss"?{...entry,chance:Math.min(BOSS_MATERIAL_CHANCE_CAP,Math.max(0,Number(entry.chance)||0)*materialMult)}:{...entry}):[];
  return {
    ...base,
    name,
    tier:l.tier,
+   loot_materials:lootMaterials,
    hp:Math.max(2,Math.round((base.hp||30)*scale*weaken)),
    attack:Math.max(2,Math.round((base.attack||10)*(1+(scale-1)*.62)*weaken)),
    defense:Math.max(0,Math.round((base.defense||4)*(1+(scale-1)*.5)*weaken)),
@@ -489,7 +493,9 @@ function dungeonBossLootAuditReport(){
        direct_top_tier:directTier,
        top_usable_share:cfg.topUsableShare,
        top_usable_equipment_base:directTier?cfg.equipmentChance*cfg.topUsableShare:0,
-       top_usable_equipment_max:directTier?Math.min(.43,cfg.equipmentChance*BOSS_LOOT_LUCK_CAP)*cfg.topUsableShare:0
+       top_usable_equipment_max:directTier?Math.min(.43,cfg.equipmentChance*BOSS_LOOT_LUCK_CAP)*cfg.topUsableShare:0,
+       material_chance_multiplier:cfg.materialChanceMultiplier,
+       material_entry_pre_luck_cap:BOSS_MATERIAL_CHANCE_CAP
      }]
    }))
  };
@@ -508,6 +514,7 @@ function dungeonAuditIssues(){
      if(!(b.bonusItemChance>=0&&b.bonusItemChance<=.60))issues.push("Boss額外道具率異常:"+tier);
      if(!(b.equipmentChance>=0&&b.equipmentChance<=.40))issues.push("Boss裝備率異常:"+tier);
      if(!(b.topUsableShare>=0&&b.topUsableShare<=1))issues.push("Boss最高可用階裝備占比異常:"+tier);
+     if(!(b.materialChanceMultiplier>=1&&b.materialChanceMultiplier<=2))issues.push("Boss素材倍率異常:"+tier);
      if(b.equipmentChance>b.bonusItemChance)issues.push("Boss裝備率高於一般額外道具率:"+tier)
    }
  }
@@ -537,6 +544,7 @@ DB.dungeon_depth_system={
  world_tier_profiles:PROFILES,
  boss_loot_profiles:BOSS_LOOT_PROFILES,
  boss_loot_luck_cap:BOSS_LOOT_LUCK_CAP,
+ boss_material_chance_cap:BOSS_MATERIAL_CHANCE_CAP,
  boss_direct_equipment_tier_cap:BOSS_DIRECT_EQUIPMENT_TIER_CAP,
  boss_direct_equipment_policy:"B/A/S裝備仍受封印且目前無裝備解封runtime，因此Boss寶箱只直接掉落最高C級可用裝備；高階裝備待解封系統完成後再開放。",
  room_types:Object.keys(TYPE_LABELS),
@@ -546,7 +554,7 @@ DB.dungeon_depth_system={
    "最深層固定且僅有一個 Boss 房；Boss 未擊敗前不得標記本輪完成。",
    "寶藏與裝備獎勵受地下城層級及角色可承受層級雙重限制，不直接越階。",
    "高階地下城提高 NPC 團隊遭遇率，但合作與競爭結果仍由 D20 與角色能力決定。",
-   "Boss本體只保留符合怪物生態的素材掉落；人型Boss的一般金錢／裝備掉落停用，改由最深處寶箱統一處理。",
+   "Boss本體只保留符合怪物生態的素材掉落；依地下城層級套用Boss素材機率倍率，單筆基礎機率最高85%，數量不額外膨脹；人型Boss的一般金錢／裝備掉落停用，改由最深處寶箱統一處理。",
    "Boss寶箱裝備只允許loot／dungeon／exploration來源或未標示舊資料，不會抽到明確限定商店／製作／組織來源的裝備。",
    "B/A/S裝備目前全部仍屬封印裝備且沒有正式解封runtime，因此Boss直接可用裝備最高只到C級；高階Boss提高抽中最高可用階裝備的占比，不假裝存在B/A/S直接掉落。",
    "Boss掉寶倍率最多將寶箱機率放大至1.25倍；S級額外裝備基準34%，避免幸運值把高階裝備推近必掉。",
@@ -559,6 +567,7 @@ DB.meta.dungeon_depth_revision=REVISION;
 if(DB.integration_registry?.optimization_notes){
  DB.integration_registry.optimization_notes.push("CURRENT-1.67.0／DUNGEON-DEPTH-2.0：地下城改為依世界層級生成多樓層地圖，加入陷阱、財寶、裝備、專屬奇遇、精英、最深處Boss與高階NPC團隊競合；既有地點ID與舊存檔原地相容。");
  DB.integration_registry.optimization_notes.push("CURRENT-1.70.8／DUNGEON-DEPTH-2.2：Boss掉落稽核確認B/A/S裝備仍全數封印且無解封runtime；直接可用Boss裝備上限改為C級，改以最高可用階權重取代不存在的高階同階掉落宣稱。");
+ DB.integration_registry.optimization_notes.push("CURRENT-1.70.9／DUNGEON-DEPTH-2.3：修正E/D/C Boss最高可用階裝備權重過低與B級後曲線突跳；裝備總判定率不變，E/D/C最高可用階有效基礎率調整為8.4%／9.9%／11%，並為Boss生態素材加入分階機率倍率與85%單筆基礎上限。");
 }
 
 ensureState();
