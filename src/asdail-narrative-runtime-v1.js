@@ -1,4 +1,4 @@
-/* 群陸旅誌：活世界共同循環／阿斯戴爾相容入口 CURRENT-1.76.0
+/* 群陸旅誌：活世界共同循環／阿斯戴爾相容入口 CURRENT-1.76.1
  * LIVE-WORLD-LOOP-1.1
  * 世界事件鏈＋城鎮狀態＋傳聞調查＋NPC反應的共同底層。
  * 新劇情／委託／怪物／生產內容只要進入既有 runtime，就會自動留下活世界脈絡。
@@ -7,7 +7,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.76.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.76.0";
+const RELEASE=CORE?.release?.("CURRENT-1.76.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.76.1";
 const REV="LIVE-WORLD-LOOP-1.1";
 const CFG=Object.freeze({
  heartbeat_ms:30000,
