@@ -1,21 +1,17 @@
 {
-  "version": "CURRENT-1.71.3",
-  "previous_version": "CURRENT-1.71.2",
+  "version": "CURRENT-1.71.4",
+  "previous_version": "CURRENT-1.71.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全面修正製作配方素材量與成品價值比例：清醒、止血等低階藥劑改用符合用途的複合素材，並對595個專業配方與59個料理配方加入最低素材量與價值比稽核。",
+  "summary": "配方平衡加固：在全配方素材量、素材種類與成品／素材價值比正規化之外，新增最終載入鎖定與GitHub Pages部署實際資料稽核，避免後續模組或舊模板把配方改回失衡狀態。",
   "changelog": [
-    "新增RECIPE-ECONOMY-BALANCE-1.0，於既有配方語意V1/V2修正後統一檢查鍛造、裁縫、藥劑、附魔與料理。",
-    "清醒藥劑P7-03由單一河岸止血草改為寧神花×1＋林薄荷×1；止血藥液P31-002改為河岸止血草×1＋晨露花×1。",
-    "醒神滴劑、夜守清醒藥液、初階解毒劑、初階魔力藥劑、解睡眠／醒神藥水等低階配方同步改成符合效果語意的複合素材，不再共用單草藥模板。",
-    "藥劑最低素材總量依F-S提高為2/2/3/3/4/5/6；一般瓶裝藥劑至少2種不同素材，藥草、繃帶、藥膏等實體製劑例外。",
-    "鍛造、裁縫、附魔同步加入依階級最低素材量；例如E級牧師法衣不再只用絲線×1，C級區域裁縫裝備也會補足合理素材量。",
-    "加入成品售價／素材基礎價值上限，低階藥劑採較嚴格倍率，高階裝備保留工藝、失敗風險與稀有製作附加價值；超標時只增加既有核心材料，不任意塞入無關素材。",
-    "料理59份配方同步檢查最低食材量與成品／素材價值比例；僅修正明顯過低的食材量或成本，不改變料理效果。",
-    "正式載入模擬結果：595個專業製作配方＋59個料理配方全部通過新平衡稽核，共修正308個唯一配方、326筆修正事件。",
-    "RELEASE-INTEGRITY-1.5已把配方經濟平衡接回五回合自檢，未來新增失衡配方會直接回報。",
-    "不修改成品效果、階級、學習條件、製作成功率或既有存檔；PWA快取升級至v57。"
+    "RECIPE-ECONOMY-BALANCE升級至1.1，標準低階藥劑加入精確配方鎖定；清醒藥劑P7-03固定為寧神花×1＋林薄荷×1，止血藥液P31-002固定為河岸止血草×1＋晨露花×1。",
+    "保留全專業配方最低素材量、一般瓶裝藥劑至少2種不同素材與成品／素材價值比上限；若後續內容模組改寫配方，可再次執行正規化。",
+    "新增RECIPE-FINALIZATION-1.0，在所有內容模組載入完成後再做一次最終配方正規化與稽核，避免載入順序造成回歸。",
+    "RELEASE-INTEGRITY升級至1.6，五回合自檢同時檢查配方V1/V2、配方經濟與最終載入鎖定。",
+    "GitHub Pages部署新增Node VM資料載入測試：實際載入配方相關資料層，確認語意稽核與經濟稽核全數通過，並逐一驗證清醒、止血、醒神、夜守四個標準低階配方；失敗即停止部署。",
+    "PWA快取升級至v58；既有存檔相容，不變更成品效果、階級、學習條件或製作成功率。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -129,7 +125,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.5",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.6",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -310,7 +306,7 @@
     "cooking_note": "料理使用獨立cook_grade資格，尚無knownRecipes學習旗標",
     "save_compatible": true
   },
-  "recipe_economy_balance_revision": "RECIPE-ECONOMY-BALANCE-1.0",
+  "recipe_economy_balance_revision": "RECIPE-ECONOMY-BALANCE-1.1",
   "recipe_economy_balance": {
     "professional_recipes": 595,
     "cooking_recipes": 59,
@@ -336,6 +332,15 @@
     ],
     "output_material_value_ratio_guard": true,
     "five_turn_release_audit": true,
+    "save_compatible": true,
+    "final_load_repair": true,
+    "deployment_headless_audit": true
+  },
+  "recipe_finalization_revision": "RECIPE-FINALIZATION-1.0",
+  "recipe_finalization": {
+    "final_load_normalization": true,
+    "canonical_low_potion_lock": true,
+    "deployment_headless_audit": true,
     "save_compatible": true
   }
 }

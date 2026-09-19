@@ -1,13 +1,13 @@
-/* 群陸旅誌：配方素材量與成品價值平衡 CURRENT-1.71.3
- * RECIPE-ECONOMY-BALANCE-1.0
+/* 群陸旅誌：配方素材量與成品價值平衡 CURRENT-1.71.4
+ * RECIPE-ECONOMY-BALANCE-1.1
  * 全面檢查鍛造、裁縫、藥劑、附魔與料理的素材量、素材種類、素材成本與成品價值比例。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.71.3";
-const REV="RECIPE-ECONOMY-BALANCE-1.0";
+const RELEASE="CURRENT-1.71.4";
+const REV="RECIPE-ECONOMY-BALANCE-1.1";
 const MIN_QTY={
   "藥劑":{F:2,E:2,D:3,C:3,B:4,A:5,S:6},
   "裁縫":{F:1,E:2,D:2,C:3,B:4,A:5,S:6},
@@ -94,6 +94,7 @@ function raiseCostToRatio(d,cap){
   }
 }
 
+function normalizeProfessional(){
 for(const [id,pairs] of Object.entries(CANONICAL_LOW_POTIONS)){
   setBase(id,pairs,"低階藥劑語意與基本素材量修正")
 }
@@ -119,6 +120,8 @@ for(const d of DB.items||[]){
   raiseCostToRatio(d,VALUE_RATIO_CAP[prof][d.tier]??18)
 }
 
+}
+
 function cookingOutput(r){return byId(r?.result||r?.output?.item_id)}
 function isCooking(r){
   const o=cookingOutput(r);
@@ -135,6 +138,7 @@ function cookCost(req,r){
   n+=Number(r?.requires_any_food||0)*3;
   return n
 }
+function normalizeCooking(){
 for(const r of DB.recipes||[]){
   if(!isCooking(r))continue;
   const o=cookingOutput(r),tier=r.tier||o.tier||"F",req=cookReq(r);
@@ -161,9 +165,20 @@ for(const r of DB.recipes||[]){
   r.ingredients=[]
 }
 
+}
+
 function audit(){
   const issues=[];
   let professional=0,cooking=0;
+
+  for(const [id,pairs] of Object.entries(CANONICAL_LOW_POTIONS)){
+    const d=byId(id),r=d?.craft_recipe;
+    if(!r){issues.push(`${id}:標準低階藥劑配方缺失`);continue}
+    const expected=JSON.stringify(pairs.map(([mid,qty])=>({id:mid,qty})));
+    const actual=JSON.stringify(r.base_materials||[]);
+    if(actual!==expected)issues.push(`${id}:標準低階藥劑配方遭覆寫`);
+    if((r.monster_components||[]).length)issues.push(`${id}:低階標準藥劑不應含魔物素材`)
+  }
 
   for(const d of DB.items||[]){
     const r=d?.craft_recipe,prof=r?.profession;
@@ -198,6 +213,15 @@ function audit(){
   }
 }
 
+function normalize(){
+  const start=changes.length;
+  normalizeProfessional();
+  normalizeCooking();
+  const result=audit();
+  return {pass:result.pass,issues:[...result.issues],stats:{...result.stats},change_events:changes.length-start}
+}
+
+normalize();
 const result=audit();
 DB.meta=DB.meta||{};
 DB.meta.recipe_economy_balance_revision=REV;
@@ -209,7 +233,9 @@ DB.recipe_economy_balance_system={
     max_output_material_value_ratio:VALUE_RATIO_CAP,
     cooking_minimum_quantity:COOK_MIN,
     cooking_max_value_ratio:COOK_CAP,
-    potion_min_distinct_ingredients:2
+    potion_min_distinct_ingredients:2,
+    canonical_low_potion_lock:true,
+    final_load_repair_supported:true
   },
   canonical_low_potions:CANONICAL_LOW_POTIONS,
   changed_unique:new Set(changes.map(x=>x.id)).size,
@@ -219,4 +245,5 @@ DB.recipe_economy_balance_system={
   save_compatible:true
 };
 globalThis.runRecipeEconomyBalanceAudit=audit;
+globalThis.runRecipeEconomyBalanceNormalize=normalize;
 })();

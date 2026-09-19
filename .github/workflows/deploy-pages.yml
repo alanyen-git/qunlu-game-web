@@ -56,6 +56,61 @@ jobs:
           console.log(`release integrity OK: ${version.version}; ${refs.length} index refs checked`);
           NODE
 
+          node <<'NODE'
+          const fs = require("fs");
+          const vm = require("vm");
+          const version = JSON.parse(fs.readFileSync("version.json", "utf8"));
+          const context = vm.createContext({ console, structuredClone, setTimeout, clearTimeout });
+          const files = [
+            "src/game-data.js",
+            "src/data-patches.js",
+            "src/asdail-depth-v2.js",
+            "src/asdail-integration-v1.js",
+            "src/alchemy-healing-recipe-v1.js",
+            "src/equipment-depth-v1.js",
+            "src/crafting-recipe-semantic-v1.js",
+            "src/crafting-recipe-semantic-v2.js",
+            "src/recipe-economy-balance-v1.js",
+            "src/recipe-finalization-v1.js"
+          ];
+          for (const file of files) vm.runInContext(fs.readFileSync(file, "utf8"), context, { filename: file });
+
+          const report = vm.runInContext(`(()=>{
+            const get=id=>(DB.items||[]).find(x=>x?.id===id);
+            const mats=id=>(get(id)?.craft_recipe?.base_materials||[]).map(x=>[x.id,Number(x.qty)]);
+            return {
+              semantic:runCraftingRecipeSemanticAuditV2(),
+              economy:runRecipeEconomyBalanceAudit(),
+              finalization:runRecipeFinalizationAudit(),
+              formulas:{
+                "P7-03":mats("P7-03"),
+                "P31-002":mats("P31-002"),
+                "P31-003":mats("P31-003"),
+                "P31-010":mats("P31-010")
+              }
+            }
+          })()`, context);
+
+          for (const [name,result] of Object.entries({semantic:report.semantic,economy:report.economy,finalization:report.finalization})) {
+            if (!result?.pass) throw new Error(`${name} audit failed: ${JSON.stringify(result?.issues||[]).slice(0,4000)}`);
+          }
+          const expected={
+            "P7-03":[["MAT-HERB-04",1],["I-MINT",1]],
+            "P31-002":[["I-HERB",1],["MAT-HERB-05",1]],
+            "P31-003":[["MAT-HERB-04",1],["I-MINT",1]],
+            "P31-010":[["MAT-HERB-04",1],["MAT-HERB-18",1]]
+          };
+          for (const [id,want] of Object.entries(expected)) {
+            if (JSON.stringify(report.formulas[id]) !== JSON.stringify(want)) {
+              throw new Error(`canonical recipe mismatch ${id}: got=${JSON.stringify(report.formulas[id])} want=${JSON.stringify(want)}`);
+            }
+          }
+          const stats=report.economy.stats||{};
+          if (stats.professional !== version.recipe_economy_balance.professional_recipes) throw new Error(`professional recipe count mismatch: ${stats.professional}`);
+          if (stats.cooking !== version.recipe_economy_balance.cooking_recipes) throw new Error(`cooking recipe count mismatch: ${stats.cooking}`);
+          console.log(`recipe runtime audit OK: ${stats.professional} professional + ${stats.cooking} cooking; canonical low potions locked`);
+          NODE
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
