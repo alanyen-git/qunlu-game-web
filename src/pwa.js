@@ -19,10 +19,10 @@
       bottom:"88px",
       zIndex:"9999",
       padding:"12px 16px",
-      border:"1px solid rgba(130,210,196,.6)",
+      border:"1px solid rgba(216,185,111,.55)",
       borderRadius:"999px",
-      background:"#0e2027",
-      color:"#f3e2af",
+      background:"#172119",
+      color:"#f2e4bd",
       fontWeight:"700",
       boxShadow:"0 8px 28px rgba(0,0,0,.35)"
     });
@@ -55,7 +55,7 @@
   window.addEventListener("load",()=>{
     if(!("serviceWorker" in navigator))return;
     if(!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=CURRENT-1.80.0",{scope:"./"})
+    navigator.serviceWorker.register("sw.js?v=CURRENT-1.81.0",{scope:"./"})
       .then(registration=>registration.update().catch(()=>null))
       .catch(error=>console.warn("Service worker registration failed",error));
   },{once:true});
