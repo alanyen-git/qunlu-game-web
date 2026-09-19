@@ -162,13 +162,26 @@ jobs:
 
           node tools/debug-all-programs.js
 
+      - name: Stage production site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          cp index.html manifest.webmanifest sw.js version.json _site/
+          cp -R assets icons src _site/
+          test ! -e _site/tools
+          test ! -e _site/DEBUG_ALL_PROGRAMS.json
+          echo "production artifact files:"
+          find _site -maxdepth 2 -type f | sort
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: "."
+          path: "_site"
 
       - name: Deploy to GitHub Pages
         id: deployment

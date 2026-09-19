@@ -1,17 +1,15 @@
 {
-  "version": "CURRENT-1.72.1",
-  "previous_version": "CURRENT-1.72.0",
+  "version": "CURRENT-1.72.2",
+  "previous_version": "CURRENT-1.72.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全程序除錯：43個正式模組逐一headless載入並執行可用稽核，修正命名模組唯讀物件例外、發布版本載入途中降版與生命回復配方稽核衝突。",
+  "summary": "全程序最佳化：維持43/43正式模組與24項無狀態稽核通過，縮減GitHub Pages正式部署包並移除手動存檔一次冗餘本機寫入。",
   "changelog": [
-    "新增全程序headless smoke test並接入GitHub Pages發布閘門：依index.html真實順序載入43/43個src模組，捕捉初始化ReferenceError/TypeError、版本漂移與跨模組依賴錯誤。",
-    "修正world-naming-v1與world-naming-protection-v1遍歷DB時改寫Object.freeze／唯讀欄位造成TypeError；現在安全略過唯讀欄位並持續處理其餘資料。",
-    "修正runtime、data-patches、NPC、世界自主、市場、職業技能等舊模組在載入途中把DB.meta.current_version降回舊CURRENT版本；正式版本由QUNLU_RELEASE_VERSION統一維持。",
-    "修正PC-LIFE-06高級藥草配方與最低素材量規則衝突：標準配方改為MAT-HERB-06×2，與後段配方經濟稽核一致。",
-    "空存檔headless階段會執行24個無狀態稽核；runAudit與runGeneratorAudit因設計上需要已建立角色，標記為需遊戲狀態而不做空存檔誤判。",
-    "驗證結果：43/43程序載入成功、24個可執行稽核通過、595個專業配方＋59個料理配方稽核通過、最終DB版本一致。"
+    "完成43個正式src程序的現行載入鏈、程序清單、發布閘門與跨模組稽核複核；既有43/43 headless載入與24項無狀態稽核維持為正式發布條件。",
+    "GitHub Pages改為先建立純正式_site部署目錄，只發布index、manifest、service worker、version、assets、icons與src；tools與DEBUG_ALL_PROGRAMS.json不再進入公開網站部署包。",
+    "手動存檔槽儲存流程移除log前一次冗餘persist()；保留log後單次持久化，減少一次localStorage序列化／寫入且不改變存檔內容與格式。",
+    "PWA快取代號提升至v65，入口與正式模組cache-busting同步至CURRENT-1.72.2；存檔相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -49,7 +47,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.3",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.4",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -428,6 +426,21 @@
     "readonly_mutation_guard": true,
     "deployment_gate": true,
     "last_result": "pass",
+    "save_compatible": true
+  },
+  "program_optimization_revision": "PROGRAM-OPTIMIZE-1.0",
+  "program_optimization": {
+    "audited_src_programs": 43,
+    "stateless_audits": 24,
+    "production_artifact_runtime_only": true,
+    "excluded_from_public_artifact": [
+      "tools",
+      "DEBUG_ALL_PROGRAMS.json",
+      ".github"
+    ],
+    "redundant_persist_writes_removed": 1,
+    "gameplay_rules_changed": false,
+    "save_schema_changed": false,
     "save_compatible": true
   }
 }

@@ -291,7 +291,6 @@
     G.meta.saveIndex=Array.isArray(G.meta.saveIndex)?G.meta.saveIndex:[];
     G.meta.saveIndex.push({id:saveId,turn:G.turn||0,time:(typeof timeText==="function"?timeText():stateTimeText(G)),type:"MANUAL",reason:`手動存檔槽 ${slot}`});
     if(G.meta.saveIndex.length>180)G.meta.saveIndex=G.meta.saveIndex.slice(-180);
-    if(typeof persist==="function")persist();
     if(typeof log==="function")log("存檔",`已儲存至手動存檔槽 ${slot}。`,"save");
     if(typeof persist==="function")persist();
     if(typeof renderAll==="function")renderAll();
