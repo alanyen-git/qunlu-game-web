@@ -183,7 +183,7 @@ function townProfile(locationId){
  const t=ensureTown(locationId);if(!t)return null;
  const low=[],high=[];let sum=0,pressure=0;
  for(const k of DIMENSIONS){
-   const v=Number(t[k]||50);sum+=v;
+   const v=Number.isFinite(Number(t[k]))?Number(t[k]):50;sum+=v;
    if(v<35){low.push({key:k,label:LABEL[k],value:v});pressure+=35-v}
    if(v>70)high.push({key:k,label:LABEL[k],value:v});
  }
@@ -193,12 +193,12 @@ function townProfile(locationId){
 }
 function driftTownStates(){
  const s=state();if(!s)return false;
- const current=nowHour(),elapsed=Math.max(0,current-Number(s.lastTownDriftHour||current));
+ const current=nowHour(),last=Number.isFinite(Number(s.lastTownDriftHour))?Number(s.lastTownDriftHour):current,elapsed=Math.max(0,current-last);
  const ticks=Math.min(8,Math.floor(elapsed/CFG.town_drift_interval_hours));if(ticks<=0)return false;
  const move=CFG.town_drift_step*ticks;let changed=false;
  for(const t of Object.values(s.townStates||{})){
    for(const k of DIMENSIONS){
-     const v=Number(t[k]||50),diff=50-v;if(Math.abs(diff)<.05)continue;
+     const v=Number.isFinite(Number(t[k]))?Number(t[k]):50,diff=50-v;if(Math.abs(diff)<.05)continue;
      const next=v+Math.sign(diff)*Math.min(Math.abs(diff),move);
      t[k]=Math.round(clamp(next)*10)/10;if(t[k]!==v)changed=true;
    }
@@ -296,10 +296,10 @@ function rumorTargets(r){
  return ids.map(locationBy).filter(Boolean);
 }
 function spreadRumors(){
- const s=state();if(!s)return false;const current=nowHour(),elapsed=Math.max(0,current-Number(s.lastRumorSpreadHour||current));
+ const s=state();if(!s)return false;const current=nowHour(),last=Number.isFinite(Number(s.lastRumorSpreadHour))?Number(s.lastRumorSpreadHour):current,elapsed=Math.max(0,current-last);
  const steps=Math.min(3,Math.floor(elapsed/CFG.rumor_spread_interval_hours));if(steps<=0)return false;let changed=false;
  for(let step=0;step<steps;step++){
-   const seeds=s.rumors.slice().filter(r=>current-Number(r.createdHour||current)<=CFG.rumor_max_age_hours&&Number(r.confidence||0)>=.5&&Number(r.spreadDepth||0)<CFG.rumor_spread_max_depth);
+   const seeds=s.rumors.slice().filter(r=>current-(Number.isFinite(Number(r.createdHour))?Number(r.createdHour):current)<=CFG.rumor_max_age_hours&&Number(r.confidence||0)>=.5&&Number(r.spreadDepth||0)<CFG.rumor_spread_max_depth);
    for(const r of seeds){
      r.spreadTargets=arr(r.spreadTargets);const available=rumorTargets(r).filter(t=>!r.spreadTargets.includes(t.id)).slice(0,2);
      for(const target of available){
@@ -332,7 +332,7 @@ function processNpcResponses(){
    try{agenda=globalThis.npcDepth2Agenda(id);st=globalThis.worldNpcCurrentState(id);av=typeof globalThis.npcDepth2Availability==="function"?globalThis.npcDepth2Availability(id):null}catch(error){continue}
    const severity=Number(agenda?.severity||0),confidence=Number(agenda?.confidence??1);if(severity<2||confidence<.5||!st?.locationId||av?.code==="off"||av?.code==="unknown")continue;
    const origin=String(agenda.originId||agenda.topic||"general"),key=id+"::"+origin,row=s.npcResponses[key]||(s.npcResponses[key]={count:0,lastHour:-999});
-   if(Number(row.count||0)>=CFG.npc_response_max_per_origin||nowHour()-Number(row.lastHour||-999)<CFG.npc_response_cooldown_hours)continue;
+   if(Number(row.count||0)>=CFG.npc_response_max_per_origin||nowHour()-(Number.isFinite(Number(row.lastHour))?Number(row.lastHour):-999)<CFG.npc_response_cooldown_hours)continue;
    const base=effectsByTopic[agenda.topic]||effectsByTopic.general,scale=severity>=3?1.25:1,effects={};
    for(const [k,v] of Object.entries(base))effects[k]=Math.round(Number(v)*scale*10)/10;
    const npc=(DB.regional_npc_archetypes||[]).find(x=>x?.id===id);
@@ -594,7 +594,7 @@ function investigateRumor(id){
  openLiveWorldPanel()
 }
 function townBand(v){
- v=Number(v||50);if(v>=70)return "強";if(v>=55)return "穩";if(v>=40)return "平";if(v>=25)return "弱";return "危"
+ v=Number.isFinite(Number(v))?Number(v):50;if(v>=70)return "強";if(v>=55)return "穩";if(v>=40)return "平";if(v>=25)return "弱";return "危"
 }
 function openLiveWorldPanel(){
  liveWorldTick("panel");const s=state(),here=game()?.character?.locationId||null,t=ensureTown(here),town=settlementFor(here),tp=townProfile(here);
