@@ -1,11 +1,19 @@
 {
-  "version": "CURRENT-1.81.0",
-  "previous_version": "CURRENT-1.80.0",
+  "version": "CURRENT-1.82.0",
+  "previous_version": "CURRENT-1.81.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "介面美術全面重設計：建立「深色羊皮卷 × 黃銅 × 旅行誌」共同視覺底層，統一創角、冒險HUD、旅誌、行動區、角色／背包等彈窗、戰鬥與技能視窗、底部導航及手機版資訊層級；不變更遊戲規則與存檔格式。",
+  "summary": "天賦系統深化：將高度同質的數值天賦合併為86個canonical天賦，補齊玩法特色、代價與成長關係；武器專精改為依實際裝備生效，副職業天賦按專業形成不同製作／探索循環，並保留舊存檔TAL-ID遷移。",
   "changelog": [
+    "TALENT-IDENTITY-DEPTH-1.0：100筆舊天賦收斂為86個canonical天賦，合併14組高度同質項，不再以固定數量作為完整性目標。",
+    "所有86個canonical天賦新增signature、playstyle、tradeoff、distinctive_axis；禁止只換名稱後複製攻防百分比。",
+    "武器專精改為實際裝備條件生效：換用不符合武器群的主武器時專精暫停，重新裝備對應武器後自動恢復。",
+    "防守／格擋、爆擊／破綻、恢復／移動／抗壓、異種獵殺與通用工坊效率等重疊群正式合併；14個舊TAL-ID透過merge map相容遷移。",
+    "副職業天賦差異化：鍛造重穩定、裁縫重效率、煉金重素材與藥性、藥劑重調和、附魔重魔力流、捲軸重術式、料理重補給、醫術重救急、修理重耐久。",
+    "E→D成長型天賦建立evolution_from/evolution_to關係；創角抽取同exclusive_group不再重複，舊存檔因合併少於2格時會保留有效天賦並補足合法候選。",
+    "角色視窗新增天賦特色與代價說明；條件型武器天賦目前未生效時會直接標示。",
+    "天賦深化已接入五回合自檢、發布完整性、程序清單與PWA離線快取。",
     "UI-ART-SYSTEM-2.0：統一全站色彩、字體層級、圓角、陰影、按鈕、卡片與狀態語意，移除不同版本介面風格互相衝突。",
     "冒險主畫面改為旅行誌視覺：旅途橫幅、時間／位置／回合HUD、旅誌紀錄與可用行動建立清楚主次層級，桌機與手機共同適配。",
     "所有主要彈窗改為固定標題＋獨立內容捲動區，右側明確顯示拖曳條；角色快捷Dock維持固定，不再跟內容一起捲走。",
@@ -31,7 +39,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.3",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.4",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -57,7 +65,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.0",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.1",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -133,7 +141,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.0",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.1",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -407,7 +415,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.1",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.2",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 49,
@@ -693,5 +701,29 @@
     "legacy_id_migration": true,
     "save_compatible": true
   },
-  "ui_art_revision": "UI-ART-SYSTEM-2.0"
+  "ui_art_revision": "UI-ART-SYSTEM-2.0",
+  "talent_revision": "TALENT-IDENTITY-DEPTH-1.0",
+  "talent_identity_depth_revision": "TALENT-IDENTITY-DEPTH-1.0",
+  "talent_identity": {
+    "previous_talents": 100,
+    "canonical_talents": 86,
+    "merged_talents": 14,
+    "starter_eligible": 51,
+    "categories": {
+      "角色能力": 25,
+      "戰鬥專精": 25,
+      "戰鬥素質": 14,
+      "副職業專精": 22
+    },
+    "identity_fields": [
+      "signature",
+      "playstyle",
+      "tradeoff",
+      "distinctive_axis"
+    ],
+    "weapon_specialization_requires_equipped_weapon": true,
+    "exclusive_group_draw_guard": true,
+    "legacy_id_migration": true,
+    "save_compatible": true
+  }
 }
