@@ -1,17 +1,18 @@
 {
-  "version": "CURRENT-1.75.0",
-  "previous_version": "CURRENT-1.74.0",
+  "version": "CURRENT-1.76.0",
+  "previous_version": "CURRENT-1.75.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "活世界循環成為共同底層：世界事件鏈、城鎮狀態、動態傳聞調查與NPC反應統一接軌，後續劇情、委託、怪物與生產內容可自動進入同一循環。",
+  "summary": "深化活世界循環：事件鏈階段、城鎮壓力與回穩、傳聞跨聚落擴散、NPC實際處置與世界鉤子正式形成可持續回饋閉環。",
   "changelog": [
-    "LIVE-WORLD-LOOP-1.0：建立共用事件匯流排，整合既有自主世界事件、劇情委託成果、奇遇、怪物壓力與生產活動。",
-    "城鎮狀態新增治安、供應、秩序、繁榮、情報、生態六維度；商隊抵達、資源枯竭、地下城佔領、委託成果等會寫回地方狀態。",
-    "動態傳聞由世界事件生成，具未核實／可信／已核實層級；玩家可在相關地點進行D20調查並留下證據。",
-    "NPC-DEPTH-2.0沿用既有知識與關係網，不建立平行AI；活世界事件會送入NPC工作情報，使議程、勤務與對話反應接續現有機制。",
-    "阿斯戴爾13個連鎖委託、12個奇遇與7條劇情脈絡由地區專用runtime遷移到共同底層；舊asdailNarrative存檔自動匯入並持續鏡像相容。",
-    "建立內容自動接入索引：新增委託、奇遇、怪物、可製作物與料理資料會自動納入活世界上下文；保留現有ID、角色進度與存檔相容性。"
+    "LIVE-WORLD-LOOP-1.1：事件鏈新增潛伏、浮現、發展中、關鍵階段、已收束等階段狀態；進度跨階段時會產生活世界事件與地方傳聞。",
+    "城鎮六維狀態加入壓力判讀與緩慢自然回穩；低於警戒或高於優勢門檻時會形成地方態勢訊號，而事件歷史仍完整保留。",
+    "傳聞會依地理關係向同省／同區聚落有限擴散，每次轉述降低可信度並記錄轉述層數；調查加入冷卻、在地情報與附近NPC支援、調查次數與成功證據紀錄。",
+    "NPC-DEPTH-2.0議程不再只顯示文字：高優先議程可在合理勤務與冷卻條件下實際改善治安、供應、秩序、情報等地方狀態，且限制同一來源的重複處置次數。",
+    "新增世界鉤子層：世界事件自動轉成可查詢的治安、供應、秩序、繁榮、情報、生態、物流、生產與劇情鉤子，供後續委託、奇遇與內容生成直接讀取。",
+    "自主世界的商隊、資源、地下城、天候等事件會鏡像進共同事件匯流排並生成鉤子，不再只停留在各自子系統。",
+    "活世界面板新增整體態勢、世界鉤子、事件鏈階段、傳聞可信度與轉述層數、調查紀錄；舊存檔維持相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -504,16 +505,17 @@
     "duplicate_suffix_repairs": true,
     "save_compatible": true
   },
-  "live_world_loop_revision": "LIVE-WORLD-LOOP-1.0",
+  "live_world_loop_revision": "LIVE-WORLD-LOOP-1.1",
   "live_world_loop": {
-    "revision": "LIVE-WORLD-LOOP-1.0",
+    "revision": "LIVE-WORLD-LOOP-1.1",
     "state_root": "G.worldState.liveWorld",
     "layers": [
       "世界事件匯流排",
-      "事件鏈",
-      "城鎮六維狀態",
-      "動態傳聞與調查",
-      "NPC知識／議程橋接",
+      "事件鏈階段狀態",
+      "城鎮六維壓力與自然回穩",
+      "動態傳聞擴散與調查",
+      "NPC知識／議程回應",
+      "世界鉤子",
       "內容自動接入索引"
     ],
     "auto_connect": [
@@ -542,6 +544,28 @@
     "legacy_asdail_migration": true,
     "npc_parallel_ai": false,
     "save_schema_changed": false,
-    "save_compatible": true
+    "save_compatible": true,
+    "rumor_geographic_spread": true,
+    "investigation_history": true,
+    "npc_material_response": true,
+    "event_chain_phases": [
+      "潛伏",
+      "浮現",
+      "發展中",
+      "關鍵階段",
+      "已收束"
+    ],
+    "hook_topics": [
+      "治安",
+      "供應",
+      "秩序",
+      "繁榮",
+      "情報",
+      "生態",
+      "物流",
+      "生產",
+      "劇情"
+    ],
+    "natural_town_recovery": true
   }
 }
