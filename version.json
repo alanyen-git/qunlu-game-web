@@ -1,11 +1,17 @@
 {
-  "version": "CURRENT-1.82.0",
-  "previous_version": "CURRENT-1.81.0",
+  "version": "CURRENT-1.83.0",
+  "previous_version": "CURRENT-1.82.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "天賦系統深化：86個canonical天賦、14組同質合併、武器專精依實際裝備生效、副職業天賦形成專業差異，並完成舊TAL-ID遷移與50支正式程序發布同步。",
+  "summary": "寵物／召喚獸特色深化：200種夥伴的光環改為條件式戰術觸發，七大家族建立主動／被動／輔助共21種核心機制，並加入復起、致命救援、元素調律與戰況切換。",
   "changelog": [
+    "COMPANION-IDENTITY-DEPTH-1.0：200種寵物／召喚獸／契約獸的光環由固定數值深化為物種家族、AI定位與夥伴類型三軸條件觸發。",
+    "七大物種家族建立主動／被動／輔助共21種核心機制；同家族再依元素、AI定位與寵物／召喚／契約類型形成二次差異。",
+    "新增負傷追獵、制空窗口、根脈循環、龍息元素狀態、元素抗性調律、蝕魂汲取、不滅復起、守誓致命救援與聖域預備救援等實際戰鬥機制。",
+    "寵物偏野外默契與先手機會；召喚獸偏術式連結與元素調律；契約獸在主人或自身危急時觸發雙向契約回響。",
+    "夥伴深化層不新增永久存檔欄位；戰鬥暫態光環、護幕、復起與救援只存在當場戰鬥，舊存檔直接相容。",
+    "夥伴特色深化已接入五回合自檢、發布完整性、程序載入清單與PWA離線快取。",
     "TALENT-IDENTITY-DEPTH-1.0：100筆舊天賦收斂為86個canonical天賦，合併14組高度同質項，不再以固定數量作為完整性目標。",
     "所有86個canonical天賦新增signature、playstyle、tradeoff、distinctive_axis；禁止只換名稱後複製攻防百分比。",
     "武器專精改為實際裝備條件生效：換用不符合武器群的主武器時專精暫停，重新裝備對應武器後自動恢復。",
@@ -65,7 +71,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.1",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.2",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -141,7 +147,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.1",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.2",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -415,10 +421,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.2",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.3",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 50,
+    "active_src_programs": 51,
     "groups": [
       "core",
       "data",
@@ -724,6 +730,29 @@
     "weapon_specialization_requires_equipped_weapon": true,
     "exclusive_group_draw_guard": true,
     "legacy_id_migration": true,
+    "save_compatible": true
+  },
+  "companion_identity_depth_revision": "COMPANION-IDENTITY-DEPTH-1.0",
+  "companion_identity_depth": {
+    "total_species": 200,
+    "family_identity_count": 7,
+    "skill_core_patterns": 21,
+    "aura_axes": [
+      "物種家族",
+      "AI定位",
+      "夥伴類型"
+    ],
+    "runtime_features": [
+      "負傷追獵",
+      "制空窗口",
+      "根脈循環",
+      "龍息元素狀態",
+      "元素抗性調律",
+      "不滅復起",
+      "致命傷救援"
+    ],
+    "anti_homogeneity_audit": true,
+    "save_schema_changed": false,
     "save_compatible": true
   }
 }
