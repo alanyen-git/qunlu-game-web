@@ -39,6 +39,7 @@ function attackMechanics(s){
  const add=t=>{if(!traits.includes(t))traits.push(t)};
  const hits=hitCount(text);
  if(hits>1){add("multi_hit");m.hits=Math.min(4,hits);m.damage_multiplier=Math.round((.93+Math.min(3,m.hits)*.01)*100)/100;m.defense_coefficient=.30}
+ if(/陷阱|地雷|機關/.test(text)){add("delayed_trap");m.trap_followup_pct=42+r*4;m.damage_multiplier=Math.min(num(m.damage_multiplier,1),.86)}
  if(/背刺|伏擊|暗殺|突襲|偷襲|影襲|暗影步|幻影|隱形/.test(text)){add("opener");m.opener_bonus_pct=22+r*2;m.opener_pen_pct=4+r}
  if(/致命|終結|斬殺|處決|最後一搏|裁決|審判|天罰|死亡之觸/.test(text)){add("execute");m.execute_threshold_pct=35;m.execute_bonus_pct=24+r*2}
  if(/破甲|穿甲|穿透|貫穿|斷鋼|碎|崩|裂地|重擊|猛擊|震地|岩槍|石彈|大地震擊|魔導衝擊|爆裂|爆彈|酸液/.test(text)){add("guard_break");m.penetration_bonus_pct=6+r;m.defense_shred=1+Math.ceil((r+1)/2);m.defense_coefficient=Math.min(num(m.defense_coefficient,.42),.27)}
@@ -60,7 +61,7 @@ function attackMechanics(s){
    else if(s?.damage_type==="magic"){add("arcane_pressure");m.penetration_bonus_pct=3+r;m.resource_refund_on_hit=1+(r>=4?1:0)}
    else{add("hybrid_balance");m.penetration_bonus_pct=3+r;m.crit_bonus=2+r}
  }
- const priority=["summon_echo","drain","opener","execute","multi_hit","guard_break","guard_strike","precision","mobile","status_mastery","elemental_focus","combo","arcane_pressure","hybrid_balance","force"];
+ const priority=["delayed_trap","summon_echo","drain","opener","execute","multi_hit","guard_break","guard_strike","precision","mobile","status_mastery","elemental_focus","combo","arcane_pressure","hybrid_balance","force"];
  m.profile=priority.find(x=>traits.includes(x))||traits[0];
  return m
 }
@@ -82,6 +83,8 @@ function supportMechanics(s){
    if(/反擊|迎擊/.test(text)){add("counter_stance");m.counter_power_pct=58+r*5}
    if(/護盾|壁壘|護體|守勢|防禦|聖盾|守護|石膚|屏障|護幕|結界/.test(text)){add("barrier_stance");m.guard_stance=true;if(s?.status){m.reactive_status=s.status;m.reactive_status_chance=40+r*4}}
    if(/潛行|隱形|煙霧|暗影步|瞬間移動|閃避|迴避|疾風/.test(text)){add("mobility_stance");m.next_opener=true;m.temporary_evasion=3+r}
+   if(s?.status&&/煙霧|煙幕|粉塵/.test(text)){add("instant_control");m.instant_status=s.status;m.instant_status_chance=50+r*4}
+   if(s?.status&&/附刃|武器|附體/.test(text)){add("imbue_status");m.next_status=s.status;m.next_status_chance=45+r*4}
    if(/瞄準|預兆|未來視|戰場推演|集中|專注|加速|快速射擊|星軌加速|祝福/.test(text)){add("focus");m.next_skill_accuracy=3+r;m.next_skill_crit=3+Math.floor(r/2);m.next_skill_damage_pct=5+r}
    if(/冥想|祈禱|安息/.test(text)){add("resource_recovery");m.resource_recovery_pct=8+r*2}
    if(/歌|舞|怒吼|號令|命令|指令|讚歌|祝福/.test(text)){add("party_aura");m.party_aura=1+r}
@@ -150,7 +153,9 @@ function setNextSkill(m){
    accuracy:Math.max(num(st.nextSkill?.accuracy),num(m.next_skill_accuracy)),
    crit:Math.max(num(st.nextSkill?.crit),num(m.next_skill_crit)),
    status:Math.max(num(st.nextSkill?.status),num(m.next_skill_status_bonus)),
-   opener:!!(st.nextSkill?.opener||m.next_opener)
+   opener:!!(st.nextSkill?.opener||m.next_opener),
+   status_id:st.nextSkill?.status_id||m.next_status||null,
+   status_chance:Math.max(num(st.nextSkill?.status_chance),num(m.next_status_chance))
  }
 }
 function consumeNextSkill(){const st=mechanicState(),v=st?.nextSkill?{...st.nextSkill}:null;if(st)st.nextSkill=null;return v}
@@ -162,6 +167,7 @@ function statusBonus(s,m){return num(m?.status_chance_bonus)+passiveBonus("statu
 function battleAttackMechanicText(s,m){
  const out=[];
  if(m.traits?.includes("multi_hit"))out.push(`連段：同一次D20判定造成${m.hits}段傷害，對高防禦較穩定`);
+ if(m.traits?.includes("delayed_trap"))out.push(`延遲陷阱：本次直接傷害降低，但敵方行動前再觸發${m.trap_followup_pct}%追擊`);
  if(m.traits?.includes("precision"))out.push(`精準：命中+${m.accuracy_bonus}、爆擊率+${m.crit_bonus}%，並降低防禦減傷`);
  if(m.traits?.includes("guard_break"))out.push(`破勢：額外穿透${m.penetration_bonus_pct}%，命中後削弱敵方防禦${m.defense_shred}`);
  if(m.traits?.includes("opener"))out.push(`背襲：首回合、隱蔽準備或敵方受控時傷害+${m.opener_bonus_pct}%`);
@@ -185,6 +191,8 @@ function supportMechanicText(s,m){
  if(m.traits?.includes("counter_stance"))out.push(`迎擊：下一次自己受到攻擊後，以${m.counter_power_pct}%物攻反擊`);
  if(m.traits?.includes("barrier_stance"))out.push("屏障：下一次敵方攻擊視同防禦姿態");
  if(m.traits?.includes("mobility_stance"))out.push(`機動準備：下一次敵方攻擊期間閃避+${m.temporary_evasion}，下一個攻擊技能可觸發背襲條件`);
+ if(m.traits?.includes("instant_control"))out.push(`煙幕控制：立即嘗試附加${m.instant_status}（${m.instant_status_chance}%）`);
+ if(m.traits?.includes("imbue_status"))out.push(`狀態附魔：下一個命中技能嘗試附加${m.next_status}（${m.next_status_chance}%）`);
  if(m.traits?.includes("focus"))out.push(`專注：下一個攻擊技能命中+${m.next_skill_accuracy}、爆擊率+${m.next_skill_crit}%、傷害+${m.next_skill_damage_pct}%`);
  if(m.traits?.includes("resource_recovery"))out.push(`調息：立即回復最大資源${m.resource_recovery_pct}%`);
  if(m.traits?.includes("party_aura"))out.push(`團隊支援：本場戰鬥同步強化隊友與出戰夥伴（強度${m.party_aura}）`);
@@ -229,6 +237,7 @@ function applySupportMechanics(s,m){
  if(m.traits?.includes("resource_recovery"))recoverResource(m,s);
  if(m.traits?.includes("party_aura"))applyPartyAura(m);
  if(m.reactive_status)st.reactiveStatus={id:m.reactive_status,chance:m.reactive_status_chance,rounds:2,name:s.name}
+ if(m.instant_status)applyEnemyStatus(m.instant_status,m.instant_status_chance||50,2)
 }
 function healTargetAmount(s,t,cs,m,ratio=1){
  const power=skillPowerPercent(s)/100,extra=skillLevelBonus(s,"target_max_hp_heal_pct");
@@ -319,10 +328,12 @@ function attackSkill(index,targetKey="self"){
    if(cs.lifeSteal>0)game().character.hp=clamp(game().character.hp+dmg*(cs.lifeSteal/100),0,game().character.maxHp);
    if(m.drain_pct){const heal=Math.max(1,Math.round(dmg*m.drain_pct/100));game().character.hp=clamp(game().character.hp+heal,0,game().character.maxHp);battleLog(`${s.name}汲取生命，恢復 ${heal} HP。`)}
    if(s.status)applyEnemyStatus(s.status,(s.status_chance||45)+statusBonus(s,m)+num(next.status),(s.status_rounds||2)+num(m.status_round_bonus)+skillLevelBonus(s,"status_rounds_bonus"));
+   if(next.status_id)applyEnemyStatus(next.status_id,(next.status_chance||45)+pass.status,2);
    if(m.defense_shred){const key=dtype==="magic"?"magicDefense":"defense";applyNonStackingEnemyDebuff(key,m.defense_shred)}
    if(m.searing_accuracy_penalty)applyNonStackingEnemyDebuff("accuracy",m.searing_accuracy_penalty);
    if(m.chill_evasion_penalty)applyNonStackingEnemyDebuff("evasion",m.chill_evasion_penalty);
    if(m.guard_after_hit)b.defending=true;if(m.post_evasion)addTemporaryEvasion(m.post_evasion);if(/反擊/.test(skillText(s)))mechanicState().counterReady={power_pct:48+rank(s)*5,name:s.name};
+   if(m.trap_followup_pct)mechanicState().trap={power_pct:m.trap_followup_pct,status:s.status||null,status_chance:(s.status_chance||45)+statusBonus(s,m),element:s.element||null,scaling:s.scaling_stat||"physical",name:`${s.name}・後續`};
    if(m.resource_refund_on_hit&&mana){game().character.mana=Math.min(game().character.maxMana,game().character.mana+m.resource_refund_on_hit);battleLog(`${s.name}命中後回收 ${m.resource_refund_on_hit} MP。`)}
    const hitText=segments.length>1?`，${segments.length}段［${segments.join("＋")}］`:"";battleLog(`${s.name} Lv${lvl} D20=${r} 命中，造成 ${dmg} ${dtype==="physical"?"物理":dtype==="hybrid"?"混合":"魔法"}傷害${hitText}${s.element?`／${s.element}`:""}${er>0?"（抗性）":er<0?"（弱點追擊）":""}${crit?"（爆擊）":""}${echo?`（召喚追擊${echo}）`:""}。`)
  }else battleLog(`${s.name} Lv${lvl} D20=${r} 未命中。`);
@@ -352,6 +363,8 @@ function installRuntimePatches(){
    if(changed){persist();renderAll()}return result
  }}
  if(typeof globalThis.battleUseSkill==="function")globalThis.battleUseSkill=attackSkill;
+ const oldChoose=typeof globalThis.battleChooseSkill==="function"?globalThis.battleChooseSkill:null;
+ if(oldChoose){globalThis.battleChooseSkill=function(index){const s=game()?.character?.skills?.[index],m=mechanicsFor(s);if(m?.traits?.includes("group_heal"))return globalThis.battleUseSkill(index,"self");return oldChoose.apply(this,arguments)}}
  const oldMigrate=typeof globalThis.migrateSave==="function"?globalThis.migrateSave:null;
  if(oldMigrate){globalThis.migrateSave=function(){const r=oldMigrate.apply(this,arguments);syncSavedSkills();return r}}
  const oldCreate=typeof globalThis.createCharacter==="function"?globalThis.createCharacter:null;
@@ -371,7 +384,7 @@ function audit(){
 }
 
 const changed=enrichAll();
-DB.skill_mechanics_depth_system={version:REV,release:RELEASE,principles:["技能差異必須進入命中、減傷、狀態、條件、資源或敵我回合流程，不能只改名稱。","多段技能維持單一D20判定，不破壞既有一次擲骰規則。","破甲、背襲、處決、守勢、反擊、陷阱、群體治療、召喚追擊等語義均有runtime效果。","既有攻防百分比保留作數值底盤，但不再是技能特色的唯一來源。"],battle_mechanics:["multi_hit","precision","guard_break","opener","execute","guard_strike","mobile","drain","summon_echo","status_mastery","elemental_focus","combo"],support_mechanics:["group_heal","missing_hp_heal","trap","counter_stance","barrier_stance","mobility_stance","focus","resource_recovery","party_aura","imbue_focus"],skills_enriched:changed,save_schema_changed:false,save_compatible:true};
+DB.skill_mechanics_depth_system={version:REV,release:RELEASE,principles:["技能差異必須進入命中、減傷、狀態、條件、資源或敵我回合流程，不能只改名稱。","多段技能維持單一D20判定，不破壞既有一次擲骰規則。","破甲、背襲、處決、守勢、反擊、陷阱、群體治療、召喚追擊等語義均有runtime效果。","既有攻防百分比保留作數值底盤，但不再是技能特色的唯一來源。"],battle_mechanics:["multi_hit","delayed_trap","precision","guard_break","opener","execute","guard_strike","mobile","drain","summon_echo","status_mastery","elemental_focus","combo"],support_mechanics:["group_heal","missing_hp_heal","trap","counter_stance","barrier_stance","mobility_stance","instant_control","focus","resource_recovery","party_aura","imbue_focus","imbue_status"],skills_enriched:changed,save_schema_changed:false,save_compatible:true};
 DB.meta=DB.meta||{};DB.meta.skill_mechanics_depth_revision=REV;DB.hard_rules=DB.hard_rules||{};DB.hard_rules.skill_mechanics_not_name_only=true;DB.hard_rules.skill_single_d20_multi_hit=true;
 const ai=(DB.management_ai||[]).find(x=>x?.id==="AI-SKILL");if(ai){ai.inputs=Array.from(new Set([...(ai.inputs||[]),REV,"skill mechanics/profile/traits"]));ai.validations=Array.from(new Set([...(ai.validations||[]),"技能不得只靠名稱、base_power_percent或防禦百分比形成差異；至少要有一項實際戰鬥流程機制。","連擊、破甲、背襲、處決、反擊、陷阱、召喚、群體治療等功能詞必須對應runtime。","多段攻擊仍只使用一次D20命中判定。"]));}
 installRuntimePatches();
