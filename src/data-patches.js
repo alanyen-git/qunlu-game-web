@@ -4,6 +4,8 @@
  * 載入順序：game-data.js -> data-patches.js -> runtime.js
  */
 (()=>{
+  DB.meta=DB.meta||{};
+  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||"CURRENT-1.72.0";
   const appendUnique=(key,rows)=>{
     let target;
     if(Array.isArray(DB[key]))target=DB[key];
