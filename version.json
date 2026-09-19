@@ -1,19 +1,21 @@
 {
-  "version": "CURRENT-1.71.2",
-  "previous_version": "CURRENT-1.71.1",
+  "version": "CURRENT-1.71.3",
+  "previous_version": "CURRENT-1.71.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "製作配方可見性優化：依副職業階級限制最多預覽高2階，D級以上未學配方從製作清單隱藏，師傅教授配方移至獨立學習清單。",
+  "summary": "全面修正製作配方素材量與成品價值比例：清醒、止血等低階藥劑改用符合用途的複合素材，並對595個專業配方與59個料理配方加入最低素材量與價值比稽核。",
   "changelog": [
-    "製作清單新增副職業層級可見性：配方最多只顯示到目前對應副職業階級+2；未取得對應副職業時只顯示已公開的F級基礎配方。",
-    "D級、C級、B級、A級、S級配方若尚未學會，不再出現在鍛造、裁縫、藥劑、附魔製作清單。",
-    "已學高階配方仍受副職業+2階可見範圍限制；副職業成長到接近該配方後才重新顯示，避免過早塞滿製作介面。",
-    "為避免D級以上師傅配方被隱藏後無法學習，新增獨立「學習配方」入口；只列出當前設施、地區、角色等級與副職業資格均符合的可教授配方。",
-    "特殊來源配方不會在學習清單洩露；仍需透過世界事件、掉落或其他正式來源取得後才會出現在製作清單。",
-    "料理系統維持既有cook_grade資格規則；料理目前沒有knownRecipes學習旗標，因此不套用D級未學隱藏，避免高階料理永久無法取得。",
-    "製作成功率、批量1/5/10、材料消耗、配方學習費與既有存檔不變。",
-    "PWA快取升級至v56並同步GitHub Pages。"
+    "新增RECIPE-ECONOMY-BALANCE-1.0，於既有配方語意V1/V2修正後統一檢查鍛造、裁縫、藥劑、附魔與料理。",
+    "清醒藥劑P7-03由單一河岸止血草改為寧神花×1＋林薄荷×1；止血藥液P31-002改為河岸止血草×1＋晨露花×1。",
+    "醒神滴劑、夜守清醒藥液、初階解毒劑、初階魔力藥劑、解睡眠／醒神藥水等低階配方同步改成符合效果語意的複合素材，不再共用單草藥模板。",
+    "藥劑最低素材總量依F-S提高為2/2/3/3/4/5/6；一般瓶裝藥劑至少2種不同素材，藥草、繃帶、藥膏等實體製劑例外。",
+    "鍛造、裁縫、附魔同步加入依階級最低素材量；例如E級牧師法衣不再只用絲線×1，C級區域裁縫裝備也會補足合理素材量。",
+    "加入成品售價／素材基礎價值上限，低階藥劑採較嚴格倍率，高階裝備保留工藝、失敗風險與稀有製作附加價值；超標時只增加既有核心材料，不任意塞入無關素材。",
+    "料理59份配方同步檢查最低食材量與成品／素材價值比例；僅修正明顯過低的食材量或成本，不改變料理效果。",
+    "正式載入模擬結果：595個專業製作配方＋59個料理配方全部通過新平衡稽核，共修正308個唯一配方、326筆修正事件。",
+    "RELEASE-INTEGRITY-1.5已把配方經濟平衡接回五回合自檢，未來新增失衡配方會直接回報。",
+    "不修改成品效果、階級、學習條件、製作成功率或既有存檔；PWA快取升級至v57。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -51,7 +53,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.0",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.1",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -127,7 +129,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.4",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.5",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -306,6 +308,34 @@
     "trainer_recipe_learning_view": true,
     "special_recipe_source_hidden_until_learned": true,
     "cooking_note": "料理使用獨立cook_grade資格，尚無knownRecipes學習旗標",
+    "save_compatible": true
+  },
+  "recipe_economy_balance_revision": "RECIPE-ECONOMY-BALANCE-1.0",
+  "recipe_economy_balance": {
+    "professional_recipes": 595,
+    "cooking_recipes": 59,
+    "changed_unique": 308,
+    "change_events": 326,
+    "potion_minimum_material_quantity": {
+      "F": 2,
+      "E": 2,
+      "D": 3,
+      "C": 3,
+      "B": 4,
+      "A": 5,
+      "S": 6
+    },
+    "potion_minimum_distinct_ingredients": 2,
+    "canonical_awake_potion": [
+      "寧神花×1",
+      "林薄荷×1"
+    ],
+    "canonical_bleeding_mixture": [
+      "河岸止血草×1",
+      "晨露花×1"
+    ],
+    "output_material_value_ratio_guard": true,
+    "five_turn_release_audit": true,
     "save_compatible": true
   }
 }

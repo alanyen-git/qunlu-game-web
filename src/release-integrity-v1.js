@@ -1,12 +1,12 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.70.6
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.71.3
  * RELEASE-INTEGRITY-1.4
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE="CURRENT-1.70.6";
-const REV="RELEASE-INTEGRITY-1.4";
+const RELEASE="CURRENT-1.71.3";
+const REV="RELEASE-INTEGRITY-1.5";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -45,6 +45,8 @@ function audit(){
   else issues.push("配方V1:稽核runtime缺失");
   if(typeof globalThis.runCraftingRecipeSemanticAuditV2==="function")pushResult(issues,"配方V2:",globalThis.runCraftingRecipeSemanticAuditV2());
   else issues.push("配方V2:稽核runtime缺失");
+  if(typeof globalThis.runRecipeEconomyBalanceAudit==="function")pushResult(issues,"配方經濟:",globalThis.runRecipeEconomyBalanceAudit());
+  else issues.push("配方經濟:稽核runtime缺失");
   if(typeof globalThis.runWaterSourceAudit==="function")pushResult(issues,"取水:",globalThis.runWaterSourceAudit());
   else issues.push("取水:稽核runtime缺失");
   if(typeof globalThis.runEquipmentNamingReferenceAudit==="function")pushResult(issues,"裝備命名:",globalThis.runEquipmentNamingReferenceAudit());
@@ -69,6 +71,6 @@ if(typeof base==="function"&&!base.__releaseIntegrityPatched){
 }
 DB.meta=DB.meta||{};
 DB.meta.release_integrity_revision=REV;
-DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","技能命名／階級／元素／語義效果","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接"],save_compatible:true,initial_audit:audit()};
+DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","配方素材量／成本／成品價值平衡","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","技能命名／階級／元素／語義效果","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接"],save_compatible:true,initial_audit:audit()};
 globalThis.runReleaseIntegrityAudit=audit;
 })();
