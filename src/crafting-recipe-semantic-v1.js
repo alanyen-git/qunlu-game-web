@@ -36,6 +36,8 @@ const matClass=id=>{
 
 const SOFT_RE=/披風|披肩|斗篷|法衣|法袍|長袍|道服|兜帽|冠帶|軟靴|短靴|靜步靴|踏浪靴|皮甲|皮衣|獵甲|戰衣|護指|護腕|手套|靴|影織|銀紗/;
 const HARD_RE=/鎖子|板甲|重甲|壁甲|壁盔|面盔|戰盔|鋼甲|鐵甲|護甲|戰靴|脛甲|握鐵|熔脈盔|熔脈重甲|熔脈護手|熔脈戰靴|鱗甲|札甲|環甲|層甲|拳護/;
+const METAL_ARMOR_RE=/(?:青銅|黑鐵|精鋼|秘銀|精金|殞鐵|星銀|恆金).*(?:護腕|護手|手套|戰靴|靴|盔|甲)|(?:護腕|護手|手套|戰靴|靴|盔|甲).*(?:青銅|黑鐵|精鋼|秘銀|精金|殞鐵|星銀|恆金)/;
+const clearlyHardName=n=>HARD_RE.test(n)||METAL_ARMOR_RE.test(n);
 const softTier={
  F:{cloth:[["MAT-CRAFT-10",1]],leather:[["MAT-CRAFT-12",1]]},
  E:{cloth:[["MAT-CRAFT-08",1],["MAT-CRAFT-10",1]],leather:[["MAT-CRAFT-13",1]]},
@@ -78,7 +80,7 @@ function normalizeCraftItems(){
     const r=d?.craft_recipe;if(!r)continue;
     const n=String(d.name||"");
     let cls=(r.base_materials||[]).map(m=>matClass(m.id));
-    const clearlyHard=HARD_RE.test(n);
+    const clearlyHard=clearlyHardName(n);
     const clearlySoft=SOFT_RE.test(n)&&!clearlyHard;
 
     if(r.profession==="裁縫"&&!cls.some(x=>x==="soft"||x==="monster_soft")){
@@ -198,7 +200,7 @@ function audit(){
       if(md&&TIER_RANK[md.tier]>TIER_RANK[d.tier]+1)add(d,"OVER_TIER",md.name+"["+md.tier+"]高於成品["+d.tier+"]超過一級");
     }
     if(r.profession==="裁縫"&&!cls.some(x=>x==="soft"||x==="monster_soft"))add(d,"TAILOR_NO_TEXTILE","裁縫沒有布／皮／纖維主素材");
-    if(r.profession==="鍛造"&&SOFT_RE.test(n)&&!HARD_RE.test(n))add(d,"SOFTGEAR_WRONG_PROF","明顯軟裝仍標為鍛造");
+    if(r.profession==="鍛造"&&SOFT_RE.test(n)&&!clearlyHardName(n))add(d,"SOFTGEAR_WRONG_PROF","明顯軟裝仍標為鍛造");
     const isBow=d.weapon_profile?.group==="弓"||((/弓|弩/.test(n))&&d.type==="主武器");
     if(isBow&&(!cls.includes("wood")||!cls.includes("soft")))add(d,"BOW_MATERIAL","弓類缺木材或弦材");
     const isStaff=d.weapon_profile?.group==="法杖"||((/杖|法器/.test(n))&&Number(d.combat?.magicPower||0)>Number(d.combat?.attack||0));
