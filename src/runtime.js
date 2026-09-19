@@ -1,5 +1,5 @@
 
-const CURRENT_VERSION=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.72.1";
+const CURRENT_VERSION=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.78.0";
 const AUDIT_INTERVAL_TURNS=5;
 DB.meta.current_version=CURRENT_VERSION;
 DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
@@ -27,7 +27,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-1.54.0／RUNTIME-OPT-1.
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
-let creation={race:null,raceSubtype:null,origin:null,element:null,classId:null,randomLeft:10};
+let creation={race:null,raceSubtype:null,origin:null,originFacet:null,element:null,classId:null,randomLeft:10};
 const DOM_CACHE=new Map(),UI_HTML_CACHE=new WeakMap();
 const $=s=>{
  if(/^#[A-Za-z][\w-]*$/.test(s)){
@@ -259,7 +259,14 @@ function migrateSave(){
  const legacyRaceSubtypeMap={"獅":"獅人","虎":"虎人","狼":"狼人","狐":"狐人","貓":"貓人","牛":"獅人"};
  if(G?.character?.raceId==="R-ORC"&&legacyRaceSubtypeMap[G.character.raceSubtype])G.character.raceSubtype=legacyRaceSubtypeMap[G.character.raceSubtype];
 
- if(G?.character?.originId&&legacyOriginMap[G.character.originId])G.character.originId=legacyOriginMap[G.character.originId];
+ const legacyOriginId=G?.character?.originId;
+ if(legacyOriginId&&legacyOriginMap[legacyOriginId]){
+   G.character.originId=legacyOriginMap[legacyOriginId];
+   const mappedFacet=DB.origin_system?.legacy_origin_facets?.[legacyOriginId];
+   if(mappedFacet&&!G.character.originFacetId)G.character.originFacetId=mappedFacet;
+ }
+ const defaultOriginFacet=DB.origin_system?.default_facets?.[G?.character?.originId];
+ if(defaultOriginFacet&&!G?.character?.originFacetId)G.character.originFacetId=defaultOriginFacet;
 
  if(!G||G.meta?.version===CURRENT_VERSION)return;
  G.meta.version=CURRENT_VERSION;
@@ -453,8 +460,9 @@ function rollRace(){
 }
 function rollOrigin(){
  const o=weightedPick(DB.origins.map(x=>[x,Number(x.weight||1)]));
- creation.origin=o.id;
- $("#originResult").innerHTML=`<b>${o.name}</b><br><span class="small">${o.category}｜${o.description}</span>`;
+ const facets=Array.isArray(o.facets)?o.facets:[],facet=facets.length?weightedPick(facets.map(x=>[x,Number(x.weight||1)])):null;
+ creation.origin=o.id;creation.originFacet=facet?.id||null;
+ $("#originResult").innerHTML=`<b>${o.name}${facet?`・${facet.name}`:""}</b><br><span class="small">${o.category}｜${o.description}<br><b>特色：</b>${o.signature||"—"}<br><b>代價：</b>${o.burden||"—"}${facet?`<br><b>側寫：</b>${facet.note}`:""}</span>`;
  deriveElement();refreshTalentPreview()
 }
 function deriveElement(){if(!creation.race||!creation.origin){creation.element=null;$("#elementResult").textContent="依種族＋出身自動隨機";return}const r=by(DB.races,creation.race),o=org(creation.origin),pool=[...(r.affinity_bias||[]),...(o.affinities||[]),...(o.affinities||[])];creation.element=pool[rand(pool.length)]||"地";$("#elementResult").textContent=creation.element+"親和";refreshTalentPreview()}
@@ -478,14 +486,16 @@ function rollClass(){
 function createCharacter(){
  if(!creation.race||!creation.origin||!creation.element||!creation.classId){alert("請先完成種族、出身與職業。");return}
  const r=by(DB.races,creation.race),o=org(creation.origin),cc=cls(creation.classId),id=nowId("CHAR");
+ const facet=(o.facets||[]).find(x=>x.id===creation.originFacet)||null;
+ const originStarterSubjobs=[...new Set([...(o.starter_subjobs||[]),...(facet?.starter_subjobs||[])])];
  const pool=DB.skill_pools[cc.id]||DB.skill_pools["C-WAR"],starterPool=[...new Map(pool.filter(s=>s.tier==="F").map(s=>[skillKey(s),s])).values()],fallbackPool=[...new Map(pool.map(s=>[skillKey(s),s])).values()],chosen=(starterPool.length>=2?starterPool:fallbackPool).slice().sort(()=>Math.random()-.5).slice(0,2);
- const originItems=(o.items||[]).filter(id=>item(id));
+ const originItems=[...(o.items||[]),...(facet?.items||[])].filter(id=>item(id));
  const inv=[{id:"I-WATER",qty:2,acquiredHour:8},{id:"I-BREAD",qty:2,acquiredHour:8},{id:"I-JERKY",qty:1,acquiredHour:8}];
  for(const iid of originItems){const found=inv.find(x=>x.id===iid);if(found)found.qty++;else inv.push({id:iid,qty:1,acquiredHour:8})}
  const startH=o.survival_start||{};
  G={meta:{version:CURRENT_VERSION,characterId:id,saveIndex:[]},turn:0,worldTime:{year:317,season:"初春",day:1,hour:8,minute:0},worldState:{weather:"晴朗",eventClock:0,politicalRelations:{},politicalEvents:[],authorityEvents:[],disciplineEvents:[],orgRelations:{},orgEvents:[],sTierEvents:[],integratedEvents:[],orchestrator:{lastWorldDynamicTurn:-1}},
- character:{id,name:($("#nameInput").value||"旅人").trim(),raceId:r.id,raceSubtype:creation.raceSubtype,originId:o.id,originFlags:[...(o.flags||[])],originKnowledge:[...(o.knowledge||[])],element:creation.element,classId:cc.id,level:1,xp:0,abilityPoints:0,spentAbilityPoints:0,abilityPointEntitlement:0,adventureRank:"F",combatGrade:"F",classSealed:!!cc.sealed,classGate:cc.gate||null,classMastery:0,classHistory:[],unlockedClassRoutes:[],
- subjobs:(o.starter_subjobs||[]).slice(0,1).map(sid=>({id:sid,grade:"F",xp:0,source:"出身"})),stats:{力量:10,敏捷:10,智力:10,意志:10,體力:10,魅力:10,幸運:10},hp:28,maxHp:28,stamina:22,maxStamina:22,mana:24,maxMana:24,toxicity:0,statusEffects:[],hunger:startH.hunger??10,fatigue:startH.fatigue??5,thirst:startH.thirst??10,weightCap:28+(r.weight_mod||0)+(o.weight_mod||0),moneySilver:o.silver||30,guildReputation:0,guildRestrictionUntilTurn:0,politicalStanding:{},disciplines:{discovered:[],mastery:{},reputation:{},membershipId:null},organizations:{membershipId:null,memberships:[],formerMemberships:[],reputation:{},discovered:[]},locationId:"L-WILLOW",currentFacility:null,alive:true,revival:{base:3,bonus:0,max:3,used:0,remaining:3},buffs:[],
+ character:{id,name:($("#nameInput").value||"旅人").trim(),raceId:r.id,raceSubtype:creation.raceSubtype,originId:o.id,originFacetId:facet?.id||null,originFlags:[...new Set([...(o.flags||[]),...(facet?.flags||[])])],originKnowledge:[...new Set([...(o.knowledge||[]),...(facet?.knowledge||[])])],element:creation.element,classId:cc.id,level:1,xp:0,abilityPoints:0,spentAbilityPoints:0,abilityPointEntitlement:0,adventureRank:"F",combatGrade:"F",classSealed:!!cc.sealed,classGate:cc.gate||null,classMastery:0,classHistory:[],unlockedClassRoutes:[],
+ subjobs:originStarterSubjobs.slice(0,1).map(sid=>({id:sid,grade:"F",xp:0,source:"出身"})),stats:{力量:10,敏捷:10,智力:10,意志:10,體力:10,魅力:10,幸運:10},hp:28,maxHp:28,stamina:22,maxStamina:22,mana:24,maxMana:24,toxicity:0,statusEffects:[],hunger:startH.hunger??10,fatigue:startH.fatigue??5,thirst:startH.thirst??10,weightCap:28+(r.weight_mod||0)+(o.weight_mod||0)+Number(facet?.weight_mod||0),moneySilver:Math.max(0,Number(o.silver||30)+Number(facet?.silver_mod||0)),guildReputation:0,guildRestrictionUntilTurn:0,politicalStanding:{},disciplines:{discovered:[],mastery:{},reputation:{},membershipId:null},organizations:{membershipId:null,memberships:[],formerMemberships:[],reputation:{},discovered:[]},locationId:"L-WILLOW",currentFacility:null,alive:true,revival:{base:3,bonus:0,max:3,used:0,remaining:3},buffs:[],
  skills:chosen.map(s=>({...s,type:"戰鬥",mastery:6,skillXp:Math.round(skillXpThresholds()[1]*.55*100)/100})),companions:[],activeCompanionId:null,adventureParty:null,equipment:{主武器:makeEquip(cc.starter_weapon_id||cc.weapon),頭盔:makeEquip("EQ-HELM"),盔甲:makeEquip("EQ-CLOTH"),手套:makeEquip("EQ-GLOVE"),鞋子:makeEquip("EQ-SHOE"),披風:makeEquip("EQ-CLOAK"),飾品1:null,飾品2:null},
  inventory:inv,weaponSet:{offhand:cc.starter_offhand_id?makeEquip(cc.starter_offhand_id):null},knownRecipes:[],knownLoreIds:starterLoreForCharacter(r.id,cc.id),conditions:[],trainingToday:{day:1,combat:0,survival:0,body:0}},history:[],dialogueMemory:[],knownIntel:[],explorationIntel:[],intelBoardCache:{},questBoard:[],quests:[],questHistory:[],battle:null};
  const tctx=talentContext(r.id,creation.raceSubtype,o.id,cc.id,creation.element,G.character.subjobs);
@@ -4692,6 +4702,7 @@ function openCharacter(){
  characterDockContext=true;characterDockActiveKey=null;
  normalizeAbilityPoints();const revival=normalizeRevivalState();
  const c=G.character,cc=cls(c.classId),cs=combatStats(),eres=elementalResistances();
+ const origin=org(c.originId),originFacet=(origin?.facets||[]).find(x=>x.id===c.originFacetId)||null;
  const roleText=cc.combat_role||"—",trackText=cc.combat_track_label||combatTrackText(cc);
  const subjobText=c.subjobs.length?c.subjobs.map(x=>`${sub(x.id).name}［${x.grade}］`).join("、"):"無";
  const attrs=[["STR 力量","力量"],["DEX 敏捷","敏捷"],["CON 體質","體力"],["INT 智力","智力"],["WIS 精神","意志"],["CHA 魅力","魅力"],["LUK 幸運","幸運"]].map(([label,key])=>`<div class="card"><b>${label}</b><br>${c.stats[key]}${effectiveStat(key)!==c.stats[key]?` → ${effectiveStat(key)}`:""}${c.abilityPoints>0?` <button class="stat-up good" onclick="spendAbilityPoint('${key}')">＋1</button>`:""}</div>`).join("");
@@ -4701,7 +4712,7 @@ function openCharacter(){
  showModal("角色",`
  <div class="profile-card">
    <div class="profile-name">${c.name}</div>
-   <div class="profile-row"><span class="profile-key">種族／出身</span><span class="profile-value">${displayRace()}｜${org(c.originId).name}</span></div>
+   <div class="profile-row"><span class="profile-key">種族／出身</span><span class="profile-value">${displayRace()}｜${origin?.name||c.originId}${originFacet?`・${originFacet.name}`:""}</span></div>
    <div class="profile-row"><span class="profile-key">戰鬥職業</span><span class="profile-value">${cc.name} <span class="tier">${cc.tier}</span></span></div>
    <div class="profile-row"><span class="profile-key">職業定位</span><span class="profile-value">${roleText}｜${trackText}</span></div>
    <div class="profile-row"><span class="profile-key">職業階級</span><span class="profile-value">${c.combatGrade}${c.classSealed?"｜能力封印中":""}</span></div>
@@ -4710,6 +4721,7 @@ function openCharacter(){
    <div class="profile-row"><span class="profile-key">元素親和</span><span class="profile-value">${c.element}</span></div>
    <div class="profile-row"><span class="profile-key">副職業</span><span class="profile-value">${subjobText}</span></div>
  </div>
+ <div class="card origin-depth-card"><b>出身特色｜${origin?.signature||"—"}</b><br><span class="small">代價｜${origin?.burden||"—"}<br>行動動機｜${origin?.drive||"—"}<br>人脈／接觸｜${origin?.social_access||"—"}${originFacet?`<br>背景側寫｜${originFacet.note}`:""}${origin?.hooks?.length?`<br>故事鉤子｜${origin.hooks.join("／")}`:""}</span></div>
  <div class="money-card"><div class="money-title">持有金額</div><div class="money-display">${denominationMoney(c.moneySilver||0)}</div></div>
  <div class="resource-list-card">
    <div class="resource-list-row"><span class="resource-list-key">HP</span><span class="resource-list-value">${Math.round(c.hp)}/${c.maxHp}</span></div>

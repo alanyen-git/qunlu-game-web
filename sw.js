@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v71";
+const CACHE_NAME=CACHE_PREFIX+"v72";
 const CORE=[
   "./",
   "./index.html",
@@ -9,6 +9,7 @@ const CORE=[
   "./src/bootstrap.js",
   "./src/game-data.js",
   "./src/data-patches.js",
+  "./src/origin-depth-v1.js",
   "./src/asdail-depth-v2.js",
   "./src/asdail-narrative-depth-v1.js",
   "./src/asdail-integration-v1.js",

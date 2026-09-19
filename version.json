@@ -1,21 +1,18 @@
 {
-  "version": "CURRENT-1.77.0",
-  "previous_version": "CURRENT-1.76.1",
+  "version": "CURRENT-1.78.0",
+  "previous_version": "CURRENT-1.77.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "技能特色深化：現行技能不再只靠名稱與攻防百分比換皮，攻擊、輔助、治療與被動技能正式接入連段、破勢、背襲、處決、反擊、陷阱、召喚追擊、群體治療與資源互動等實際戰鬥流程。",
+  "summary": "角色出身深化：將高度同質的50個出身整併為44個核心出身，重複項改為背景側寫；每個出身補齊明確特色、代價、動機、人脈與故事鉤子，建立角色與角色卡直接呈現差異。",
   "changelog": [
-    "SKILL-MECHANICS-DEPTH-1.0：465筆現行技能在載入時取得可稽核的mechanics profile/traits；舊存檔技能會依canonical技能資料原地同步，存檔格式維持相容。",
-    "攻擊技能不再只使用同一套「攻擊力×倍率－防禦」：加入連段、延遲陷阱、精準、破勢、背襲、處決、攻守一體、機動、汲取、召喚追擊、異常專精、元素弱點與連勢等流程機制。",
-    "多段技能仍只擲一次D20；二連射、連擊、箭雨、槍雨、洪流等使用同一命中判定拆成多段結果，維持既有D20一次擲骰硬規則。",
-    "陷阱型攻擊降低即時傷害、改為敵方行動前追加延遲觸發；支援型陷阱則直接建立待觸發機關，不再只是防禦力換皮。",
-    "破甲／穿透／重擊類會改變防禦換算並施加不疊加的防禦削弱；背刺／伏擊／突襲讀取首回合、隱蔽準備與敵方受控狀態；處決類讀取敵方剩餘生命。",
-    "盾擊／守護／反擊類可形成下一擊防禦或迎擊；衝鋒／暗影步／疾風類提供短暫機動；生命吸取／血刃等依實際傷害回復生命。",
-    "召喚類攻擊新增召喚追擊，不再只是改名魔法彈；煙霧技能會實際施加致盲，詛咒武器等狀態附魔會把異常帶到下一個命中技能。",
-    "輔助技能加入陷阱、反擊架勢、屏障、機動準備、專注、調息、團隊支援與附魔準備；群體治癒會直接治療所有可用友方，不再要求逐一選目標。",
-    "修正技能攻擊原先未納入enemyBuff物防／魔防的缺口，使減防與破勢能真正影響後續技能傷害；技能視窗同步顯示實際特色機制。",
-    "發布完整性與程序註冊加入技能機制稽核；PWA快取提升至v71並納入新模組。"
+    "ORIGIN-DEPTH-1.0：50個舊出身整併為44個canonical核心出身；神殿侍僧／修道院孤兒／牧師學徒等高度同質項不再重複占用隨機池。",
+    "六組合併：修道院孤兒、牧師學徒→神殿養成者；傭兵之子→軍旅子弟；巡林客學徒→邊境斥候；賢者弟子→典籍家學者；小領地繼承人→地方領主子弟。",
+    "合併不是刪除特色：舊差異改為背景側寫facet，並保留舊項權重，使整併前後隨機出身的總機率分布維持一致。",
+    "44個核心出身全部補齊signature／burden／drive／social_access／distinctive_axis／hooks，避免只靠名稱、能力值或職業偏好換皮。",
+    "建立角色時會顯示出身特色、代價與背景側寫；角色視窗新增行動動機、人脈／接觸與故事鉤子，讓背景能直接支撐後續劇情與活世界事件。",
+    "舊存檔originId會映射到新核心出身，能辨識的舊出身同時寫入originFacetId；龍血、魔血、詛咒、預兆等仍維持傳聞／地方解讀，不擅自改寫種族與主線。",
+    "發布完整性、程序註冊與PWA快取加入出身深化模組；新出身資料納入自動稽核，存檔格式向後相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -53,7 +50,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.6",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.7",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -620,6 +617,30 @@
     "enemy_defense_debuff_applies_to_skill_attacks": true,
     "semantic_source_excludes_legacy_effect_percentages": true,
     "save_schema_changed": false,
+    "save_compatible": true
+  },
+  "origin_depth_revision": "ORIGIN-DEPTH-1.0",
+  "origin_depth": {
+    "previous_origins": 50,
+    "canonical_origins": 44,
+    "merged_origins": 6,
+    "category_counts": {
+      "平民與鄉野": 11,
+      "貴族與騎士": 7,
+      "軍事與傭兵": 6,
+      "信仰與魔法": 10,
+      "詛咒與命運": 10
+    },
+    "facets_preserve_legacy_identity": true,
+    "weighted_probability_preserved": true,
+    "required_depth_fields": [
+      "signature",
+      "burden",
+      "drive",
+      "social_access",
+      "distinctive_axis",
+      "hooks"
+    ],
     "save_compatible": true
   }
 }
