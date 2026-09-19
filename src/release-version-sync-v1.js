@@ -1,9 +1,9 @@
 (()=>{
   "use strict";
-  const REVISION="RELEASE-VERSION-SYNC-1.2";
+  const REVISION="RELEASE-VERSION-SYNC-1.3";
   const scriptVersion=typeof document!=="undefined"?String(document.currentScript?.dataset?.release||"").trim():"";
   const titleVersion=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
-  const RELEASE_VERSION=scriptVersion||titleVersion||globalThis.DB?.meta?.current_version||"CURRENT-1.70.8";
+  const RELEASE_VERSION=scriptVersion||titleVersion||globalThis.DB?.meta?.current_version||"CURRENT-1.72.0";
 
   if(globalThis.DB?.meta){
     DB.meta.current_version=RELEASE_VERSION;
@@ -28,4 +28,5 @@
   }
 
   globalThis.QUNLU_RELEASE_VERSION=RELEASE_VERSION;
+  globalThis.QUNLU_CORE?.registerModule?.("src/release-version-sync-v1.js",{domain:"finalization",revision:REVISION,release:RELEASE_VERSION});
 })();
