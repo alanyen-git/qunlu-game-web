@@ -370,13 +370,23 @@ function talentWeaponGroupForClass(c){
  if(!c)return null;
  return talentWeaponGroupFromItem(item(c.weapon),c.name||"")
 }
-function currentTalentWeaponGroup(){
- const d=item(equipId(G?.character?.equipment?.主武器));
- return talentWeaponGroupFromItem(d)||talentWeaponGroupForClass(cls(G?.character?.classId))
+function currentTalentWeaponGroups(){
+ const out=[];
+ const main=item(equipId(G?.character?.equipment?.主武器));
+ const off=item(equipId(G?.character?.weaponSet?.offhand));
+ for(const group of [talentWeaponGroupFromItem(main),talentWeaponGroupFromItem(off)]){
+   if(group&&!out.includes(group))out.push(group);
+ }
+ if(!out.length){
+   const fallback=talentWeaponGroupForClass(cls(G?.character?.classId));
+   if(fallback)out.push(fallback);
+ }
+ return out
 }
+function currentTalentWeaponGroup(){return currentTalentWeaponGroups()[0]||null}
 function talentEffectActive(t){
  const groups=t?.identity?.activation?.weapon_groups;
- return !Array.isArray(groups)||!groups.length||groups.includes(currentTalentWeaponGroup())
+ return !Array.isArray(groups)||!groups.length||groups.some(group=>currentTalentWeaponGroups().includes(group))
 }
 function talentMatchBlock(block,ctx){
  if(!block)return 0;
