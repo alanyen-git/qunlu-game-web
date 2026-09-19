@@ -4,18 +4,17 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "職業名稱參考層：把物理、魔法、魔武雙修三大戰鬥路線整理為23個職業家族與五階進階語法，並區分戰鬥職業、官職、生活職業、血統與世界觀未開放的火器職業。",
+  "summary": "職業與技能命名參考層：建立物理／魔法／魔武雙修職業進階語法與技能家族語義驗證，修正13條既有職業進階鏈階級錯置，並將技能名稱中的效果詞與實際機制綁定。",
   "changelog": [
-    "新增 CLASS-NAMING-REFERENCE-1.0：物理7家族、魔法8家族、魔武雙修8家族，共23個通用職業家族；不直接把參考清單膨脹成600個正式職業。",
-    "建立五階職業語法並映射CURRENT F-S世界階級：F=基礎、E=進階、D/C=專精、B/A=大師、S=傳奇。",
-    "所有現有100個戰鬥職業新增runtime progression_stage、progression_stage_name與命名家族參考標記，不變更存檔schema。",
-    "職業名稱驗證會區分戰鬥職業與社會身份；教皇、大元帥、領主、衛隊長等官職／爵位／宗教位階不得直接充當戰鬥職業名稱。",
-    "工匠、鎖匠等生活職業維持副職業／生活職業；火槍、手槍、重砲、砲台等火器職業在世界觀未正式建立相關科技前禁止生成。",
-    "龍脈、狼人、妖精等種族／血統詞可用於特殊職業，但會要求正式血統或種族前置資料；武神、主宰、帝王等傳奇稱號僅允許S級正式傳承。",
-    "修正13條既有職業進階方向錯誤：移除F→F、D/C→同階以及B→E等倒掛前置，改為低階到高階的合法來源；保留原前置於legacy_progression_from供稽核追溯。",
-    "36個原本沒有progression_from的非F職業保留為人工複核警告，不在缺乏正史依據時自動亂接特殊傳承。",
-    "GEN-NAME與AI-NAMING加入職業系別、家族、階級、身份分離與火器禁則；RELEASE-INTEGRITY-1.2加入職業命名／進階完整性稽核。",
-    "PWA快取升級至v48；保留CURRENT-1.70.3裝備命名規則與既有存檔。"
+    "新增 CLASS-NAMING-REFERENCE-1.0：整理物理7、魔法8、魔武雙修8，共23個職業家族，並以F=基礎、E=進階、D/C=專精、B/A=大師、S=傳奇建立五階命名語法。",
+    "職業命名禁止將教皇、大元帥、領主、衛隊長等官職／宗教位階直接視為戰鬥職業；工匠、鎖匠等維持生活／副職業；火器職業在世界觀未開放前封鎖。",
+    "修正13條既有progression_from階級錯置或同階倒掛，避免低階職業反向以前置高階／同階職業；保留legacy_progression_from供資料追溯。",
+    "新增 SKILL-NAMING-REFERENCE-1.0：萃取使用者提供15類技能語彙，另補CURRENT九元素所需的泛元素與神聖／生命2類，共17個技能參照家族。",
+    "技能名稱中的破甲、穿甲、麻痺、中毒、治癒、召喚、汲取、反射、隱形等詞必須能由實際技能欄位或效果驗證，不可只作裝飾。",
+    "F/E級技能優先直觀招式；無雙、裁決、萬法、主宰、極致等高階語彙設置tier門檻；英文殘字與明顯外部作品專屬招式不進入CURRENT生成詞庫。",
+    "現有465筆技能完成新參照稽核，硬性錯誤為0；技能上限10與Lv6/Lv10成長仍由既有技能系統管理。",
+    "RELEASE-INTEGRITY-1.3 將職業命名／進階與技能命名／元素／語義效果加入五回合發布完整性稽核；PWA快取升級至v48。",
+    "保留 CURRENT-1.70.3 裝備命名參考與既有存檔結構。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -129,7 +128,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.2",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.3",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -142,25 +141,37 @@
   },
   "class_naming_reference_revision": "CLASS-NAMING-REFERENCE-1.0",
   "class_naming_reference": {
-    "current_classes": 100,
-    "physical_classes": 40,
-    "magic_classes": 45,
-    "hybrid_classes": 15,
-    "reference_families": 23,
-    "progression_stages": 5,
-    "tier_stage_map": {
-      "F": 1,
-      "E": 2,
-      "D": 3,
-      "C": 3,
-      "B": 4,
-      "A": 4,
-      "S": 5
+    "class_total": 100,
+    "physical": 40,
+    "magic": 45,
+    "hybrid": 15,
+    "families": 23,
+    "progression_repairs": 13,
+    "stage_mapping": {
+      "F": "基礎",
+      "E": "進階",
+      "D": "專精",
+      "C": "專精",
+      "B": "大師",
+      "A": "大師",
+      "S": "傳奇"
     },
-    "repaired_invalid_progression_links": 13,
-    "unlinked_non_f_review_candidates": 36,
-    "authority_role_separation": true,
-    "firearm_generation_blocked": true,
+    "save_compatible": true
+  },
+  "skill_naming_reference_revision": "SKILL-NAMING-REFERENCE-1.0",
+  "skill_naming_reference": {
+    "existing_skills_audited": 465,
+    "reference_families": 17,
+    "core_user_reference_families": 15,
+    "current_world_extensions": [
+      "泛元素術式",
+      "神聖與生命"
+    ],
+    "semantic_effect_validation": true,
+    "tiered_grand_name_gating": true,
+    "english_fragment_blocking": true,
+    "external_move_name_blocking": true,
+    "hard_errors": 0,
     "save_compatible": true
   }
 }
