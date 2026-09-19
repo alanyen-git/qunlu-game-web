@@ -1,18 +1,19 @@
 {
-  "version": "CURRENT-1.78.0",
-  "previous_version": "CURRENT-1.77.0",
+  "version": "CURRENT-1.79.0",
+  "previous_version": "CURRENT-1.78.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "角色出身深化：將高度同質的50個出身整併為44個核心出身，重複項改為背景側寫；每個出身補齊明確特色、代價、動機、人脈與故事鉤子，建立角色與角色卡直接呈現差異。",
+  "summary": "組織／流派深化：依作用域與核心職能／戰術方法收斂高同質勢力，世界級同質群最多4個、王國級最多3個、地區級最多2個；保留舊ID映射，並補齊歷史、現況、制度文化、核心特色與弱點／張力。",
   "changelog": [
-    "ORIGIN-DEPTH-1.0：50個舊出身整併為44個canonical核心出身；神殿侍僧／修道院孤兒／牧師學徒等高度同質項不再重複占用隨機池。",
-    "六組合併：修道院孤兒、牧師學徒→神殿養成者；傭兵之子→軍旅子弟；巡林客學徒→邊境斥候；賢者弟子→典籍家學者；小領地繼承人→地方領主子弟。",
-    "合併不是刪除特色：舊差異改為背景側寫facet，並保留舊項權重，使整併前後隨機出身的總機率分布維持一致。",
-    "44個核心出身全部補齊signature／burden／drive／social_access／distinctive_axis／hooks，避免只靠名稱、能力值或職業偏好換皮。",
-    "建立角色時會顯示出身特色、代價與背景側寫；角色視窗新增行動動機、人脈／接觸與故事鉤子，讓背景能直接支撐後續劇情與活世界事件。",
-    "舊存檔originId會映射到新核心出身，能辨識的舊出身同時寫入originFacetId；龍血、魔血、詛咒、預兆等仍維持傳聞／地方解讀，不擅自改寫種族與主線。",
-    "發布完整性、程序註冊與PWA快取加入出身深化模組；新出身資料納入自動稽核，存檔格式向後相容。"
+    "AFFILIATION-IDENTITY-DEPTH-1.0：建立組織／流派同質性模型；只有「同作用域＋同地域錨點＋同核心職能／戰術方法」才會合併，避免把鍛造、煉金、醫療、礦務等不同職能硬併。",
+    "加入硬性密度上限：世界級同質組織／流派最多4個、王國級最多3個、地區級最多2個；超額者轉為主體的分會、部門或支系，而非繼續新增平行勢力。",
+    "阿斯戴爾明確整併：王冠公證人會→阿斯戴爾王國外廷公證部門；河谷渠務聯會→王國商路聯盟水運渠務部；琥珀田農產協會→銀穗糧議會農產分會。",
+    "所有現行組織補齊歷史摘要、CURRENT現況、招牌職能、制度文化、當前張力與特色欄位；不再只靠名稱、分類或數值加成區分。",
+    "所有現行流派補齊核心打法、訓練哲學、明確弱點、歷史來源、CURRENT現況與特色；名稱相近但戰術方法不同者保留，真正同質者改列支系。",
+    "舊組織／流派ID保留alias映射；NPC、關係、寶庫、技能、任務、存檔會員、發現、熟練度與聲望在載入時轉向canonical主體，避免舊存檔斷鏈。",
+    "組織與流派視窗新增『歷史與現狀／不可替代特色／核心打法／訓練哲學／明確弱點』資訊，玩家可直接看出每個勢力的差異。",
+    "發布完整性、程序註冊、五回合自檢與PWA快取同步納入AFFILIATION-IDENTITY-DEPTH-1.0。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -50,10 +51,10 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.7",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.8",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
-  "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
+  "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
   "skill_learning_prereq_compare_revision": "SKILL-LEARNING-PREREQ-COMPARE-1.0",
   "alchemy_healing_recipe_revision": "ALCHEMY-HEALING-RECIPE-1.1",
   "crafting_recipe_semantic_revision": "CRAFTING-RECIPE-SEMANTIC-2.1",
@@ -403,7 +404,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.1",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 47,
+    "active_src_programs": 48,
     "groups": [
       "core",
       "data",
@@ -640,6 +641,30 @@
       "social_access",
       "distinctive_axis",
       "hooks"
+    ],
+    "save_compatible": true
+  },
+  "affiliation_identity_depth_revision": "AFFILIATION-IDENTITY-DEPTH-1.0",
+  "affiliation_identity_depth": {
+    "caps": {
+      "world": 4,
+      "kingdom": 3,
+      "region": 2
+    },
+    "grouping": [
+      "作用域",
+      "地域錨點",
+      "核心職能／戰術方法"
+    ],
+    "merge_result": "分會／部門／支系",
+    "legacy_id_alias": true,
+    "explicit_asdail_merges": 3,
+    "depth_fields": [
+      "歷史",
+      "現況",
+      "特色",
+      "制度／訓練文化",
+      "弱點／張力"
     ],
     "save_compatible": true
   }
