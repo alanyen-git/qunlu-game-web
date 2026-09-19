@@ -4,7 +4,7 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "天賦系統深化：將高度同質的數值天賦合併為86個canonical天賦，補齊玩法特色、代價與成長關係；武器專精改為依實際裝備生效，副職業天賦按專業形成不同製作／探索循環，並保留舊存檔TAL-ID遷移。",
+  "summary": "天賦系統深化：86個canonical天賦、14組同質合併、武器專精依實際裝備生效、副職業天賦形成專業差異，並完成舊TAL-ID遷移與50支正式程序發布同步。",
   "changelog": [
     "TALENT-IDENTITY-DEPTH-1.0：100筆舊天賦收斂為86個canonical天賦，合併14組高度同質項，不再以固定數量作為完整性目標。",
     "所有86個canonical天賦新增signature、playstyle、tradeoff、distinctive_axis；禁止只換名稱後複製攻防百分比。",
@@ -418,7 +418,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.2",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 49,
+    "active_src_programs": 50,
     "groups": [
       "core",
       "data",
