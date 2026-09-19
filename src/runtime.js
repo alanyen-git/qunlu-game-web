@@ -274,6 +274,13 @@ function migrateSave(){
  if(Array.isArray(G?.character?.classHistory))for(const row of G.character.classHistory)if(row?.id)row.id=remapClassId(row.id);
  if(Array.isArray(G?.character?.unlockedClassRoutes))G.character.unlockedClassRoutes=[...new Set(G.character.unlockedClassRoutes.map(remapClassId))];
 
+ const talentMerge=DB.talent_merge_map||{};
+ const remapTalentId=id=>talentMerge[id]||id;
+ if(Array.isArray(G?.character?.talents)){
+   const valid=new Set((DB.talents||[]).map(t=>t.id));
+   G.character.talents=[...new Set(G.character.talents.map(remapTalentId).filter(id=>valid.has(id)))];
+ }
+
  if(!G||G.meta?.version===CURRENT_VERSION)return;
  G.meta.version=CURRENT_VERSION;
  const c=G.character;c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
@@ -285,9 +292,18 @@ function migrateSave(){
  const rr=by(DB.races,c.raceId)||DB.races[0],rs=(c.raceId==="R-ORC"&&c.raceSubtype)?(DB.race_system.beastfolk_subtypes[c.raceSubtype]||{}):{};
  c.raceTraits=c.raceTraits||[...(rr.traits||[]),...(rs.traits||[])];
  c.raceResistances=c.raceResistances||{...(rr.element_resistances||{})};
- if(!Array.isArray(c.talents)||c.talents.length!==DB.talent_system.character_limit){
+ c.talents=Array.isArray(c.talents)?[...new Set(c.talents.map(id=>DB.talent_merge_map?.[id]||id).filter(id=>(DB.talents||[]).some(t=>t.id===id)))]:[];
+ if(c.talents.length>DB.talent_system.character_limit)c.talents=c.talents.slice(0,DB.talent_system.character_limit);
+ if(c.talents.length<DB.talent_system.character_limit){
    const ctx=talentContext(c.raceId,c.raceSubtype,c.originId,c.classId,c.element,c.subjobs||[]);
-   c.talents=drawTalents(ctx,DB.talent_system.character_limit).map(t=>t.id)
+   const have=new Set(c.talents),groups=new Set(c.talents.map(id=>talentById(id)?.exclusive_group).filter(Boolean));
+   const pool=talentCandidates(ctx).filter(([t])=>!have.has(t.id)&&(!t.exclusive_group||!groups.has(t.exclusive_group)));
+   while(c.talents.length<DB.talent_system.character_limit&&pool.length){
+     const pick=weightedPick(pool.map(([t,s])=>[t,s]));
+     c.talents.push(pick.id);have.add(pick.id);
+     if(pick.exclusive_group)groups.add(pick.exclusive_group);
+     for(let i=pool.length-1;i>=0;i--)if(have.has(pool[i][0].id)||(pool[i][0].exclusive_group&&groups.has(pool[i][0].exclusive_group)))pool.splice(i,1);
+   }
  }
 
 
@@ -331,14 +347,13 @@ function persist(){
  }
 }
 
-function talentById(id){return IDX.talent.get(id)||null}
+function talentById(id){const cid=DB.talent_merge_map?.[id]||id;return IDX.talent.get(cid)||null}
 function talentContext(raceId,raceSubtype,originId,classId,element,subjobs=[]){
  const r=by(DB.races,raceId),o=org(originId),c=cls(classId);
  return {race:r,subtype:raceSubtype,origin:o,cls:c,element,subjobs,weaponGroup:talentWeaponGroupForClass(c)}
 }
-function talentWeaponGroupForClass(c){
- if(!c)return null;
- const d=item(c.weapon),name=(d?.name||"")+" "+(c.name||""),sub=d?.catalog_subcategory||"";
+function talentWeaponGroupFromItem(d,extraName=""){
+ const name=(d?.name||"")+" "+String(extraName||""),sub=d?.catalog_subcategory||"";
  if(/盾/.test(name))return "盾牌";
  if(/巨劍|大劍/.test(name))return "巨劍";
  if(/弩/.test(name))return "弩";
@@ -350,6 +365,18 @@ function talentWeaponGroupForClass(c){
  if(/斧|錘|鎚|釘頭/.test(name)||["斧","錘"].includes(sub))return "斧錘";
  if(/劍|刀/.test(name)||["劍","武士刀"].includes(sub))return "長劍";
  return sub||"其他"
+}
+function talentWeaponGroupForClass(c){
+ if(!c)return null;
+ return talentWeaponGroupFromItem(item(c.weapon),c.name||"")
+}
+function currentTalentWeaponGroup(){
+ const d=item(equipId(G?.character?.equipment?.主武器));
+ return talentWeaponGroupFromItem(d)||talentWeaponGroupForClass(cls(G?.character?.classId))
+}
+function talentEffectActive(t){
+ const groups=t?.identity?.activation?.weapon_groups;
+ return !Array.isArray(groups)||!groups.length||groups.includes(currentTalentWeaponGroup())
 }
 function talentMatchBlock(block,ctx){
  if(!block)return 0;
@@ -393,10 +420,13 @@ function talentCandidates(ctx,starterOnly=true){
  out.sort((a,b)=>b[1]-a[1]||a[0].id.localeCompare(b[0].id));return out
 }
 function drawTalents(ctx,count=2,starterOnly=true){
- const pool=talentCandidates(ctx,starterOnly).slice(),out=[];
+ const pool=talentCandidates(ctx,starterOnly).slice(),out=[],groups=new Set();
  while(out.length<count&&pool.length){
-   const pick=weightedPick(pool.map(([t,s])=>[t,s]));out.push(pick);
-   const i=pool.findIndex(([t])=>t.id===pick.id);if(i>=0)pool.splice(i,1)
+   const eligible=pool.filter(([t])=>!t.exclusive_group||!groups.has(t.exclusive_group));
+   if(!eligible.length)break;
+   const pick=weightedPick(eligible.map(([t,s])=>[t,s]));out.push(pick);
+   if(pick.exclusive_group)groups.add(pick.exclusive_group);
+   for(let i=pool.length-1;i>=0;i--)if(pool[i][0].id===pick.id||(pick.exclusive_group&&pool[i][0].exclusive_group===pick.exclusive_group))pool.splice(i,1)
  }
  return out
 }
@@ -407,15 +437,16 @@ function refreshTalentPreview(){
  }
  const ctx=talentContext(creation.race,creation.raceSubtype,creation.origin,creation.classId,creation.element,[]);
  const pool=talentCandidates(ctx);
- el.innerHTML=`候選 ${pool.length} 個：${pool.slice(0,10).map(([t])=>t.name).join("、")}${pool.length>10?"……":""}<br>建立角色時依權重無重複抽2個。`
+ el.innerHTML=`候選 ${pool.length} 個：${pool.slice(0,8).map(([t])=>`${t.name}〔${t.identity?.distinctive_axis||t.category}〕`).join("、")}${pool.length>8?"……":""}<br>建立角色時依權重抽2個；同系列天賦不會重複。`
 }
 function characterTalents(){return (G?.character?.talents||[]).map(talentById).filter(Boolean)}
-function talentStatBonus(n){return characterTalents().reduce((s,t)=>s+(t.effects?.stats?.[n]||0),0)}
-function talentSpecial(key){return characterTalents().reduce((s,t)=>s+(t.effects?.special?.[key]||0),0)}
+function activeCharacterTalents(){return characterTalents().filter(talentEffectActive)}
+function talentStatBonus(n){return activeCharacterTalents().reduce((s,t)=>s+(t.effects?.stats?.[n]||0),0)}
+function talentSpecial(key){return activeCharacterTalents().reduce((s,t)=>s+(t.effects?.special?.[key]||0),0)}
 function talentSubjobBonus(sid,key){
  if(!sid||!G?.character?.subjobs?.some(x=>x.id===sid))return 0;
  let total=0;
- for(const t of characterTalents()){
+ for(const t of activeCharacterTalents()){
    const s=t.effects?.subjob;if(!s)continue;
    if(s.all||(s.ids||[]).includes(sid))total+=Number(s[key]||0)
  }
@@ -423,7 +454,7 @@ function talentSubjobBonus(sid,key){
 }
 function talentCombat(){
  const out={attack:0,magicPower:0,defense:0,magicDefense:0,accuracy:0,evasion:0,critRate:0,critDamage:0,attackSpeed:0,castSpeed:0,blockRate:0,statusResist:0};
- for(const t of characterTalents()){
+ for(const t of activeCharacterTalents()){
    const c=t.effects?.combat||{};
    for(const k of Object.keys(out))out[k]+=c[k]||0
  }
@@ -431,12 +462,12 @@ function talentCombat(){
 }
 function talentResistances(){
  const out={光明:0,黑暗:0,火:0,風:0,水:0,地:0,雷:0,生命:0,死亡:0};
- for(const t of characterTalents())for(const [k,v] of Object.entries(t.effects?.resist||{}))if(k in out)out[k]+=v;
+ for(const t of activeCharacterTalents())for(const [k,v] of Object.entries(t.effects?.resist||{}))if(k in out)out[k]+=v;
  return out
 }
 function talentSurvival(){
  const out={hungerRate:1,fatigueRate:1,thirstRate:1};
- for(const t of characterTalents()){
+ for(const t of activeCharacterTalents()){
    const s=t.effects?.survival||{};
    if(s.hungerRate)out.hungerRate*=s.hungerRate;
    if(s.fatigueRate)out.fatigueRate*=s.fatigueRate;
@@ -445,11 +476,11 @@ function talentSurvival(){
  return out
 }
 function talentActionBonus(tag){
- return characterTalents().reduce((s,t)=>s+(t.effects?.action_bonus?.[tag]||0),0)
+ return activeCharacterTalents().reduce((s,t)=>s+(t.effects?.action_bonus?.[tag]||0),0)
 }
 function talentTargetBonus(enemy){
  let bonus=0;
- for(const t of characterTalents()){
+ for(const t of activeCharacterTalents()){
    const x=t.effects?.target_bonus;if(!x)continue;
    const catOk=!x.categories?.length||x.categories.includes(enemy.category);
    const nameOk=!x.name_keywords?.length||x.name_keywords.some(k=>(enemy.name||"").includes(k));
@@ -4767,7 +4798,7 @@ function openCharacter(){
    <h3>核心戰鬥數值</h3>${core}${resist}
    <h3>進階戰鬥素質</h3>${advanced}
    <div class="card small"><b>CHA／LUK衍生</b><br>召喚強度 ${cs.summonPower}｜掉寶倍率 ${cs.lootRate}%｜稀有事件基準 ${cs.rareEventRate}%</div>
-   <h3>天賦</h3>${characterTalents().map(t=>`<div class="itemrow"><span><b>${t.name}</b> <span class="tier">${t.tier}</span>［${t.category}］<br><span class="small">${t.description}</span></span></div>`).join("")}
+   <h3>天賦</h3>${characterTalents().map(t=>{const active=talentEffectActive(t),x=t.identity||{};return `<div class="itemrow"><span><b>${t.name}</b> <span class="tier">${t.tier}</span>［${t.category}］${active?"":" <span class=\"small\">（目前條件未生效）</span>"}<br><span class="small">${t.description}</span>${x.signature?`<br><span class="small">特色：${x.signature}｜代價：${x.tradeoff||"—"}</span>`:""}</span></div>`}).join("")}
  </div>`)
 }
 function forgetSkill(i){if(G.character.skills.length<=2){alert("至少保留2個技能。");return}if(confirm(`確定遺忘${G.character.skills[i].name}？`)){G.character.skills.splice(i,1);persist();openCharacter()}}
@@ -5478,10 +5509,12 @@ function runGeneratorAudit(){
    }
  }
 
- if(DB.talent_system?.version!=="TALENT-CORE-2.0")issues.push("TALENT-CORE-2.0缺失");
- if((DB.talents||[]).length<100)issues.push(`天賦核心數量不足:${(DB.talents||[]).length}`);
+ if(DB.talent_system?.version!=="TALENT-IDENTITY-DEPTH-1.0")issues.push("TALENT-IDENTITY-DEPTH-1.0缺失");
+ if((DB.talents||[]).length!==Number(DB.talent_system?.core_count||0))issues.push(`天賦核心數量與系統宣告不一致:${(DB.talents||[]).length}/${DB.talent_system?.core_count}`);
  const talentActual=(DB.talents||[]).reduce((m,x)=>(m[x.category]=(m[x.category]||0)+1,m),{});
- if((talentActual["角色能力"]||0)<25||(talentActual["戰鬥專精"]||0)<30||(talentActual["戰鬥素質"]||0)<20||(talentActual["副職業專精"]||0)<25)issues.push(`天賦分類核心數量不足:${JSON.stringify(talentActual)}`);
+ for(const cat of ["角色能力","戰鬥專精","戰鬥素質","副職業專精"])if(!(talentActual[cat]>0))issues.push(`天賦分類缺失:${cat}`);
+ if((DB.talents||[]).some(t=>!t.identity?.signature||!t.identity?.playstyle||!t.identity?.tradeoff||!t.identity?.distinctive_axis))issues.push("天賦特色欄位不完整");
+ if(typeof globalThis.runTalentIdentityDepthAudit!=="function"||!globalThis.runTalentIdentityDepthAudit().pass)issues.push("天賦深化稽核失敗");
  if(typeof talentSubjobBonus!=="function"||typeof craftTimeHours!=="function")issues.push("天賦副職業runtime缺失");
  if(DB.crafting_system?.profession_subjob?.["附魔"]!=="SJ-ENCHANT")issues.push("附魔副職業映射缺失");
 
