@@ -54,7 +54,7 @@ const TRACKS=Object.freeze({
       Object.freeze({id:"arcane_archer",label:"魔弓／奧術獵人",roots:["魔弓手","元素箭手","詛咒弩手","奧術獵手","影獵手"],roles:["遠程魔武","追蹤","削弱"]}),
       Object.freeze({id:"shifter_dragonblood",label:"變形／龍脈",roots:["變形者","荒野守衛","龍脈武士","龍鱗衛士","獸血勇士"],roles:["變形戰鬥","近戰強化"]}),
       Object.freeze({id:"elemental_monk",label:"元素武僧",roots:["元素武僧","烈焰拳師","寒霜掌師","氣勁武僧","金剛僧"],roles:["近戰連擊","元素強化"]}),
-      Object.freeze({id:"redmage_dancer",label:"雙修法師／戰舞",roots:["戰鬥舞者","舞劍士","元素舞者","赤魔導士","雙修法師"],roles:["魔武支援","快速施法","近戰施法"]})
+      Object.freeze({id:"redmage_dancer",label:"雙修魔導／戰舞",roots:["戰鬥舞者","舞劍士","元素舞者","雙系魔導士","雙修法師"],roles:["魔武支援","快速施法","近戰施法"]})
     ])
   })
 });
