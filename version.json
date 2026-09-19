@@ -1,17 +1,17 @@
 {
-  "version": "CURRENT-1.71.4",
-  "previous_version": "CURRENT-1.71.3",
+  "version": "CURRENT-1.71.5",
+  "previous_version": "CURRENT-1.71.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "配方平衡加固：在全配方素材量、素材種類與成品／素材價值比正規化之外，新增最終載入鎖定與GitHub Pages部署實際資料稽核，避免後續模組或舊模板把配方改回失衡狀態。",
+  "summary": "配方平衡二次加固：修正低階藥劑補材可能誤選高階草藥的跨階問題，補材現在同時受成品階級與名稱語意限制；595個專業配方與59個料理配方需同時通過語意、經濟與最終載入稽核。",
   "changelog": [
-    "RECIPE-ECONOMY-BALANCE升級至1.1，標準低階藥劑加入精確配方鎖定；清醒藥劑P7-03固定為寧神花×1＋林薄荷×1，止血藥液P31-002固定為河岸止血草×1＋晨露花×1。",
-    "保留全專業配方最低素材量、一般瓶裝藥劑至少2種不同素材與成品／素材價值比上限；若後續內容模組改寫配方，可再次執行正規化。",
-    "新增RECIPE-FINALIZATION-1.0，在所有內容模組載入完成後再做一次最終配方正規化與稽核，避免載入順序造成回歸。",
-    "RELEASE-INTEGRITY升級至1.6，五回合自檢同時檢查配方V1/V2、配方經濟與最終載入鎖定。",
-    "GitHub Pages部署新增Node VM資料載入測試：實際載入配方相關資料層，確認語意稽核與經濟稽核全數通過，並逐一驗證清醒、止血、醒神、夜守四個標準低階配方；失敗即停止部署。",
-    "PWA快取升級至v58；既有存檔相容，不變更成品效果、階級、學習條件或製作成功率。"
+    "修正配方平衡器的跨階補材漏洞：F／E級藥劑不再可能因效果文字命中而加入D級魔力薊等高階素材。",
+    "補充素材候選現在必須滿足『素材階級不得高於成品階級』；經濟稽核本身也新增跨階素材檢查，不再只依賴配方語意稽核。",
+    "活力、耐力、迅步等配方優先依成品名稱判斷用途；魔力類則優先採寧神花＋月光草等同階素材，降低廣義buff文字造成誤判的機率。",
+    "實際模擬修正8個受影響配方：活力藥劑、微量活力藥劑、強化活力藥劑、魔力藥水、中型魔力藥水、魔力花蜜、魔力果露、耐力藥水。",
+    "清醒藥劑P7-03仍鎖定寧神花×1＋林薄荷×1；止血藥液P31-002仍鎖定河岸止血草×1＋晨露花×1。",
+    "GitHub Pages部署繼續以實際資料載入測試阻擋任何語意／經濟／最終載入稽核失敗；PWA快取升級至v59，存檔相容。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -306,7 +306,7 @@
     "cooking_note": "料理使用獨立cook_grade資格，尚無knownRecipes學習旗標",
     "save_compatible": true
   },
-  "recipe_economy_balance_revision": "RECIPE-ECONOMY-BALANCE-1.1",
+  "recipe_economy_balance_revision": "RECIPE-ECONOMY-BALANCE-1.2",
   "recipe_economy_balance": {
     "professional_recipes": 595,
     "cooking_recipes": 59,
@@ -334,7 +334,9 @@
     "five_turn_release_audit": true,
     "save_compatible": true,
     "final_load_repair": true,
-    "deployment_headless_audit": true
+    "deployment_headless_audit": true,
+    "support_material_tier_gate": true,
+    "product_name_semantic_priority": true
   },
   "recipe_finalization_revision": "RECIPE-FINALIZATION-1.0",
   "recipe_finalization": {

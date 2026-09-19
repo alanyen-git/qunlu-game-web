@@ -1,13 +1,13 @@
-/* 群陸旅誌：配方素材量與成品價值平衡 CURRENT-1.71.4
- * RECIPE-ECONOMY-BALANCE-1.1
+/* 群陸旅誌：配方素材量與成品價值平衡 CURRENT-1.71.5
+ * RECIPE-ECONOMY-BALANCE-1.2
  * 全面檢查鍛造、裁縫、藥劑、附魔與料理的素材量、素材種類、素材成本與成品價值比例。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.71.4";
-const REV="RECIPE-ECONOMY-BALANCE-1.1";
+const RELEASE="CURRENT-1.71.5";
+const REV="RECIPE-ECONOMY-BALANCE-1.2";
 const MIN_QTY={
   "藥劑":{F:2,E:2,D:3,C:3,B:4,A:5,S:6},
   "裁縫":{F:1,E:2,D:2,C:3,B:4,A:5,S:6},
@@ -22,6 +22,7 @@ const VALUE_RATIO_CAP={
 };
 const COOK_MIN={F:2,E:2,D:3,C:4,B:5,A:6,S:7};
 const COOK_CAP={F:5,E:5,D:6,C:8,B:10,A:15,S:18};
+const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 
 const byId=id=>(DB.items||[]).find(x=>x?.id===id)||null;
 const changes=[];
@@ -58,12 +59,16 @@ function setBase(id,pairs,reason){
 }
 function potionSupport(d,ids){
   const t=`${d?.name||""} ${d?.consumable_group||""} ${JSON.stringify(d?.use||{})} ${JSON.stringify(d?.buff||{})}`;
-  const pick=(...list)=>list.find(id=>byId(id)&&!ids.has(id))||null;
+  const rank=TIER_RANK[d?.tier]??0;
+  const pick=(...list)=>list.find(id=>{const m=byId(id);return m&&!ids.has(id)&&(TIER_RANK[m.tier]??99)<=rank})||null;
+  const name=String(d?.name||"");
+  if(/體力|活力|耐力|迅步|疾風|機動/.test(name))return pick("MAT-HERB-18","MAT-HERB-06","MAT-HERB-21","I-MINT");
+  if(/魔力|法力|施法|奧術|凝神/.test(name))return pick("MAT-HERB-04","MAT-HERB-01","MAT-HERB-16","I-MINT");
   if(/清醒|醒神|睡眠|sleep|守夜|精神|恐懼|魅惑|混亂|鎮/.test(t))return pick("I-MINT","MAT-HERB-04","MAT-HERB-19");
   if(/止血|外傷|生命|回復|治療/.test(t))return pick("MAT-HERB-05","I-HERB","I-MINT");
   if(/毒|麻痺|paralysis|poison|淨化|異常解除/.test(t))return pick("MAT-HERB-19","MAT-HERB-02","I-MINT");
   if(/明目|感官|眼|命中/.test(t))return pick("MAT-HERB-18","MAT-HERB-05","I-MINT");
-  if(/魔力|施法|奧術|智力|凝神/.test(t))return pick("MAT-HERB-04","MAT-HERB-16","I-MINT");
+  if(/魔力|法力|施法|奧術|智力|凝神/.test(t))return pick("MAT-HERB-04","MAT-HERB-01","MAT-HERB-16","I-MINT");
   if(/體力|活力|戰士|攻擊|力量|防護|耐力|迅步|疾風|機動/.test(t))return pick("MAT-HERB-18","MAT-HERB-06","MAT-HERB-21");
   if(/抗性|耐熱|抗寒|抗雷|護甲/.test(t))return pick("MAT-HERB-19","MAT-HERB-04","I-MINT");
   return pick("I-MINT","MAT-HERB-05","MAT-HERB-19")
@@ -185,6 +190,10 @@ function audit(){
     if(!r||!MIN_QTY[prof])continue;
     professional++;
     const all=mats(r),total=qtySum(all),cost=matCost(r),value=Number(d.value??d.price??0),cap=VALUE_RATIO_CAP[prof][d.tier]??18;
+    for(const m of all){
+      const md=byId(m?.id);
+      if(md&&(TIER_RANK[md.tier]??99)>(TIER_RANK[d.tier]??-1))issues.push(`${d.id}:素材階級高於成品 ${md.name||md.id}[${md.tier}]>${d.tier}`)
+    }
     if(total<(MIN_QTY[prof][d.tier]??1))issues.push(`${d.id}:${prof}素材總量不足/${total}`);
     if(prof==="藥劑"&&!/藥草$|繃帶|藥膏|軟膏/.test(String(d.name||""))&&uniqueIds(all).size<2)issues.push(`${d.id}:藥劑素材種類不足`);
     if(!(cost>0))issues.push(`${d.id}:素材成本為0`);
@@ -197,6 +206,10 @@ function audit(){
     const o=cookingOutput(r),tier=r.tier||o.tier||"F",req=cookReq(r);
     const total=Object.values(req).reduce((n,q)=>n+Number(q||0),0)+Number(r.requires_any_food||0);
     const cost=cookCost(req,r),value=Number(o.value??o.price??0),cap=COOK_CAP[tier]??18;
+    for(const id of Object.keys(req)){
+      const md=byId(id);
+      if(md&&(TIER_RANK[md.tier]??99)>(TIER_RANK[tier]??-1))issues.push(`${r.id}:料理素材階級高於成品 ${md.name||md.id}[${md.tier}]>${tier}`)
+    }
     if(total<(COOK_MIN[tier]??2))issues.push(`${r.id}:料理素材總量不足/${total}`);
     if(!(cost>0))issues.push(`${r.id}:料理素材成本為0`);
     else if(value>0&&value/cost>cap+1e-9)issues.push(`${r.id}:料理成品/素材價值比過高 ${(value/cost).toFixed(2)}>${cap}`)
@@ -235,7 +248,9 @@ DB.recipe_economy_balance_system={
     cooking_max_value_ratio:COOK_CAP,
     potion_min_distinct_ingredients:2,
     canonical_low_potion_lock:true,
-    final_load_repair_supported:true
+    final_load_repair_supported:true,
+    support_material_tier_gate:true,
+    product_name_semantic_priority:true
   },
   canonical_low_potions:CANONICAL_LOW_POTIONS,
   changed_unique:new Set(changes.map(x=>x.id)).size,

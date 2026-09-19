@@ -1,11 +1,11 @@
-/* 群陸旅誌：配方最終載入鎖定 CURRENT-1.71.4
+/* 群陸旅誌：配方最終載入鎖定 CURRENT-1.71.5
  * RECIPE-FINALIZATION-1.0
  * 所有內容模組載入後，再次正規化配方素材量、種類與價值比，防止後載入模組覆寫既有平衡。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE="CURRENT-1.71.4";
+const RELEASE="CURRENT-1.71.5";
 const REV="RECIPE-FINALIZATION-1.0";
 
 function audit(){
