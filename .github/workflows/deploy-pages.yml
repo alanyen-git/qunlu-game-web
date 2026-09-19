@@ -53,7 +53,53 @@ jobs:
             if (!ref || ref === "." || ref.endsWith("/")) continue;
             if (!fs.existsSync(path.normalize(ref))) throw new Error(`missing service-worker resource: ${ref}`);
           }
-          console.log(`release integrity OK: ${version.version}; ${refs.length} index refs checked`);
+          const normalizeRef = value => String(value||"").split("?")[0].replace(/^\.\//,"");
+          const indexPrograms = [...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)]
+            .map(m => normalizeRef(m[1])).filter(x => x.startsWith("src/"));
+          const swPrograms = [...sw.matchAll(/["']\.\/(src\/[^"']+\.js)["']/g)].map(m => m[1]);
+          const diskPrograms = fs.readdirSync("src").filter(x => x.endsWith(".js")).map(x => "src/"+x).sort();
+          const unique = values => [...new Set(values)];
+          if (unique(indexPrograms).length !== indexPrograms.length) throw new Error("duplicate src program in index.html");
+          if (unique(swPrograms).length !== swPrograms.length) throw new Error("duplicate src program in sw.js");
+          if (JSON.stringify(indexPrograms) !== JSON.stringify(swPrograms)) {
+            throw new Error("index.html and sw.js program order/set mismatch");
+          }
+          if (JSON.stringify([...indexPrograms].sort()) !== JSON.stringify(diskPrograms)) {
+            const indexSet = new Set(indexPrograms), diskSet = new Set(diskPrograms);
+            const orphan = diskPrograms.filter(x => !indexSet.has(x));
+            const missing = indexPrograms.filter(x => !diskSet.has(x));
+            throw new Error(`src program inventory mismatch; orphan=${orphan.join(",")} missing=${missing.join(",")}`);
+          }
+          const scriptVersions = [...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)]
+            .map(m => m[1]).filter(x => x.startsWith("src/"));
+          for (const src of scriptVersions) {
+            if (!src.includes(`v=${version.version}`)) throw new Error(`script cache version mismatch: ${src}`);
+          }
+
+          const registryContext = vm.createContext({
+            console,
+            DB:{meta:{current_version:version.version},items:[]},
+            document:{
+              title:`群陸旅誌 ${version.version}`,
+              scripts:indexPrograms.map(src=>({src:`https://example.invalid/${src}?v=${version.version}`})),
+              currentScript:null
+            },
+            location:{href:"https://example.invalid/index.html"},
+            URL,
+            structuredClone,
+            setTimeout,clearTimeout
+          });
+          vm.runInContext(fs.readFileSync("src/bootstrap.js","utf8"),registryContext,{filename:"src/bootstrap.js"});
+          vm.runInContext(fs.readFileSync("src/program-registry-v1.js","utf8"),registryContext,{filename:"src/program-registry-v1.js"});
+          const registryPrograms=vm.runInContext("QUNLU_ACTIVE_PROGRAMS",registryContext);
+          if (JSON.stringify(registryPrograms) !== JSON.stringify(indexPrograms)) {
+            throw new Error("PROGRAM-REGISTRY and index.html program list mismatch");
+          }
+          if (version.program_refactor?.active_src_programs !== indexPrograms.length) {
+            throw new Error(`version.json active_src_programs mismatch: ${version.program_refactor?.active_src_programs} != ${indexPrograms.length}`);
+          }
+
+          console.log(`release integrity OK: ${version.version}; ${refs.length} index refs; ${indexPrograms.length} src programs synchronized`);
           NODE
 
           node <<'NODE'
