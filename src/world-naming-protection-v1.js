@@ -1,11 +1,11 @@
-/* 群陸旅誌：命名保護層 NAMING-PROTECTION-1.0 */
+/* 群陸旅誌：正史名稱保護層 CURRENT-1.74.0 / NAMING-PROTECTION-2.0 */
 (()=>{
   'use strict';
   if(typeof DB!=="object"||!DB)return;
 
-  const REVISION="NAMING-PROTECTION-1.1";
-  const CANONICAL="柳生惟心流";
-  const LEGACY_NAMES=new Set(["柳生唯心流","白柳劍術學派"]);
+  const REVISION="NAMING-PROTECTION-2.0";
+  const CANONICAL="柳生唯心流";
+  const LEGACY_NAMES=new Set(["柳生惟心流","白柳劍術學派"]);
   const seen=new WeakSet();
   let restored=0,readOnlySkipped=0;
 
