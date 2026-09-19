@@ -1,12 +1,12 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.76.1
- * PROGRAM-REGISTRY-1.0
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.77.0
+ * PROGRAM-REGISTRY-1.1
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.76.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.76.1";
-const REV="PROGRAM-REGISTRY-1.0";
+const RELEASE=CORE?.release?.("CURRENT-1.77.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.77.0";
+const REV="PROGRAM-REGISTRY-1.1";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -25,7 +25,7 @@ const GROUPS=Object.freeze({
   ],
   progression:[
     "src/class-skill-optimization-v1.js","src/class-skill-passive-compat-v1.js","src/class-naming-reference-v1.js",
-    "src/skill-naming-reference-v1.js","src/system-integrity-v2.js","src/affiliation-integrity-v1.js",
+    "src/skill-naming-reference-v1.js","src/skill-mechanics-depth-v1.js","src/system-integrity-v2.js","src/affiliation-integrity-v1.js",
     "src/player-experience-guidance-v1.js"
   ],
   naming:[
@@ -94,6 +94,7 @@ function audit(){
     ["系統完整性",()=>typeof globalThis.runSystemIntegrityAudit==="function"],
     ["取水稽核",()=>typeof globalThis.runWaterSourceAudit==="function"],
     ["統一命名",()=>typeof globalThis.runNameGeneratorAudit==="function"],
+    ["技能機制深化",()=>typeof globalThis.runSkillMechanicsDepthAudit==="function"&&globalThis.runSkillMechanicsDepthAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
     ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]

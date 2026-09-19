@@ -1,19 +1,21 @@
 {
-  "version": "CURRENT-1.76.1",
-  "previous_version": "CURRENT-1.76.0",
+  "version": "CURRENT-1.77.0",
+  "previous_version": "CURRENT-1.76.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "深化活世界循環完成：事件鏈階段、城鎮壓力與回穩、傳聞跨聚落擴散、NPC實際處置與世界鉤子形成可持續回饋閉環，並修正遊戲第0小時的時間邊界。",
+  "summary": "技能特色深化：現行技能不再只靠名稱與攻防百分比換皮，攻擊、輔助、治療與被動技能正式接入連段、破勢、背襲、處決、反擊、陷阱、召喚追擊、群體治療與資源互動等實際戰鬥流程。",
   "changelog": [
-    "修正遊戲時間為第0小時時，傳聞擴散、城鎮自然回穩與NPC回應冷卻把0誤判為未設定的邊界問題。",
-    "LIVE-WORLD-LOOP-1.1：事件鏈新增潛伏、浮現、發展中、關鍵階段、已收束等階段狀態；進度跨階段時會產生活世界事件與地方傳聞。",
-    "城鎮六維狀態加入壓力判讀與緩慢自然回穩；低於警戒或高於優勢門檻時會形成地方態勢訊號，而事件歷史仍完整保留。",
-    "傳聞會依地理關係向同省／同區聚落有限擴散，每次轉述降低可信度並記錄轉述層數；調查加入冷卻、在地情報與附近NPC支援、調查次數與成功證據紀錄。",
-    "NPC-DEPTH-2.0議程不再只顯示文字：高優先議程可在合理勤務與冷卻條件下實際改善治安、供應、秩序、情報等地方狀態，且限制同一來源的重複處置次數。",
-    "新增世界鉤子層：世界事件自動轉成可查詢的治安、供應、秩序、繁榮、情報、生態、物流、生產與劇情鉤子，供後續委託、奇遇與內容生成直接讀取。",
-    "自主世界的商隊、資源、地下城、天候等事件會鏡像進共同事件匯流排並生成鉤子，不再只停留在各自子系統。",
-    "活世界面板新增整體態勢、世界鉤子、事件鏈階段、傳聞可信度與轉述層數、調查紀錄；舊存檔維持相容。"
+    "SKILL-MECHANICS-DEPTH-1.0：465筆現行技能在載入時取得可稽核的mechanics profile/traits；舊存檔技能會依canonical技能資料原地同步，存檔格式維持相容。",
+    "攻擊技能不再只使用同一套「攻擊力×倍率－防禦」：加入連段、延遲陷阱、精準、破勢、背襲、處決、攻守一體、機動、汲取、召喚追擊、異常專精、元素弱點與連勢等流程機制。",
+    "多段技能仍只擲一次D20；二連射、連擊、箭雨、槍雨、洪流等使用同一命中判定拆成多段結果，維持既有D20一次擲骰硬規則。",
+    "陷阱型攻擊降低即時傷害、改為敵方行動前追加延遲觸發；支援型陷阱則直接建立待觸發機關，不再只是防禦力換皮。",
+    "破甲／穿透／重擊類會改變防禦換算並施加不疊加的防禦削弱；背刺／伏擊／突襲讀取首回合、隱蔽準備與敵方受控狀態；處決類讀取敵方剩餘生命。",
+    "盾擊／守護／反擊類可形成下一擊防禦或迎擊；衝鋒／暗影步／疾風類提供短暫機動；生命吸取／血刃等依實際傷害回復生命。",
+    "召喚類攻擊新增召喚追擊，不再只是改名魔法彈；煙霧技能會實際施加致盲，詛咒武器等狀態附魔會把異常帶到下一個命中技能。",
+    "輔助技能加入陷阱、反擊架勢、屏障、機動準備、專注、調息、團隊支援與附魔準備；群體治癒會直接治療所有可用友方，不再要求逐一選目標。",
+    "修正技能攻擊原先未納入enemyBuff物防／魔防的缺口，使減防與破勢能真正影響後續技能傷害；技能視窗同步顯示實際特色機制。",
+    "發布完整性與程序註冊加入技能機制稽核；PWA快取提升至v71並納入新模組。"
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -51,7 +53,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-3.5",
+  "pwa_cache_revision": "PWA-CACHE-FIX-3.6",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.0",
@@ -127,7 +129,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.9",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.0",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -401,10 +403,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.0",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.1",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 45,
+    "active_src_programs": 46,
     "groups": [
       "core",
       "data",
@@ -568,5 +570,56 @@
       "劇情"
     ],
     "natural_town_recovery": true
+  },
+  "skill_mechanics_depth_revision": "SKILL-MECHANICS-DEPTH-1.0",
+  "skill_mechanics_depth": {
+    "revision": "SKILL-MECHANICS-DEPTH-1.0",
+    "current_skill_records": 465,
+    "unique_skills": 314,
+    "unique_attack_skills": 211,
+    "attack_mechanic_traits": 19,
+    "largest_identical_attack_group_before": 21,
+    "largest_identical_attack_group_after": 4,
+    "battle_mechanics": [
+      "連段",
+      "延遲陷阱",
+      "精準",
+      "破勢",
+      "背襲",
+      "處決",
+      "攻守一體",
+      "機動",
+      "汲取",
+      "召喚追擊",
+      "異常專精",
+      "元素弱點",
+      "連勢"
+    ],
+    "support_mechanics": [
+      "群體治療",
+      "缺血救急",
+      "陷阱",
+      "反擊架勢",
+      "屏障",
+      "機動準備",
+      "煙幕控制",
+      "專注",
+      "調息",
+      "團隊支援",
+      "附魔準備",
+      "狀態附魔"
+    ],
+    "passive_specialization": [
+      "鷹眼首回合",
+      "劍心連勢",
+      "符文弱點",
+      "弱點分析",
+      "追蹤"
+    ],
+    "single_d20_multi_hit": true,
+    "enemy_defense_debuff_applies_to_skill_attacks": true,
+    "semantic_source_excludes_legacy_effect_percentages": true,
+    "save_schema_changed": false,
+    "save_compatible": true
   }
 }
