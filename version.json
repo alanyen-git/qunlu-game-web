@@ -1,11 +1,17 @@
 {
-  "version": "CURRENT-1.70.5",
-  "previous_version": "CURRENT-1.70.4",
+  "version": "CURRENT-1.70.6",
+  "previous_version": "CURRENT-1.70.5",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "技能名稱參考層：將大型技能清單萃取為17個技能家族，並把破甲、控制、治療、召喚、汲取等名稱語義與實際技能資料綁定，避免只換名稱或名實不符。",
+  "summary": "名稱生成器2.0：由單一音節拼接改為類型先行的統一協調層，人物、地點、組織、流派、怪物與委託分流生成，技能／裝備／戰鬥職業接既有專用驗證器，並取消固定名稱fallback。",
   "changelog": [
+    "新增 NAME-GENERATOR-2.0 統一名稱生成器：先判斷內容類型，再套用人物、聚落／地點、組織、流派、怪物、委託、物品等各自命名文法。",
+    "技能、裝備、戰鬥職業不再由通用音節生成器硬拼名稱，改分流至 SKILL-NAMING、EQUIPMENT-NAMING、CLASS-NAMING 專用驗證／建議函式。",
+    "查重升級為NFKC正規化＋移除空白與裝飾標點後比對；技能另外提示只差初階／高階／強化等弱修飾的近似重複。",
+    "取消舊 generateWorldName 失敗後固定回傳「洛恩／河灣鎮」的邏輯；候選全部失敗時回傳null，避免重複或不合法名稱被強行落庫。",
+    "新增人物連續重字、地名重複後綴、斜線雙名稱、現代／占位術語、英文識別字、低階高階稱號與正史鎖定名稱保護。",
+    "RELEASE-INTEGRITY-1.4 將統一名稱生成器結構與負向測試接入五回合自檢；PWA快取升級至v50。",
     "新增 SKILL-NAMING-REFERENCE-1.0：萃取使用者提供15類技能語彙，並補CURRENT九元素所需的泛元素術式、神聖與生命2類，共17個技能參照家族。",
     "保留既有465筆正式技能，不批量新增上千個換皮技能；新增技能必須先通過家族、階級、類型、元素、狀態與實際效果驗證。",
     "破甲、穿甲、麻痺、中毒、燃燒、冰封、定身、眩暈、恐懼、魅惑、沉默、混亂、石化、治癒、召喚、吸血、汲取、反射、隱形等名稱詞彙需有對應實裝效果。",
@@ -128,7 +134,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-1.3",
+  "release_integrity_revision": "RELEASE-INTEGRITY-1.4",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.0",
   "equipment_naming_reference": {
     "weapon_types": 25,
@@ -176,6 +182,32 @@
     "english_fragment_blocking": true,
     "external_move_name_blocking": true,
     "hard_errors": 0,
+    "save_compatible": true
+  },
+  "name_generator_revision": "NAME-GENERATOR-2.0",
+  "name_generator": {
+    "supported_types": [
+      "person",
+      "settlement",
+      "location",
+      "organization",
+      "discipline",
+      "monster",
+      "quest",
+      "skill",
+      "equipment",
+      "item",
+      "class"
+    ],
+    "normalized_duplicate_check": true,
+    "specialized_routes": [
+      "skill",
+      "equipment",
+      "class"
+    ],
+    "protected_canonical_names": true,
+    "fixed_fallback_disabled": true,
+    "semantic_near_duplicate_warning": true,
     "save_compatible": true
   }
 }
