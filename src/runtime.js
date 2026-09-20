@@ -811,6 +811,7 @@ function syncQuestInventoryProgressOne(q,quiet=true,quantities=null){
 function syncAllQuestInventoryProgress(quiet=true){const quantities=inventoryQuantityMap();for(const q of G?.quests||[])syncQuestInventoryProgressOne(q,quiet,quantities)}
 function questMarketKey(q){const o=q?.objective||{};if(["item","gather"].includes(o.kind)&&o.item_id)return `item:${o.item_id}`;if(o.kind==="kill")return `kill:${(o.monster_keywords||[]).slice().sort().join("+")}`;return null}
 function questMarketRegionId(){return loc(G.character.locationId)?.world_region_id||loc(G.character.locationId)?.region_id||"REG-18"}
+function localEconomyProfile(id=G.character.locationId){return loc(id)?.local_economy||null}
 function questMarketLedger(){G.worldState=G.worldState||{};G.worldState.questMarketLedger=Array.isArray(G.worldState.questMarketLedger)?G.worldState.questMarketLedger:[];const win=DB.quest_system?.market_demand?.window_hours||120,now=totalHours();G.worldState.questMarketLedger=G.worldState.questMarketLedger.filter(x=>now-x.hour<=win);return G.worldState.questMarketLedger}
 function questMarketPressure(q,regionId=questMarketRegionId()){const key=questMarketKey(q);if(!key)return 0;const now=totalHours(),win=DB.quest_system?.market_demand?.window_hours||120;return questMarketLedger().filter(x=>x.regionId===regionId&&x.key===key).reduce((n,x)=>n+(x.qty||1)*Math.max(.25,1-(now-x.hour)/win),0)}
 function questMarketFactor(q,regionId=questMarketRegionId()){
@@ -820,7 +821,15 @@ function questMarketAvailable(q){return questMarketFactor(q)>0}
 function adjustedRewardRange(q){const af=affiliationEffects(),f=questMarketFactor(q)*(1+af.quest_reward_pct/100),r=q.reward||[q.rewardSilver||0,q.rewardSilver||0];return [Math.max(1,Math.round(r[0]*f)),Math.max(1,Math.round(r[1]*f)),f]}
 function registerQuestMarketCompletion(q){const key=questMarketKey(q);if(!key)return;questMarketLedger().push({hour:totalHours(),regionId:questMarketRegionId(),key,qty:q.objective?.target||1,source:q.sourceType||q.type||"quest"});if(G.worldState.questMarketLedger.length>120)G.worldState.questMarketLedger=G.worldState.questMarketLedger.slice(-120)}
 function marketPressureText(q){const f=questMarketFactor(q);return f>=1?"需求正常":f<=0?"市場飽和・暫停發布":`需求轉弱・報酬${Math.round(f*100)}%`}
-function regionalItemMarketFactor(d){const rid=questMarketRegionId(),ctx=regionalEconomyContext(rid,loc(G.character.locationId)?.political_entity_id);let f=1;if(d?.regional_origin_id===rid)f*=DB.market_economy_system?.regional_origin_factor||.95;else if(d?.regional_origin_id)f*=DB.market_economy_system?.imported_origin_factor||1.05;const text=[d?.name,d?.material,d?.material_group,d?.type].filter(Boolean).join(" ");if(ctx?.exports?.some(k=>text.includes(k)))f*=.95;if(ctx?.imports?.some(k=>text.includes(k)))f*=1.05;return clamp(f,...(DB.market_economy_system?.price_factor_range||[.8,1.2]))}
+function regionalItemMarketFactor(d){
+ const rid=questMarketRegionId(),place=loc(G.character.locationId),ctx=regionalEconomyContext(rid,place?.political_entity_id),eco=localEconomyProfile();
+ let f=Number(eco?.market_price_mult||1);
+ if(d?.regional_origin_id===rid)f*=DB.market_economy_system?.regional_origin_factor||.95;else if(d?.regional_origin_id)f*=DB.market_economy_system?.imported_origin_factor||1.05;
+ const text=[d?.name,d?.material,d?.material_group,d?.type].filter(Boolean).join(" ");
+ if(ctx?.exports?.some(k=>text.includes(k)))f*=.95;
+ if(ctx?.imports?.some(k=>text.includes(k)))f*=1.05;
+ return clamp(f,...(DB.market_economy_system?.price_factor_range||[.8,1.2]))
+}
 function guildBuybackUnitPrice(d){
  const bonus=clamp(talentSpecial("sellBonus"),0,.25),market=Math.max(1,Math.floor((d?.value||1)*.5*(1+bonus)*regionalItemMarketFactor(d)*affiliationPriceMultiplier("sell")));
  return Math.max(1,Math.floor(market*.9))
@@ -3464,8 +3473,12 @@ function facilityHeal(fid){
 
 function marketDayKey(){return `${G.worldTime.year}-${G.worldTime.season}-${G.worldTime.day}`}
 function marketFacilityState(fid){
- G.worldState.localMarkets=G.worldState.localMarkets||{};const key=`${G.character.locationId}|${fid}`,day=marketDayKey(),rank=tierOrder(loc(G.character.locationId)?.tier||"F"),base=[80,160,320,640,1280,2500,5000][rank]||80;
- let s=G.worldState.localMarkets[key];if(!s||s.day!==day)s=G.worldState.localMarkets[key]={day,budgetMax:Math.round(base*(fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1)),budgetRemaining:Math.round(base*(fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1)),stock:{}};
+ G.worldState.localMarkets=G.worldState.localMarkets||{};
+ const key=`${G.character.locationId}|${fid}`,day=marketDayKey(),rank=tierOrder(loc(G.character.locationId)?.tier||"F"),base=[80,160,320,640,1280,2500,5000][rank]||80,eco=localEconomyProfile();
+ const prosperityBudget=clamp(Number(eco?.market_budget_mult||1),.6,1.5),facilityMult=fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1,budget=Math.round(base*facilityMult*prosperityBudget);
+ let s=G.worldState.localMarkets[key];
+ if(!s||s.day!==day)s=G.worldState.localMarkets[key]={day,budgetMax:budget,budgetRemaining:budget,stock:{},prosperityScore:Number(eco?.prosperity_score??null)};
+ else if(s.budgetMax!==budget){const ratio=s.budgetMax>0?s.budgetRemaining/s.budgetMax:1;s.budgetMax=budget;s.budgetRemaining=Math.round(budget*clamp(ratio,0,2))}
  s.stock=s.stock||{};s.budgetRemaining=clamp(Number(s.budgetRemaining??s.budgetMax),0,Math.max(1,s.budgetMax*2));return s
 }
 function isAbilityStatPotion(d){
@@ -3493,8 +3506,9 @@ function rareShopStockAvailable(fid,d){
 }
 function marketStockLimit(d){
  if(isAbilityStatPotion(d))return 1;
- const access=Math.max(0,tierOrder(loc(G.character.locationId)?.tier||"F")-tierOrder(d?.tier||"F")),bulk=["食材","素材","草藥素材","工藝素材","礦石","藥劑","料理","食物","補給"].includes(d?.type);
- return clamp((bulk?4:1)+access*(bulk?2:1),1,bulk?12:5)
+ const access=Math.max(0,tierOrder(loc(G.character.locationId)?.tier||"F")-tierOrder(d?.tier||"F")),bulk=["食材","素材","草藥素材","工藝素材","礦石","藥劑","料理","食物","補給"].includes(d?.type),eco=localEconomyProfile();
+ const base=(bulk?4:1)+access*(bulk?2:1),mult=clamp(Number(eco?.stock_mult||1),.6,1.5);
+ return clamp(Math.max(1,Math.round(base*mult)),1,bulk?12:5)
 }
 function marketStockQty(fid,d){
  const s=marketFacilityState(fid);
@@ -5044,13 +5058,13 @@ function openProvinceCategoryMap(pid,kind){
  showModal(`${p.name}・${provinceCategoryLabel(kind)}`,`${mapBreadcrumb({realm,province:p})}<div class="card small">只顯示目前位置與可直接前往的${provinceCategoryLabel(kind)}；不可前往區域已隱藏。依世界層級由高至低排列。</div>${body||"<div class='card small'>目前沒有可直接前往的區域。</div>"}`)
 }
 function openProvinceRegionMap(id){
- const p=provinceRegion(id);if(!p)return;const realm=realmRegionMap(p.parent_realm_map_id),ctx={realm,province:p};
+ const p=provinceRegion(id);if(!p)return;const realm=realmRegionMap(p.parent_realm_map_id),ctx={realm,province:p},eco=p.economy_profile||null;
  const kinds=["town","wild","dungeon"];
  const cards=kinds.map(kind=>{
    const all=provinceCategoryLocations(p,kind,false),reachable=provinceCategoryLocations(p,kind,true);
    return `<div class="itemrow"><span><b>${provinceCategoryLabel(kind)}</b><br><span class="small">已建置 ${all.length}｜目前可前往 ${reachable.filter(x=>x.id!==G.character.locationId).length}${reachable.some(x=>x.id===G.character.locationId)?"｜含目前位置":""}</span></span><button onclick="openProvinceCategoryMap('${p.id}','${kind}')">查看</button></div>`
  }).join("");
- showModal(`${p.name}・行省級區域`,`${mapBreadcrumb(ctx)}<div class="card"><b>${p.display_name||p.name}</b> <span class="tier">${p.world_tier}</span><br><span class="small">${p.administrative_type}<br>${p.identity||""}</span>${(p.lore_record_ids||[]).length?`<div class="actions"><button onclick="openLoreScope('province_region','${p.id}','${p.name}・地方史')">地方史</button></div>`:""}</div><div class="card small">省級地圖簡化為「城鎮／野外／地下城」三類。移動清單只顯示可以前往的區域；不可前往區域不顯示。</div>${cards}`)
+ showModal(`${p.name}・行省級區域`,`${mapBreadcrumb(ctx)}<div class="card"><b>${p.display_name||p.name}</b> <span class="tier">${p.world_tier}</span><br><span class="small">${p.administrative_type}<br>${p.identity||""}${eco?`<br>經濟繁榮度 ${eco.prosperity_score}/100（${eco.prosperity_label}）｜產業：${(eco.drivers||[]).join("、")}｜限制：${(eco.constraints||[]).join("、")}`:""}</span>${(p.lore_record_ids||[]).length?`<div class="actions"><button onclick="openLoreScope('province_region','${p.id}','${p.name}・地方史')">地方史</button></div>`:""}</div><div class="card small">省級地圖簡化為「城鎮／野外／地下城」三類。移動清單只顯示可以前往的區域；不可前往區域不顯示。</div>${cards}`)
 }
 function openProvinceTerrainMap(pid,kind){return openProvinceCategoryMap(pid,kind)}
 function openSettlementRegionMap(id){
@@ -5059,9 +5073,9 @@ function openSettlementRegionMap(id){
  return openWorldMapHierarchy()
 }
 function openMapLocationDetail(id){
- const l=loc(id);if(!l)return;const ctx=mapHierarchyForLocation(id),ix=locationIntegration(l.id),pc=politicalContextForLocation(l.id);
+ const l=loc(id);if(!l)return;const ctx=mapHierarchyForLocation(id),ix=locationIntegration(l.id),pc=politicalContextForLocation(l.id),eco=l.local_economy||ctx.province?.economy_profile||null;
  const links=(l.links||[]).map(x=>{const d=loc(x.to);return `<div class="itemrow"><span>${d?.name||x.to} <span class="tier">${d?.kind==="town"?(d?.settlement_world_tier||d?.tier):d?.tier||"—"}</span><br><span class="small">${x.hours}小時</span></span>${l.id===G.character.locationId?`<button onclick="travel('${x.to}',${x.hours})">前往</button>`:""}</div>`}).join("");
- showModal(l.name,`${mapBreadcrumb(ctx)}<div class="card"><b>${l.name}</b> <span class="tier">${l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier}</span>｜${l.size||mapKindLabel(l.kind)}<br><span class="small">${mapKindLabel(l.kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）${l.kind==="town"?`<br>城市世界層級：${l.settlement_world_tier||l.tier}｜${settlementTierProfile(l)?.label||""}`:""}<br>政治：${pc.polity?.name||"未確認"}｜行省級：${ctx.province?.name||"未建立"}｜城鎮區域：${ctx.settlement?.name||"未建立"}<br>整合資料：素材${ix.gather_item_ids.length+ix.fish_item_ids.length}｜組織${ix.organization_ids.length}｜神系${ix.pantheon_ids.length}</span><div class="actions"><button onclick="openLocationLore('${l.id}')">地方誌</button>${ctx.settlement?`<button onclick="openSettlementRegionMap('${ctx.settlement.id}')">城鎮區域</button>`:""}</div></div><div class="card"><b>道路連結</b></div>${links||"<div class='small'>沒有已建檔道路。</div>"}`)
+ showModal(l.name,`${mapBreadcrumb(ctx)}<div class="card"><b>${l.name}</b> <span class="tier">${l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier}</span>｜${l.size||mapKindLabel(l.kind)}<br><span class="small">${mapKindLabel(l.kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）${l.kind==="town"?`<br>城市世界層級：${l.settlement_world_tier||l.tier}｜${settlementTierProfile(l)?.label||""}`:""}<br>政治：${pc.polity?.name||"未確認"}｜行省級：${ctx.province?.name||"未建立"}｜城鎮區域：${ctx.settlement?.name||"未建立"}${eco?`<br>經濟繁榮度：${eco.prosperity_score}/100（${eco.prosperity_label}）｜${eco.infrastructure||""}`:""}<br>整合資料：素材${ix.gather_item_ids.length+ix.fish_item_ids.length}｜組織${ix.organization_ids.length}｜神系${ix.pantheon_ids.length}</span><div class="actions"><button onclick="openLocationLore('${l.id}')">地方誌</button>${ctx.settlement?`<button onclick="openSettlementRegionMap('${ctx.settlement.id}')">城鎮區域</button>`:""}</div></div><div class="card"><b>道路連結</b></div>${links||"<div class='small'>沒有已建檔道路。</div>"}`)
 }
 function openMap(){
  const ctx=mapHierarchyForLocation();
