@@ -579,7 +579,7 @@ DB.affiliation_identity_depth_system={
   },
   legacy_aliases:{organization:Object.keys(orgMap).length,discipline:Object.keys(discMap).length},
   discipline_consolidation:{
-    canonical_before:DISCIPLINE_BASELINE,canonical_after:disciplineTotal,merged:Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length,
+    canonical_before:DISCIPLINE_BASELINE,canonical_after:disciplineTotal,physical_after:disciplinePhysical,magic_after:disciplineMagic,merged:Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length,
     legacy_to_canonical:{...DISCIPLINE_HOMOGENEITY_MERGES},
     protected_distinct:[...DISCIPLINE_PROTECTED_IDS],
     rule:"只有玩法循環、技能家族、職業重疊、接觸制度與會員效果整體高度同質才合併；來源、用途、高階資格或核心戰術不同者不得只因同武器／同元素而合併。"
