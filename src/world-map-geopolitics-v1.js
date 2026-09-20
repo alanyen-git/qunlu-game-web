@@ -286,14 +286,14 @@ DB.meta.world_physical_geography_revision=REV;
 function svgPolyline(points,attrs=""){
  return '<polyline points="'+fmtPoints(points)+'" fill="none" '+attrs+'></polyline>';
 }
-function renderPhysicalFeatures(parts,mode){
- if(mode==="climate"){
-   for(const z of CLIMATE_BANDS){
-     parts.push('<polygon points="'+fmtPoints(z.polygon)+'" fill="hsl('+((Number(z.id.slice(-2))*53)%360)+' 40% 42% / '+z.opacity+')" stroke="rgba(220,230,222,.18)" stroke-width="2"><title>'+esc(z.name+"｜"+z.kind)+'</title></polygon>');
-     const p=centroid(z.polygon);
-     parts.push('<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" fill="#d8dfd9" font-size="18" font-weight="700" pointer-events="none">'+esc(z.name)+'</text>');
-   }
+function renderClimateBands(parts){
+ for(const z of CLIMATE_BANDS){
+   parts.push('<polygon points="'+fmtPoints(z.polygon)+'" fill="hsl('+((Number(z.id.slice(-2))*53)%360)+' 40% 42% / '+z.opacity+')" stroke="rgba(220,230,222,.18)" stroke-width="2"><title>'+esc(z.name+"｜"+z.kind)+'</title></polygon>');
+   const p=centroid(z.polygon);
+   parts.push('<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" fill="#d8dfd9" font-size="18" font-weight="700" pointer-events="none">'+esc(z.name)+'</text>');
  }
+}
+function renderPhysicalFeatures(parts,mode){
  for(const c of COASTLINES){
    parts.push(svgPolyline(c.points,'stroke="#6e9eb5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"'+(c.closed?'':'') ));
    if(c.closed)parts.push('<polygon points="'+fmtPoints(c.points)+'" fill="none" stroke="#6e9eb5" stroke-width="8"></polygon>');
@@ -320,7 +320,7 @@ function renderPhysicalFeatures(parts,mode){
 function renderSurfaceSvg(mode="surface"){
  const parts=['<rect width="'+W+'" height="'+H+'" fill="#0d1c22"></rect>'];
  const physicalOnly=mode==="physical"||mode==="climate";
- if(mode==="climate")renderPhysicalFeatures(parts,"climate");
+ if(mode==="climate")renderClimateBands(parts);
  for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
    const region=regionById(g.region_id),pid=polityIdForGeometry(g),p=polityById(pid);
    const fill=pid?colorForPolity(pid):"#2b3130";
@@ -328,13 +328,7 @@ function renderSurfaceSvg(mode="surface"){
    const click=pid?"openWorldMapPolityTerritory('"+pid+"')":"openWorldMapNonStateRegion('"+g.region_id+"')";
    parts.push('<polygon points="'+fmtPoints(g.points)+'" fill="'+fill+'" fill-opacity="'+(physicalOnly?".28":".72")+'" stroke="'+(physicalOnly?"#66736d":"#91a19a")+'" stroke-width="'+(physicalOnly?2:4)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+' onclick="'+click+'" style="cursor:pointer"><title>'+esc((p?.name||region?.name||g.region_id)+(g.nonstate?"（非統一主權區）":""))+'</title></polygon>');
  }
- if(mode!=="climate")renderPhysicalFeatures(parts,mode);
- if(mode==="climate"){
-   /* 氣候底圖先畫帶色，再重疊自然地理，避免河川與道路被遮住。 */
-   const physical=[];
-   renderPhysicalFeatures(physical,"physical");
-   parts.push(...physical);
- }
+ renderPhysicalFeatures(parts,mode);
  for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
    const region=regionById(g.region_id),pid=polityIdForGeometry(g),p=polityById(pid),lp=g.label||centroid(g.points);
    parts.push('<text x="'+lp[0]+'" y="'+lp[1]+'" text-anchor="middle" fill="#f0eee6" font-size="'+(physicalOnly?19:23)+'" font-weight="700" pointer-events="none">'+esc(p?.name||region?.name||g.region_id)+'</text>');
