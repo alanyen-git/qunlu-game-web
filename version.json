@@ -1,11 +1,17 @@
 {
-  "version": "CURRENT-1.87.0",
-  "previous_version": "CURRENT-1.86.0",
+  "version": "CURRENT-1.88.0",
+  "previous_version": "CURRENT-1.87.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "世界政治地圖第一階段：完成18個CURRENT政治體疆域、首都／統治中樞位置、20個地表大區邊界與黑月深庭地下重疊主權；世界地圖視窗可直接檢視疆域與首都。",
+  "summary": "世界地理骨架：在既有政治疆域上加入海岸、山脈、河川、湖泊、6個氣候帶、6條主要道路與6處國境關隘，並依天然屏障與交通孔道微調國境形狀與形成原因。",
   "changelog": [
+    "WORLD-MAP-GEOPOLITICS-1.1：政治疆域由大面積幾何直線重塑為沿山脊、分水嶺、河谷、火山高地與道路孔道形成的有機邊界。",
+    "新增6段主要海岸、5條山脈／高地、5條主要河川、3座湖泊與6個氣候帶；世界地圖可切換政治＋地形、自然地理、氣候帶、地下主權。",
+    "新增6條主要道路與6處國境關隘；石冠西門、藍塔隘、赤牙關、龍脊北口、霜角口、東門隘成為跨境交通與軍政節點。",
+    "新增13組國境形成邏輯，記錄山脊、分水嶺、河川、季節牧路、火山高地與關隘如何塑造政治控制線。",
+    "政治體詳情新增自然與交通骨架、氣候與國境形成原因；非主權區同樣顯示道路／地形約束。",
+    "地理完整性稽核擴充為海岸、山脈、河川、湖泊、氣候帶、道路、關隘與邊界成因引用檢查；舊存檔相容。",
     "WORLD-MAP-GEOPOLITICS-1.0：建立1800×1100世界政治地圖座標層，20個world_regions全部具有地表疆域幾何。",
     "18個CURRENT政治體全部建立疆域與首都策略：16個固定首都、風鬃汗國採季節性移動汗庭錨點、斷境無主地依法不設固定首都。",
     "黑月深庭改以subterranean地下主權層呈現，保留與石冠氏族王國在REG-13石冠山脈的重疊與爭議主權，不誤畫成地表獨立國境。",
@@ -125,7 +131,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.4",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.5",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -201,7 +207,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.3",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.5",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -475,7 +481,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.4",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.6",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 55,
@@ -499,9 +505,10 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-1.86.0：新增 political-hierarchy-depth-v1.js，正式載入 src 程序共54個；PROGRAM-REGISTRY、index.html、sw.js 與部署完整性檢查同步。",
-    "last_verified_release": "CURRENT-1.87.0",
+    "last_verified_release": "CURRENT-1.88.0",
     "notes": [
-      "CURRENT-1.87.0新增src/world-map-geopolitics-v1.js；正式入口、PROGRAM-REGISTRY與PWA清單同步為55個src程序。"
+      "CURRENT-1.87.0新增src/world-map-geopolitics-v1.js；正式入口、PROGRAM-REGISTRY與PWA清單同步為55個src程序。",
+      "CURRENT-1.88.0：世界政治地圖升級為地理骨架1.1，不增加程序數，維持55個正式src程序。"
     ]
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.1",
@@ -909,7 +916,7 @@
     "save_compatible": true,
     "honorary_titles_have_automatic_rights": false
   },
-  "world_geopolitical_map_revision": "WORLD-MAP-GEOPOLITICS-1.0",
+  "world_geopolitical_map_revision": "WORLD-MAP-GEOPOLITICS-1.1",
   "world_geopolitical_map": {
     "political_entities": 18,
     "surface_regions": 20,
@@ -917,10 +924,21 @@
     "mobile_courts": 1,
     "no_fixed_capital_zones": 1,
     "subterranean_polities": 1,
+    "coastlines": 6,
+    "mountain_ranges": 5,
+    "rivers": 5,
+    "lakes": 3,
+    "climate_bands": 6,
+    "major_roads": 6,
+    "border_passes": 6,
+    "border_logic": 13,
     "layers": [
       "surface",
+      "physical",
+      "climate",
       "subterranean"
     ],
     "save_compatible": true
-  }
+  },
+  "world_physical_geography_revision": "WORLD-MAP-GEOPOLITICS-1.1"
 }
