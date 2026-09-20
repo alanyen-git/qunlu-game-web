@@ -1792,6 +1792,18 @@ function successionContext(polityId,officeId){
  return {method:a?.succession_method||`依${p?.legal_tradition||"地方傳統"}與上級確認`,basis:a?`${a.name}的法統規則`:`${p?.name||"政治體"}的既有法統`,multistage:true}
 }
 function authorityRightNames(o){return (o?.rights||[]).map(x=>authorityRight(x)?.name||x)}
+function politicalRankClassInfo(id){return DB.political_rank_classes?.[id]||null}
+function politicalRankLadderHtml(profile){
+ const rows=(profile?.rank_ladder||[]).slice().sort((a,b)=>(a.precedence||999)-(b.precedence||999));
+ if(!rows.length)return "<div class='small'>尚未建立細部政治／身分階序。</div>";
+ return rows.map(r=>{
+   const k=politicalRankClassInfo(r.rank_class),flags=[];
+   if(r.hereditary)flags.push("可世襲");
+   if(r.territorial)flags.push("領地性");
+   if(r.governing_default)flags.push("預設具公共權能");else flags.push(r.is_honorary?"純榮譽":"不自動具統治權");
+   return `<div class="itemrow"><span><b>${r.precedence}. ${r.title}</b> <span class="tier">${r.authority_tier}</span><br><span class="small">${k?.label||r.rank_class}｜${flags.join("・")}${r.acquisition?`<br>取得：${r.acquisition}`:""}${r.rights_note?`<br>權限：${r.rights_note}`:""}${r.note?`<br>${r.note}`:""}</span></span></div>`;
+ }).join("")
+}
 function openAuthorityHierarchy(polityId){
  const p=politicalEntity(polityId),prof=authorityProfile(polityId);if(!p||!prof)return;
  const access=maxPoliticalAccessTier(polityId),standing=politicalStanding(polityId);
@@ -1799,7 +1811,8 @@ function openAuthorityHierarchy(polityId){
    const t=authorityTierInfo(o.authority_tier),parent=o.reports_to?authorityOffice(polityId,o.reports_to):null,can=authorityOfficeAccessible(polityId,o);
    return `<div class="itemrow"><span><b>${o.title}</b> <span class="tier">${o.authority_tier}</span><br><span class="small">${t?.name||""}｜${parent?`上級：${parent.title}`:"最高／獨立權位"}${o.parallel_authority_ids?.length?`｜平行權力：${o.parallel_authority_ids.map(x=>authorityOffice(polityId,x)?.title||x).join("、")}`:""}｜${can?"可接觸":"目前僅能查閱公開資料"}</span></span><button onclick="openAuthorityOffice('${polityId}','${o.id}')">查看</button></div>`
  }).join("");
- showModal(`${p.name}・權力層級`,`<div class="card"><b>政治權力 ≠ 戰鬥力</b><br><span class="small">你的地方政治聲望 ${standing}｜目前最高可接觸 ${access}（${authorityTierInfo(access)?.name||""}）。AUTH只描述統治範圍與法定權利，不使用F–S戰力判定。</span></div>${rows}<div class="actions"><button onclick="openAuthorityRequests('${polityId}')">地方政務委託</button><button onclick="openPolity('${polityId}')">上一頁</button></div>`)
+ const rankIntro=prof.rank_ladder?.length?`<div class="card"><b>政治／身分階序</b><br><span class="small">以下是禮序與制度身分，不等於實際統治權。王族、爵位、議席、官職與榮譽身分會分開判定；榮譽身分預設不帶課稅、司法、軍令、任命、議席或投票權。</span></div>${politicalRankLadderHtml(prof)}`:"";
+ showModal(`${p.name}・權力層級`,`<div class="card"><b>政治權力 ≠ 戰鬥力</b><br><span class="small">你的地方政治聲望 ${standing}｜目前最高可接觸 ${access}（${authorityTierInfo(access)?.name||""}）。AUTH只描述統治範圍與法定權利，不使用F–S戰力判定。</span></div>${rankIntro}<div class="card"><b>法定權力鏈</b><br><span class="small">下列節點才用於實際委託、管轄、司法、稅役與政治事件判定。</span></div>${rows}<div class="actions"><button onclick="openAuthorityRequests('${polityId}')">地方政務委託</button><button onclick="openPolity('${polityId}')">上一頁</button></div>`)
 }
 function openAuthorityOffice(polityId,officeId){
  const p=politicalEntity(polityId),o=authorityOffice(polityId,officeId);if(!p||!o)return;
@@ -5244,6 +5257,10 @@ function runGeneratorAudit(){
      if(o.authority_archetype_id&&!authIds.has(o.authority_archetype_id))issues.push(`政治體主權原型缺失:${p.name}/${o.title}`)
    }
  }
+ if(typeof globalThis.runPoliticalHierarchyDepthAudit==="function"){
+   const pha=globalThis.runPoliticalHierarchyDepthAudit();
+   if(!pha?.pass)issues.push(...(pha?.issues||[]).map(x=>`政治階層深化:${x}`))
+ }else issues.push("政治階層深化runtime缺失");
  for(const l of (DB.locations||[]))if(l.kind==='town'&&l.world_region_id==='REG-18'){
    if(!l.local_authority)issues.push(`CURRENT聚落地方統治缺失:${l.name}`);
    else if(!authTierIds.has(l.local_authority.authority_tier))issues.push(`CURRENT地方權級缺失:${l.name}`)
