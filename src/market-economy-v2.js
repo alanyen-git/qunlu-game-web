@@ -32,10 +32,9 @@
   }
 
   function marketLiquidity(d){
-    const place=loc(G?.character?.locationId),rank=Math.max(0,tierOrder(place?.tier||"F"));
-    const bulk=BULK_TYPES.has(d?.type);
-    const base=bulk?12:5;
-    return Math.max(3,base*(1+rank*.75));
+    const place=loc(G?.character?.locationId),rank=Math.max(0,tierOrder(place?.tier||"F")),eco=place?.local_economy||null;
+    const bulk=BULK_TYPES.has(d?.type),base=bulk?12:5,mult=clamp(Number(eco?.liquidity_mult||1),.6,1.5);
+    return Math.max(3,base*(1+rank*.75)*mult);
   }
 
   function itemTradePressure(d){
