@@ -5256,8 +5256,11 @@ function runGeneratorAudit(){
  for(const [pid,v] of Object.entries(G?.character?.politicalStanding||{}))if(!politicalEntity(pid)||v<-100||v>100)issues.push(`政治聲望異常:${pid}/${v}`);
 
  const dsc=DB.discipline_factions||[],dids=new Set(dsc.map(x=>x.id)),sfs=new Set((DB.skill_families||[]).map(x=>x.id)),cids=new Set(DB.combat_classes.map(x=>x.id));
- if(dsc.filter(x=>x.track==="physical").length<25)issues.push(`物理流派核心數量不足:${dsc.filter(x=>x.track==="physical").length}`);
- if(dsc.filter(x=>x.track==="magic").length<24)issues.push(`魔法流派核心數量不足:${dsc.filter(x=>x.track==="magic").length}`);
+ const discConsolidation=DB.affiliation_identity_depth_system?.discipline_consolidation||{};
+ const physicalDisciplineFloor=Math.max(1,Number(discConsolidation.physical_after||25));
+ const magicDisciplineFloor=Math.max(1,Number(discConsolidation.magic_after||24));
+ if(dsc.filter(x=>x.track==="physical").length<physicalDisciplineFloor)issues.push(`物理流派核心數量不足:${dsc.filter(x=>x.track==="physical").length}/${physicalDisciplineFloor}`);
+ if(dsc.filter(x=>x.track==="magic").length<magicDisciplineFloor)issues.push(`魔法流派核心數量不足:${dsc.filter(x=>x.track==="magic").length}/${magicDisciplineFloor}`);
  if(dids.size!==dsc.length)issues.push(`流派ID重複:${dids.size}/${dsc.length}`);
  const dnames=new Set();for(const d of dsc){
    if(dnames.has(d.name))issues.push(`流派名稱重複:${d.name}`);dnames.add(d.name);
@@ -5419,7 +5422,8 @@ function runGeneratorAudit(){
  for(const rp of (DB.regional_powers||[])){if(rp.recognized_sovereignty!==false)issues.push(`區域勢力誤具主權:${rp.name}`);if(politicalEntity(rp.legacy_polity_id))issues.push(`退役政體仍存在:${rp.legacy_polity_id}`)}
  for(const rid of ["REG-10","REG-17"]){const r=worldRegion(rid);if(r?.political_entity_id!==null)issues.push(`區域勢力地區誤掛政體:${rid}`);if(!regionalPowersForRegion(rid).length)issues.push(`區域勢力地區缺勢力:${rid}`)}
  for(const pid of ["POL-007","POL-008","POL-009"]){if(politicalEntity(pid)?.government_type!=="自由都市")issues.push(`自由都市類型未統整:${pid}`)}
- if((DB.discipline_factions||[]).length<49)issues.push(`流派核心數量不足49:${DB.discipline_factions?.length}`);
+ const disciplineCanonicalFloor=Math.max(1,Number(DB.affiliation_identity_depth_system?.discipline_consolidation?.canonical_after||49));
+ if((DB.discipline_factions||[]).length<disciplineCanonicalFloor)issues.push(`流派核心數量不足:${DB.discipline_factions?.length}/${disciplineCanonicalFloor}`);
  for(const id of ["EST-THUNDERCLAP","EST-RAIKO","EST-YAGYU-MIND"]){if(!(DB.eastern_sword_traditions||[]).some(x=>x.id===id))issues.push(`東方核心傳承缺失:${id}`)}
  if(!disciplineFor("DSC-PHY-31"))issues.push("雷煌流canonical流派缺失");
  for(const [oldId,newId] of Object.entries(DB.discipline_merge_map||{})){if(!disciplineFor(newId))issues.push(`流派整併目標缺失:${oldId}->${newId}`);if((DB.discipline_factions||[]).some(x=>x.id===oldId))issues.push(`舊流派未退役:${oldId}`)}
