@@ -470,7 +470,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.4",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 53,
+    "active_src_programs": 54,
     "groups": [
       "core",
       "data",
@@ -489,7 +489,8 @@
     "index_service_worker_sync": true,
     "orphan_src_guard": true,
     "load_order_audit": true,
-    "save_compatible": true
+    "save_compatible": true,
+    "note": "CURRENT-1.86.0：新增 political-hierarchy-depth-v1.js，正式載入 src 程序共54個；PROGRAM-REGISTRY、index.html、sw.js 與部署完整性檢查同步。"
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.1",
   "full_program_debug": {
