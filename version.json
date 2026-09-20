@@ -530,7 +530,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.6",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 56,
+    "active_src_programs": 57,
     "groups": [
       "core",
       "data",
@@ -550,9 +550,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.89.0新增src/political-consolidation-v1.js，正式載入src程序共56個；PROGRAM-REGISTRY、index.html、sw.js與部署完整性檢查同步。",
-    "last_verified_release": "CURRENT-1.90.0",
+    "note": "CURRENT-1.93.0新增src/starter-settlements-v1.js；正式載入src程序共57個，PROGRAM-REGISTRY、index.html、sw.js與部署完整性檢查同步。",
+    "last_verified_release": "CURRENT-1.93.0",
     "notes": [
+      "CURRENT-1.93.0：新增多政治體新手村與出生分配資料層；正式入口、PROGRAM-REGISTRY與PWA清單同步為57個src程序。",
       "CURRENT-1.87.0新增src/world-map-geopolitics-v1.js；正式入口、PROGRAM-REGISTRY與PWA清單同步為55個src程序。",
       "CURRENT-1.88.0：世界政治地圖升級為地理骨架1.1，不增加程序數，維持55個正式src程序。",
       "CURRENT-1.89.0：新增政治體整併資料層；CURRENT政治體18→15，世界地圖升級至1.2並加入北方標示。"
