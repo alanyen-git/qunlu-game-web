@@ -1,11 +1,14 @@
 {
-  "version": "CURRENT-1.84.3",
-  "previous_version": "CURRENT-1.84.2",
+  "version": "CURRENT-1.84.4",
+  "previous_version": "CURRENT-1.84.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "冒險與探索類組織重構：實際載入數由16個整併為8個，減少50%；保留8種互補核心定位，舊組織轉為分會／專門隊並維持舊ID與跨庫引用相容。",
+  "summary": "冒險與探索類組織完成16→8（-50%）整併，並將世界組織完整性稽核改為支援有意義的資料收斂：以合併額度、核心最低數與陣營比例檢核，不再要求舊版固定絕對數量。",
   "changelog": [
+    "ORGANIZATION-AUDIT-CONSOLIDATION-AWARE-1.0：世界組織總量門檻會扣除已登記的有意義整併數，不再因去除重複組織而誤判。",
+    "陣營分布稽核由舊版固定 light≥10／neutral≥70／dark≥20 改為最低核心數＋比例檢查，保留多樣性要求但允許資料去重。",
+    "冒險與探索類維持16→8、正好減少50%；8個舊ID仍映射到核心組織分會／專門隊，跨庫引用與舊存檔相容。",
     "ADVENTURE-ORGANIZATION-CONSOLIDATION-1.0：冒險與探索類組織由16個整併為8個，達成-50%數量目標。",
     "保留核心：群陸冒險者公會、遠路探勘協會、古跡發掘團、深層測繪會、懸賞獵人公會、遠航探險公會、怪物學者協會、霧杉林務會；八者分別負責綜合委託、遠征踏查、考古發掘、危區製圖、懸賞討伐、遠航、魔物研究、地方林務。",
     "整併：地方魔物討伐隊→懸賞獵人公會；邊境拓荒團／秘境踏查隊／高峰攀登協會→遠路探勘協會；古藏尋獵會／灰鏟古墓團／地穴探險隊→古跡發掘團；英雄功績評議會→群陸冒險者公會功績審核部。",
@@ -796,5 +799,6 @@
   "adventure_organization_consolidation_revision": "ADVENTURE-ORGANIZATION-CONSOLIDATION-1.0",
   "adventure_organization_baseline": 16,
   "adventure_organization_target": 8,
-  "adventure_organization_reduction_pct": 50
+  "adventure_organization_reduction_pct": 50,
+  "organization_audit_revision": "ORGANIZATION-AUDIT-CONSOLIDATION-AWARE-1.0"
 }
