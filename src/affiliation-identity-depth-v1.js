@@ -181,14 +181,21 @@ Object.assign(orgMap,{
   "ORG-ASD2-AMBER-GROWERS":"ORG-ASD-GRAIN-COMPACT"
 });
 
+const DISCIPLINE_BASELINE=(DB.discipline_factions||[]).length;
 const DISCIPLINE_HOMOGENEITY_MERGES=Object.freeze({
   "DSC-MAG-27":"DSC-MAG-05",
   "DSC-MAG-14":"DSC-MAG-01",
-  "DSC-MAG-24":"DSC-MAG-03"
+  "DSC-MAG-24":"DSC-MAG-03",
+  "DISC-ASD-IRON-BANNER":"DSC-PHY-02",
+  "DISC-ASD-MIST-STEP":"DSC-PHY-16",
+  "DISC-ASD2-CROWN-SPEAR":"DSC-PHY-03",
+  "DISC-ASD2-WHITE-TOWER-WARD":"DSC-MAG-17"
 });
+const DISCIPLINE_TARGET=DISCIPLINE_BASELINE-Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length;
 const DISCIPLINE_PROTECTED_IDS=Object.freeze([
-  "DSC-PHY-03","DSC-PHY-08","DSC-PHY-11","DSC-PHY-12","DSC-PHY-21","DSC-PHY-24","DSC-PHY-31",
-  "DSC-MAG-06","DSC-MAG-09","DSC-MAG-10","DSC-MAG-11","DSC-MAG-13","DSC-MAG-20","DSC-MAG-21","DSC-MAG-25","DSC-MAG-26"
+  "DSC-PHY-02","DSC-PHY-03","DSC-PHY-08","DSC-PHY-11","DSC-PHY-12","DSC-PHY-16","DSC-PHY-21","DSC-PHY-24","DSC-PHY-31",
+  "DISC-ASD2-REEF-ROPE","DISC-ASD2-FROST-SPEAR",
+  "DSC-MAG-06","DSC-MAG-09","DSC-MAG-10","DSC-MAG-11","DSC-MAG-13","DSC-MAG-17","DSC-MAG-20","DSC-MAG-21","DSC-MAG-25","DSC-MAG-26"
 ]);
 Object.assign(discMap,DISCIPLINE_HOMOGENEITY_MERGES);
 
@@ -513,7 +520,7 @@ function audit(){
     disciplines:(DB.discipline_factions||[]).length,
     organization_aliases:Object.keys(orgMap).length,
     discipline_aliases:Object.keys(discMap).length,
-    discipline_canonical_before:49,
+    discipline_canonical_before:DISCIPLINE_BASELINE,
     discipline_canonical_after:(DB.discipline_factions||[]).length,
     discipline_homogeneity_merges:Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length,
     merged_branches:0,
@@ -555,7 +562,7 @@ function audit(){
     if(resolveMap(discMap,from)!==to)issues.push("高同質流派映射異常:"+from+"->"+resolveMap(discMap,from));
   }
   for(const id of DISCIPLINE_PROTECTED_IDS)if(!discIds.has(id))issues.push("差異化流派遭誤合併:"+id);
-  if((DB.discipline_factions||[]).length!==46)issues.push("canonical流派數量異常:"+(DB.discipline_factions||[]).length+"/46");
+  if((DB.discipline_factions||[]).length!==DISCIPLINE_TARGET)issues.push("canonical流派數量異常:"+(DB.discipline_factions||[]).length+"/"+DISCIPLINE_TARGET);
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats};
 }
 
@@ -572,7 +579,7 @@ DB.affiliation_identity_depth_system={
   },
   legacy_aliases:{organization:Object.keys(orgMap).length,discipline:Object.keys(discMap).length},
   discipline_consolidation:{
-    canonical_before:49,canonical_after:disciplineTotal,merged:Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length,
+    canonical_before:DISCIPLINE_BASELINE,canonical_after:disciplineTotal,merged:Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length,
     legacy_to_canonical:{...DISCIPLINE_HOMOGENEITY_MERGES},
     protected_distinct:[...DISCIPLINE_PROTECTED_IDS],
     rule:"只有玩法循環、技能家族、職業重疊、接觸制度與會員效果整體高度同質才合併；來源、用途、高階資格或核心戰術不同者不得只因同武器／同元素而合併。"
@@ -584,7 +591,7 @@ DB.affiliation_identity_depth_system={
     "琥珀田農產協會":"銀穗糧議會・農產分會"
   }
 };
-if(Array.isArray(DB.integration_registry&&DB.integration_registry.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：高同質流派再收斂3組，49→46；折門術會併入沙漏時序會、遠卷賢者塔併入藍塔奧術院、曙光神術院併入白泉治癒修會。舊ID、職業、技能家族、對話、情報、正史引用、接觸點與存檔進度保留映射。");
+if(Array.isArray(DB.integration_registry&&DB.integration_registry.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：完整載入庫高同質流派收斂7組，55→48；既有術式重疊3組與阿斯戴爾地方支系4組改列專修支系。舊ID、職業、技能家族、對話、情報、正史引用、接觸點與存檔進度保留映射。");
 globalThis.resolveOrganizationAlias=id=>resolveMap(orgMap,id);
 globalThis.resolveDisciplineAlias=id=>resolveMap(discMap,id);
 globalThis.runAffiliationIdentityDepthAudit=audit;
