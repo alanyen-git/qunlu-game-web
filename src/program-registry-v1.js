@@ -5,7 +5,7 @@
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.90.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.90.0";
+const RELEASE=CORE?.release?.("CURRENT-1.93.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.93.0";
 const REV="PROGRAM-REGISTRY-1.6";
 
 const GROUPS=Object.freeze({
