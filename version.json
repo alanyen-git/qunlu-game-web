@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-1.84.0",
-  "previous_version": "CURRENT-1.83.0",
+  "version": "CURRENT-1.84.1",
+  "previous_version": "CURRENT-1.84.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "夥伴物種差異化：新增20種物種簽章，讓同家族寵物的光環固定效果、觸發條件、技能名稱與實戰附加行為各自分化，避免三隻寵物效果與名稱高度相似。",
+  "summary": "修正戰鬥畫面的寵物／召喚獸資訊：光環、專屬技能與戰術核心直接顯示文字敘述，並加入舊資料 fallback。",
   "changelog": [
+    "COMPANION-BATTLE-DESCRIPTION-1.0：戰鬥卡片直接渲染出戰夥伴的光環、專屬技能與戰術核心，不再依賴後載入裝飾器才出現文字。",
+    "光環優先顯示物種家族、AI定位與夥伴類型的戰術規則；技能優先顯示深化後的特色、AI修正與夥伴類型敘述，舊資料缺欄位時仍提供安全文字 fallback。",
+    "既有 companion-aura、companion-unique-skill、companion-identity-depth 模組保留，並更新同一組 DOM class，因此不會重複產生技能或光環卡片。",
+    "戰鬥夥伴資訊桌機採雙欄、手機自動單欄；長敘述可隨戰鬥內容區捲動，不再因窄螢幕被擠掉。",
     "COMPANION-SPECIES-IDENTITY-1.0：在既有7大家族核心之上新增20種物種簽章，專門解決同家族寵物光環與技能過度相似。",
     "物種簽章包含血嗅、伏影、護巢、破勢、長驅、靈脈、清心、雷動、磐守、異響、逆境、完勢、噬生、遠望、斷勢、回春、守契、尋珍、幽行、王息等20種戰術方向。",
     "每個簽章同時改變光環固定效果與條件觸發；例如負傷追獵、前兩回合伏擊、主人低血護主、敵人高血破勢、長戰增幅、低魔回流等。",
@@ -777,5 +781,6 @@
     "anti_homogeneity_audit": true,
     "save_schema_changed": false,
     "save_compatible": true
-  }
+  },
+  "companion_battle_description_revision": "COMPANION-BATTLE-DESCRIPTION-1.0"
 }
