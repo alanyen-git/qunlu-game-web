@@ -59,7 +59,7 @@
     const g=game(),checks=[];const add=(id,pass,value=null,detail="")=>checks.push({id,pass:!!pass,value,detail});
     add("db_version",DB.meta?.current_version===RELEASE,DB.meta?.current_version,"資料庫版本需與發布版一致");
     add("market_revision",DB.meta?.market_economy_revision==="MARKET-PRICE-SYNC-2.0",DB.meta?.market_economy_revision);
-    add("world_revision",DB.meta?.world_autonomy_revision==="WORLD-AUTONOMY-2.0",DB.meta?.world_autonomy_revision);
+    add("world_revision",DB.meta?.world_autonomy_revision==="WORLD-AUTONOMY-2.1",DB.meta?.world_autonomy_revision);
     add("npc_revision",DB.meta?.npc_depth_revision==="NPC-DEPTH-2.0",DB.meta?.npc_depth_revision);
     add("class_skill_revision",DB.meta?.class_skill_revision==="CLASS-SKILL-OPT-1.0",DB.meta?.class_skill_revision);
     add("npc_phase1_api",typeof globalThis.ensureNpcDepthState==="function"&&typeof globalThis.npcDepthHeartbeat==="function");
