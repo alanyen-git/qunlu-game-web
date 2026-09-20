@@ -1,4 +1,4 @@
-/* 群陸旅誌：多政治體新手村與出生分配 CURRENT-1.93.0
+/* 群陸旅誌：多政治體新手村與出生分配 CURRENT-1.94.0
  * STARTER-SETTLEMENTS-1.0
  * 在阿斯戴爾以外的5個政治體建立F級新手村與周邊低階區域；
  * 新角色依種族、出身、職業加權分配至柳橋鎮＋5個新手村之一，不改存檔schema。
@@ -9,7 +9,7 @@ if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-1.93.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.93.0";
-const REV="STARTER-SETTLEMENTS-1.0";
+const REV="STARTER-SETTLEMENTS-1.1";
 const SAFE_RULE="安全度越低，普通敵對遭遇機率越高；仍受生態、地圖層級、潛行與行動類型約束。";
 const deep=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const location=id=>(DB.locations||[]).find(x=>x?.id===id)||null;
@@ -36,11 +36,12 @@ function town(cfg){
   safety_score:96,safety_label:"安穩",safety_rule:SAFE_RULE,
   world_region_id:cfg.region_id,political_entity_id:cfg.polity_id,culture_id:cfg.culture_id,
   history_scope:cfg.history_scope,political_role:"地方新手聚落",
-  realm_region_map_id:"RMAP-"+cfg.polity_id,settlement_world_tier:"F",
-  starter_cluster_id:cfg.id,starter_village:true
+  province_region_id:cfg.province_id,realm_region_map_id:"RMAP-"+cfg.polity_id,settlement_region_id:cfg.settlement_map_id,settlement_world_tier:"F",
+  starter_cluster_id:cfg.id,starter_village:true,local_economy:deep(cfg.economy)
  };
 }
 function wild(cfg){
+ const cluster=VILLAGES.find(x=>x.id===cfg.cluster_id)||null;
  const ref=location(cfg.template)||location("L-WOOD")||{};
  const ep=deep(ref.encounter_profile||{});
  Object.assign(ep,{
@@ -68,7 +69,8 @@ function wild(cfg){
   safety_score:cfg.safety_score??80,safety_label:cfg.safety_label||"較安全",safety_rule:SAFE_RULE,
   world_region_id:cfg.region_id,political_entity_id:cfg.polity_id,culture_id:cfg.culture_id,
   history_scope:cfg.history_scope,political_role:cfg.kind==="dungeon"?"新手區遺跡／地下區":"新手村周邊野外",
-  realm_region_map_id:"RMAP-"+cfg.polity_id,starter_cluster_id:cfg.cluster_id,
+  province_region_id:cluster?.province_id||null,realm_region_map_id:"RMAP-"+cfg.polity_id,settlement_region_id:cluster?.settlement_map_id||null,
+  starter_cluster_id:cfg.cluster_id,local_economy:deep(cluster?.economy||null),
   hunt_requires_battle:true
  };
 }
@@ -76,38 +78,43 @@ function wild(cfg){
 const VILLAGES=[
  {
   id:"L-START-DAWNGRAIN",name:"晨穗村",polity_id:"POL-004",region_id:"REG-04",culture_id:"CUL-004",region:"晨鐘聖原",
-  history_scope:"晨律教國／晨鐘聖原",route_hours:32,
-  facilities:["guild","general","tavern","inn","church"],
+  history_scope:"晨律教國／晨鐘聖原",province_id:"PROV-START-04",settlement_map_id:"SMAP-START-DAWNGRAIN",route_hours:32,
+  economy:{prosperity_score:76,prosperity_label:"繁榮",market_budget_mult:1.20,stock_mult:1.18,liquidity_mult:1.22,market_price_mult:.98,drivers:["穀物","羊毛","朝聖補給"],constraints:["金屬工具仰賴輸入","洪水季交通"],infrastructure:"鋪設聖道、糧倉、定期市集與教會救濟網完整"},
+  facilities:["guild","general","blacksmith","tailor","alchemy","tavern","inn","church"],
   description:"晨鐘聖原西側的農牧村，清晨鐘聲、穀倉與朝聖小路交織；公會以採集、護田、巡溪等F級工作訓練新人。",
-  links:[{to:"L-DG-DEWFIELD",hours:1.1},{to:"L-DG-PRAYERBROOK",hours:1.3},{to:"L-SELENBURG",hours:32}]
+  links:[{to:"L-DG-DEWFIELD",hours:1.1},{to:"L-DG-PRAYERBROOK",hours:1.3},{to:"L-DG-PILGRIMORCHARD",hours:1.4},{to:"L-SELENBURG",hours:32}]
  },
  {
   id:"L-START-MOSSMOON",name:"苔月村",polity_id:"POL-012",region_id:"REG-12",culture_id:"CUL-012",region:"瑟露維亞森海",
-  history_scope:"瑟露維亞精靈王庭／瑟露維亞森海",route_hours:44,
-  facilities:["guild","general","alchemy","tavern","inn","church"],
+  history_scope:"瑟露維亞精靈王庭／瑟露維亞森海",province_id:"PROV-START-12",settlement_map_id:"SMAP-START-MOSSMOON",route_hours:44,
+  economy:{prosperity_score:64,prosperity_label:"穩健",market_budget_mult:1.06,stock_mult:1.10,liquidity_mult:1.00,market_price_mult:1.00,drivers:["藥草","樹脂","林下採集"],constraints:["金屬與鹽需輸入","林地採伐受配額"],infrastructure:"林徑維護良好，小型藥草市集穩定，但重型商路有限"},
+  facilities:["guild","general","tailor","alchemy","tavern","inn","church"],
   description:"位於古林外緣的混居小村，以林下藥草、鹿徑與月泉為生；對精靈、半精靈與自然系旅人較為熟悉。",
-  links:[{to:"L-MM-SILVERLEAF",hours:1.0},{to:"L-MM-DEERSPRING",hours:1.4},{to:"L-SELENBURG",hours:44}]
+  links:[{to:"L-MM-SILVERLEAF",hours:1.0},{to:"L-MM-DEERSPRING",hours:1.4},{to:"L-MM-RESINGLADE",hours:1.3},{to:"L-SELENBURG",hours:44}]
  },
  {
   id:"L-START-IRONPINE",name:"鐵松村",polity_id:"POL-013",region_id:"REG-13",culture_id:"CUL-013",region:"安威爾山地",
-  history_scope:"安威爾帝國／西北山廳外緣",route_hours:48,
-  facilities:["guild","general","blacksmith","tavern","inn","church"],
+  history_scope:"安威爾帝國／西北山廳外緣",province_id:"PROV-START-13",settlement_map_id:"SMAP-START-IRONPINE",route_hours:48,
+  economy:{prosperity_score:72,prosperity_label:"繁榮",market_budget_mult:1.18,stock_mult:1.15,liquidity_mult:1.18,market_price_mult:.99,drivers:["礦石","石材","工具維修"],constraints:["穀物與藥材依賴山外","冬雪封路"],infrastructure:"礦道、吊運架與鍛造工坊密度高，日常現金流優於同級村落"},
+  facilities:["guild","general","blacksmith","tailor","tavern","inn","church","clinic"],
   description:"安威爾南側山路上的礦木村，矮人、侏儒與山民商隊常在此整補；低階委託集中於礦道巡查與山坡採集。",
-  links:[{to:"L-IP-ANVILRIDGE",hours:1.2},{to:"L-IP-BLACKVEIN",hours:1.5},{to:"L-SELENBURG",hours:48}]
+  links:[{to:"L-IP-ANVILRIDGE",hours:1.2},{to:"L-IP-BLACKVEIN",hours:1.5},{to:"L-IP-COPPERCUT",hours:1.4},{to:"L-SELENBURG",hours:48}]
  },
  {
   id:"L-START-WINDSPRING",name:"風泉村",polity_id:"POL-015",region_id:"REG-15",culture_id:"CUL-015",region:"白氈草海",
-  history_scope:"白氈汗國／北中部草海",route_hours:52,
-  facilities:["guild","general","tavern","inn","church"],
+  history_scope:"白氈汗國／北中部草海",province_id:"PROV-START-15",settlement_map_id:"SMAP-START-WINDSPRING",route_hours:52,
+  economy:{prosperity_score:48,prosperity_label:"偏弱",market_budget_mult:.82,stock_mult:.82,liquidity_mult:.78,market_price_mult:1.04,drivers:["馬匹","羊毛","皮革"],constraints:["固定市場小","金屬與藥劑依賴輸入","旱季水源不穩"],infrastructure:"以季節市集、牧道與泉眼維持交易，固定倉儲與工坊較少"},
+  facilities:["guild","general","blacksmith","tavern","inn","church"],
   description:"依季節泉眼形成的定居補給村，牧民、獸族與旅隊在此交換乾糧、皮革與路況；周圍草原適合基礎追蹤與巡牧。",
-  links:[{to:"L-WS-WHITEGRASS",hours:1.1},{to:"L-WS-GOOSEFORD",hours:1.6},{to:"L-SELENBURG",hours:52}]
+  links:[{to:"L-WS-WHITEGRASS",hours:1.1},{to:"L-WS-GOOSEFORD",hours:1.6},{to:"L-WS-HERDSTONE",hours:1.5},{to:"L-SELENBURG",hours:52}]
  },
  {
   id:"L-START-TIDEBORN",name:"潮生村",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",
-  history_scope:"黑潮群島／外海小島帶",route_hours:64,
-  facilities:["guild","general","blacksmith","tavern","inn","church"],
+  history_scope:"黑潮群島／外海小島帶",province_id:"PROV-START-10",settlement_map_id:"SMAP-START-TIDEBORN",route_hours:64,
+  economy:{prosperity_score:63,prosperity_label:"穩健",market_budget_mult:.98,stock_mult:.96,liquidity_mult:1.06,market_price_mult:1.01,drivers:["鹽","乾魚","船材","短程海運"],constraints:["穀物與鐵器依賴輸入","風暴造成到貨波動"],infrastructure:"碼頭與修船棚帶來較快周轉，但島嶼倉儲容量與進口依賴限制庫存"},
+  facilities:["guild","general","blacksmith","tailor","tavern","inn","church"],
   description:"黑潮群島內側航道的小型漁武村，潮汐、礁路與短程船運塑造生活；東方劍士、漁家與海上背景旅人常從這裡起步。",
-  links:[{to:"L-TB-SEAPINE",hours:1.2},{to:"L-TB-BLACKREEF",hours:1.0},{to:"L-SELENBURG",hours:64}]
+  links:[{to:"L-TB-SEAPINE",hours:1.2},{to:"L-TB-BLACKREEF",hours:1.0},{to:"L-TB-ROPEGRASS",hours:1.3},{to:"L-SELENBURG",hours:64}]
  }
 ];
 
@@ -130,11 +137,66 @@ const AREAS=[
 
  {id:"L-TB-SEAPINE",name:"海松坡",cluster_id:"L-START-TIDEBORN",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",history_scope:"黑潮群島／外海小島帶",template:"L-WOOD",size:"海岸林坡",description:"潮生村上方的矮海松林與風坡，可採集枝材、藥草並觀察島上小型野獸。",links:[{to:"L-START-TIDEBORN",hours:1.2},{to:"L-TB-BLACKREEF",hours:1.1},{to:"D-TB-TIDECAVE",hours:1.7}],encounter_tags:["forest","plains"],nearest_town_distance_hours:1.2,safety_score:82,explore:[["海松林",30],["鳥巢崖",25],["採藥坡",20],["舊烽火石",15],["野獸徑",10]]},
  {id:"L-TB-BLACKREEF",name:"玄礁潮坪",cluster_id:"L-START-TIDEBORN",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",history_scope:"黑潮群島／外海小島帶",template:"L-RIVER",size:"潮間帶",description:"黑色礁石與淺潮池形成的海岸潮坪，退潮時可安全採集與釣捕低階水產。",links:[{to:"L-START-TIDEBORN",hours:1.0},{to:"L-TB-SEAPINE",hours:1.1}],encounter_tags:["plains","water"],allow_aquatic:true,nearest_town_distance_hours:1.0,safety_score:84,explore:[["潮池魚群",30],["玄色礁脊",25],["漂木",20],["貝殼灘",15],["海鳥群",10]]},
- {id:"D-TB-TIDECAVE",name:"退潮岩窟",cluster_id:"L-START-TIDEBORN",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",history_scope:"黑潮群島／外海小島帶",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"潮汐海蝕洞",description:"只有退潮時能穩定進入的淺層海蝕洞，公會立有潮時牌，深部仍禁止低階冒險者進入。",links:[{to:"L-TB-SEAPINE",hours:1.7}],zone:"dungeon",archetype:"waterway_ruin",space_class:"standard",allow_aquatic:true,encounter_tags:["cave","dungeon","water","ruins"],safety_score:51,safety_label:"警戒",risk:18,gather:["I-MUSHROOM","I-HERB"],hunt:[],fish:["I-RAWFISH"],resource_profile:{forage:["I-MUSHROOM","I-HERB"],mining:[],woodcut:[],hunt:[],fish:["I-RAWFISH"]},explore:[["潮時石標",30],["淺層潮池",25],["海蝕側洞",20],["舊繫船環",15],["封閉深洞",10]]}
+ {id:"D-TB-TIDECAVE",name:"退潮岩窟",cluster_id:"L-START-TIDEBORN",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",history_scope:"黑潮群島／外海小島帶",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"潮汐海蝕洞",description:"只有退潮時能穩定進入的淺層海蝕洞，公會立有潮時牌，深部仍禁止低階冒險者進入。",links:[{to:"L-TB-SEAPINE",hours:1.7}],zone:"dungeon",archetype:"waterway_ruin",space_class:"standard",allow_aquatic:true,encounter_tags:["cave","dungeon","water","ruins"],safety_score:51,safety_label:"警戒",risk:18,gather:["I-MUSHROOM","I-HERB"],hunt:[],fish:["I-RAWFISH"],resource_profile:{forage:["I-MUSHROOM","I-HERB"],mining:[],woodcut:[],hunt:[],fish:["I-RAWFISH"]},explore:[["潮時石標",30],["淺層潮池",25],["海蝕側洞",20],["舊繫船環",15],["封閉深洞",10]]},
+ {id:"L-DG-PILGRIMORCHARD",name:"巡禮果園帶",cluster_id:"L-START-DAWNGRAIN",polity_id:"POL-004",region_id:"REG-04",culture_id:"CUL-004",region:"晨鐘聖原",history_scope:"晨律教國／晨鐘聖原",template:"L-LOWFIELD",size:"果園農路",description:"連接晨穗村與小教堂群的果園農路，因朝聖補給需求而維護良好，路旁有蜂箱、果樹與基礎藥草。",links:[{to:"L-START-DAWNGRAIN",hours:1.4},{to:"L-DG-DEWFIELD",hours:1.1},{to:"D-DG-TITHECELLAR",hours:1.2}],gather:["I-ROOT","I-BERRY","I-HERB","I-MINT","MAT-HERB-01","MAT-HERB-04"],encounter_tags:["plains"],nearest_town_distance_hours:1.4,safety_score:91,explore:[["果園水渠",30],["蜂箱列",25],["巡禮路標",20],["小型市集棚",15],["野兔穴",10]],resource_profile:{forage:["I-ROOT","I-BERRY","I-HERB","I-MINT","MAT-HERB-01","MAT-HERB-04"],mining:[],woodcut:[],hunt:["I-RAWMEAT"],fish:[]}},
+ {id:"D-DG-TITHECELLAR",name:"舊什一糧窖",cluster_id:"L-START-DAWNGRAIN",polity_id:"POL-004",region_id:"REG-04",culture_id:"CUL-004",region:"晨鐘聖原",history_scope:"晨律教國／晨鐘聖原",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"地下糧窖",description:"早期教區徵收什一糧時使用的石砌糧窖，現因潮濕與鼠害停用，地方公會定期派新人巡查。",links:[{to:"L-DG-PILGRIMORCHARD",hours:1.2}],zone:"dungeon",archetype:"artificial_cellar",space_class:"standard",encounter_tags:["dungeon","ruins","plains","cave"],safety_score:58,safety_label:"警戒",risk:14,gather:["I-MUSHROOM","I-HERB"],hunt:[],fish:[],resource_profile:{forage:["I-MUSHROOM","I-HERB"],mining:[],woodcut:[],hunt:[],fish:[]},explore:[["舊糧架",30],["封蠟木箱",25],["鼠道",20],["滲水石壁",15],["封閉稅冊室",10]]},
+ {id:"D-DG-WAYSHRINE",name:"白路小聖堂地窖",cluster_id:"L-START-DAWNGRAIN",polity_id:"POL-004",region_id:"REG-04",culture_id:"CUL-004",region:"晨鐘聖原",history_scope:"晨律教國／晨鐘聖原",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"道路聖堂地窖",description:"白祈溪舊道路旁的小聖堂地窖，曾存放救濟糧與燈油；廢棄後成為低階害獸與史萊姆藏身處。",links:[{to:"L-DG-PRAYERBROOK",hours:1.4}],zone:"dungeon",archetype:"shrine_ruin",space_class:"standard",encounter_tags:["dungeon","ruins","plains","cave"],safety_score:56,safety_label:"警戒",risk:15,gather:["I-MUSHROOM","I-HERB","I-MINT"],hunt:[],fish:[],resource_profile:{forage:["I-MUSHROOM","I-HERB","I-MINT"],mining:[],woodcut:[],hunt:[],fish:[]},explore:[["舊燈油庫",30],["救濟糧架",25],["祈禱石室",20],["鼠怪抓痕",15],["封死側門",10]]},
+
+ {id:"L-MM-RESINGLADE",name:"琥脂林間地",cluster_id:"L-START-MOSSMOON",polity_id:"POL-012",region_id:"REG-12",culture_id:"CUL-012",region:"瑟露維亞森海",history_scope:"瑟露維亞精靈王庭／瑟露維亞森海",template:"L-WOOD",size:"林間採集地",description:"受配額管理的樹脂與藥草採集地，採伐量不大但品質穩定，反映苔月村重視永續而非大量交易的經濟方式。",links:[{to:"L-START-MOSSMOON",hours:1.3},{to:"L-MM-SILVERLEAF",hours:1.2},{to:"D-MM-HOLLOWOAK",hours:1.3}],gather:["I-BRANCH","I-HERB","I-MINT","I-MUSHROOM","I-BERRY","MAT-HERB-01","MAT-HERB-04"],encounter_tags:["forest","plains"],nearest_town_distance_hours:1.3,safety_score:86,explore:[["採脂樹列",30],["藥草圃",25],["林地配額牌",20],["菌菇倒木",15],["小獸巢徑",10]],resource_profile:{forage:["I-BRANCH","I-HERB","I-MINT","I-MUSHROOM","I-BERRY","MAT-HERB-01","MAT-HERB-04"],mining:[],woodcut:[],hunt:["I-RAWMEAT"],fish:[]}},
+ {id:"D-MM-HOLLOWOAK",name:"空心古橡下層",cluster_id:"L-START-MOSSMOON",polity_id:"POL-012",region_id:"REG-12",culture_id:"CUL-012",region:"瑟露維亞森海",history_scope:"瑟露維亞精靈王庭／瑟露維亞森海",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"根系洞室",description:"倒塌古橡的巨大根穴連到舊儲藏室，巡林人只開放外層給新人清理害獸與記錄菌類。",links:[{to:"L-MM-RESINGLADE",hours:1.3}],zone:"dungeon",archetype:"natural_burrow",space_class:"standard",encounter_tags:["forest","cave","dungeon"],safety_score:55,safety_label:"警戒",risk:15,gather:["I-MUSHROOM","I-HERB","I-MINT"],hunt:[],fish:[],resource_profile:{forage:["I-MUSHROOM","I-HERB","I-MINT"],mining:[],woodcut:[],hunt:[],fish:[]},explore:[["空心樹室",30],["根系隧道",25],["菌簇",20],["獸爪痕",15],["封閉舊藏室",10]]},
+ {id:"D-MM-SPRINGVAULT",name:"鹿泉石蓄室",cluster_id:"L-START-MOSSMOON",polity_id:"POL-012",region_id:"REG-12",culture_id:"CUL-012",region:"瑟露維亞森海",history_scope:"瑟露維亞精靈王庭／瑟露維亞森海",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"古老蓄水室",description:"鹿泉溪谷下方的小型石蓄室，原用於旱季調水；淤泥與倒根使部分通道成為水生小型魔物棲地。",links:[{to:"L-MM-DEERSPRING",hours:1.5}],zone:"dungeon",archetype:"waterway_ruin",space_class:"standard",allow_aquatic:true,encounter_tags:["forest","water","cave","dungeon","ruins"],safety_score:54,safety_label:"警戒",risk:16,gather:["I-MUSHROOM","I-HERB"],hunt:[],fish:["I-RAWFISH"],resource_profile:{forage:["I-MUSHROOM","I-HERB"],mining:[],woodcut:[],hunt:[],fish:["I-RAWFISH"]},explore:[["古蓄水槽",30],["樹根裂口",25],["淤泥通道",20],["水生足跡",15],["封閉閘室",10]]},
+
+ {id:"L-IP-COPPERCUT",name:"銅痕採石坡",cluster_id:"L-START-IRONPINE",polity_id:"POL-013",region_id:"REG-13",culture_id:"CUL-013",region:"安威爾山地",history_scope:"安威爾帝國／西北山廳外緣",template:"L-HILL",size:"淺層採石坡",description:"只開放青銅級淺層礦材與石料的新手採集坡，高價礦脈由山廳封鎖，避免F級區域產出超階素材。",links:[{to:"L-START-IRONPINE",hours:1.4},{to:"L-IP-ANVILRIDGE",hours:1.0},{to:"D-IP-TOOLVAULT",hours:1.2}],gather:["I-BRANCH","I-HERB","I-ORE-BRONZE"],encounter_tags:["mountain","plains"],nearest_town_distance_hours:1.4,safety_score:80,explore:[["青銅露頭",30],["採石臺階",25],["木料堆",20],["吊運架",15],["山羊徑",10]],resource_profile:{forage:["I-BRANCH","I-HERB"],mining:["I-ORE-BRONZE"],woodcut:[],hunt:["I-RAWMEAT"],fish:[]}},
+ {id:"D-IP-TOOLVAULT",name:"封存工具庫",cluster_id:"L-START-IRONPINE",polity_id:"POL-013",region_id:"REG-13",culture_id:"CUL-013",region:"安威爾山地",history_scope:"安威爾帝國／西北山廳外緣",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"地下工具庫",description:"舊採石場撤離後封存的工具庫，殘留黑鐵級碎料與失修吊具，屬適合新人處理的工程型地下區。",links:[{to:"L-IP-COPPERCUT",hours:1.2}],zone:"dungeon",archetype:"artificial_cellar",space_class:"standard",encounter_tags:["mountain","cave","dungeon","ruins"],safety_score:52,safety_label:"警戒",risk:17,gather:["I-ORE-BRONZE","I-ORE-IRON","MAT-ORE-02"],hunt:[],fish:[],resource_profile:{forage:[],mining:["I-ORE-BRONZE","I-ORE-IRON","MAT-ORE-02"],woodcut:[],hunt:[],fish:[]},explore:[["舊工具架",30],["礦車零件",25],["吊具井",20],["碎礦堆",15],["封存內庫",10]]},
+ {id:"D-IP-WATERADIT",name:"排水橫坑",cluster_id:"L-START-IRONPINE",polity_id:"POL-013",region_id:"REG-13",culture_id:"CUL-013",region:"安威爾山地",history_scope:"安威爾帝國／西北山廳外緣",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"礦山排水道",description:"黑脈溪谷旁的舊礦山排水橫坑，水路與支撐木架仍可見，偶有礦鼠、史萊姆與坍落風險。",links:[{to:"L-IP-BLACKVEIN",hours:1.3}],zone:"dungeon",archetype:"mine",space_class:"standard",allow_aquatic:true,encounter_tags:["mountain","water","cave","dungeon","ruins"],safety_score:50,safety_label:"警戒",risk:18,gather:["I-ORE-BRONZE","I-ORE-IRON"],hunt:[],fish:[],resource_profile:{forage:[],mining:["I-ORE-BRONZE","I-ORE-IRON"],woodcut:[],hunt:[],fish:[]},explore:[["排水溝",30],["支撐木架",25],["礦鼠穴",20],["積水側道",15],["封閉深坑",10]]},
+
+ {id:"L-WS-HERDSTONE",name:"牧石緩坡",cluster_id:"L-START-WINDSPRING",polity_id:"POL-015",region_id:"REG-15",culture_id:"CUL-015",region:"白氈草海",history_scope:"白氈汗國／北中部草海",template:"L-LOWFIELD",size:"草坡牧地",description:"以堆石、繩旗和臨時圈欄標示的牧地，資源不算稀少，但缺乏固定倉儲使商品化能力低於農業型村落。",links:[{to:"L-START-WINDSPRING",hours:1.5},{to:"L-WS-WHITEGRASS",hours:1.2},{to:"D-WS-SUPPLYCELLAR",hours:1.4}],gather:["I-ROOT","I-BERRY","I-HERB","I-BRANCH"],encounter_tags:["plains"],nearest_town_distance_hours:1.5,safety_score:82,explore:[["牧石界標",30],["臨時圈欄",25],["野根斑",20],["舊營火",15],["牧犬足跡",10]],resource_profile:{forage:["I-ROOT","I-BERRY","I-HERB","I-BRANCH"],mining:[],woodcut:[],hunt:["I-RAWMEAT"],fish:[]}},
+ {id:"D-WS-SUPPLYCELLAR",name:"舊牧隊補給窖",cluster_id:"L-START-WINDSPRING",polity_id:"POL-015",region_id:"REG-15",culture_id:"CUL-015",region:"白氈草海",history_scope:"白氈汗國／北中部草海",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"半地下補給窖",description:"舊牧隊在固定牧路留下的補給窖，因水患與盜取停用，現由公會當作低階巡查點。",links:[{to:"L-WS-HERDSTONE",hours:1.4}],zone:"dungeon",archetype:"artificial_cellar",space_class:"standard",encounter_tags:["plains","cave","dungeon","ruins"],safety_score:57,safety_label:"警戒",risk:15,gather:["I-HERB","I-BRANCH"],hunt:[],fish:[],resource_profile:{forage:["I-HERB","I-BRANCH"],mining:[],woodcut:[],hunt:[],fish:[]},explore:[["乾糧架",30],["繩旗束",25],["鼠洞",20],["滲水土壁",15],["封閉側窖",10]]},
+ {id:"D-WS-DRYWELL",name:"枯泉井道",cluster_id:"L-START-WINDSPRING",polity_id:"POL-015",region_id:"REG-15",culture_id:"CUL-015",region:"白氈草海",history_scope:"白氈汗國／北中部草海",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"廢棄取水井道",description:"雁回河灘附近的舊取水井道，旱季裸露、雨季積水，反映白氈草海水源波動對地方經濟的直接影響。",links:[{to:"L-WS-GOOSEFORD",hours:1.5}],zone:"dungeon",archetype:"waterway_ruin",space_class:"standard",allow_aquatic:true,encounter_tags:["plains","water","cave","dungeon","ruins"],safety_score:53,safety_label:"警戒",risk:17,gather:["I-HERB","I-MUSHROOM"],hunt:[],fish:["I-RAWFISH"],resource_profile:{forage:["I-HERB","I-MUSHROOM"],mining:[],woodcut:[],hunt:[],fish:["I-RAWFISH"]},explore:[["舊井梯",30],["乾裂水槽",25],["雨季水痕",20],["小型獸穴",15],["封閉深井",10]]},
+
+ {id:"L-TB-ROPEGRASS",name:"繩草避風灣",cluster_id:"L-START-TIDEBORN",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",history_scope:"黑潮群島／外海小島帶",template:"L-RIVER",size:"海灣草坡",description:"盛產可搓繩海草與漂木的小灣，船匠和漁民會定期清理，供應潮生村的低階船材與繩索需求。",links:[{to:"L-START-TIDEBORN",hours:1.3},{to:"L-TB-BLACKREEF",hours:1.0},{to:"D-TB-WATCHCAVE",hours:1.4}],gather:["I-BRANCH","I-HERB","I-MINT"],fish:["I-RAWFISH"],encounter_tags:["plains","water"],allow_aquatic:true,nearest_town_distance_hours:1.3,safety_score:85,explore:[["繩草帶",30],["漂木灘",25],["避風泊位",20],["舊纜樁",15],["潮池",10]],resource_profile:{forage:["I-BRANCH","I-HERB","I-MINT"],mining:[],woodcut:[],hunt:[],fish:["I-RAWFISH"]}},
+ {id:"D-TB-WATCHCAVE",name:"舊烽哨岩洞",cluster_id:"L-START-TIDEBORN",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",history_scope:"黑潮群島／外海小島帶",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"海岸烽哨洞",description:"舊海防烽哨利用天然岩洞擴建的儲備點，現只剩繩索架、炭槽與少量廢棄器材。",links:[{to:"L-TB-ROPEGRASS",hours:1.4}],zone:"dungeon",archetype:"fortress_basement",space_class:"standard",encounter_tags:["cave","dungeon","ruins","water"],safety_score:54,safety_label:"警戒",risk:16,gather:["I-HERB","I-MUSHROOM"],hunt:[],fish:[],resource_profile:{forage:["I-HERB","I-MUSHROOM"],mining:[],woodcut:[],hunt:[],fish:[]},explore:[["烽火炭槽",30],["繩索架",25],["舊瞭望孔",20],["海風裂縫",15],["封閉軍械槽",10]]},
+ {id:"D-TB-SALTVAULT",name:"潮鹽舊藏窖",cluster_id:"L-START-TIDEBORN",polity_id:"POL-010",region_id:"REG-10",culture_id:"CUL-010",region:"黑潮群島",history_scope:"黑潮群島／外海小島帶",template:"D-AQUEDUCT",kind:"dungeon",tier:"E",size:"地下鹽藏窖",description:"玄礁潮坪後方停用的鹽藏窖，海水滲入後形成潮濕側室，偶有水生小型魔物與盜取者活動。",links:[{to:"L-TB-BLACKREEF",hours:1.2}],zone:"dungeon",archetype:"artificial_cellar",space_class:"standard",allow_aquatic:true,encounter_tags:["cave","dungeon","ruins","water"],safety_score:55,safety_label:"警戒",risk:16,gather:["I-HERB","I-MUSHROOM"],hunt:[],fish:["I-RAWFISH"],resource_profile:{forage:["I-HERB","I-MUSHROOM"],mining:[],woodcut:[],hunt:[],fish:["I-RAWFISH"]},explore:[["鹽槽",30],["滲潮石壁",25],["舊秤臺",20],["小型水道",15],["封閉藏室",10]]}
+
 ];
 
 for(const cfg of VILLAGES)upsertLocation(town(cfg));
 for(const cfg of AREAS)upsertLocation(wild(cfg));
+
+function upsertMapRow(key,row){
+ DB[key]=Array.isArray(DB[key])?DB[key]:[];
+ const i=DB[key].findIndex(x=>x?.id===row.id);
+ if(i>=0)DB[key][i]=row;else DB[key].push(row);
+}
+function syncStarterMapHierarchy(){
+ for(const cfg of VILLAGES){
+  const clusterAreas=AREAS.filter(x=>x.cluster_id===cfg.id),wildIds=clusterAreas.filter(x=>(x.kind||"wild")==="wild").map(x=>x.id),dungeonIds=clusterAreas.filter(x=>x.kind==="dungeon").map(x=>x.id);
+  const polityName=polity(cfg.polity_id)?.name||cfg.polity_id;
+  upsertMapRow("province_region_maps",{
+   id:cfg.province_id,layer:"province_region",name:cfg.name+"周邊區",display_name:polityName+"・"+cfg.name+"周邊區",
+   administrative_type:"地方新手行政區",parent_realm_map_id:"RMAP-"+cfg.polity_id,political_entity_id:cfg.polity_id,world_region_id:cfg.region_id,
+   world_tier:"F",map_status:"playable_current",capital_location_id:cfg.id,peer_city_ids:[],subordinate_settlement_ids:[],
+   wild_location_ids:wildIds,dungeon_location_ids:dungeonIds,all_settlement_ids:[cfg.id],
+   economy:[...cfg.economy.drivers],major_routes:["新手村—周邊採集路","地方對外商路"],recurring_risks:[...cfg.economy.constraints],
+   identity:cfg.description,economy_profile:deep(cfg.economy),starter_region:true
+  });
+  upsertMapRow("settlement_region_maps",{
+   id:cfg.settlement_map_id,name:cfg.name+"區域",parent_province_region_id:cfg.province_id,center_location_id:cfg.id,
+   world_tier:"F",map_status:"playable_current",location_ids:[cfg.id,...wildIds,...dungeonIds],
+   role:"新手聚落與其3張F級野外、3座E級地下城",economy_profile:deep(cfg.economy),starter_region:true
+  });
+  const realm=(DB.realm_region_maps||[]).find(x=>x?.id==="RMAP-"+cfg.polity_id);
+  if(realm){
+   realm.province_region_ids=Array.isArray(realm.province_region_ids)?realm.province_region_ids:[];
+   if(!realm.province_region_ids.includes(cfg.province_id))realm.province_region_ids.push(cfg.province_id);
+  }
+  for(const lid of [cfg.id,...wildIds,...dungeonIds]){
+   const l=location(lid);if(!l)continue;
+   l.province_region_id=cfg.province_id;l.settlement_region_id=cfg.settlement_map_id;l.realm_region_map_id="RMAP-"+cfg.polity_id;l.local_economy=deep(cfg.economy);
+  }
+ }
+}
+syncStarterMapHierarchy();
 
 /* 五個外地新手村以長途商路／船路連回現有可遊玩核心，並保留雙向旅行。 */
 for(const cfg of VILLAGES){
@@ -204,12 +266,22 @@ function audit(){
    if(!(l.facilities||[]).includes("church"))issues.push("新手村缺少教會復活點："+id);
   }
  }
+ const willowMap=(DB.settlement_region_maps||[]).find(x=>x.id==="SMAP-WILLOW"),willowRows=(willowMap?.location_ids||[]).map(location).filter(Boolean);
+ const willowCounts={town:willowRows.filter(x=>x.kind==="town").length,wild:willowRows.filter(x=>x.kind==="wild").length,dungeon:willowRows.filter(x=>x.kind==="dungeon").length};
  for(const cfg of VILLAGES){
   if(!polity(cfg.polity_id))issues.push("新手村政治體不存在："+cfg.polity_id);
-  const neighbors=AREAS.filter(x=>x.cluster_id===cfg.id);
-  if(neighbors.length!==3)issues.push("新手村周邊區域應為3個："+cfg.id);
-  if(neighbors.filter(x=>x.kind!=="dungeon").length<2)issues.push("新手村至少需要2個周邊野外："+cfg.id);
-  if(!neighbors.some(x=>x.kind==="dungeon"&&x.tier==="E"))issues.push("新手村缺少E級入門地下區："+cfg.id);
+  const rows=[location(cfg.id),...AREAS.filter(x=>x.cluster_id===cfg.id).map(x=>location(x.id))].filter(Boolean);
+  const counts={town:rows.filter(x=>x.kind==="town").length,wild:rows.filter(x=>x.kind==="wild").length,dungeon:rows.filter(x=>x.kind==="dungeon").length};
+  for(const kind of ["town","wild","dungeon"])if(counts[kind]!==willowCounts[kind])issues.push(`新手區${cfg.name}${kind}數量${counts[kind]}，應與柳橋${willowCounts[kind]}相同`);
+  if(rows.filter(x=>x.kind==="wild").some(x=>x.tier!=="F"))issues.push("新手區野外應維持F級："+cfg.id);
+  if(rows.filter(x=>x.kind==="dungeon").some(x=>x.tier!=="E"))issues.push("新手區地下城應維持E級："+cfg.id);
+  const province=(DB.province_region_maps||[]).find(x=>x.id===cfg.province_id),smap=(DB.settlement_region_maps||[]).find(x=>x.id===cfg.settlement_map_id);
+  if(!province)issues.push("新手區行省地圖缺失："+cfg.id);
+  if(!smap)issues.push("新手區聚落地圖缺失："+cfg.id);
+  if(smap&&(smap.location_ids||[]).length!==willowRows.length)issues.push("新手區地圖總節點數未對齊柳橋："+cfg.id);
+  const eco=cfg.economy||{};
+  if(!(Number(eco.prosperity_score)>=0&&Number(eco.prosperity_score)<=100))issues.push("新手村繁榮度異常："+cfg.id);
+  for(const k of ["market_budget_mult","stock_mult","liquidity_mult","market_price_mult"])if(!(Number(eco[k])>0))issues.push("新手村經濟倍率異常："+cfg.id+":"+k);
  }
  const addedIds=new Set([...external,...AREAS.map(x=>x.id)]);
  for(const id of addedIds){
@@ -219,7 +291,7 @@ function audit(){
  if(PROFILES.some(x=>!location(x.location_id)))issues.push("出生分配候選引用不存在");
  return {
   revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],
-  stats:{starter_villages:starterIds.length,external_villages:VILLAGES.length,surrounding_areas:AREAS.length,external_polities:new Set(externalPolities).size}
+  stats:{starter_villages:starterIds.length,external_villages:VILLAGES.length,surrounding_areas:AREAS.length,external_polities:new Set(externalPolities).size,willow_baseline:willowCounts}
  };
 }
 
@@ -227,12 +299,15 @@ DB.meta=DB.meta||{};
 DB.meta.starter_settlement_revision=REV;
 DB.starter_settlement_system={
  version:REV,release:RELEASE,
+ willow_baseline:{town:1,wild:3,dungeon:3,total:7},
+ prosperity_profiles:Object.fromEntries(VILLAGES.map(x=>[x.id,deep(x.economy)])),
  starter_location_ids:PROFILES.map(x=>x.location_id),
  external_village_ids:VILLAGES.map(x=>x.id),
  assignment_inputs:["種族","出身","戰鬥職業"],
  distribution_rule:"柳橋鎮＋5個非阿斯戴爾新手村共同構成出生池；相符條件提高權重但不硬鎖出生地。",
  world_rule:"五個新增村落分布於不同非阿斯戴爾政治體；政治體選擇在版本內容中固定，避免同版本刷新造成正史漂移。",
- surrounding_rule:"每個新增新手村配置2個F級周邊野外＋1個E級入門地下區，並以長途路線接回既有可遊玩核心。",
+ surrounding_rule:"每個新增新手區對齊柳橋鎮區域：1個F級城鎮＋3張F級野外＋3座E級地下城，並以長途路線接回既有可遊玩核心。",
+ economy_rule:"繁榮度0–100實際影響市場每日資金、商品庫存、本地流動性與整體價格微幅修正；地方輸出／輸入仍受區域經濟模型約束。",
  save_compatible:true,initial_audit:null
 };
 
