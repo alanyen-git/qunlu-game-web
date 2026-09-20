@@ -1,4 +1,4 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.86.0
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.87.0
  * PROGRAM-REGISTRY-1.5
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
@@ -6,7 +6,7 @@
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-1.86.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.86.0";
-const REV="PROGRAM-REGISTRY-1.4";
+const REV="PROGRAM-REGISTRY-1.5";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -20,7 +20,7 @@ const GROUPS=Object.freeze({
     "src/world-autonomy-v1.js","src/runtime-patches.js"
   ],
   world:[
-    "src/affiliation-contribution-v1.js","src/affiliation-entry-gate-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js",
+    "src/affiliation-contribution-v1.js","src/affiliation-entry-gate-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js","src/world-map-geopolitics-v1.js",
     "src/npc-depth-v1.js","src/npc-depth-v2.js","src/dungeon-depth-v2.js"
   ],
   progression:[
@@ -102,6 +102,7 @@ function audit(){
     ["夥伴物種簽章",()=>typeof globalThis.runCompanionSpeciesIdentityAudit==="function"&&globalThis.runCompanionSpeciesIdentityAudit().pass],
     ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"&&globalThis.runAffiliationIdentityDepthAudit().pass],
     ["政治階層深化",()=>typeof globalThis.runPoliticalHierarchyDepthAudit==="function"&&globalThis.runPoliticalHierarchyDepthAudit().pass],
+    ["世界政治地圖",()=>typeof globalThis.runWorldGeopoliticalMapAudit==="function"&&globalThis.runWorldGeopoliticalMapAudit().pass],
     ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"&&globalThis.runAffiliationEntryGateAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
