@@ -1,11 +1,16 @@
 {
-  "version": "CURRENT-1.84.2",
-  "previous_version": "CURRENT-1.84.1",
+  "version": "CURRENT-1.84.3",
+  "previous_version": "CURRENT-1.84.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "戰鬥畫面夥伴資訊改為精簡標籤：寵物、召喚獸與契約獸只顯示光環、專屬技能與戰術核心名稱，不顯示效果文字說明。",
+  "summary": "冒險與探索類組織重構：實際載入數由16個整併為8個，減少50%；保留8種互補核心定位，舊組織轉為分會／專門隊並維持舊ID與跨庫引用相容。",
   "changelog": [
+    "ADVENTURE-ORGANIZATION-CONSOLIDATION-1.0：冒險與探索類組織由16個整併為8個，達成-50%數量目標。",
+    "保留核心：群陸冒險者公會、遠路探勘協會、古跡發掘團、深層測繪會、懸賞獵人公會、遠航探險公會、怪物學者協會、霧杉林務會；八者分別負責綜合委託、遠征踏查、考古發掘、危區製圖、懸賞討伐、遠航、魔物研究、地方林務。",
+    "整併：地方魔物討伐隊→懸賞獵人公會；邊境拓荒團／秘境踏查隊／高峰攀登協會→遠路探勘協會；古藏尋獵會／灰鏟古墓團／地穴探險隊→古跡發掘團；英雄功績評議會→群陸冒險者公會功績審核部。",
+    "舊組織的任務主題、服務、接觸地點、契約、對話、情報、正史引用與會員ID透過合併映射保留；會員加成不疊加，避免數值膨脹。",
+    "AFFILIATION-IDENTITY-DEPTH-1.1：新增冒險類組織50%目標稽核、核心組織存在檢查與舊ID斷鏈檢查。",
     "COMPANION-BATTLE-COMPACT-1.0：戰鬥畫面的夥伴光環改為只顯示名稱，不再顯示己方增益數值與戰術文字說明。",
     "專屬技能在戰鬥卡片只顯示技能名稱與主動／被動／輔助類型，不再展開技能 description。",
     "戰術核心只保留核心名稱；條件實際觸發時僅顯示精簡的『觸發』狀態，不顯示機制解說。",
@@ -787,5 +792,9 @@
     "save_compatible": true
   },
   "companion_battle_description_revision": "COMPANION-BATTLE-DESCRIPTION-1.1",
-  "companion_battle_compact_revision": "COMPANION-BATTLE-COMPACT-1.0"
+  "companion_battle_compact_revision": "COMPANION-BATTLE-COMPACT-1.0",
+  "adventure_organization_consolidation_revision": "ADVENTURE-ORGANIZATION-CONSOLIDATION-1.0",
+  "adventure_organization_baseline": 16,
+  "adventure_organization_target": 8,
+  "adventure_organization_reduction_pct": 50
 }
