@@ -454,7 +454,7 @@ function decorateBattleIdentity(){
  const c=G?.battle?.companion,sp=c?bySpecies(c.speciesId):null,aura=activeAura(),skill=sp?.unique_skill;if(!sp||!skill||!aura)return;
  let line=box.querySelector(".companion-identity-depth-line");if(!line){line=document.createElement("div");line.className="small companion-identity-depth-line";const hp=box.querySelector(".hpbar");hp?box.insertBefore(line,hp):box.appendChild(line)}
  const dyn=dynamicAuraState(aura),triggers=[...dyn.labels,...depthBuffState().labels];
- line.innerHTML=`<b>戰術核心：${familyIdentity(sp).title}</b><br>${skill.description}${triggers.length?`<br><span class="ok">目前觸發：${[...new Set(triggers)].join("、")}</span>`:""}`;
+ line.innerHTML=`<b>戰術核心：${familyIdentity(sp).title}</b>${triggers.length?`<span class="ok companion-trigger-state">｜觸發：${[...new Set(triggers)].join("、")}</span>`:""}`;
 }
 if(typeof renderBattle==="function"&&!renderBattle.__companionIdentityDepthPatched){
  const baseRenderBattle=renderBattle;
