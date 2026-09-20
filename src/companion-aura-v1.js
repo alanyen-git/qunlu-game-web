@@ -200,7 +200,7 @@ function decorateBattleAura(){
   const aura=activeAura();
   if(!aura){line?.remove();return}
   if(!line){line=document.createElement("div");line.className="small companion-aura-line";const hp=box.querySelector(".hpbar");hp?box.insertBefore(line,hp):box.appendChild(line)}
-  line.innerHTML=`<b>光環：${aura.name}</b><br>己方：${auraText(aura)}`
+  line.innerHTML=`<b>光環：${aura.name}</b>`
 }
 
 DB.companion_aura_system={
