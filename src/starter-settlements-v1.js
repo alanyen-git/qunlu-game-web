@@ -1,4 +1,4 @@
-/* 群陸旅誌：多政治體新手村與出生分配 CURRENT-1.94.0
+/* 群陸旅誌：多政治體新手村與出生分配 CURRENT-1.95.0
  * STARTER-SETTLEMENTS-1.0
  * 在阿斯戴爾以外的5個政治體建立F級新手村與周邊低階區域；
  * 新角色依種族、出身、職業加權分配至柳橋鎮＋5個新手村之一，不改存檔schema。
@@ -8,8 +8,8 @@
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.93.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.93.0";
-const REV="STARTER-SETTLEMENTS-1.1";
+const RELEASE=CORE?.release?.("CURRENT-1.95.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.95.0";
+const REV="STARTER-SETTLEMENTS-1.2";
 const SAFE_RULE="安全度越低，普通敵對遭遇機率越高；仍受生態、地圖層級、潛行與行動類型約束。";
 const deep=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const location=id=>(DB.locations||[]).find(x=>x?.id===id)||null;
@@ -118,6 +118,65 @@ const VILLAGES=[
  }
 ];
 
+const PROSPERITY_DETAIL={
+ "L-START-DAWNGRAIN":{
+  road:{quality:"鋪設聖道與整修田間路",maintenance:"高",reliability:"高",note:"糧車與朝聖人流使主要道路全年維護；雨季支路仍可能泥濘。"},
+  market:{restock_cycle_hours:20,contract_volume_mult:1.18,merchant_frequency:"高",warehouse_capacity:"高",note:"糧倉與定期市集使基礎補給穩定，公會委託更新較密。"},
+  resource:{capacity_mult:1.12,regen_hours_mult:.85,management:"農田輪作、灌溉與合作採集",note:"可再生農野資源容量較高、恢復較快；高階素材仍受F級區域限制。"},
+  dungeon:{respawn_hours_mult:1.20,patrol_pressure:"高",note:"教會與公會巡查頻繁，清理後敵對活動恢復較慢。"},
+  summary:"高繁榮農牧型：補給穩、道路佳、可再生資源管理成熟，地下區受巡查壓制。"
+ },
+ "L-START-MOSSMOON":{
+  road:{quality:"巡林木道與林間步徑",maintenance:"中高",reliability:"中高",note:"路徑清楚但大型車隊受林地寬度與採伐規範限制。"},
+  market:{restock_cycle_hours:24,contract_volume_mult:1.05,merchant_frequency:"中",warehouse_capacity:"中",note:"藥草與林產周轉穩定，金屬、鹽與重型裝備補貨較慢。"},
+  resource:{capacity_mult:1.06,regen_hours_mult:.82,management:"採集配額、巡林與輪區封養",note:"林下資源恢復快，但採伐與稀有素材受配額保護。"},
+  dungeon:{respawn_hours_mult:1.15,patrol_pressure:"中高",note:"巡林隊會定期封鎖與清理危險入口，敵對活動再聚集速度偏慢。"},
+  summary:"穩健林業型：資源再生管理最佳，重貨物流較弱，地下遺構受巡林制度控制。"
+ },
+ "L-START-IRONPINE":{
+  road:{quality:"碎石礦道、吊運坡道與工程棧道",maintenance:"高",reliability:"中高",note:"工程道路適合礦材運輸，但冬雪與落石會造成季節性阻塞。"},
+  market:{restock_cycle_hours:22,contract_volume_mult:1.15,merchant_frequency:"中高",warehouse_capacity:"中高",note:"礦材、工具與維修品流通快，糧食與藥材仍仰賴山外輸入。"},
+  resource:{capacity_mult:.95,regen_hours_mult:1.10,management:"礦權分區與淺層開採管制",note:"礦業繁榮帶來較高採掘壓力，淺層資源容量略低且恢復較慢。"},
+  dungeon:{respawn_hours_mult:1.10,patrol_pressure:"中高",note:"礦道巡查與工程隊能延緩敵對生物回流，但廢坑仍有持續活動。"},
+  summary:"高現金流礦業型：市場與工坊強，但野外礦材承受採掘壓力，冬季物流有風險。"
+ },
+ "L-START-WINDSPRING":{
+  road:{quality:"季節牧道與泉眼土路",maintenance:"低",reliability:"偏低",note:"路網依牧季、水源與天候變動，固定橋涵與倉儲不足。"},
+  market:{restock_cycle_hours:36,contract_volume_mult:.82,merchant_frequency:"偏低",warehouse_capacity:"偏低",note:"季節市集主導交易，金屬、藥劑與精製品常需等待商隊。"},
+  resource:{capacity_mult:.90,regen_hours_mult:1.20,management:"低密度牧地與自然恢復",note:"旱季與水源波動壓低可採資源容量，恢復也較慢。"},
+  dungeon:{respawn_hours_mult:.85,patrol_pressure:"低",note:"固定巡查不足，清理後盜匪或小型魔物較快重新利用地下空間。"},
+  summary:"低繁榮牧業型：固定補給弱、資源受旱季限制、地下區再活化最快。"
+ },
+ "L-START-TIDEBORN":{
+  road:{quality:"碼頭棧橋、潮路與海岸小徑",maintenance:"中",reliability:"中",note:"短程海運效率佳，但風暴與潮汐使到貨與通行具有波動。"},
+  market:{restock_cycle_hours:28,contract_volume_mult:1.02,merchant_frequency:"中高",warehouse_capacity:"中",note:"魚鹽與船材周轉快，穀物、鐵器等進口品受船期影響。"},
+  resource:{capacity_mult:1.08,regen_hours_mult:.90,management:"潮間帶輪採、漁汛與碼頭配額",note:"海岸與漁獲類可再生資源恢復較快，但陸上進口型資源不足。"},
+  dungeon:{respawn_hours_mult:1.00,patrol_pressure:"中",note:"海防與漁隊巡查有限，潮汐洞窟活動恢復速度接近標準。"},
+  summary:"海運穩健型：周轉快但庫存受船期限制，海岸資源恢復佳，風暴造成供應波動。"
+ }
+};
+function applyProsperityDetail(cfg){
+ const detail=PROSPERITY_DETAIL[cfg.id];if(!detail)return;
+ cfg.economy=cfg.economy||{};
+ cfg.economy.prosperity_detail=deep(detail);
+ cfg.economy.infrastructure_detail=detail.summary;
+ if(detail.summary&&!String(cfg.economy.infrastructure||"").includes(detail.summary))cfg.economy.infrastructure=`${cfg.economy.infrastructure||""}；${detail.summary}`;
+}
+function enrichStarterEconomyLocations(){
+ for(const cfg of VILLAGES){
+  const detail=cfg.economy?.prosperity_detail||PROSPERITY_DETAIL[cfg.id];if(!detail)continue;
+  const rows=[location(cfg.id),...AREAS.filter(x=>x.cluster_id===cfg.id).map(x=>location(x.id))].filter(Boolean);
+  for(const l of rows){
+   l.local_economy=deep(cfg.economy);
+   l.road_profile=deep(detail.road);
+   l.supply_profile=deep(detail.market);
+   l.economic_detail_summary=detail.summary;
+   if(l.kind==="wild"||l.kind==="dungeon")l.resource_economy=deep(detail.resource);
+   if(l.kind==="dungeon")l.dungeon_economy=deep(detail.dungeon);
+  }
+ }
+}
+
 const AREAS=[
  {id:"L-DG-DEWFIELD",name:"露鐘田野",cluster_id:"L-START-DAWNGRAIN",polity_id:"POL-004",region_id:"REG-04",culture_id:"CUL-004",region:"晨鐘聖原",history_scope:"晨律教國／晨鐘聖原",template:"L-LOWFIELD",size:"農野",description:"晨穗村外的穀田、菜圃與灌溉渠，新手可辨識作物、採集低階藥草並處理小型獸害。",links:[{to:"L-START-DAWNGRAIN",hours:1.1},{to:"L-DG-PRAYERBROOK",hours:1.0},{to:"D-DG-OLDCHANNEL",hours:1.5}],encounter_tags:["plains"],nearest_town_distance_hours:1.1,safety_score:89,explore:[["灌溉渠",30],["穀田獸徑",25],["巡田石標",20],["野草藥斑",15],["朝聖岔路",10]]},
  {id:"L-DG-PRAYERBROOK",name:"白祈溪岸",cluster_id:"L-START-DAWNGRAIN",polity_id:"POL-004",region_id:"REG-04",culture_id:"CUL-004",region:"晨鐘聖原",history_scope:"晨律教國／晨鐘聖原",template:"L-RIVER",size:"溪岸",description:"流經村外的小溪與淺灘，是取水、釣魚與採藥的低風險地帶。",links:[{to:"L-START-DAWNGRAIN",hours:1.3},{to:"L-DG-DEWFIELD",hours:1.0}],encounter_tags:["plains","water"],allow_aquatic:true,nearest_town_distance_hours:1.3,safety_score:86,explore:[["淺灘魚群",30],["祈願石",25],["河岸藥草",20],["舊木橋",15],["水獸足跡",10]]},
@@ -160,8 +219,10 @@ const AREAS=[
 
 ];
 
+for(const cfg of VILLAGES)applyProsperityDetail(cfg);
 for(const cfg of VILLAGES)upsertLocation(town(cfg));
 for(const cfg of AREAS)upsertLocation(wild(cfg));
+enrichStarterEconomyLocations();
 
 function upsertMapRow(key,row){
  DB[key]=Array.isArray(DB[key])?DB[key]:[];
@@ -282,6 +343,15 @@ function audit(){
   const eco=cfg.economy||{};
   if(!(Number(eco.prosperity_score)>=0&&Number(eco.prosperity_score)<=100))issues.push("新手村繁榮度異常："+cfg.id);
   for(const k of ["market_budget_mult","stock_mult","liquidity_mult","market_price_mult"])if(!(Number(eco[k])>0))issues.push("新手村經濟倍率異常："+cfg.id+":"+k);
+  const detail=eco.prosperity_detail;
+  if(!detail)issues.push("新手村繁榮細節缺失："+cfg.id);
+  else{
+   for(const k of ["capacity_mult","regen_hours_mult"])if(!(Number(detail.resource?.[k])>0))issues.push("新手村資源繁榮倍率異常："+cfg.id+":"+k);
+   if(!(Number(detail.dungeon?.respawn_hours_mult)>0))issues.push("新手村地下城重生倍率異常："+cfg.id);
+   if(!(Number(detail.market?.restock_cycle_hours)>0))issues.push("新手村補貨週期異常："+cfg.id);
+   if(rows.filter(x=>x.kind==="wild").some(x=>!x.resource_economy))issues.push("新手區野外缺少繁榮資源設定："+cfg.id);
+   if(rows.filter(x=>x.kind==="dungeon").some(x=>!x.dungeon_economy))issues.push("新手區地下城缺少繁榮活動設定："+cfg.id);
+  }
  }
  const addedIds=new Set([...external,...AREAS.map(x=>x.id)]);
  for(const id of addedIds){
@@ -308,6 +378,7 @@ DB.starter_settlement_system={
  world_rule:"五個新增村落分布於不同非阿斯戴爾政治體；政治體選擇在版本內容中固定，避免同版本刷新造成正史漂移。",
  surrounding_rule:"每個新增新手區對齊柳橋鎮區域：1個F級城鎮＋3張F級野外＋3座E級地下城，並以長途路線接回既有可遊玩核心。",
  economy_rule:"繁榮度0–100實際影響市場每日資金、商品庫存、本地流動性與整體價格微幅修正；地方輸出／輸入仍受區域經濟模型約束。",
+ prosperity_detail_rule:"繁榮度同時接入世界循環：周邊野外資源容量／恢復速度與地下城敵對活動重生速度依地方產業、基礎設施與巡查能力細分；地圖數量與F/E層級保持柳橋基準不變。",
  save_compatible:true,initial_audit:null
 };
 
