@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.84.4",
-  "previous_version": "CURRENT-1.84.3",
+  "version": "CURRENT-1.85.0",
+  "previous_version": "CURRENT-1.84.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "冒險與探索類組織完成16→8（-50%）整併，並將世界組織完整性稽核改為支援有意義的資料收斂：以合併額度、核心最低數與陣營比例檢核，不再要求舊版固定絕對數量。",
+  "summary": "高階組織／流派加入流程重構：知道名稱不再等於正式接觸；E級以上需通過入門考核，D～S級還需先透過劇情、委託、奇遇、情報、引介或調查累積1～5筆有效接觸線索。",
   "changelog": [
+    "AFFILIATION-ENTRY-GATE-1.0：組織／流派加入流程拆為「傳聞可見→劇情性接觸→入門考核→正式加入」，高階勢力不能再從名錄直接申請。",
+    "接觸門檻隨層級遞增：F級維持一般公開加入；E級開始要求入門考核；D／C／B／A／S級正式接觸依序需要1／2／3／4／5筆有效線索。",
+    "有效接觸來源接入劇情、委託／契約、組織奇遇、關聯奇遇、可靠情報、引介／對話、調查／探索與世界事件；同一筆來源不會重複計數。",
+    "入門考核採單次D20，E／D／C／B／A／S級DC依序9／11／13／15／17／19；角色資格、組織聲望／公會信用或流派研習度／聲望提供合理修正，失敗後有1～3日冷卻。",
+    "高階組織未正式接觸前只顯示傳聞與接觸進度，不開放內部契約；高階流派未正式接觸前不開放研習，修正查閱名錄即可繞過接觸門檻的漏洞。",
+    "舊存檔相容：既有discovered勢力保留正式接觸資格；已加入的組織／流派自動視為考核通過，不移除會員、貢獻、聲望或研習進度。",
+    "PROGRAM-REGISTRY與RELEASE-INTEGRITY已納入高階勢力接觸門檻稽核；PWA離線快取同步加入新模組。",
     "ORGANIZATION-AUDIT-CONSOLIDATION-AWARE-1.0：世界組織總量門檻會扣除已登記的有意義整併數，不再因去除重複組織而誤判。",
     "陣營分布稽核由舊版固定 light≥10／neutral≥70／dark≥20 改為最低核心數＋比例檢查，保留多樣性要求但允許資料去重。",
     "冒險與探索類維持16→8、正好減少50%；8個舊ID仍映射到核心組織分會／專門隊，跨庫引用與舊存檔相容。",
@@ -446,7 +453,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.4",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 52,
+    "active_src_programs": 53,
     "groups": [
       "core",
       "data",
@@ -800,5 +807,46 @@
   "adventure_organization_baseline": 16,
   "adventure_organization_target": 8,
   "adventure_organization_reduction_pct": 50,
-  "organization_audit_revision": "ORGANIZATION-AUDIT-CONSOLIDATION-AWARE-1.0"
+  "organization_audit_revision": "ORGANIZATION-AUDIT-CONSOLIDATION-AWARE-1.0",
+  "affiliation_entry_gate_revision": "AFFILIATION-ENTRY-GATE-1.0",
+  "affiliation_entry_gate": {
+    "contact_flow": [
+      "傳聞可見",
+      "劇情性接觸",
+      "入門考核",
+      "正式加入"
+    ],
+    "evidence_required": {
+      "F": 0,
+      "E": 0,
+      "D": 1,
+      "C": 2,
+      "B": 3,
+      "A": 4,
+      "S": 5
+    },
+    "exam_required_from": "E",
+    "exam_dc": {
+      "E": 9,
+      "D": 11,
+      "C": 13,
+      "B": 15,
+      "A": 17,
+      "S": 19
+    },
+    "evidence_sources": [
+      "劇情",
+      "委託／契約",
+      "奇遇",
+      "情報",
+      "引介／對話",
+      "調查／探索",
+      "世界事件"
+    ],
+    "duplicate_evidence_blocked": true,
+    "high_tier_directory_bypass_blocked": true,
+    "existing_discovery_migrates_to_contact": true,
+    "existing_members_migrate_to_exam_passed": true,
+    "save_compatible": true
+  }
 }
