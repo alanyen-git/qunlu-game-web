@@ -1,13 +1,13 @@
-/* 群陸旅誌：組織／流派辨識度深化 CURRENT-1.84.4
- * AFFILIATION-IDENTITY-DEPTH-1.1
+/* 群陸旅誌：組織／流派辨識度深化 CURRENT-1.85.1
+ * AFFILIATION-IDENTITY-DEPTH-1.2
  * 同質勢力收斂、冒險類組織50%整併、舊ID映射、歷史／現況／特色補全與作用域上限稽核。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.84.4";
-const REV="AFFILIATION-IDENTITY-DEPTH-1.1";
+const RELEASE="CURRENT-1.85.1";
+const REV="AFFILIATION-IDENTITY-DEPTH-1.2";
 const CAPS=Object.freeze({world:4,kingdom:3,region:2});
 const R=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
 const text=v=>String(v==null?"":v).trim();
@@ -138,8 +138,19 @@ function appendBranch(target,src,kind){
     });
   }
   if(kind==="discipline"){
-    target.substyles=uniq([...(target.substyles||[]),src.name]);
+    target.substyles=uniq([...(target.substyles||[]),src.name,...(src.substyles||[])]);
     target.contact_location_ids=uniq([...(target.contact_location_ids||[]),...(src.contact_location_ids||[]),src.base_location_id]);
+    for(const key of ["related_class_ids","skill_family_ids","dialogue_record_ids","intel_record_ids","lore_record_ids"]){
+      target[key]=uniq([...(target[key]||[]),...(src[key]||[])]);
+    }
+    target.merged_from_ids=uniq([...(target.merged_from_ids||[]),src.id,...(src.merged_from_ids||[])]);
+    target.legacy_names=uniq([...(target.legacy_names||[]),src.name,...(src.legacy_names||[])]);
+    target.branch_specialties=Array.isArray(target.branch_specialties)?target.branch_specialties:[];
+    if(!target.branch_specialties.some(x=>x&&(x.former_id===src.id||x.legacy_id===src.id)))target.branch_specialties.push({
+      former_id:src.id,name:src.name,specialty:src.specialty||src.description||"",
+      former_member_bonus:src.member_bonus?.text||null,
+      training_tier_ceiling:src.training_tier_ceiling||null
+    });
   }
 }
 const inheritedOrgMap=Object.assign({},DB.organization_merge_map||{});
@@ -169,6 +180,17 @@ Object.assign(orgMap,{
   "ORG-ASD2-RIVERWORKS":"ORG-ASD-ROAD-LEAGUE",
   "ORG-ASD2-AMBER-GROWERS":"ORG-ASD-GRAIN-COMPACT"
 });
+
+const DISCIPLINE_HOMOGENEITY_MERGES=Object.freeze({
+  "DSC-MAG-27":"DSC-MAG-05",
+  "DSC-MAG-14":"DSC-MAG-01",
+  "DSC-MAG-24":"DSC-MAG-03"
+});
+const DISCIPLINE_PROTECTED_IDS=Object.freeze([
+  "DSC-PHY-03","DSC-PHY-08","DSC-PHY-11","DSC-PHY-12","DSC-PHY-21","DSC-PHY-24","DSC-PHY-31",
+  "DSC-MAG-06","DSC-MAG-09","DSC-MAG-10","DSC-MAG-11","DSC-MAG-13","DSC-MAG-20","DSC-MAG-21","DSC-MAG-25","DSC-MAG-26"
+]);
+Object.assign(discMap,DISCIPLINE_HOMOGENEITY_MERGES);
 
 function consolidate(rows,map,familyFn,kind,protectedTargets){
   const byId=new Map((rows||[]).map(x=>[x.id,x]));
@@ -210,6 +232,28 @@ DB.world_organizations=consolidate(DB.world_organizations||[],orgMap,orgFamily,"
 DB.discipline_factions=consolidate(DB.discipline_factions||[],discMap,disciplineFamily,"discipline",protectedDiscTargets);
 DB.organization_merge_map=orgMap;
 DB.discipline_merge_map=discMap;
+
+const disciplinePhysical=(DB.discipline_factions||[]).filter(x=>x?.track==="physical").length;
+const disciplineMagic=(DB.discipline_factions||[]).filter(x=>x?.track==="magic").length;
+const disciplineTotal=(DB.discipline_factions||[]).length;
+if(DB.discipline_system&&typeof DB.discipline_system==="object"){
+  DB.discipline_system.physical_count=disciplinePhysical;
+  DB.discipline_system.magic_count=disciplineMagic;
+  DB.discipline_system.total_count=disciplineTotal;
+  DB.discipline_system.state_cap=disciplineTotal;
+  DB.discipline_system.runtime_consolidation_revision=REV;
+  DB.discipline_system.rules=uniq((DB.discipline_system.rules||[]).map(rule=>String(rule)
+    .replace(/維持49個canonical武技／魔法流派/g,`維持${disciplineTotal}個canonical武技／魔法流派`)
+    .replace(/物理系31個、魔法系30個/g,`物理系${disciplinePhysical}個、魔法系${disciplineMagic}個`)));
+  DB.discipline_system.rules.push("CURRENT-1.85.1：玩法循環、技能家族、對應職業、接觸設施與會員加成高度重疊者改列同一傳承的專修支系；只共享技能家族但訓練目的、制度或高階資格不同者保留獨立。");
+}
+const canonAI=find(DB.management_ai||[],"AI-DISCIPLINE-CANON");
+if(canonAI){
+  canonAI.responsibility=`維持${disciplineTotal}個canonical武技／魔法流派與世界史、組織、職業、技能家族的一致性。`;
+  canonAI.validations=(canonAI.validations||[]).map(v=>String(v)
+    .replace(/物理31魔法30/g,`物理${disciplinePhysical}魔法${disciplineMagic}`)
+    .replace(/49個canonical武技／魔法流派/g,`${disciplineTotal}個canonical武技／魔法流派`));
+}
 
 function mapScalar(obj,key,map){
   if(obj&&obj[key]&&typeof obj[key]==="string")obj[key]=resolveMap(map,obj[key]);
@@ -469,6 +513,9 @@ function audit(){
     disciplines:(DB.discipline_factions||[]).length,
     organization_aliases:Object.keys(orgMap).length,
     discipline_aliases:Object.keys(discMap).length,
+    discipline_canonical_before:49,
+    discipline_canonical_after:(DB.discipline_factions||[]).length,
+    discipline_homogeneity_merges:Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length,
     merged_branches:0,
     adventure_organizations:adventureRows.length,
     adventure_baseline:ADVENTURE_BASELINE,
@@ -503,6 +550,12 @@ function audit(){
       if(n>cap)issues.push(kind+"同質群超過"+scope+"上限:"+key+"="+n+"/"+cap);
     }
   }
+  for(const [from,to] of Object.entries(DISCIPLINE_HOMOGENEITY_MERGES)){
+    if(discIds.has(from))issues.push("高同質流派仍獨立存在:"+from);
+    if(resolveMap(discMap,from)!==to)issues.push("高同質流派映射異常:"+from+"->"+resolveMap(discMap,from));
+  }
+  for(const id of DISCIPLINE_PROTECTED_IDS)if(!discIds.has(id))issues.push("差異化流派遭誤合併:"+id);
+  if((DB.discipline_factions||[]).length!==46)issues.push("canonical流派數量異常:"+(DB.discipline_factions||[]).length+"/46");
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats};
 }
 
@@ -518,6 +571,12 @@ DB.affiliation_identity_depth_system={
     rule:"保留8個互補核心角色；被整併者轉為分會／專門隊並保留舊ID、任務、情報與接觸點映射。"
   },
   legacy_aliases:{organization:Object.keys(orgMap).length,discipline:Object.keys(discMap).length},
+  discipline_consolidation:{
+    canonical_before:49,canonical_after:disciplineTotal,merged:Object.keys(DISCIPLINE_HOMOGENEITY_MERGES).length,
+    legacy_to_canonical:{...DISCIPLINE_HOMOGENEITY_MERGES},
+    protected_distinct:[...DISCIPLINE_PROTECTED_IDS],
+    rule:"只有玩法循環、技能家族、職業重疊、接觸制度與會員效果整體高度同質才合併；來源、用途、高階資格或核心戰術不同者不得只因同武器／同元素而合併。"
+  },
   required_depth:["歷史","現狀","核心特色","制度／訓練文化","限制／張力"],
   explicit_asdail_merges:{
     "王冠公證人會":"阿斯戴爾王國外廷・公證部門",
@@ -525,7 +584,7 @@ DB.affiliation_identity_depth_system={
     "琥珀田農產協會":"銀穗糧議會・農產分會"
   }
 };
-if(Array.isArray(DB.integration_registry&&DB.integration_registry.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：冒險與探索組織由16個整併為8個（-50%）；舊組織轉為分會／專門隊，舊ID、任務、情報、NPC所屬與接觸點自動映射，並保留8種互補職能。");
+if(Array.isArray(DB.integration_registry&&DB.integration_registry.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：高同質流派再收斂3組，49→46；折門術會併入沙漏時序會、遠卷賢者塔併入藍塔奧術院、曙光神術院併入白泉治癒修會。舊ID、職業、技能家族、對話、情報、正史引用、接觸點與存檔進度保留映射。");
 globalThis.resolveOrganizationAlias=id=>resolveMap(orgMap,id);
 globalThis.resolveDisciplineAlias=id=>resolveMap(discMap,id);
 globalThis.runAffiliationIdentityDepthAudit=audit;
