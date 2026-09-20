@@ -1,4 +1,4 @@
-/* 群陸旅誌：組織／流派辨識度深化 CURRENT-1.84.3
+/* 群陸旅誌：組織／流派辨識度深化 CURRENT-1.84.4
  * AFFILIATION-IDENTITY-DEPTH-1.1
  * 同質勢力收斂、冒險類組織50%整併、舊ID映射、歷史／現況／特色補全與作用域上限稽核。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.84.3";
+const RELEASE="CURRENT-1.84.4";
 const REV="AFFILIATION-IDENTITY-DEPTH-1.1";
 const CAPS=Object.freeze({world:4,kingdom:3,region:2});
 const R=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
