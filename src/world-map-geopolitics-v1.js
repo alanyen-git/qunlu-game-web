@@ -1,4 +1,4 @@
-/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-1.91.0
+/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-1.92.0
  * WORLD-MAP-GEOPOLITICS-1.4
  * 在既有政治疆域底板上加入海岸、山脈、河川、湖泊、氣候帶、主要道路與國境關隘，
  * 並使政治疆界的形狀與說明受到天然屏障、分水嶺、河谷與交通控制點影響；不改旅行解鎖與存檔schema。
@@ -7,8 +7,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.91.0")||"CURRENT-1.91.0";
-const REV="WORLD-MAP-GEOPOLITICS-1.4";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.92.0")||"CURRENT-1.92.0";
+const REV="WORLD-MAP-GEOPOLITICS-1.5";
 const W=1800,H=1100;
 
 /* 地表政治疆域：1.1版將原先大面積直線切割改成沿河谷、山脊、火山高地與交通走廊的折線。
@@ -50,6 +50,23 @@ const REGION_GEOMETRY=[
  {region_id:"REG-19",layer:"surface",points:[[205,380],[275,410],[345,420],[405,390],[455,415],[470,470],[455,535],[430,600],[390,660],[345,710],[300,725],[255,700],[220,650],[195,585],[185,510]],label:[320,550]},
  {region_id:"REG-20",layer:"surface",points:[[1360,650],[1410,570],[1510,470],[1600,460],[1680,410],[1740,470],[1760,560],[1740,650],[1700,720],[1650,790],[1580,850],[1490,880],[1400,850],[1350,780],[1350,720]],label:[1560,680],nonstate:true},
  {region_id:"REG-13",political_entity_id:"POL-020",layer:"subterranean",points:[[210,205],[260,190],[320,195],[380,220],[410,270],[390,325],[340,360],[280,350],[225,320],[195,265]],label:[300,275],overlap:true}
+];
+
+
+/* 跨境野外圖：
+ * 這些是玩法／地理覆蓋層，不建立新的政治體，也不改寫既有REG主權。
+ * polygon可略微跨入相鄰大區，政治疆域仍由REGION_GEOMETRY決定；surface層只在原本空白處露出，
+ * wilderness層則顯示完整的跨境生態與探索範圍。
+ */
+const WILDERNESS_ZONES=[
+ {id:"WILD-01",name:"冠脊東麓荒野",tier_min:"E",tier_max:"D",polygon:[[430,150],[585,135],[625,220],[610,315],[575,390],[515,430],[445,405],[470,335],[485,250]],label:[535,330],between_regions:["REG-13","REG-15","REG-03","REG-18"],terrain:"碎石坡、冷杉林緣、融雪溪谷與舊獵徑",climate:"冷涼山麓，冬季積雪、春季泥濘",access:"安威爾南門東側獵徑與北氈牧路西支線",resources:["冷杉木","山地藥草","低階鐵礦露頭","小型獵物"],threats:["山狼","岩羊群","流寇斥候","落石與低溫"],resource_capacity:{forage:18,hunt:10,ore:8},resource_regen_hours:48,hunt_requires_battle:true,nodes:[{id:"W01-N1",name:"融雪石灘",type:"water",x:16,y:30,note:"可補水；春融期水勢急。"},{id:"W01-N2",name:"冷杉獵徑",type:"trail",x:35,y:60,note:"低階採集與追蹤路線。"},{id:"W01-N3",name:"舊礦露頭",type:"resource",x:62,y:38,note:"有限黑鐵／鐵礦露頭。"},{id:"W01-N4",name:"風切鞍部",type:"danger",x:78,y:62,note:"強風、落石與伏擊機率較高。"},{id:"W01-N5",name:"邊境火塘",type:"camp",x:52,y:82,note:"可短休但不提供城鎮服務。"}]},
+ {id:"WILD-02",name:"白石丘原",tier_min:"F",tier_max:"E",polygon:[[515,365],[620,345],[690,405],[680,475],[620,520],[555,485],[505,425]],label:[600,435],between_regions:["REG-18","REG-01","REG-03"],terrain:"白堊丘、短草坡、灌木溝與淺溪",climate:"溫帶偏冷，風大、視野開闊",access:"西冠大道兩側支路與洛文河谷北口",resources:["野莓","止血草","燧石","兔類與雉鳥"],threats:["野犬","小型哥布林斥候","暴雨沖溝"],resource_capacity:{forage:24,hunt:14,ore:4},resource_regen_hours:36,hunt_requires_battle:true,nodes:[{id:"W02-N1",name:"白石坡",type:"resource",x:22,y:34,note:"燧石與低階石材。"},{id:"W02-N2",name:"牧人淺溪",type:"water",x:42,y:56,note:"常年小溪。"},{id:"W02-N3",name:"灌木獵場",type:"hunt",x:66,y:34,note:"低威脅獵場；打獵進入戰鬥。"},{id:"W02-N4",name:"舊界碑",type:"landmark",x:78,y:68,note:"三地商旅辨識方向的古界標。"},{id:"W02-N5",name:"旅人石圈",type:"camp",x:45,y:82,note:"簡易避風營地。"}]},
+ {id:"WILD-03",name:"白鐘上游草澤",tier_min:"E",tier_max:"D",polygon:[[820,250],[940,235],[1070,255],[1110,325],[1060,395],[960,420],[865,385],[805,320]],label:[945,330],between_regions:["REG-15","REG-03","REG-11"],terrain:"河源草甸、季節濕地、蘆澤與低丘",climate:"寒溫帶，春夏濕地擴張、冬季封凍",access:"北氈牧路與白鐘河源頭便道",resources:["蘆根","水生藥草","皮毛獸","黏土"],threats:["泥澤陷落","草原狼","毒蟲","季節性洪水"],resource_capacity:{forage:20,hunt:12,ore:2},resource_regen_hours:48,hunt_requires_battle:true,nodes:[{id:"W03-N1",name:"白鐘河源",type:"water",x:18,y:48,note:"穩定淡水源。"},{id:"W03-N2",name:"蘆澤灣",type:"forage",x:38,y:68,note:"水生素材集中。"},{id:"W03-N3",name:"牧路高丘",type:"trail",x:52,y:28,note:"避開濕地的季節牧路。"},{id:"W03-N4",name:"灰泥窪",type:"danger",x:70,y:55,note:"陷泥與毒蟲高發。"},{id:"W03-N5",name:"風乾棚址",type:"camp",x:82,y:28,note:"遊牧隊留下的臨時棚址。"}]},
+ {id:"WILD-04",name:"三河分水丘",tier_min:"E",tier_max:"D",polygon:[[585,555],[710,520],[835,545],[895,630],[850,725],[750,785],[640,750],[575,655]],label:[735,650],between_regions:["REG-01","REG-04","REG-07","REG-05","REG-06"],terrain:"起伏丘陵、支流谷地、農野邊緣與林帶",climate:"溫帶濕潤，午後雷雨常見",access:"三港商路與地方渡橋網",resources:["硬木","穀野香草","黏土","河魚","小型獸"],threats:["盜匪","野豬","暴漲溪流","廢棄地窖"],resource_capacity:{forage:26,hunt:14,ore:3},resource_regen_hours:36,hunt_requires_battle:true,nodes:[{id:"W04-N1",name:"三岔渡",type:"crossing",x:18,y:56,note:"支流交會的小渡口。"},{id:"W04-N2",name:"榛木林帶",type:"forage",x:38,y:32,note:"木材與食材採集。"},{id:"W04-N3",name:"赤土坡",type:"resource",x:58,y:66,note:"陶土與少量石材。"},{id:"W04-N4",name:"廢農莊",type:"danger",x:76,y:42,note:"盜匪與野獸可能占據。"},{id:"W04-N5",name:"商路營坪",type:"camp",x:84,y:78,note:"有井但無永久商店。"}]},
+ {id:"WILD-05",name:"東門乾草帶",tier_min:"D",tier_max:"C",polygon:[[1180,320],[1310,300],[1435,370],[1460,470],[1405,565],[1310,610],[1225,535],[1205,430]],label:[1325,455],between_regions:["REG-11","REG-02","REG-17","REG-14"],terrain:"乾草原、礫質台地、季節河床與邊防壕線",climate:"冷涼半乾燥，日夜溫差大",access:"東北百族商道、東門隘與百族西關外圍",resources:["韌草纖維","鹽鹼土礦物","草原藥材","中型獵物"],threats:["草原掠食獸","邊境盜騎","沙塵風","未爆符雷"],resource_capacity:{forage:16,hunt:12,ore:7},resource_regen_hours:60,hunt_requires_battle:true,nodes:[{id:"W05-N1",name:"乾河床",type:"trail",x:16,y:62,note:"旱季捷徑，雨季不可通行。"},{id:"W05-N2",name:"界火臺",type:"landmark",x:36,y:32,note:"舊邊防烽火臺。"},{id:"W05-N3",name:"鹽白地",type:"resource",x:58,y:58,note:"鹽鹼與礦物採集點。"},{id:"W05-N4",name:"盜騎伏地",type:"danger",x:78,y:34,note:"高機率敵對遭遇。"},{id:"W05-N5",name:"商旅圍車場",type:"camp",x:82,y:78,note:"商隊臨時結營地。"}]},
+ {id:"WILD-06",name:"龍脊北麓灰原",tier_min:"C",tier_max:"B",polygon:[[1260,520],[1400,455],[1570,445],[1680,515],[1685,630],[1605,720],[1475,760],[1345,705],[1270,625]],label:[1480,605],between_regions:["REG-14","REG-17","REG-09","REG-20"],terrain:"火山灰原、玄武岩坡、溫泉裂谷與稀疏灌木",climate:"暖乾與地熱微氣候交錯，火山灰暴偶發",access:"龍脊南路北支線與少數熔岩鞍部",resources:["火山玻璃","硫礦","耐熱藥草","高階獸材"],threats:["火蜥","灰鬃巨獸","毒氣裂隙","落灰與地熱噴發"],resource_capacity:{forage:10,hunt:8,ore:12},resource_regen_hours:72,hunt_requires_battle:true,nodes:[{id:"W06-N1",name:"灰燼平臺",type:"trail",x:16,y:42,note:"相對穩定的玄武岩地。"},{id:"W06-N2",name:"硫煙裂谷",type:"danger",x:38,y:68,note:"毒氣與地熱危害。"},{id:"W06-N3",name:"黑玻璃灘",type:"resource",x:56,y:36,note:"火山玻璃與稀有礦材。"},{id:"W06-N4",name:"赤泉群",type:"water",x:73,y:62,note:"地熱泉，不宜直接飲用。"},{id:"W06-N5",name:"岩棚避難所",type:"camp",x:86,y:30,note:"能躲避落灰的天然岩棚。"}]},
+ {id:"WILD-07",name:"西南霧林邊帶",tier_min:"E",tier_max:"D",polygon:[[215,570],[340,555],[445,610],[485,700],[450,795],[365,855],[270,825],[210,745],[190,650]],label:[330,705],between_regions:["REG-19","REG-12","REG-05"],terrain:"霧林、濕丘、倒木谷與碎裂舊礦道",climate:"北段雨影、南段濕潤，晨霧濃厚",access:"西南林境路、斷境雙門南段與林緣獵徑",resources:["蕈菇","林地藥草","硬木","皮毛"],threats:["霧中獸群","毒蕈","舊礦坍塌","迷途"],resource_capacity:{forage:28,hunt:13,ore:5},resource_regen_hours:48,hunt_requires_battle:true,nodes:[{id:"W07-N1",name:"霧杉坡",type:"forage",x:18,y:36,note:"高密度林地素材。"},{id:"W07-N2",name:"斷木谷",type:"danger",x:37,y:62,note:"視線差且易有獸群。"},{id:"W07-N3",name:"舊礦岔口",type:"resource",x:56,y:30,note:"少量礦材與坍塌風險。"},{id:"W07-N4",name:"灰河淺灘",type:"water",x:73,y:58,note:"可涉渡與補水。"},{id:"W07-N5",name:"林守舊棚",type:"camp",x:84,y:80,note:"簡易遮雨棚。"}]},
+ {id:"WILD-08",name:"中南鹽風丘",tier_min:"D",tier_max:"C",polygon:[[900,720],[1020,695],[1160,720],[1240,790],[1200,865],[1080,900],[955,870],[885,810]],label:[1060,800],between_regions:["REG-06","REG-09","REG-08","REG-20"],terrain:"海風丘陵、鹽生草甸、石灰岩溝與南岸臺地",climate:"暖溫帶海洋性，鹽霧與強風明顯",access:"龍脊南路西段、金衡渡船前站與沿岸驛徑",resources:["鹽生草藥","石灰岩","海鳥羽材","中型獵物"],threats:["崖風","岩蜥","走私者","海霧迷航"],resource_capacity:{forage:18,hunt:10,ore:6},resource_regen_hours:60,hunt_requires_battle:true,nodes:[{id:"W08-N1",name:"鹽風草甸",type:"forage",x:16,y:46,note:"鹽生植物採集點。"},{id:"W08-N2",name:"白灰溝",type:"resource",x:38,y:70,note:"石灰岩與黏土。"},{id:"W08-N3",name:"望潮丘",type:"landmark",x:56,y:28,note:"可觀察南方航道。"},{id:"W08-N4",name:"走私岔徑",type:"danger",x:77,y:52,note:"夜間敵對遭遇增加。"},{id:"W08-N5",name:"渡船前站",type:"camp",x:86,y:78,note:"只有簡易碼頭與避風棚。"}]}
 ];
 
 const CAPITALS=[
@@ -317,9 +334,11 @@ DB.world_geopolitical_map={
    {id:"surface",name:"政治＋地形",description:"政治疆域與自然地理、道路、關隘同圖顯示。"},
    {id:"physical",name:"自然地理",description:"弱化政治填色，突出海岸、山脈、河川、湖泊、道路與關隘。"},
    {id:"climate",name:"氣候帶",description:"顯示主要氣候帶與自然地理骨架，協助理解農牧、聚落與交通。"},
+   {id:"wilderness",name:"跨境野外",description:"顯示政治體之間的荒野、邊境生態帶、有限資源與局部探索節點。"},
    {id:"subterranean",name:"地下主權",description:"黑月深庭與安威爾西北山地的重疊主權；地下河與礦道仍可後續深化。"}
  ],
  region_geometry:REGION_GEOMETRY,
+ wilderness_maps:WILDERNESS_ZONES,
  capitals:CAPITALS,
  region_adjacency:REGION_ADJACENCY,
  coastlines:COASTLINES,
@@ -342,13 +361,18 @@ DB.world_geopolitical_map={
    "地下主權使用獨立layer，不能與地表疆域面積直接比較。",
    "REG-10黑潮群島屬POL-010黑潮群島獨立政治體；REG-08金衡自由島與其隔海分治；REG-17鐵旗邊原與REG-20龍脊火山群維持非統一主權區。",
    "政治體位置不只以方位標籤決定：地形、氣候、水源、道路與補給點必須共同支持其聚落密度、軍事邊界與經濟方向。",
-   "地圖固定標示北方；座標原點仍位於西北，畫面上方即北方。"
+   "地圖固定標示北方；座標原點仍位於西北，畫面上方即北方。",
+   "跨境野外圖屬玩法與自然地理覆蓋層，不新增政治體、不改寫REG主權；其範圍可跨越邊境腹地，法律疆界仍以REGION_GEOMETRY為準。",
+   "野外資源採容量＋恢復週期；採集與狩獵會消耗區域容量，打獵必須進入戰鬥才產生戰利品。",
+   "野外層級越高，資源價值、環境危害與敵對遭遇同步提高；低階區不生成超出世界層級的高階素材。"
  ],
  save_compatible:true
 };
 DB.world_map=DB.world_map||{};
 DB.world_map.geopolitical_geometry_revision=REV;
-DB.world_map.geopolitical_layers=["surface","physical","climate","subterranean"];
+DB.world_map.geopolitical_layers=["surface","physical","climate","wilderness","subterranean"];
+DB.world_map.wilderness_revision=REV;
+DB.world_wilderness_maps=WILDERNESS_ZONES;
 DB.world_map.physical_geography_revision=REV;
 DB.meta=DB.meta||{};
 DB.meta.world_geopolitical_map_revision=REV;
@@ -364,6 +388,51 @@ function renderClimateBands(parts){
    parts.push('<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" fill="#d8dfd9" font-size="18" font-weight="700" pointer-events="none">'+esc(z.name)+'</text>');
  }
 }
+
+function wildernessColor(z){
+ const rank={F:0,E:1,D:2,C:3,B:4,A:5,S:6}[z.tier_max]??1;
+ return ["#4f6a49","#526d49","#596d43","#716a3d","#7a5740","#75444d","#6b3f62"][rank];
+}
+function renderWildernessZones(parts,overlay=false){
+ for(const z of WILDERNESS_ZONES){
+   const fill=wildernessColor(z),lp=z.label||centroid(z.polygon);
+   parts.push('<polygon points="'+fmtPoints(z.polygon)+'" fill="'+fill+'" fill-opacity="'+(overlay?".66":".28")+'" stroke="#b7c98f" stroke-width="'+(overlay?5:3)+'" stroke-dasharray="14 9" onclick="openWorldMapWilderness(\''+z.id+'\')" style="cursor:pointer"><title>'+esc(z.name+"｜"+z.tier_min+"～"+z.tier_max+"級野外")+'</title></polygon>');
+   if(overlay)parts.push('<text x="'+lp[0]+'" y="'+lp[1]+'" text-anchor="middle" fill="#f0f3df" font-size="18" font-weight="900" pointer-events="none">'+esc(z.name)+'</text>');
+ }
+}
+function wildernessForRegions(regionIds){
+ const set=new Set(regionIds||[]);
+ return WILDERNESS_ZONES.filter(z=>z.between_regions.some(r=>set.has(r)));
+}
+function wildernessRows(){
+ return WILDERNESS_ZONES.map(z=>'<div class="itemrow"><span><b>'+esc(z.name)+'</b> <span class="tier">'+esc(z.tier_min+"～"+z.tier_max)+'</span><br><span class="small">'+esc(z.terrain)+'｜資源恢復 '+esc(z.resource_regen_hours)+' 小時</span></span><button onclick="openWorldMapWilderness(\''+z.id+'\')">野外圖</button></div>').join("");
+}
+function renderWildernessLocalMap(z){
+ const nodes=z.nodes||[],links=[];
+ for(let i=1;i<nodes.length;i++)links.push('<line x1="'+nodes[i-1].x*6+'" y1="'+nodes[i-1].y*3.4+'" x2="'+nodes[i].x*6+'" y2="'+nodes[i].y*3.4+'" stroke="#86937c" stroke-width="4" stroke-dasharray="9 7"></line>');
+ const ns=nodes.map(n=>{
+   const glyph=n.type==="danger"?"⚠":n.type==="resource"||n.type==="forage"?"◆":n.type==="water"?"≈":n.type==="camp"?"⌂":"●";
+   return '<g><circle cx="'+n.x*6+'" cy="'+n.y*3.4+'" r="14" fill="#1b2520" stroke="#d4d9b6" stroke-width="3"></circle><text x="'+n.x*6+'" y="'+(n.y*3.4+5)+'" text-anchor="middle" fill="#f4ecc4" font-size="16" font-weight="900">'+glyph+'</text><text x="'+n.x*6+'" y="'+(n.y*3.4+30)+'" text-anchor="middle" fill="#e7e8de" font-size="13" font-weight="700">'+esc(n.name)+'</text></g>';
+ }).join("");
+ return '<div style="overflow:auto;border:1px solid #36423d;border-radius:12px;background:#111714;padding:8px"><svg viewBox="0 0 600 340" role="img" aria-label="'+esc(z.name)+'局部野外圖" style="width:100%;min-width:560px;height:auto;display:block"><rect width="600" height="340" rx="18" fill="#18231d"></rect>'+links.join("")+ns+'</svg></div>';
+}
+function openWorldMapWilderness(id){
+ const z=WILDERNESS_ZONES.find(x=>x.id===id);if(!z)return;
+ const between=z.between_regions.map(rid=>{
+   const r=regionById(rid),p=polityById(r?.political_entity_id);
+   return p?.name||r?.name||rid;
+ }).filter(Boolean);
+ const nodes=(z.nodes||[]).map(n=>'<div class="itemrow"><span><b>'+esc(n.name)+'</b><br><span class="small">'+esc(n.type)+'｜'+esc(n.note||"")+'</span></span></div>').join("");
+ const caps=z.resource_capacity||{};
+ const body='<div class="card"><b>'+esc(z.name)+'</b> <span class="tier">'+esc(z.tier_min+"～"+z.tier_max)+'</span><br><span class="small">跨境野外地圖｜不改變政治疆界</span></div>'+
+   '<div class="card small"><b>交界區</b>：'+esc(between.join("、"))+'<br><b>地形</b>：'+esc(z.terrain)+'<br><b>氣候</b>：'+esc(z.climate)+'<br><b>主要通道</b>：'+esc(z.access)+'</div>'+
+   renderWildernessLocalMap(z)+
+   '<div class="card small"><b>有限資源</b>：'+esc(z.resources.join("、"))+'<br><b>區域容量</b>：採集 '+esc(caps.forage??0)+'／狩獵 '+esc(caps.hunt??0)+'／礦材 '+esc(caps.ore??0)+'<br><b>恢復週期</b>：'+esc(z.resource_regen_hours)+' 小時<br><b>狩獵規則</b>：'+(z.hunt_requires_battle?"必須進入戰鬥並勝利後才結算獵物。":"一般探索結算")+'<br><b>主要威脅</b>：'+esc(z.threats.join("、"))+'</div>'+
+   '<h3>探索節點</h3>'+nodes+
+   '<div class="actions"><button onclick="openWorldMapAtlas(\'wilderness\')">回跨境野外層</button><button onclick="openWorldMapAtlas(\'surface\')">回政治地圖</button></div>';
+ if(typeof showModal==="function")showModal(z.name+"・野外地圖",body);
+}
+
 function renderPhysicalFeatures(parts,mode){
  for(const c of COASTLINES){
    parts.push(svgPolyline(c.points,'stroke="#6e9eb5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"'+(c.closed?'':'') ));
@@ -393,7 +462,8 @@ function renderNorthMarker(parts){
 }
 function renderSurfaceSvg(mode="surface"){
  const parts=['<rect width="'+W+'" height="'+H+'" fill="#0d1c22"></rect>'];
- const physicalOnly=mode==="physical"||mode==="climate";
+ const physicalOnly=mode==="physical"||mode==="climate"||mode==="wilderness";
+ if(mode!=="wilderness")renderWildernessZones(parts,false);
  if(mode==="climate")renderClimateBands(parts);
  for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
    const region=regionById(g.region_id),pid=polityIdForGeometry(g),p=polityById(pid);
@@ -402,6 +472,7 @@ function renderSurfaceSvg(mode="surface"){
    const click=pid?"openWorldMapPolityTerritory('"+pid+"')":"openWorldMapNonStateRegion('"+g.region_id+"')";
    parts.push('<polygon points="'+fmtPoints(g.points)+'" fill="'+fill+'" fill-opacity="'+(physicalOnly?".28":".72")+'" stroke="'+(physicalOnly?"#66736d":"#91a19a")+'" stroke-width="'+(physicalOnly?2:4)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+' onclick="'+click+'" style="cursor:pointer"><title>'+esc((p?.name||region?.name||g.region_id)+(g.nonstate?"（非統一主權區）":""))+'</title></polygon>');
  }
+ if(mode==="wilderness")renderWildernessZones(parts,true);
  renderPhysicalFeatures(parts,mode);
  renderNorthMarker(parts);
  for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
@@ -456,17 +527,19 @@ function mapPolityRows(){
 }
 function atlasLegend(mode){
  if(mode==="subterranean")return '地表虛線＝安威爾西北山地投影；金線＝地下主權。';
+ if(mode==="wilderness")return '<span style="color:#b7c98f">▧</span> 黃綠虛線面＝跨境野外玩法區　<span style="color:#a79b83">▲</span> 山脈　<span style="color:#79b5cf">━</span> 河川／湖泊　<span style="color:#d1b36a">┄</span> 主要道路。野外範圍可跨政治邊界，但不改變主權。';
  const climate=mode==="climate"?'　半透明色帶＝主要氣候帶。':'';
  return '<b style="color:#ffe09a">●</b> 固定首都　<b style="color:#ffe09a">◆</b> 季節性統治中樞　<span style="color:#a79b83">▲</span> 山脈　<span style="color:#79b5cf">━</span> 河川／湖泊　<span style="color:#d1b36a">┄</span> 主要道路　<b style="color:#f0c96c">○</b> 國境關隘　政治虛線＝非統一主權區。'+climate;
 }
 function openWorldMapAtlas(layer){
- layer=["surface","physical","climate","subterranean"].includes(layer)?layer:"surface";
- const title=layer==="surface"?"政治＋地形":layer==="physical"?"自然地理":layer==="climate"?"氣候帶":"地下主權";
- const body='<div class="card small"><b>世界地圖・地理骨架 1.4</b><br>在既有東西南北定位上完成第二階段細化：斷境改為縱向狹長裂谷緩衝帶、西境河谷再收窄、瑟露維亞古林向西南海岸展開、白氈草海與霜角高寒帶分層、泰爾瓦隆東北草原外擴；黑潮三大島整體放大並維持五小島與外圍礁島。道路、山脊、水系、氣候與關隘已同步重排。</div>'+
-   '<div class="actions"><button'+(layer==="surface"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'surface\')">政治＋地形</button><button'+(layer==="physical"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'physical\')">自然地理</button><button'+(layer==="climate"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'climate\')">氣候帶</button><button'+(layer==="subterranean"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'subterranean\')">地下主權</button></div>'+
+ layer=["surface","physical","climate","wilderness","subterranean"].includes(layer)?layer:"surface";
+ const title=layer==="surface"?"政治＋地形":layer==="physical"?"自然地理":layer==="climate"?"氣候帶":layer==="wilderness"?"跨境野外":"地下主權";
+ const body='<div class="card small"><b>世界地圖・地理骨架 1.5</b><br>新增跨境野外覆蓋層：把政治體之間原本沒有玩法資料的空白／邊境腹地轉為8張可查詢野外圖。每區具F～B合理層級、局部節點、有限資源容量與36～72小時恢復週期；打獵必須進入戰鬥。野外層不建立新政治體，也不改寫既有主權邊界。</div>'+
+   '<div class="actions"><button'+(layer==="surface"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'surface\')">政治＋地形</button><button'+(layer==="physical"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'physical\')">自然地理</button><button'+(layer==="climate"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'climate\')">氣候帶</button><button'+(layer==="wilderness"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'wilderness\')">跨境野外</button><button'+(layer==="subterranean"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'subterranean\')">地下主權</button></div>'+
    (layer==="subterranean"?renderUndergroundSvg():renderSurfaceSvg(layer))+
    '<div class="card small"><b>圖例</b>：'+atlasLegend(layer)+'</div>'+
-   (layer==="subterranean"?'':'<div class="card small"><b>疆界生成原則</b>：高山與分水嶺優先形成穩定國界；大河兼具邊界與交通功能；缺少天然屏障的草原／荒地則由牧路、季節河、補給點與關隘決定實際控制線。</div>')+
+   (layer==="subterranean"?'':'<div class="card small"><b>疆界與野外原則</b>：政治疆界仍由山脊、分水嶺、河川與交通控制點形成；跨境野外是探索／採集／戰鬥覆蓋層，可跨越邊界腹地，但不構成新的主權聲索。</div>')+
+   (layer==="subterranean"?'':'<h3>跨境野外地圖</h3>'+wildernessRows())+
    '<h3>政治體疆域索引</h3>'+mapPolityRows();
  if(typeof showModal==="function")showModal("世界地圖・"+title,body);
 }
@@ -525,6 +598,7 @@ globalThis.openWorldMapAtlas=openWorldMapAtlas;
 globalThis.openWorldMapPolityTerritory=openWorldMapPolityTerritory;
 globalThis.openWorldMapNonStateRegion=openWorldMapNonStateRegion;
 globalThis.openWorldMapPass=openWorldMapPass;
+globalThis.openWorldMapWilderness=openWorldMapWilderness;
 globalThis.QUNLU_PREVIOUS_WORLD_MAP_HIERARCHY=previousWorldMap;
 
 function audit(){
@@ -561,6 +635,18 @@ function audit(){
    }
  };
  uniqueCheck(COASTLINES,"海岸");uniqueCheck(MOUNTAIN_RANGES,"山脈");uniqueCheck(RIVERS,"河川");uniqueCheck(LAKES,"湖泊");uniqueCheck(CLIMATE_BANDS,"氣候帶");uniqueCheck(ROADS,"道路");uniqueCheck(PASSES,"關隘");
+ const wildIds=new Set();
+ for(const z of WILDERNESS_ZONES){
+   if(wildIds.has(z.id))issues.push("野外圖ID重複："+z.id);wildIds.add(z.id);
+   if(!Array.isArray(z.polygon)||z.polygon.length<3)issues.push("野外圖缺有效polygon："+z.id);
+   if(!Array.isArray(z.between_regions)||z.between_regions.length<2)issues.push("野外圖缺跨境關聯："+z.id);
+   for(const rid of z.between_regions||[])if(!regionIds.has(rid))issues.push("野外圖引用未知大區："+z.id+"->"+rid);
+   if(!Array.isArray(z.nodes)||z.nodes.length<4)issues.push("野外圖探索節點不足："+z.id);
+   if(z.hunt_requires_battle!==true)issues.push("野外圖打獵未綁定戰鬥："+z.id);
+   if(!Number.isFinite(z.resource_regen_hours)||z.resource_regen_hours<24)issues.push("野外圖資源恢復週期異常："+z.id);
+   if(z.political_entity_id)issues.push("野外玩法層不可建立政治體："+z.id);
+ }
+ if(WILDERNESS_ZONES.length<8)issues.push("跨境野外圖覆蓋不足："+WILDERNESS_ZONES.length);
  for(const b of BORDER_LOGIC){
    if(!Array.isArray(b.regions)||b.regions.length!==2)issues.push("國境成因缺雙邊："+JSON.stringify(b.regions));
    else{
@@ -607,7 +693,8 @@ function audit(){
    mobile_courts:CAPITALS.filter(x=>x.type==="mobile_court").length,
    no_capital_zones:CAPITALS.filter(x=>x.type==="none").length,
    coastlines:COASTLINES.length,mountain_ranges:MOUNTAIN_RANGES.length,rivers:RIVERS.length,lakes:LAKES.length,
-   climate_bands:CLIMATE_BANDS.length,major_roads:ROADS.length,border_passes:PASSES.length,border_logic:BORDER_LOGIC.length
+   climate_bands:CLIMATE_BANDS.length,major_roads:ROADS.length,border_passes:PASSES.length,border_logic:BORDER_LOGIC.length,
+   wilderness_maps:WILDERNESS_ZONES.length,wilderness_nodes:WILDERNESS_ZONES.reduce((n,z)=>n+(z.nodes?.length||0),0)
  }};
 }
 DB.world_geopolitical_map.initial_audit=audit();
