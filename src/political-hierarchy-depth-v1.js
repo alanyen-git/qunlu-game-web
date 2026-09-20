@@ -1,13 +1,13 @@
-/* 群陸旅誌：政治階層深化 CURRENT-1.89.0
- * POLITICAL-HIERARCHY-DEPTH-1.0
+/* 群陸旅誌：政治階層深化 CURRENT-1.90.0
+ * POLITICAL-HIERARCHY-DEPTH-1.1
  * 將政治禮序、法定權能、官職、爵位與榮譽身分分離，並為每種CURRENT政治體建立可查詢的完整階層。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.89.0")||"CURRENT-1.89.0";
-const REV="POLITICAL-HIERARCHY-DEPTH-1.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.90.0")||"CURRENT-1.90.0";
+const REV="POLITICAL-HIERARCHY-DEPTH-1.1";
 
 const RANK_CLASSES=Object.freeze({
   sovereign:{label:"主權位",governing_default:true,hereditary_default:false},
@@ -179,6 +179,17 @@ const TEMPLATES=Object.freeze({
     n("自由牧民","citizen","AUTH-1",{governing_default:false}),
     n("榮譽賓客","honorary","AUTH-0",{rights_note:"不自動取得牧地、軍戶或汗廷議事權"})
   ],
+  "幕府雙軌島國":[
+    n("潮皇","sovereign","AUTH-7",{territorial:true,hereditary:true,track:"court",acquisition:"王統世襲＋王庭儀禮",rights_note:"法統、祭祀與冊命；日常軍政通常由幕府執行"}),
+    n("皇嗣／王族","dynastic","AUTH-6",{hereditary:true,track:"court",governing_default:false,note:"王統繼承身分不等於幕府軍政權。"}),
+    n("征海大將軍","military","AUTH-7",{territorial:true,hereditary:true,track:"shogunate",acquisition:"主導武門繼承＋王庭冊命＋主要大名承認",rights_note:"幕府實際軍政最高職"}),
+    n("幕府老中／評定眾","administrative","AUTH-5",{track:"shogunate",acquisition:"大將軍任命"}),
+    n("諸島大名","high_nobility","AUTH-5",{territorial:true,hereditary:true,track:"domain",acquisition:"家門繼承＋幕府安堵"}),
+    n("奉行／港代","administrative","AUTH-4",{track:"service",acquisition:"幕府或大名任命"}),
+    n("家臣武士／船侍","knightly","AUTH-2",{track:"service",acquisition:"武家主從契約／授職"}),
+    n("自由島民／町人","citizen","AUTH-1",{governing_default:false}),
+    n("榮譽御客","honorary","AUTH-0",{rights_note:"受王庭或幕府禮遇，不自動取得島領、軍令或冊封權"})
+  ],
   "酋長制":[
     n("{top}","clan","AUTH-5",{acquisition:"氏族會盟／長老承認"}),
     n("大氏族酋長","clan","AUTH-4",{territorial:true}),
@@ -237,7 +248,6 @@ const FREE_CITY_OVERRIDES=Object.freeze({
  "POL-008":[
    n("首席商監","civic_mandate","AUTH-5",{acquisition:"商館出資、信用與市議堂選舉"}),
    n("商議會議長","civic_mandate","AUTH-5"),
-   n("黑潮島務議長","civic_seat","AUTH-4",{track:"maritime_autonomy"}),
    n("大商館議員","civic_seat","AUTH-5",{track:"merchant"}),
    n("資深議員","civic_seat","AUTH-4"),
    n("市議員","civic_seat","AUTH-3"),
@@ -364,11 +374,13 @@ function audit(){
     for(const title of ["議長","議員","榮譽市民"])if(!rows.some(x=>x.title.includes(title)))issues.push("自由都市階層缺失:"+pid+"/"+title);
     const honorary=rows.find(x=>x.title==="榮譽市民");if(honorary?.governing_default)issues.push("榮譽市民誤具統治權:"+pid);
   }
+  const blackTide=profiles.find(x=>x.polity_id==="POL-010")?.rank_ladder||[];
+  for(const title of ["潮皇","征海大將軍","諸島大名"])if(!blackTide.some(x=>x.title.includes(title)))issues.push("黑潮雙軌階層缺失:"+title);
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{polities:polities.length,covered_profiles:DB.political_hierarchy_depth_system.covered_polities,government_types:Object.keys(TEMPLATES).length,rank_classes:Object.keys(RANK_CLASSES).length}};
 }
 DB.political_hierarchy_depth_system.audit=audit();
 globalThis.runPoliticalHierarchyDepthAudit=audit;
 globalThis.QUNLU_CORE?.registerModule?.("src/political-hierarchy-depth-v1.js",{domain:"data",revision:REV,release:RELEASE});
 
-if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：15個CURRENT政治體新增完整政治／社會階序；封建王國細分國王、王儲／親王、公侯伯子男、稱號騎士、榮譽騎士；自由都市細分最高市政職、議長、資深議員／議員、市政官、市民與榮譽市民，並將禮序與實際AUTH權能分離。");
+if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：16個CURRENT政治體新增完整政治／社會階序；封建王國細分國王、王儲／親王、公侯伯子男、稱號騎士、榮譽騎士；自由都市細分最高市政職、議長、資深議員／議員、市政官、市民與榮譽市民，並將禮序與實際AUTH權能分離。");
 })();

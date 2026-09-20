@@ -1,5 +1,5 @@
-/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-1.89.0
- * WORLD-MAP-GEOPOLITICS-1.2
+/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-1.90.0
+ * WORLD-MAP-GEOPOLITICS-1.3
  * 在既有政治疆域底板上加入海岸、山脈、河川、湖泊、氣候帶、主要道路與國境關隘，
  * 並使政治疆界的形狀與說明受到天然屏障、分水嶺、河谷與交通控制點影響；不改旅行解鎖與存檔schema。
  */
@@ -7,162 +7,195 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.89.0")||"CURRENT-1.89.0";
-const REV="WORLD-MAP-GEOPOLITICS-1.2";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.90.0")||"CURRENT-1.90.0";
+const REV="WORLD-MAP-GEOPOLITICS-1.3";
 const W=1800,H=1100;
 
 /* 地表政治疆域：1.1版將原先大面積直線切割改成沿河谷、山脊、火山高地與交通走廊的折線。
  * 同一區域仍維持原region_id / political_entity_id，不破壞既有世界資料與存檔。
  */
 const REGION_GEOMETRY=[
- {region_id:"REG-01",layer:"surface",points:[[300,590],[330,540],[360,485],[390,430],[435,445],[485,468],[550,500],[570,545],[590,600],[610,650],[565,680],[520,705],[470,720],[410,710],[355,700],[300,690]],label:[435,585]},
- {region_id:"REG-02",layer:"surface",points:[[770,340],[820,334],[890,330],[945,365],[1000,395],[1050,420],[1030,468],[1000,520],[955,525],[900,530],[820,540],[775,500],[730,460]],label:[890,430]},
- {region_id:"REG-03",layer:"surface",points:[[340,260],[400,266],[455,278],[505,295],[560,310],[605,275],[650,220],[690,255],[730,295],[770,340],[750,395],[730,460],[680,472],[620,485],[550,500],[500,480],[445,455],[390,430],[370,370],[355,315]],label:[555,375]},
- {region_id:"REG-04",layer:"surface",points:[[550,500],[620,485],[680,472],[730,460],[775,500],[820,540],[845,585],[875,620],[900,650],[865,675],[820,700],[775,650],[730,600],[690,625],[650,640],[610,650],[590,600],[570,545]],label:[735,575]},
- {region_id:"REG-05",layer:"surface",points:[[300,690],[355,700],[410,710],[470,720],[485,765],[500,815],[520,860],[475,885],[420,910],[350,930],[305,915],[265,895],[220,880],[245,845],[290,820],[350,800],[330,750]],label:[385,820]},
- {region_id:"REG-06",layer:"surface",points:[[610,650],[650,640],[690,625],[730,600],[775,650],[820,700],[805,750],[785,805],[760,850],[705,845],[650,838],[590,830],[610,800],[635,780],[670,760],[645,720]],label:[705,745]},
- {region_id:"REG-07",layer:"surface",points:[[470,720],[520,705],[565,680],[610,650],[645,720],[670,760],[635,780],[610,800],[590,830],[555,845],[520,860],[500,815],[485,765]],label:[565,760]},
- {region_id:"REG-08",layer:"surface",points:[[400,900],[445,884],[485,875],[520,870],[555,895],[590,920],[620,950],[600,995],[560,1040],[510,1028],[465,1020],[420,1010],[410,960]],label:[510,960],island:true},
- {region_id:"REG-09",layer:"surface",points:[[820,540],[900,530],[955,525],[1000,520],[1025,560],[1060,590],[1100,620],[1090,675],[1080,760],[1020,760],[960,758],[900,760],[900,710],[900,650],[875,620],[845,585]],label:[965,650]},
- {region_id:"REG-10",layer:"surface",points:[[120,910],[160,902],[205,897],[250,890],[290,920],[330,970],[305,1010],[260,1050],[210,1045],[165,1040],[130,1030],[115,980]],label:[220,975],island:true},
- {region_id:"REG-11",layer:"surface",points:[[590,80],[650,85],[715,92],[770,96],[820,100],[842,150],[862,205],[890,260],[865,285],[830,312],[770,340],[730,295],[690,255],[650,220],[625,145]],label:[735,190]},
- {region_id:"REG-12",layer:"surface",points:[[820,100],[880,112],[950,125],[1020,138],[1110,150],[1130,200],[1150,260],[1180,350],[1135,365],[1085,385],[1050,420],[1000,395],[945,365],[890,330],[865,285],[890,260],[862,205],[842,150]],label:[1010,265]},
- {region_id:"REG-13",layer:"surface",points:[[300,70],[355,72],[420,74],[500,76],[590,80],[625,145],[650,220],[610,250],[560,310],[505,295],[455,278],[400,266],[340,260],[342,225],[340,190]],label:[465,175]},
- {region_id:"REG-14",layer:"surface",points:[[1120,360],[1180,350],[1225,342],[1285,336],[1350,330],[1370,390],[1390,455],[1420,570],[1385,610],[1345,650],[1300,690],[1245,665],[1190,645],[1100,620],[1130,570],[1160,520],[1190,470],[1150,415]],label:[1265,510]},
- {region_id:"REG-15",layer:"surface",points:[[1350,330],[1410,322],[1490,315],[1575,307],[1660,300],[1695,380],[1720,470],[1740,560],[1705,610],[1650,665],[1600,720],[1550,690],[1505,650],[1460,610],[1420,570],[1390,455],[1370,390]],label:[1535,500]},
- {region_id:"REG-16",layer:"surface",points:[[90,90],[145,85],[210,80],[300,70],[340,190],[342,225],[340,260],[320,275],[290,288],[260,300],[215,292],[160,282],[110,270],[100,210]],label:[205,170]},
- {region_id:"REG-17",layer:"surface",points:[[1000,380],[1050,370],[1120,360],[1150,415],[1190,470],[1160,520],[1130,570],[1100,620],[1060,590],[1025,560],[1000,520],[1012,470]],label:[1090,475],nonstate:true},
- {region_id:"REG-18",layer:"surface",points:[[80,270],[110,270],[160,282],[215,292],[260,300],[290,288],[320,275],[340,260],[355,315],[370,370],[390,430],[360,485],[330,540],[300,590],[245,595],[190,600],[90,610],[70,555],[55,450],[65,355]],label:[190,445]},
- {region_id:"REG-19",layer:"surface",points:[[55,610],[90,610],[190,600],[245,595],[300,590],[300,690],[330,750],[350,800],[290,820],[245,845],[220,880],[180,862],[130,840],[70,810],[62,745]],label:[190,720]},
- {region_id:"REG-20",layer:"surface",points:[[1080,760],[1140,735],[1210,710],[1300,690],[1345,650],[1385,610],[1420,570],[1460,610],[1505,650],[1550,690],[1600,720],[1575,790],[1550,860],[1500,970],[1410,988],[1320,1005],[1230,1020],[1160,980],[1090,940],[1020,900],[1040,845]],label:[1300,855],nonstate:true},
- {region_id:"REG-13",political_entity_id:"POL-020",layer:"subterranean",points:[[405,145],[455,142],[505,143],[555,145],[575,175],[600,215],[570,250],[535,285],[490,270],[445,255],[405,245],[390,220],[375,195]],label:[490,210],overlap:true}
+ {region_id:"REG-01",layer:"surface",points:[[520,430],[610,420],[650,390],[710,440],[800,460],[790,530],[760,600],[700,660],[640,700],[580,680],[510,625],[560,610],[590,555],[600,500],[570,455]],label:[665,535]},
+ {region_id:"REG-02",layer:"surface",points:[[1040,410],[1110,380],[1190,390],[1260,430],[1290,500],[1260,570],[1200,620],[1120,630],[1080,580],[1050,510],[1000,460]],label:[1145,500]},
+ {region_id:"REG-03",layer:"surface",points:[[610,300],[740,285],[830,300],[920,310],[1010,300],[1050,350],[1040,410],[1000,460],[900,470],[800,460],[710,440],[650,390]],label:[835,385]},
+ {region_id:"REG-04",layer:"surface",points:[[790,530],[900,470],[1000,460],[1050,510],[1080,580],[1040,650],[960,700],[880,690],[820,630],[760,600]],label:[930,585]},
+ {region_id:"REG-05",layer:"surface",points:[[420,650],[470,590],[510,625],[580,680],[640,700],[650,760],[610,820],[540,850],[460,830],[420,780],[470,700]],label:[535,750]},
+ {region_id:"REG-06",layer:"surface",points:[[650,760],[680,780],[740,800],[800,780],[850,740],[880,690],[960,700],[980,760],[940,820],[880,860],[810,870],[730,850],[670,820]],label:[820,810]},
+ {region_id:"REG-07",layer:"surface",points:[[580,680],[640,700],[700,660],[760,600],[820,630],[880,690],[850,740],[800,780],[740,800],[680,780],[650,760]],label:[745,715]},
+ {region_id:"REG-08",layer:"surface",points:[[900,930],[940,910],[985,920],[1015,950],[1008,995],[980,1030],[935,1035],[900,1010],[885,970]],label:[950,975],island:true},
+ {region_id:"REG-09",layer:"surface",points:[[1040,650],[1080,580],[1120,630],[1200,620],[1300,600],[1360,650],[1350,720],[1300,780],[1220,810],[1140,790],[1080,750],[960,700]],label:[1175,705]},
+ {region_id:"REG-10",layer:"surface",points:[[1400,900],[1460,885],[1520,900],[1560,940],[1550,990],[1500,1020],[1440,1010],[1390,970]],label:[1480,955],island:true,island_class:"major"},
+ {region_id:"REG-10",layer:"surface",points:[[1600,900],[1650,890],[1700,920],[1720,970],[1690,1020],[1630,1030],[1580,990],[1585,940]],island:true,island_class:"major",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1230,930],[1280,910],[1335,925],[1360,970],[1335,1015],[1280,1030],[1235,1000],[1215,960]],island:true,island_class:"major",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1140,875],[1170,865],[1195,885],[1185,915],[1150,920]],island:true,island_class:"minor",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1360,1030],[1390,1025],[1410,1050],[1390,1075],[1360,1065]],island:true,island_class:"minor",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1555,1035],[1580,1030],[1600,1055],[1580,1080],[1555,1070]],island:true,island_class:"minor",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1710,845],[1740,840],[1760,860],[1745,885],[1715,880]],island:true,island_class:"minor",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1080,980],[1110,970],[1135,990],[1120,1020],[1090,1015]],island:true,island_class:"minor",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1198,855],[1208,848],[1218,858],[1208,870]],island:true,island_class:"islet",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1345,900],[1355,892],[1365,902],[1354,914]],island:true,island_class:"islet",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1420,1040],[1432,1034],[1440,1046],[1428,1058]],island:true,island_class:"islet",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1535,890],[1545,882],[1556,892],[1544,904]],island:true,island_class:"islet",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1620,1050],[1630,1044],[1640,1056],[1628,1066]],island:true,island_class:"islet",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1740,1000],[1750,992],[1762,1002],[1752,1014]],island:true,island_class:"islet",show_label:false},
+ {region_id:"REG-10",layer:"surface",points:[[1125,940],[1135,934],[1145,944],[1134,954]],island:true,island_class:"islet",show_label:false},
+ {region_id:"REG-11",layer:"surface",points:[[1030,165],[1120,150],[1210,160],[1300,190],[1340,250],[1320,320],[1260,360],[1190,390],[1110,380],[1040,410],[1050,350],[1010,300],[1080,260],[1090,205]],label:[1185,270]},
+ {region_id:"REG-12",layer:"surface",points:[[70,690],[150,670],[210,650],[270,690],[350,700],[420,650],[470,700],[460,780],[420,860],[350,930],[270,960],[180,950],[110,900],[70,820]],label:[270,810]},
+ {region_id:"REG-13",layer:"surface",points:[[90,150],[150,125],[230,120],[310,135],[390,170],[470,220],[500,280],[470,350],[420,410],[340,430],[260,415],[180,380],[120,320],[85,245]],label:[285,275]},
+ {region_id:"REG-14",layer:"surface",points:[[1300,190],[1390,150],[1490,135],[1590,145],[1680,180],[1730,240],[1720,330],[1680,410],[1600,460],[1510,470],[1430,440],[1360,390],[1320,320],[1340,250]],label:[1520,300]},
+ {region_id:"REG-15",layer:"surface",points:[[620,155],[700,145],[735,145],[800,160],[880,165],[940,145],[1030,165],[1090,205],[1080,260],[1010,300],[920,310],[830,300],[740,285],[660,250]],label:[850,225]},
+ {region_id:"REG-16",layer:"surface",points:[[690,55],[760,40],[850,42],[930,58],[965,100],[940,145],[880,165],[800,160],[735,145],[700,110]],label:[825,100]},
+ {region_id:"REG-17",layer:"surface",points:[[1260,360],[1320,320],[1360,390],[1430,440],[1410,510],[1370,570],[1300,600],[1260,570],[1290,500],[1260,430],[1190,390]],label:[1325,465],nonstate:true},
+ {region_id:"REG-18",layer:"surface",points:[[470,440],[520,430],[570,455],[600,500],[590,555],[560,610],[510,625],[470,590],[450,540],[480,510]],label:[525,530]},
+ {region_id:"REG-19",layer:"surface",points:[[180,405],[260,415],[340,430],[420,410],[470,440],[480,510],[450,580],[420,650],[350,700],[270,690],[210,650],[170,580],[150,500]],label:[310,545]},
+ {region_id:"REG-20",layer:"surface",points:[[1360,650],[1410,570],[1510,470],[1600,460],[1680,410],[1740,470],[1760,560],[1740,650],[1700,720],[1650,790],[1580,850],[1490,880],[1400,850],[1350,780],[1350,720]],label:[1560,680],nonstate:true},
+ {region_id:"REG-13",political_entity_id:"POL-020",layer:"subterranean",points:[[210,205],[260,190],[320,195],[380,220],[410,270],[390,325],[340,360],[280,350],[225,320],[195,265]],label:[300,275],overlap:true}
 ];
 
 const CAPITALS=[
- {political_entity_id:"POL-001",name:"瑟倫堡",type:"fixed",layer:"surface",x:430,y:575},
- {political_entity_id:"POL-002",name:"赫薩爾帝都",type:"fixed",layer:"surface",x:875,y:435},
- {political_entity_id:"POL-003",name:"聖冠城",type:"fixed",layer:"surface",x:555,y:375},
- {political_entity_id:"POL-004",name:"晨鐘聖城",type:"fixed",layer:"surface",x:730,y:575},
- {political_entity_id:"POL-007",name:"卡薩維爾",type:"fixed",layer:"surface",x:565,y:760},
- {political_entity_id:"POL-008",name:"金衡港",type:"fixed",layer:"surface",x:510,y:955},
- {political_entity_id:"POL-009",name:"灰刃城",type:"fixed",layer:"surface",x:965,y:650},
- {political_entity_id:"POL-011",name:"藍塔城",type:"fixed",layer:"surface",x:735,y:190},
- {political_entity_id:"POL-012",name:"瑟露維亞林冠庭",type:"fixed",layer:"surface",x:1010,y:265},
- {political_entity_id:"POL-013",name:"深砧王廳",type:"fixed",layer:"surface",x:465,y:175},
- {political_entity_id:"POL-014",name:"赤牙大營",type:"fixed",layer:"surface",x:1265,y:510},
- {political_entity_id:"POL-015",name:"大汗金帳（季節性位置）",canonical_capital:"無固定都城",type:"mobile_court",layer:"surface",x:1535,y:500,note:"僅為當季汗庭地圖錨點；不建立永久首都。"},
- {political_entity_id:"POL-016",name:"霜角石圈",type:"fixed",layer:"surface",x:205,y:170},
- {political_entity_id:"POL-019",name:null,type:"none",layer:"surface",note:"無主之地沒有被共同承認的固定首都。"},
- {political_entity_id:"POL-020",name:"黑月城",type:"fixed",layer:"subterranean",x:490,y:210}
+ {political_entity_id:"POL-001",name:"瑟倫堡",type:"fixed",layer:"surface",x:665,y:540},
+ {political_entity_id:"POL-002",name:"赫薩爾帝都",type:"fixed",layer:"surface",x:1145,y:500},
+ {political_entity_id:"POL-003",name:"聖冠城",type:"fixed",layer:"surface",x:835,y:385},
+ {political_entity_id:"POL-004",name:"晨鐘聖城",type:"fixed",layer:"surface",x:930,y:580},
+ {political_entity_id:"POL-007",name:"卡薩維爾",type:"fixed",layer:"surface",x:745,y:720},
+ {political_entity_id:"POL-008",name:"金衡港",type:"fixed",layer:"surface",x:950,y:975},
+ {political_entity_id:"POL-009",name:"灰刃城",type:"fixed",layer:"surface",x:1175,y:700},
+ {political_entity_id:"POL-010",name:"黑潮京",type:"fixed",layer:"surface",x:1480,y:955},
+ {political_entity_id:"POL-011",name:"藍塔城",type:"fixed",layer:"surface",x:1185,y:270},
+ {political_entity_id:"POL-012",name:"瑟露維亞林冠庭",type:"fixed",layer:"surface",x:270,y:815},
+ {political_entity_id:"POL-013",name:"深砧王廳",type:"fixed",layer:"surface",x:285,y:270},
+ {political_entity_id:"POL-014",name:"泰爾瓦隆大營",type:"fixed",layer:"surface",x:1520,y:300},
+ {political_entity_id:"POL-015",name:"白氈大汗庭（季節性位置）",canonical_capital:"無固定都城",type:"mobile_court",layer:"surface",x:850,y:225,note:"僅為當季汗庭地圖錨點；白氈汗國不建立永久首都。"},
+ {political_entity_id:"POL-016",name:"霜角石圈",type:"fixed",layer:"surface",x:825,y:100},
+ {political_entity_id:"POL-019",name:null,type:"none",layer:"surface",note:"斷境無主地沒有被共同承認的固定首都。"},
+ {political_entity_id:"POL-020",name:"黑月城",type:"fixed",layer:"subterranean",x:300,y:275}
 ];
 
 const REGION_ADJACENCY={
- "REG-01":["REG-18","REG-03","REG-04","REG-07","REG-05","REG-19"],
- "REG-02":["REG-11","REG-12","REG-03","REG-04","REG-17"],
- "REG-03":["REG-13","REG-11","REG-02","REG-04","REG-01","REG-18"],
- "REG-04":["REG-03","REG-02","REG-01","REG-06","REG-09","REG-17"],
- "REG-05":["REG-19","REG-01","REG-07","REG-06","REG-08"],
- "REG-06":["REG-05","REG-07","REG-04","REG-08","REG-10"],
- "REG-07":["REG-01","REG-05","REG-06"],
- "REG-08":["REG-05","REG-06","REG-10"],
- "REG-09":["REG-04","REG-17","REG-14","REG-20"],
- "REG-10":["REG-06","REG-08","REG-20"],
- "REG-11":["REG-13","REG-03","REG-02","REG-12"],
- "REG-12":["REG-11","REG-02","REG-14"],
- "REG-13":["REG-16","REG-18","REG-03","REG-11"],
- "REG-14":["REG-12","REG-17","REG-09","REG-15","REG-20"],
- "REG-15":["REG-14","REG-20"],
- "REG-16":["REG-13","REG-18"],
- "REG-17":["REG-02","REG-04","REG-09","REG-14"],
- "REG-18":["REG-16","REG-13","REG-03","REG-01","REG-19"],
- "REG-19":["REG-18","REG-01","REG-05"],
- "REG-20":["REG-09","REG-14","REG-15","REG-10"]
+ "REG-01":["REG-18","REG-03","REG-04","REG-07","REG-05"],
+ "REG-02":["REG-11","REG-03","REG-04","REG-17","REG-09"],
+ "REG-03":["REG-15","REG-11","REG-02","REG-04","REG-01"],
+ "REG-04":["REG-03","REG-02","REG-01","REG-07","REG-09"],
+ "REG-05":["REG-18","REG-19","REG-01","REG-07","REG-06","REG-12"],
+ "REG-06":["REG-05","REG-07","REG-09","REG-08"],
+ "REG-07":["REG-01","REG-05","REG-06","REG-04"],
+ "REG-08":["REG-06","REG-10"],
+ "REG-09":["REG-04","REG-02","REG-17","REG-20","REG-06"],
+ "REG-10":["REG-08","REG-20"],
+ "REG-11":["REG-15","REG-03","REG-02","REG-14","REG-17"],
+ "REG-12":["REG-19","REG-05"],
+ "REG-13":["REG-19","REG-18","REG-01"],
+ "REG-14":["REG-11","REG-17","REG-20"],
+ "REG-15":["REG-16","REG-03","REG-11"],
+ "REG-16":["REG-15"],
+ "REG-17":["REG-11","REG-14","REG-02","REG-09","REG-20"],
+ "REG-18":["REG-13","REG-19","REG-01","REG-05"],
+ "REG-19":["REG-13","REG-18","REG-12","REG-05"],
+ "REG-20":["REG-14","REG-17","REG-09","REG-10"]
 };
 
-/* 海岸線只描繪陸海邊界；島嶼仍保留自己的政治幾何。 */
 const COASTLINES=[
- {id:"CST-01",name:"霧冠西岸",points:[[90,90],[70,180],[80,270],[65,355],[55,450],[70,555],[55,610],[62,745],[70,810],[130,840],[220,880],[350,930]],regions:["REG-16","REG-18","REG-19","REG-05"]},
- {id:"CST-02",name:"北冠海岸",points:[[90,90],[210,80],[300,70],[420,74],[590,80],[715,92],[820,100],[950,125],[1110,150]],regions:["REG-16","REG-13","REG-11","REG-12"]},
- {id:"CST-03",name:"東風海岸",points:[[1110,150],[1180,350],[1350,330],[1660,300],[1695,380],[1740,560],[1705,610],[1600,720]],regions:["REG-12","REG-14","REG-15"]},
- {id:"CST-04",name:"南曜海岸",points:[[1600,720],[1550,860],[1500,970],[1320,1005],[1230,1020],[1090,940],[1020,900],[760,850],[590,830],[520,860],[350,930]],regions:["REG-20","REG-06","REG-05"]},
- {id:"CST-05",name:"金衡島岸",closed:true,points:[[400,900],[445,884],[520,870],[590,920],[620,950],[560,1040],[465,1020],[420,1010]],regions:["REG-08"]},
- {id:"CST-06",name:"黑潮群島外緣",closed:true,points:[[120,910],[205,897],[250,890],[330,970],[260,1050],[165,1040],[130,1030]],regions:["REG-10"]}
+ {id:"CST-01",name:"西冠海岸",points:[[90,150],[85,245],[120,320],[150,500],[70,690],[70,820],[110,900],[180,950],[270,960]],regions:["REG-13","REG-19","REG-12"]},
+ {id:"CST-02",name:"北冠海岸",points:[[90,150],[150,125],[230,120],[390,170],[620,155],[690,55],[850,42],[965,100],[1090,205],[1300,190],[1490,135],[1680,180]],regions:["REG-13","REG-15","REG-16","REG-11","REG-14"]},
+ {id:"CST-03",name:"東風海岸",points:[[1680,180],[1730,240],[1720,330],[1680,410],[1740,470],[1760,560],[1740,650],[1700,720],[1580,850]],regions:["REG-14","REG-20"]},
+ {id:"CST-04",name:"南曜海岸",points:[[1580,850],[1490,880],[1360,650],[1300,780],[1220,810],[980,760],[940,820],[810,870],[650,760],[610,820],[540,850],[420,860],[350,930],[270,960]],regions:["REG-20","REG-09","REG-06","REG-05","REG-12"]},
+ {id:"CST-05",name:"金衡自由島岸",closed:true,points:[[900,930],[940,910],[985,920],[1015,950],[1008,995],[980,1030],[935,1035],[900,1010],[885,970]],regions:["REG-08"]},
+ {id:"CST-BT01",name:"黑潮第一大島岸",closed:true,points:[[1400,900],[1460,885],[1520,900],[1560,940],[1550,990],[1500,1020],[1440,1010],[1390,970]],regions:["REG-10"]},
+ {id:"CST-BT02",name:"黑潮第二大島岸",closed:true,points:[[1600,900],[1650,890],[1700,920],[1720,970],[1690,1020],[1630,1030],[1580,990],[1585,940]],regions:["REG-10"]},
+ {id:"CST-BT03",name:"黑潮第三大島岸",closed:true,points:[[1230,930],[1280,910],[1335,925],[1360,970],[1335,1015],[1280,1030],[1235,1000],[1215,960]],regions:["REG-10"]},
+ {id:"CST-BT04",name:"黑潮第一小島岸",closed:true,points:[[1140,875],[1170,865],[1195,885],[1185,915],[1150,920]],regions:["REG-10"]},
+ {id:"CST-BT05",name:"黑潮第二小島岸",closed:true,points:[[1360,1030],[1390,1025],[1410,1050],[1390,1075],[1360,1065]],regions:["REG-10"]},
+ {id:"CST-BT06",name:"黑潮第三小島岸",closed:true,points:[[1555,1035],[1580,1030],[1600,1055],[1580,1080],[1555,1070]],regions:["REG-10"]},
+ {id:"CST-BT07",name:"黑潮第四小島岸",closed:true,points:[[1710,845],[1740,840],[1760,860],[1745,885],[1715,880]],regions:["REG-10"]},
+ {id:"CST-BT08",name:"黑潮第五小島岸",closed:true,points:[[1080,980],[1110,970],[1135,990],[1120,1020],[1090,1015]],regions:["REG-10"]}
 ];
 
 const MOUNTAIN_RANGES=[
- {id:"MNT-01",name:"石冠大山脈",tier:"continental",points:[[275,95],[320,145],[340,205],[390,245],[455,278],[520,290],[575,270],[625,220]],regions:["REG-16","REG-13","REG-18","REG-03","REG-11"],barrier:"高"},
- {id:"MNT-02",name:"藍脊高地",tier:"major",points:[[650,220],[705,230],[770,250],[835,275],[900,305],[970,340],[1040,375]],regions:["REG-11","REG-12","REG-03","REG-02"],barrier:"中高"},
- {id:"MNT-03",name:"赤牙山牆",tier:"major",points:[[1115,365],[1160,410],[1190,470],[1240,515],[1300,560],[1360,600],[1420,620]],regions:["REG-17","REG-14","REG-20","REG-15"],barrier:"高"},
- {id:"MNT-04",name:"龍脊火山弧",tier:"major",points:[[1040,845],[1120,865],[1210,890],[1300,900],[1390,880],[1470,835],[1540,770]],regions:["REG-20"],barrier:"極高"},
- {id:"MNT-05",name:"霜角山地",tier:"regional",points:[[105,115],[145,150],[185,190],[225,235],[270,280]],regions:["REG-16","REG-18"],barrier:"中高"}
+ {id:"MNT-01",name:"安威爾冠脊",tier:"continental",points:[[120,190],[180,220],[240,260],[300,300],[360,340],[420,380],[470,420]],regions:["REG-13","REG-19","REG-18"],barrier:"高"},
+ {id:"MNT-02",name:"藍脊高地",tier:"major",points:[[1030,190],[1100,230],[1170,270],[1240,315],[1300,360]],regions:["REG-11","REG-02","REG-17"],barrier:"中高"},
+ {id:"MNT-03",name:"泰爾瓦隆東北山牆",tier:"major",points:[[1370,205],[1430,250],[1490,300],[1550,350],[1610,405]],regions:["REG-14","REG-20"],barrier:"高"},
+ {id:"MNT-04",name:"龍脊火山弧",tier:"major",points:[[1370,700],[1430,730],[1500,750],[1570,730],[1640,690],[1700,620]],regions:["REG-20"],barrier:"極高"},
+ {id:"MNT-05",name:"霜角北嶺",tier:"regional",points:[[720,80],[780,75],[840,90],[900,115],[940,145]],regions:["REG-16","REG-15"],barrier:"中高"},
+ {id:"MNT-06",name:"瑟露維亞古林嶺",tier:"regional",points:[[130,760],[190,730],[260,720],[330,735],[400,770]],regions:["REG-12","REG-19"],barrier:"中"}
 ];
 
 const RIVERS=[
- {id:"RIV-01",name:"瑟倫河",source:"石冠南麓",mouth:"霧冠西岸",points:[[520,285],[510,340],[500,395],[485,450],[500,515],[500,590],[475,650],[455,720],[430,790],[385,865]],regions:["REG-13","REG-03","REG-01","REG-05"],navigable_from:[500,590]},
- {id:"RIV-02",name:"白鐘河",source:"藍脊高地",mouth:"南曜海",points:[[700,255],[710,320],[720,390],[730,460],[745,530],[770,590],[820,650],[875,705],[955,750],[1040,785]],regions:["REG-03","REG-04","REG-09"],navigable_from:[770,590]},
- {id:"RIV-03",name:"維薩河",source:"中西丘陵",mouth:"西南海灣",points:[[470,650],[455,700],[440,750],[420,805],[390,850],[350,890]],regions:["REG-01","REG-05"],navigable_from:[440,750]},
- {id:"RIV-04",name:"赫薩爾河",source:"藍脊東麓",mouth:"龍脊灣",points:[[955,330],[975,380],[1000,430],[1020,485],[1045,535],[1080,585],[1140,625],[1210,665],[1280,700]],regions:["REG-12","REG-02","REG-17","REG-14","REG-20"],navigable_from:[1045,535]},
- {id:"RIV-05",name:"草海季流",source:"東部草原",mouth:"赤牙內灣",seasonal:true,points:[[1580,355],[1530,395],[1490,445],[1450,500],[1415,555],[1375,610],[1320,665]],regions:["REG-15","REG-14"],navigable_from:null}
+ {id:"RIV-01",name:"瑟倫河",source:"安威爾冠脊東南麓",mouth:"南曜海",points:[[430,390],[470,440],[520,500],[560,560],[590,620],[600,690],[570,760],[540,830]],regions:["REG-13","REG-18","REG-01","REG-05"],navigable_from:[560,560]},
+ {id:"RIV-02",name:"白鐘河",source:"白氈草海南緣",mouth:"中央南海",points:[[850,285],[850,340],[860,400],[880,470],[910,540],[930,610],[960,700]],regions:["REG-15","REG-03","REG-04","REG-09"],navigable_from:[910,540]},
+ {id:"RIV-03",name:"維薩河",source:"西境丘陵",mouth:"西南海灣",points:[[500,500],[480,560],[470,620],[455,690],[440,760],[420,830]],regions:["REG-18","REG-05"],navigable_from:[470,620]},
+ {id:"RIV-04",name:"赫薩爾河",source:"藍脊高地",mouth:"龍脊灣",points:[[1190,350],[1180,410],[1190,470],[1210,530],[1250,590],[1300,650],[1380,700]],regions:["REG-11","REG-02","REG-17","REG-09","REG-20"],navigable_from:[1250,590]},
+ {id:"RIV-05",name:"百族季流",source:"泰爾瓦隆東北草原",mouth:"東南海",seasonal:true,points:[[1600,210],[1580,270],[1560,330],[1530,390],[1510,470],[1490,540],[1460,610]],regions:["REG-14","REG-20"],navigable_from:null}
 ];
 
 const LAKES=[
- {id:"LAK-01",name:"環鐘湖",cx:748,cy:525,rx:45,ry:24,regions:["REG-04"],outflow:"RIV-02"},
- {id:"LAK-02",name:"鏡林湖",cx:1040,cy:315,rx:52,ry:28,regions:["REG-12"],outflow:"RIV-04"},
- {id:"LAK-03",name:"黑砧高湖",cx:505,cy:220,rx:36,ry:20,regions:["REG-13"],outflow:"RIV-01"}
+ {id:"LAK-01",name:"環鐘湖",cx:910,cy:505,rx:45,ry:24,regions:["REG-04"],outflow:"RIV-02"},
+ {id:"LAK-02",name:"鏡塔湖",cx:1160,cy:305,rx:50,ry:27,regions:["REG-11"],outflow:"RIV-04"},
+ {id:"LAK-03",name:"黑砧高湖",cx:300,cy:285,rx:38,ry:21,regions:["REG-13"],outflow:"RIV-01"}
 ];
 
 const CLIMATE_BANDS=[
- {id:"CLM-01",name:"霜原高山帶",kind:"寒冷高山／苔原",regions:["REG-16","REG-13"],polygon:[[70,60],[650,55],[670,250],[520,320],[260,330],[60,280]],opacity:.23},
- {id:"CLM-02",name:"北部冷溫帶",kind:"冷涼針闊混林",regions:["REG-11","REG-12","REG-03"],polygon:[[560,70],[1160,120],[1210,390],[950,440],[700,390],[520,300]],opacity:.18},
- {id:"CLM-03",name:"西部海洋溫帶",kind:"濕潤海洋性／農牧",regions:["REG-18","REG-01","REG-19","REG-05"],polygon:[[40,250],[390,250],[590,520],[530,900],[250,960],[40,820]],opacity:.18},
- {id:"CLM-04",name:"中央溫帶河谷",kind:"溫帶大陸性／河谷",regions:["REG-02","REG-04","REG-06","REG-07","REG-09"],polygon:[[520,350],[1080,360],[1180,730],[820,890],[500,850],[470,570]],opacity:.16},
- {id:"CLM-05",name:"東部草海帶",kind:"半乾燥草原／季節風",regions:["REG-14","REG-15","REG-17"],polygon:[[1030,300],[1710,260],[1770,650],[1450,760],[1120,690]],opacity:.2},
- {id:"CLM-06",name:"南部暖濕與火山帶",kind:"暖溫帶沿海／火山雨影",regions:["REG-08","REG-10","REG-20"],polygon:[[80,820],[650,820],[900,760],[1050,720],[1630,690],[1540,1040],[90,1080]],opacity:.18}
+ {id:"CLM-01",name:"極北霜原帶",kind:"寒冷高山／苔原",regions:["REG-16","REG-15"],polygon:[[600,25],[1000,25],[1120,200],[1030,315],[690,300],[590,170]],opacity:.23},
+ {id:"CLM-02",name:"西北山地冷溫帶",kind:"高山針林／礦脈",regions:["REG-13","REG-19","REG-18"],polygon:[[60,100],[510,110],[610,470],[470,650],[140,620],[50,350]],opacity:.18},
+ {id:"CLM-03",name:"西南古林海洋帶",kind:"濕潤海洋性／古林",regions:["REG-12","REG-05"],polygon:[[40,620],[500,600],[680,850],[520,1040],[80,1030],[30,800]],opacity:.18},
+ {id:"CLM-04",name:"中央河谷溫帶",kind:"溫帶大陸性／河谷",regions:["REG-01","REG-02","REG-03","REG-04","REG-06","REG-07","REG-09"],polygon:[[480,300],[1320,300],[1400,820],[650,910],[420,660]],opacity:.16},
+ {id:"CLM-05",name:"東北草海季風帶",kind:"半乾燥草原／季節風",regions:["REG-14","REG-17"],polygon:[[1260,120],[1760,120],[1790,650],[1370,670],[1190,390]],opacity:.2},
+ {id:"CLM-06",name:"南海群島暖濕帶",kind:"暖溫帶海洋性／季風島嶼",regions:["REG-08","REG-10","REG-20"],polygon:[[840,820],[1780,800],[1790,1090],[850,1090]],opacity:.18}
 ];
 
 const ROADS=[
- {id:"RD-01",name:"王冠大道",class:"royal",points:[[190,445],[275,470],[350,515],[430,575],[500,540],[555,500],[650,475],[730,460],[800,445],[875,435]],regions:["REG-18","REG-01","REG-03","REG-02"],strategic:"連接西部封建核心與帝國商路的全天候大道"},
- {id:"RD-02",name:"聖鐘大道",class:"pilgrim",points:[[555,375],[610,420],[665,485],[730,575],[810,610],[890,635],[965,650]],regions:["REG-03","REG-04","REG-09"],strategic:"朝聖、軍隊與糧運共用的中央幹道"},
- {id:"RD-03",name:"三港商路",class:"trade",points:[[430,575],[485,650],[565,760],[630,750],[700,745],[640,825],[570,900],[510,955]],regions:["REG-01","REG-07","REG-06","REG-08"],strategic:"河港、自由都市與南方海運的主要商道"},
- {id:"RD-04",name:"北脊礦路",class:"mountain",points:[[205,170],[275,190],[340,205],[405,190],[465,175],[550,180],[625,185],[735,190]],regions:["REG-16","REG-13","REG-11"],strategic:"沿山口與礦脈修築，控制石冠與藍塔之間的高價物資流"},
- {id:"RD-05",name:"東境汗路",class:"steppe",points:[[965,650],[1035,585],[1090,475],[1175,490],[1265,510],[1350,500],[1440,495],[1535,500]],regions:["REG-09","REG-17","REG-14","REG-15"],strategic:"草原騎隊、商旅與季節性汗庭共用的移動走廊"},
- {id:"RD-06",name:"龍脊南路",class:"frontier",points:[[965,650],[1045,700],[1080,760],[1170,805],[1280,830],[1400,820],[1500,900]],regions:["REG-09","REG-20"],strategic:"繞開火山核心的南部邊境補給線"}
+ {id:"RD-01",name:"西冠大道",class:"royal",points:[[285,270],[370,360],[470,470],[525,530],[665,540],[760,500],[835,385]],regions:["REG-13","REG-19","REG-18","REG-01","REG-03"],strategic:"連接西北安威爾、斷境邊緣、西境與中央王原的主要陸路。"},
+ {id:"RD-02",name:"聖鐘大道",class:"pilgrim",points:[[835,385],[870,450],[900,520],[930,580],[1040,650],[1175,700]],regions:["REG-03","REG-04","REG-09"],strategic:"朝聖、軍隊與糧運共用的中央幹道。"},
+ {id:"RD-03",name:"三港商路",class:"trade",points:[[665,540],[700,620],[745,720],[820,810],[900,900],[950,975]],regions:["REG-01","REG-07","REG-06","REG-08"],strategic:"卡薩維爾城盟通往金衡自由港的陸海轉運主軸。"},
+ {id:"RD-04",name:"北氈牧路",class:"steppe",points:[[825,100],[840,160],[850,225],[845,300],[835,385]],regions:["REG-16","REG-15","REG-03"],strategic:"霜角南下白氈汗國與聖曜帝國的季節牧路與使節路。"},
+ {id:"RD-05",name:"東北百族商道",class:"frontier",points:[[1145,500],[1260,470],[1325,465],[1420,400],[1520,300]],regions:["REG-02","REG-17","REG-14"],strategic:"連接帝國邊防、鐵旗軍鎮與泰爾瓦隆百族部落的商旅與軍事走廊。"},
+ {id:"RD-06",name:"龍脊南路",class:"frontier",points:[[1175,700],[1270,720],[1360,700],[1460,720],[1560,680],[1650,620]],regions:["REG-09","REG-20"],strategic:"繞開火山核心的南部補給線。"},
+ {id:"RD-07",name:"西南林境路",class:"frontier",points:[[285,270],[300,400],[310,545],[290,680],[270,815]],regions:["REG-13","REG-19","REG-12"],strategic:"穿越斷境，連接安威爾西北山地與瑟露維亞西南古林的危險陸路。"}
 ];
 
 const PASSES=[
- {id:"PASS-01",name:"石冠西門",x:340,y:260,regions:["REG-13","REG-18","REG-03"],controls:["MNT-01","RD-04"],importance:"王國、矮人與西境三方共同重視的山口"},
- {id:"PASS-02",name:"藍塔隘",x:650,y:220,regions:["REG-13","REG-11","REG-03"],controls:["MNT-01","MNT-02","RD-04"],importance:"北脊礦路的最高通行點"},
- {id:"PASS-03",name:"赤牙關",x:1190,y:470,regions:["REG-17","REG-14"],controls:["MNT-03","RD-05"],importance:"鐵旗邊原進入赤牙腹地的主要軍事關隘"},
- {id:"PASS-04",name:"龍脊北口",x:1300,y:690,regions:["REG-14","REG-20"],controls:["MNT-03","MNT-04","RD-06"],importance:"火山高地北側少數可供大型隊伍通行的缺口"},
- {id:"PASS-05",name:"霜角口",x:260,y:300,regions:["REG-16","REG-18"],controls:["MNT-05"],importance:"霜角高地南下西境的傳統隘口"},
- {id:"PASS-06",name:"東門隘",x:1000,y:520,regions:["REG-02","REG-17","REG-09"],controls:["RIV-04","RD-05"],importance:"帝國東南邊防與草原商路的稅關節點"}
+ {id:"PASS-01",name:"安威爾南門",x:455,y:420,regions:["REG-13","REG-18"],controls:["MNT-01","RD-01"],importance:"西北帝國山地進入阿斯戴爾西境的主要關門。"},
+ {id:"PASS-02",name:"藍塔隘",x:1230,y:355,regions:["REG-11","REG-02"],controls:["MNT-02","RIV-04"],importance:"藍脊高地與赫薩爾河上游的學術、礦產與軍事通道。"},
+ {id:"PASS-03",name:"百族西關",x:1360,y:390,regions:["REG-14","REG-17"],controls:["MNT-03","RD-05"],importance:"鐵旗邊原進入泰爾瓦隆腹地的主要軍政、關稅與情報關隘。"},
+ {id:"PASS-04",name:"龍脊北口",x:1450,y:570,regions:["REG-14","REG-20"],controls:["MNT-03","MNT-04"],importance:"東北草原與火山高地之間少數可供大型隊伍通行的缺口。"},
+ {id:"PASS-05",name:"霜角南口",x:850,y:155,regions:["REG-16","REG-15"],controls:["MNT-05","RD-04"],importance:"霜角酋邦南下白氈汗國的唯一主要高地通道。"},
+ {id:"PASS-06",name:"東門隘",x:1270,y:430,regions:["REG-02","REG-17"],controls:["RIV-04","RD-05"],importance:"赫薩爾帝國東境與鐵旗邊原之間的稅關與軍事節點。"},
+ {id:"PASS-07",name:"斷境雙門",x:300,y:685,regions:["REG-19","REG-12"],controls:["MNT-06","RD-07"],importance:"斷境進入瑟露維亞精靈王庭的林緣狹口；商旅需依補給點與季節安全狀況通行。"}
 ];
 
-/* 國境形成理由：只記錄具有明顯地理／交通成因的關鍵邊界；其餘維持地方性界標與歷史協定。 */
 const BORDER_LOGIC=[
- {regions:["REG-13","REG-16"],type:"ridge",features:["MNT-01"],note:"以石冠大山脈主稜與高地分水嶺為界，僅霜角口周邊可穩定越境。"},
- {regions:["REG-13","REG-03"],type:"ridge",features:["MNT-01","PASS-01","PASS-02"],note:"山脊是主界線，石冠西門與藍塔隘形成少數可控的跨境孔道。"},
- {regions:["REG-11","REG-12"],type:"watershed",features:["MNT-02","LAK-02"],note:"藍脊高地與鏡林湖上游分水嶺構成北部政治分界。"},
- {regions:["REG-01","REG-03"],type:"river-valley",features:["RIV-01","RD-01"],note:"瑟倫河上游河谷兼具邊界與通道雙重作用；王冠大道沿可渡河地帶穿越。"},
- {regions:["REG-01","REG-04"],type:"river",features:["RIV-02","LAK-01"],note:"白鐘河與環鐘湖西側水系形成長期行政邊界，橋梁與渡口比直線界標更重要。"},
- {regions:["REG-04","REG-09"],type:"river-corridor",features:["RIV-02","RD-02"],note:"沿白鐘河下游分界，但聖鐘大道使兩側城鎮保持高流動性。"},
- {regions:["REG-17","REG-14"],type:"pass",features:["MNT-03","PASS-03","RD-05"],note:"赤牙山牆阻斷大部分邊界，赤牙關因此成為軍政、關稅與情報核心。"},
- {regions:["REG-14","REG-15"],type:"seasonal-corridor",features:["RIV-05","RD-05"],note:"缺乏永久高山屏障，以季節河、牧路與承認的冬夏營地劃分勢力範圍，邊界較具彈性。"},
- {regions:["REG-14","REG-20"],type:"mountain-pass",features:["MNT-03","MNT-04","PASS-04"],note:"赤牙山牆銜接龍脊火山高地，國境實際由少數可通行山口決定。"},
- {regions:["REG-15","REG-20"],type:"escarpment",features:["MNT-04"],note:"草海向火山高地急遽抬升的地形差形成自然南界，遊牧勢力通常止於可放牧坡地。"},
- {regions:["REG-16","REG-18"],type:"pass",features:["MNT-05","PASS-05"],note:"霜角山地使界線沿山腳與谷口彎折，霜角口控制主要南北往來。"},
- {regions:["REG-18","REG-19"],type:"coast-river",features:["CST-01","RIV-03"],note:"海岸濕地與維薩河支流共同形成西南界，聚落多沿較乾燥的堤地發展。"},
- {regions:["REG-02","REG-17"],type:"checkpoint",features:["RIV-04","PASS-06"],note:"赫薩爾河谷缺乏完整天然壁壘，因此東門隘與沿河稅關實際塑造國境控制線。"}
+ {regions:["REG-16","REG-15"],type:"mountain-pass",features:["MNT-05","PASS-05","RD-04"],note:"霜角酋邦居最北，高地山脊將其與南側白氈汗國分開，主要往來集中於霜角南口。"},
+ {regions:["REG-15","REG-03"],type:"seasonal-corridor",features:["RD-04","RIV-02"],note:"白氈汗國位於聖曜帝國北方；國境依冬夏牧地、白鐘河上游與固定市集帶劃分。"},
+ {regions:["REG-15","REG-11"],type:"watershed",features:["MNT-02"],note:"白氈草海東緣受藍脊高地分水嶺限制，牧路與法師領地在山麓交界。"},
+ {regions:["REG-13","REG-19"],type:"ridge-frontier",features:["MNT-01","RD-07"],note:"安威爾帝國南界沿冠脊支脈與舊礦道收束；其南側即斷境無主地。"},
+ {regions:["REG-19","REG-12"],type:"forest-frontier",features:["MNT-06","PASS-07","RD-07"],note:"斷境位於安威爾與瑟露維亞之間；古林嶺與林緣狹口構成精靈王庭北界。"},
+ {regions:["REG-13","REG-18"],type:"mountain-pass",features:["MNT-01","PASS-01","RD-01"],note:"安威爾西北山地與縮小後西境河谷以山口相接，帝國山門控制主要通行。"},
+ {regions:["REG-18","REG-01"],type:"river-valley",features:["RIV-01","RD-01"],note:"西境河谷已縮成洛文周邊狹長行政帶，瑟倫河谷直接銜接阿斯戴爾中央王原。"},
+ {regions:["REG-03","REG-11"],type:"ridge",features:["MNT-02"],note:"聖曜東北界與藍塔高地以分水嶺和塔區界碑區分。"},
+ {regions:["REG-11","REG-14"],type:"highland-steppe",features:["MNT-02","MNT-03"],note:"藍塔高地向東轉為泰爾瓦隆東北草原，兩側以高地脊線與季節市集確認邊界。"},
+ {regions:["REG-14","REG-17"],type:"pass",features:["MNT-03","PASS-03","RD-05"],note:"泰爾瓦隆西界受東北山牆約束，百族西關控制鐵旗邊原的主要入口。"},
+ {regions:["REG-14","REG-20"],type:"mountain-pass",features:["MNT-03","MNT-04","PASS-04"],note:"泰爾瓦隆南界銜接龍脊火山高地，實際國境由可放牧坡地與少數山口決定。"},
+ {regions:["REG-02","REG-17"],type:"checkpoint",features:["RIV-04","PASS-06","RD-05"],note:"赫薩爾河谷缺乏完整天然壁壘，因此東門隘與沿河稅關塑造國境控制線。"},
+ {regions:["REG-04","REG-09"],type:"river-corridor",features:["RIV-02","RD-02"],note:"白鐘河下游既是行政分界也是交通主軸，橋梁與渡口形成高密度控制點。"},
+ {regions:["REG-05","REG-12"],type:"forest-coast",features:["MNT-06","CST-04"],note:"阿斯戴爾維薩南境與瑟露維亞西南古林在丘陵林線與南岸河口交界。"},
+ {regions:["REG-08","REG-10"],type:"maritime-border",features:["CST-05","CST-BT03"],note:"金衡自由島與黑潮群島隔海相望，雙方以航道、燈塔與商約界定海上執法範圍，互不主張對方領土。"}
 ];
 
 const POLITICAL_NOTES={
- "POL-001":"阿斯戴爾王國主權涵蓋中央王原、西境河谷與維薩南境；洛文城與維薩城為區域行政中樞，不再是獨立政治體首都。西北界主要受瑟倫河谷、霜角山地與石冠山地交通限制。",
- "POL-007":"卡薩維爾與維爾河諸城構成同一自由城盟；卡薩維爾為共同議會所在地，維爾港是河海交通與橋關中樞。",
- "POL-008":"金衡自由都市主權包含金衡群島與黑潮群島；黑潮船長議會保有港灣自治但不具獨立主權。",
- "POL-013":"石冠氏族王國控制地表山口、主要山廳與礦道；REG-13更深層另有黑月深庭主權。地表邊界大多順山脊與礦路關口。",
- "POL-015":"疆域按主要季節牧路、草場與承認範圍呈現，不代表固定城牆式邊界；與南方火山高地的界線以可放牧坡地為準。",
- "POL-019":"邊界代表長期無穩定主權的斷境荒野，不代表統一政府有效控制；道路、河谷與補給點的實際影響高於紙面界線。",
- "POL-020":"地下主權層；與POL-013在部分深層礦脈存在爭議，不應畫成地表獨立國境。"
+ "POL-001":"阿斯戴爾王國主權涵蓋中央王原、維薩南境與縮小後的西境河谷；洛文城為西境行政中樞而非獨立首都。",
+ "POL-007":"卡薩維爾與維爾河成員城市構成卡薩維爾自由城盟；卡薩維爾為共同議會所在地，維爾港維持河海交通與成員城自治。",
+ "POL-008":"金衡自由都市只控制REG-08金衡自由島；其為獨立貿易自由島，與黑潮群島是平等外國關係。",
+ "POL-010":"黑潮群島是獨立主權政治體；三大島、五小島及周圍小型海島共同受潮皇王庭法統與征海大將軍幕府軍政體制統合。",
+ "POL-012":"瑟露維亞精靈王庭已移至大陸西南方，以古林、丘陵與南岸作為天然疆界。",
+ "POL-013":"安威爾帝國位於大陸西北方，控制主要山廳、礦道與山口；REG-13更深層另有黑月深庭主權。",
+ "POL-014":"泰爾瓦隆百族部落位於大陸東北方，疆域依共同獵場、水源、草原與東北山牆形成。",
+ "POL-015":"白氈汗國位於霜角酋邦南方、聖曜帝國北方；邊界按季節牧路、水源與市集帶變動。",
+ "POL-016":"霜角酋邦位於大陸最北側，南下主要依賴霜角南口。",
+ "POL-019":"斷境無主地位於安威爾帝國與瑟露維亞精靈王庭之間，形成無穩定主權的破碎緩衝帶。",
+ "POL-020":"地下主權層；與安威爾帝國在REG-13部分深層礦脈存在爭議，不應畫成地表獨立國境。"
+};
+
+const ARCHIPELAGO_PROFILES={
+ "REG-10":{political_entity_id:"POL-010",major_islands:3,minor_islands:5,surrounding_islets:7,structure:"三大島＋五小島＋周圍小型海島",sovereignty:"independent"}
 };
 
 const regionById=id=>(DB.world_regions||[]).find(x=>x?.id===id)||null;
@@ -175,7 +208,7 @@ const geomForPolity=pid=>{
   const p=polityById(pid),all=geomsForPolity(pid);
   return pid==="POL-020"?all[0]:(all.find(x=>x.region_id===p?.core_region_id)||all[0]||null);
 };
-const regionIdsForPolity=pid=>geomsForPolity(pid).filter(x=>x.layer==="surface").map(x=>x.region_id);
+const regionIdsForPolity=pid=>[...new Set(geomsForPolity(pid).filter(x=>x.layer==="surface").map(x=>x.region_id))];
 const capitalForPolity=pid=>CAPITALS.find(x=>x.political_entity_id===pid)||null;
 const fmtPoints=pts=>(pts||[]).map(p=>p[0]+","+p[1]).join(" ");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -261,7 +294,7 @@ DB.world_geopolitical_map={
    {id:"surface",name:"政治＋地形",description:"政治疆域與自然地理、道路、關隘同圖顯示。"},
    {id:"physical",name:"自然地理",description:"弱化政治填色，突出海岸、山脈、河川、湖泊、道路與關隘。"},
    {id:"climate",name:"氣候帶",description:"顯示主要氣候帶與自然地理骨架，協助理解農牧、聚落與交通。"},
-   {id:"subterranean",name:"地下主權",description:"黑月深庭與石冠山脈的重疊主權；地下河與礦道仍可後續深化。"}
+   {id:"subterranean",name:"地下主權",description:"黑月深庭與安威爾西北山地的重疊主權；地下河與礦道仍可後續深化。"}
  ],
  region_geometry:REGION_GEOMETRY,
  capitals:CAPITALS,
@@ -376,10 +409,10 @@ function renderUndergroundSvg(){
  const base=REGION_GEOMETRY.find(x=>x.region_id==="REG-13"&&x.layer==="surface");
  const g=REGION_GEOMETRY.find(x=>x.political_entity_id==="POL-020");
  const c=capitalForPolity("POL-020"),p=polityById("POL-020"),r=regionById("REG-13");
- const bpts=base?base.points.map(([x,y])=>[(x-260)*3+180,(y-40)*3+120]):[];
- const gpts=g.points.map(([x,y])=>[(x-360)*3+180,(y-120)*3+120]);
- const cx=(c.x-360)*3+180,cy=(c.y-120)*3+120;
- return '<div style="overflow:auto;border:1px solid #36423d;border-radius:14px;background:#111714;padding:8px"><svg viewBox="0 0 1100 760" role="img" aria-label="石冠山脈地下主權示意" style="width:100%;min-width:680px;height:auto;display:block">'+
+ const bpts=base?base.points.map(([x,y])=>[(x-60)*1.8+100,(y-80)*1.8+80]):[];
+ const gpts=g.points.map(([x,y])=>[(x-60)*1.8+100,(y-80)*1.8+80]);
+ const cx=(c.x-60)*1.8+100,cy=(c.y-80)*1.8+80;
+ return '<div style="overflow:auto;border:1px solid #36423d;border-radius:14px;background:#111714;padding:8px"><svg viewBox="0 0 1100 760" role="img" aria-label="安威爾西北山地地下主權示意" style="width:100%;min-width:680px;height:auto;display:block">'+
    '<polygon points="'+fmtPoints(bpts)+'" fill="#242b28" stroke="#69766f" stroke-width="5" stroke-dasharray="12 9"></polygon>'+
    '<text x="520" y="90" text-anchor="middle" fill="#b9c2bd" font-size="24">'+esc(r?.name||"石冠山脈")+'地表投影</text>'+
    '<polygon points="'+fmtPoints(gpts)+'" fill="'+colorForPolity("POL-020")+'" stroke="#d1b36a" stroke-width="6" onclick="openWorldMapPolityTerritory(\'POL-020\')" style="cursor:pointer"></polygon>'+
@@ -397,14 +430,14 @@ function mapPolityRows(){
  }).join("");
 }
 function atlasLegend(mode){
- if(mode==="subterranean")return '地表虛線＝石冠山脈投影；金線＝地下主權。';
+ if(mode==="subterranean")return '地表虛線＝安威爾西北山地投影；金線＝地下主權。';
  const climate=mode==="climate"?'　半透明色帶＝主要氣候帶。':'';
  return '<b style="color:#ffe09a">●</b> 固定首都　<b style="color:#ffe09a">◆</b> 季節性統治中樞　<span style="color:#a79b83">▲</span> 山脈　<span style="color:#79b5cf">━</span> 河川／湖泊　<span style="color:#d1b36a">┄</span> 主要道路　<b style="color:#f0c96c">○</b> 國境關隘　政治虛線＝非統一主權區。'+climate;
 }
 function openWorldMapAtlas(layer){
  layer=["surface","physical","climate","subterranean"].includes(layer)?layer:"surface";
  const title=layer==="surface"?"政治＋地形":layer==="physical"?"自然地理":layer==="climate"?"氣候帶":"地下主權";
- const body='<div class="card small"><b>世界地圖・地理骨架 1.2</b><br>政治體整併後已重新推演主權版圖：阿斯戴爾統合西境與維薩南境、卡薩維爾統合維爾河、金衡統合黑潮群島；外國界沿山脊、河谷、海岸與交通孔道重新解讀，地圖右上固定標示北方。</div>'+
+ const body='<div class="card small"><b>世界地圖・地理骨架 1.3</b><br>政治版圖已依CURRENT-1.90.0重推：安威爾西北、泰爾瓦隆東北、霜角最北、白氈位於霜角與聖曜之間、精靈王庭西南、斷境置於安威爾與精靈王庭之間；西境河谷縮小，金衡與黑潮分別為獨立島國／自由島，地圖右上固定標示北方。</div>'+
    '<div class="actions"><button'+(layer==="surface"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'surface\')">政治＋地形</button><button'+(layer==="physical"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'physical\')">自然地理</button><button'+(layer==="climate"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'climate\')">氣候帶</button><button'+(layer==="subterranean"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'subterranean\')">地下主權</button></div>'+
    (layer==="subterranean"?renderUndergroundSvg():renderSurfaceSvg(layer))+
    '<div class="card small"><b>圖例</b>：'+atlasLegend(layer)+'</div>'+
@@ -470,7 +503,7 @@ globalThis.QUNLU_PREVIOUS_WORLD_MAP_HIERARCHY=previousWorldMap;
 function audit(){
  const issues=[];
  const polities=DB.political_entities||[];
- if(polities.length!==15)issues.push("政治體數量偏離CURRENT基準15："+polities.length);
+ if(polities.length!==16)issues.push("政治體數量偏離CURRENT基準16："+polities.length);
  const regionIds=new Set((DB.world_regions||[]).map(x=>x.id));
  const geomSurface=new Map(REGION_GEOMETRY.filter(x=>x.layer==="surface").map(x=>[x.region_id,x]));
  for(let i=1;i<=20;i++){
@@ -518,12 +551,24 @@ function audit(){
  if(PASSES.length<6)issues.push("國境關隘資料不足");
  if(BORDER_LOGIC.length<10)issues.push("國境地理成因覆蓋不足");
  for(const id of ["POL-005","POL-006","POL-018"])if(polityById(id))issues.push("已整併政治體仍出現在地圖："+id);
- if(regionById("REG-10")?.political_entity_id!=="POL-008")issues.push("黑潮群島未納入金衡主權");
+ if(regionById("REG-10")?.political_entity_id!=="POL-010")issues.push("黑潮群島未建立獨立POL-010主權");
+ const bt=REGION_GEOMETRY.filter(x=>x.layer==="surface"&&x.region_id==="REG-10");
+ if(bt.filter(x=>x.island_class==="major").length!==3)issues.push("黑潮群島大島數量不是3");
+ if(bt.filter(x=>x.island_class==="minor").length!==5)issues.push("黑潮群島小島數量不是5");
+ if(bt.filter(x=>x.island_class==="islet").length<5)issues.push("黑潮群島周圍小型海島不足");
+ if(REGION_GEOMETRY.filter(x=>x.layer==="surface"&&x.region_id==="REG-08").length!==1)issues.push("金衡自由島不應與黑潮合併幾何");
+ const c16=centroid(REGION_GEOMETRY.find(x=>x.layer==="surface"&&x.region_id==="REG-16")?.points||[]),c15=centroid(REGION_GEOMETRY.find(x=>x.layer==="surface"&&x.region_id==="REG-15")?.points||[]),c03=centroid(REGION_GEOMETRY.find(x=>x.layer==="surface"&&x.region_id==="REG-03")?.points||[]),c13=centroid(REGION_GEOMETRY.find(x=>x.layer==="surface"&&x.region_id==="REG-13")?.points||[]),c14=centroid(REGION_GEOMETRY.find(x=>x.layer==="surface"&&x.region_id==="REG-14")?.points||[]),c12=centroid(REGION_GEOMETRY.find(x=>x.layer==="surface"&&x.region_id==="REG-12")?.points||[]),c19=centroid(REGION_GEOMETRY.find(x=>x.layer==="surface"&&x.region_id==="REG-19")?.points||[]);
+ if(!(c16[1]<c15[1]&&c15[1]<c03[1]))issues.push("霜角／白氈／聖曜南北順序錯誤");
+ if(c13[0]>500||c13[1]>450)issues.push("安威爾帝國未位於大陸西北方");
+ if(c14[0]<1250||c14[1]>500)issues.push("泰爾瓦隆百族部落未位於大陸東北方");
+ if(c12[0]>500||c12[1]<650)issues.push("瑟露維亞精靈王庭未位於大陸西南方");
+ if(!(c19[1]>c13[1]&&c19[1]<c12[1]))issues.push("斷境無主地未置於安威爾與精靈王庭之間");
  if(!REGION_GEOMETRY.some(x=>x.political_entity_id==="POL-020"&&x.layer==="subterranean"))issues.push("黑月深庭地下主權層遺失");
  for(const rid of ["REG-17","REG-20"])if(regionById(rid)?.political_entity_id)issues.push("非統一主權區被誤升格："+rid);
  return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{
    political_entities:polities.length,
-   surface_regions:REGION_GEOMETRY.filter(x=>x.layer==="surface").length,
+   surface_regions:new Set(REGION_GEOMETRY.filter(x=>x.layer==="surface").map(x=>x.region_id)).size,
+   surface_polygons:REGION_GEOMETRY.filter(x=>x.layer==="surface").length,
    subterranean_polities:1,
    fixed_capitals:CAPITALS.filter(x=>x.type==="fixed").length,
    mobile_courts:CAPITALS.filter(x=>x.type==="mobile_court").length,
