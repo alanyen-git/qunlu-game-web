@@ -3773,12 +3773,8 @@ function companionBattleAbilityHTML(companion){
  const sp=companionSpecies(companion.speciesId);if(!sp)return "";
  const aura=sp.unique_aura||null,skill=sp.unique_skill||null;
  if(!aura&&!skill)return "";
- const auraRules=(aura?.tactical_rules||[]).map(x=>x?.rule).filter(Boolean);
- const auraDescription=auraRules.length?auraRules.join("｜"):(aura?.description||aura?.identity_summary||"出戰且未倒下時持續支援主人與隊伍；實際增益依物種、階級、羈絆與戰況計算。");
- const skillDescription=skill?.description||skill?.summary||"此專屬技能由夥伴AI依戰況自動使用，效果依物種階級與戰鬥狀態判定。";
  const coreTitle=skill?.identity?.family_title||aura?.identity?.family_title||sp.family||"夥伴戰術";
- const coreSummary=aura?.identity_summary||[skill?.identity?.ai_trait,skill?.identity?.kind_trait].filter(Boolean).join("｜")||`${sp.ai_label||"自動AI"}｜${sp.companion_kind_label||"夥伴"}`;
- return `<div class="companion-battle-kit">${aura?`<div class="small companion-aura-line"><b>光環：${aura.name||"物種光環"}</b><br><span class="companion-ability-desc">${auraDescription}</span></div>`:""}${skill?`<div class="small companion-skill-line"><b>專屬技能：${skill.name||"物種技能"}</b>［${skill.kind||"自動"}］<br><span class="companion-ability-desc">${skillDescription}</span></div>`:""}<div class="small companion-identity-depth-line"><b>戰術核心：${coreTitle}</b><br><span class="companion-ability-desc">${coreSummary}</span></div></div>`;
+ return `<div class="companion-battle-kit">${aura?`<div class="small companion-aura-line"><b>光環：${aura.name||"物種光環"}</b></div>`:""}${skill?`<div class="small companion-skill-line"><b>專屬技能：${skill.name||"物種技能"}</b>［${skill.kind||"自動"}］</div>`:""}<div class="small companion-identity-depth-line"><b>戰術核心：${coreTitle}</b></div></div>`;
 }
 function renderBattle(sharedCombatStats=null){
  const back=$("#battleBack");if(!G.battle?.active){back.classList.add("hide");document.body.classList.remove("battle-open");return}
