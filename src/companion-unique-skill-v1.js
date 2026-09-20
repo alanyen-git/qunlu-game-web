@@ -261,7 +261,7 @@ function decorateBattleSkill(){
   const c=G?.battle?.companion,sp=c?bySpecies(c.speciesId):null,skill=sp?.unique_skill;
   if(!skill){line?.remove();return}
   if(!line){line=document.createElement("div");line.className="small companion-skill-line";const aura=box.querySelector(".companion-aura-line"),hp=box.querySelector(".hpbar");aura?.after(line)||(hp?box.insertBefore(line,hp):box.appendChild(line))}
-  line.innerHTML=`<b>專屬技能：${skill.name}</b>［${skill.kind}］<br>${skill.description}`
+  line.innerHTML=`<b>專屬技能：${skill.name}</b>［${skill.kind}］`
 }
 if(typeof renderBattle==="function"){
   const baseRenderBattle=renderBattle;
