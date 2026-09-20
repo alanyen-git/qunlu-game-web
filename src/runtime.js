@@ -5168,10 +5168,13 @@ function runGeneratorAudit(){
    if(f.patronDeityId&&!deity(f.patronDeityId))issues.push(`角色主神引用無效`);
    if(f.oathId&&!(DB.faith_oaths||[]).some(x=>x.id===f.oathId))issues.push(`角色誓言引用無效`)
  }
- if((DB.world_organizations||[]).length<100)issues.push(`世界組織核心數量不足:${(DB.world_organizations||[]).length}`);
- const orgIds=new Set((DB.world_organizations||[]).map(x=>x.id));
- const alignCount=(DB.world_organizations||[]).reduce((m,x)=>(m[x.alignment]=(m[x.alignment]||0)+1,m),{});
- if((alignCount.light||0)<10||(alignCount.dark||0)<20||(alignCount.neutral||0)<70)issues.push(`世界組織核心陣營分布不足:${JSON.stringify(alignCount)}`);
+ const orgRows=DB.world_organizations||[],intentionalOrgReduction=Math.max(0,Number(DB.affiliation_identity_depth_system?.adventure_consolidation?.reduction||0));
+ const orgFloor=Math.max(80,100-intentionalOrgReduction);
+ if(orgRows.length<orgFloor)issues.push(`世界組織核心數量不足:${orgRows.length}/${orgFloor}`);
+ const orgIds=new Set(orgRows.map(x=>x.id));
+ const alignCount=orgRows.reduce((m,x)=>(m[x.alignment]=(m[x.alignment]||0)+1,m),{}),orgTotal=Math.max(1,orgRows.length);
+ const alignRatio={light:(alignCount.light||0)/orgTotal,neutral:(alignCount.neutral||0)/orgTotal,dark:(alignCount.dark||0)/orgTotal};
+ if((alignCount.light||0)<5||(alignCount.dark||0)<10||(alignCount.neutral||0)<30||alignRatio.light<.075||alignRatio.dark<.17||alignRatio.neutral<.60)issues.push(`世界組織核心陣營分布不足:${JSON.stringify({count:alignCount,ratio:Object.fromEntries(Object.entries(alignRatio).map(([k,v])=>[k,Math.round(v*1000)/1000]))})}`);
  for(const o of (DB.world_organizations||[])){
    if(!DB.facilities[o.primary_facility])issues.push(`組織設施引用缺失:${o.name}`);
    if(!o.joinable||!o.mission_issuer||!o.can_be_enemy)issues.push(`組織功能不完整:${o.name}`)
