@@ -1,11 +1,19 @@
 {
-  "version": "CURRENT-1.86.0",
-  "previous_version": "CURRENT-1.85.2",
+  "version": "CURRENT-1.87.0",
+  "previous_version": "CURRENT-1.86.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "政治階層深化：18個CURRENT政治體建立完整政治／社會階序，將禮序、爵位、王族、官職、議席與純榮譽身分和AUTH法定權能分離；政治頁同步顯示身分階序與真正權力鏈。",
+  "summary": "世界政治地圖第一階段：完成18個CURRENT政治體疆域、首都／統治中樞位置、20個地表大區邊界與黑月深庭地下重疊主權；世界地圖視窗可直接檢視疆域與首都。",
   "changelog": [
+    "WORLD-MAP-GEOPOLITICS-1.0：建立1800×1100世界政治地圖座標層，20個world_regions全部具有地表疆域幾何。",
+    "18個CURRENT政治體全部建立疆域與首都策略：16個固定首都、風鬃汗國採季節性移動汗庭錨點、斷境無主地依法不設固定首都。",
+    "黑月深庭改以subterranean地下主權層呈現，保留與石冠氏族王國在REG-13石冠山脈的重疊與爭議主權，不誤畫成地表獨立國境。",
+    "REG-10黑潮群島、REG-17鐵旗邊原、REG-20龍脊火山群維持非統一主權區，使用虛線疆域，不自動升格為國家。",
+    "阿斯戴爾王國與洛文邊侯領保持宗主／封臣關係，但兩者在世界地圖各自保留可查詢疆域與政治中樞。",
+    "世界地圖UI升級為可視化SVG政治地圖；可切換地表疆域／地下主權、點選政治體查看疆域核心、首都、相鄰政治體與非主權邊境。",
+    "新增WORLD-MAP-GEOPOLITICS完整性稽核：驗證18政治體、20地表大區、首都名稱與正史一致、首都座標位於自身疆域、邊界相鄰關係對稱、地下主權與非國家區不被誤判。",
+    "PROGRAM-REGISTRY、RELEASE-INTEGRITY與PWA離線快取同步納入世界政治地圖模組；舊存檔完全相容。",
     "POLITICAL-HIERARCHY-DEPTH-1.0：18個CURRENT政治體新增完整rank_ladder，依政體分別建立封建、帝國、神權、共和、市政、奧術、精靈、氏族、部落、汗國、邊侯、無主地與地下母系城邦階序。",
     "封建王國細分為國王、王儲／王太子、親王、公爵、侯爵、伯爵、子爵、男爵、稱號騎士、榮譽騎士；不再把侯爵／伯爵或騎士／官吏壓成同一階。",
     "三座自由都市依各自制度深化：最高市政職、市議長、資深議員／議員、行會／商館／武契代表、市政執行官、自由市民與榮譽市民；商業、河港、傭兵特色保持不同。",
@@ -117,7 +125,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.3",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.4",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -896,5 +904,19 @@
     "authority_model": "rank_ladder precedence is separate from office_nodes legal authority",
     "save_compatible": true,
     "honorary_titles_have_automatic_rights": false
+  },
+  "world_geopolitical_map_revision": "WORLD-MAP-GEOPOLITICS-1.0",
+  "world_geopolitical_map": {
+    "political_entities": 18,
+    "surface_regions": 20,
+    "fixed_capitals": 16,
+    "mobile_courts": 1,
+    "no_fixed_capital_zones": 1,
+    "subterranean_polities": 1,
+    "layers": [
+      "surface",
+      "subterranean"
+    ],
+    "save_compatible": true
   }
 }
