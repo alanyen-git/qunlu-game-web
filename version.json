@@ -1,11 +1,20 @@
 {
-  "version": "CURRENT-1.94.0",
-  "previous_version": "CURRENT-1.93.0",
+  "version": "CURRENT-1.95.0",
+  "previous_version": "CURRENT-1.94.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "新手區等規模與繁榮度CURRENT-1.94.0：5個非阿斯戴爾新手區全部對齊柳橋鎮區域的1城鎮＋3野外＋3地下城結構，新增15個地圖節點；依地方產業與交通設定繁榮度，並實際影響商店／公會資金、庫存、流動性與小幅價格。",
+  "summary": "新手區繁榮深化CURRENT-1.95.0：維持柳橋鎮1城鎮＋3野外＋3地下城的7節點基準，5個外地新手區不增加地圖數量；把地方繁榮度延伸到道路／補給敘事、野外資源容量與恢復速度、地下城敵對活動重生速度，並保留既有市場資金、庫存、流動性與價格差異。",
   "changelog": [
+    "STARTER-SETTLEMENTS-1.2：再次以SMAP-WILLOW動態基準稽核5個外地新手區，固定每區1個F級城鎮＋3張F級野外＋3座E級地下城，共7節點；本次不再增加地圖數量。",
+    "新增五區繁榮細節模型：道路維護、商隊／補貨週期、倉儲能力、委託量、資源管理方式與地下城巡查壓力各自差異化，避免只以單一繁榮分數表現。",
+    "晨穗村76：農牧與朝聖經濟使補貨快、道路與糧倉完善，可再生資源容量＋12%、恢復時間×0.85，E級地下城清理後重生時間×1.20。",
+    "苔月村64：巡林與配額使林下資源容量＋6%、恢復時間×0.82，重貨物流較弱；地下城重生時間×1.15。",
+    "鐵松村72：礦業現金流與工坊強，但採掘壓力使野外資源容量×0.95、恢復時間×1.10；礦道巡查使地下城重生時間×1.10。",
+    "風泉村48：季節市場與倉儲偏弱，旱季使資源容量×0.90、恢復時間×1.20；固定巡查不足使地下城重生時間×0.85。",
+    "潮生村63：海運周轉快但船期波動，潮間帶資源容量＋8%、恢復時間×0.90；地下城重生維持標準×1.00。",
+    "WORLD-AUTONOMY-2.1：resourceConfig讀取地點resource_economy，實際修正資源節點max與regenHoursPerUnit；地下城重生讀取dungeon_economy.respawn_hours_mult，既有地點無設定時保持1.0。",
+    "PWA快取升級v95；index靜態資源查詢版本同步CURRENT-1.95.0，舊存檔schema不變。",
     "STARTER-SETTLEMENTS-1.1：以正式SMAP-WILLOW為基準，柳橋鎮區域確認為1個F級城鎮＋3張F級野外＋3座E級地下城；5個外地新手區全部對齊相同1＋3＋3規模。",
     "在既有5個新手區再新增5張F級野外與10座E級地下城，共新增15個地圖節點；目前每個外地新手區皆為7節點，5區合計35節點（5城鎮＋15野外＋15地下城）。",
     "晨穗村繁榮度76：穀物、羊毛、朝聖補給支撐完整聖道、糧倉與定期市集；商業資金、庫存與流動性高於F級平均。",
@@ -154,7 +163,7 @@
   ],
   "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
-  "world_autonomy_revision": "WORLD-AUTONOMY-2.0",
+  "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
   "class_skill_revision": "CLASS-SKILL-OPT-1.0",
   "class_skill_passive_compat_revision": "CLASS-SKILL-PASSIVE-COMPAT-1.0",
@@ -188,7 +197,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.5",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.6",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1023,5 +1032,26 @@
     "black_tide_scope": [
       "REG-10"
     ]
+  },
+  "starter_settlement_revision": "STARTER-SETTLEMENTS-1.2",
+  "starter_prosperity_world_integration": {
+    "willow_baseline": {
+      "town": 1,
+      "wild": 3,
+      "dungeon": 3,
+      "total": 7
+    },
+    "external_regions": 5,
+    "map_count_unchanged": true,
+    "runtime_effects": [
+      "市場資金",
+      "商品庫存",
+      "市場流動性",
+      "區域價格",
+      "野外資源容量",
+      "野外資源恢復時間",
+      "地下城重生時間"
+    ],
+    "save_schema_changed": false
   }
 }
