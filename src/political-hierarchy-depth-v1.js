@@ -367,6 +367,7 @@ function audit(){
 }
 DB.political_hierarchy_depth_system.audit=audit();
 globalThis.runPoliticalHierarchyDepthAudit=audit;
+globalThis.QUNLU_CORE?.registerModule?.("src/political-hierarchy-depth-v1.js",{domain:"data",revision:REV,release:RELEASE});
 
 if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：18個CURRENT政治體新增完整政治／社會階序；封建王國細分國王、王儲／親王、公侯伯子男、稱號騎士、榮譽騎士；自由都市細分最高市政職、議長、資深議員／議員、市政官、市民與榮譽市民，並將禮序與實際AUTH權能分離。");
 })();
