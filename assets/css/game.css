@@ -1467,24 +1467,24 @@ hr{border-top-color:#394238;margin:16px 0}
 }
 
 
-/* ===== CURRENT-1.84.1 COMPANION BATTLE DESCRIPTION ===== */
+/* ===== CURRENT-1.84.2 COMPACT COMPANION BATTLE LABELS ===== */
 .companion-battle-kit{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px;
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;
 }
 .companion-battle-kit .companion-aura-line,
-.companion-battle-kit .companion-skill-line{
-  min-width:0;padding:8px 9px;border:1px solid rgba(255,255,255,.08);border-radius:10px;
-  background:rgba(255,255,255,.025);line-height:1.55;font-size:12px;overflow-wrap:anywhere;
+.companion-battle-kit .companion-skill-line,
+.companion-battle-kit .companion-identity-depth-line{
+  display:inline-flex;align-items:center;min-width:0;width:auto;
+  padding:4px 7px;border:1px solid rgba(255,255,255,.08);border-radius:999px;
+  background:rgba(255,255,255,.025);line-height:1.35;font-size:11px;overflow-wrap:anywhere;
 }
 .companion-battle-kit .companion-identity-depth-line{
-  grid-column:1/-1;min-width:0;padding:7px 9px;border-left:3px solid var(--ui-brass);
-  border-radius:8px;background:rgba(216,185,111,.06);line-height:1.5;font-size:11.5px;overflow-wrap:anywhere;
+  border-color:rgba(216,185,111,.28);background:rgba(216,185,111,.06);
 }
-.companion-battle-kit .companion-ability-desc{white-space:normal}
+.companion-trigger-state{margin-left:2px;font-weight:600}
 @media(max-width:620px){
-  .companion-battle-kit{grid-template-columns:1fr}
-  .companion-battle-kit .companion-identity-depth-line{grid-column:auto}
+  .companion-battle-kit{gap:5px}
   .companion-battle-kit .companion-aura-line,
   .companion-battle-kit .companion-skill-line,
-  .companion-battle-kit .companion-identity-depth-line{font-size:11px}
+  .companion-battle-kit .companion-identity-depth-line{font-size:10.5px}
 }
