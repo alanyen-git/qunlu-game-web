@@ -1,11 +1,11 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.84.0
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.85.0
  * RELEASE-INTEGRITY-2.3
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.84.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.84.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.85.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.85.0";
 const REV="RELEASE-INTEGRITY-2.3";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
@@ -73,6 +73,8 @@ function audit(){
   else issues.push("角色出身:稽核runtime缺失");
   if(typeof globalThis.runAffiliationIdentityDepthAudit==="function")pushResult(issues,"組織流派深化:",globalThis.runAffiliationIdentityDepthAudit());
   else issues.push("組織流派深化:稽核runtime缺失");
+  if(typeof globalThis.runAffiliationEntryGateAudit==="function")pushResult(issues,"勢力接觸門檻:",globalThis.runAffiliationEntryGateAudit());
+  else issues.push("勢力接觸門檻:稽核runtime缺失");
   if(typeof globalThis.runNameGeneratorAudit==="function")pushResult(issues,"統一命名:",globalThis.runNameGeneratorAudit());
   else issues.push("統一命名:稽核runtime缺失");
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{items:(DB.items||[]).length,monsters:(DB.monsters||[]).length,locations:(DB.locations||[]).length,companions:(DB.companion_species||[]).length,static_issue_count:STATIC_ISSUES.length}};
@@ -89,7 +91,7 @@ if(typeof base==="function"&&!base.__releaseIntegrityPatched){
 }
 DB.meta=DB.meta||{};
 DB.meta.release_integrity_revision=REV;
-DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","配方素材量／成本／成品價值平衡","鍛造／裁縫／附魔裝備物量、成對結構與材質語意","配方最終載入鎖定","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","戰鬥職業同質合併／戰術特色／實際職業修正／舊ID映射","天賦同質合併／特色軸／代價／武器條件／副職業差異／舊ID映射","技能命名／階級／元素／語義效果","技能機制／條件／連段／反擊／陷阱／群體支援runtime","角色出身合併／特色／側寫／舊存檔映射","組織／流派同質合併／世界4王國3地區2上限／歷史現況特色","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接","夥伴光環條件觸發／21種專屬技能核心／復起救援／元素調律","20種物種簽章／光環效果差異／技能名稱唯一／物種附加行為","程序載入清單與順序由PROGRAM-REGISTRY獨立稽核"],save_compatible:true,initial_audit:audit()};
+DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","配方素材量／成本／成品價值平衡","鍛造／裁縫／附魔裝備物量、成對結構與材質語意","配方最終載入鎖定","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","戰鬥職業同質合併／戰術特色／實際職業修正／舊ID映射","天賦同質合併／特色軸／代價／武器條件／副職業差異／舊ID映射","技能命名／階級／元素／語義效果","技能機制／條件／連段／反擊／陷阱／群體支援runtime","角色出身合併／特色／側寫／舊存檔映射","組織／流派同質合併／世界4王國3地區2上限／歷史現況特色","高階組織／流派劇情性接觸／入門考核／舊存檔相容","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接","夥伴光環條件觸發／21種專屬技能核心／復起救援／元素調律","20種物種簽章／光環效果差異／技能名稱唯一／物種附加行為","程序載入清單與順序由PROGRAM-REGISTRY獨立稽核"],save_compatible:true,initial_audit:audit()};
 globalThis.runReleaseIntegrityAudit=audit;
 globalThis.QUNLU_CORE?.registerModule?.("src/release-integrity-v1.js",{domain:"finalization",revision:REV,release:RELEASE});
 })();
