@@ -1,11 +1,17 @@
 {
-  "version": "CURRENT-1.85.0",
-  "previous_version": "CURRENT-1.84.4",
+  "version": "CURRENT-1.85.1",
+  "previous_version": "CURRENT-1.85.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "高階組織／流派加入流程重構：知道名稱不再等於正式接觸；E級以上需通過入門考核，D～S級還需先透過劇情、委託、奇遇、情報、引介或調查累積1～5筆有效接觸線索。",
+  "summary": "流派反同質深化：依玩法循環、技能家族、對應職業、接觸制度與會員效果重新稽核，將3組高度同質流派改為專修支系，canonical流派由49收斂為46，並保留舊ID與存檔進度映射。",
   "changelog": [
+    "AFFILIATION-IDENTITY-DEPTH-1.2：重新稽核49個canonical流派，不再只用名稱、武器或family欄位判斷，而是同時比較玩法循環、技能家族、對應職業、接觸設施、會員加成與訓練制度。",
+    "高同質合併：折門術會→沙漏時序會空間術支系；遠卷賢者塔→藍塔奧術院高等研究支系；曙光神術院→白泉治癒修會戰鬥神術支系。",
+    "保留差異化流派：曙槍騎士團／天槍龍騎團、巨刃先鋒院／裂峰高地劍團、青嵐一刀流／月影拔劍會等仍有不同高階資格、制度、加成或核心戰術，因此不強制合併。",
+    "雷煌流列入保護集合，不因技能家族或東方刀術相似度被自動整併；既有東方劍術正史與保密規則不變。",
+    "被整併流派的職業相容、技能家族、對話、情報、正史引用、接觸地點與舊稱全部匯入canonical支系；舊會員ID、研習度、聲望與貢獻由既有alias migration自動合併。",
+    "流派系統即時計數同步為物理25、魔法21、合計46；管理AI與五回合發布稽核改以合併後canonical數量驗證。",
     "AFFILIATION-ENTRY-GATE-1.0：組織／流派加入流程拆為「傳聞可見→劇情性接觸→入門考核→正式加入」，高階勢力不能再從名錄直接申請。",
     "接觸門檻隨層級遞增：F級維持一般公開加入；E級開始要求入門考核；D／C／B／A／S級正式接觸依序需要1／2／3／4／5筆有效線索。",
     "有效接觸來源接入劇情、委託／契約、組織奇遇、關聯奇遇、可靠情報、引介／對話、調查／探索與世界事件；同一筆來源不會重複計數。",
@@ -693,7 +699,7 @@
     ],
     "save_compatible": true
   },
-  "affiliation_identity_depth_revision": "AFFILIATION-IDENTITY-DEPTH-1.0",
+  "affiliation_identity_depth_revision": "AFFILIATION-IDENTITY-DEPTH-1.2",
   "affiliation_identity_depth": {
     "caps": {
       "world": 4,
@@ -715,7 +721,16 @@
       "制度／訓練文化",
       "弱點／張力"
     ],
-    "save_compatible": true
+    "save_compatible": true,
+    "canonical_before": 49,
+    "canonical_after": 46,
+    "merged_disciplines": 3,
+    "explicit_discipline_merges": {
+      "DSC-MAG-27": "DSC-MAG-05",
+      "DSC-MAG-14": "DSC-MAG-01",
+      "DSC-MAG-24": "DSC-MAG-03"
+    },
+    "merge_policy": "玩法循環＋技能家族＋職業重疊＋接觸制度＋會員效果整體高度同質才合併；同武器或同元素本身不足以合併。"
   },
   "combat_class_identity_depth_revision": "COMBAT-CLASS-IDENTITY-DEPTH-1.0",
   "combat_class_identity_depth": {
