@@ -1,17 +1,17 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.85.2
- * PROGRAM-REGISTRY-1.4
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.86.0
+ * PROGRAM-REGISTRY-1.5
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.85.2")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.85.2";
+const RELEASE=CORE?.release?.("CURRENT-1.86.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.86.0";
 const REV="PROGRAM-REGISTRY-1.4";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
   data:[
-    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/combat-class-identity-depth-v1.js","src/talent-identity-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js",
+    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/combat-class-identity-depth-v1.js","src/talent-identity-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js","src/political-hierarchy-depth-v1.js",
     "src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js",
     "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js"
   ],
@@ -101,6 +101,7 @@ function audit(){
     ["夥伴特色深化",()=>typeof globalThis.runCompanionIdentityDepthAudit==="function"&&globalThis.runCompanionIdentityDepthAudit().pass],
     ["夥伴物種簽章",()=>typeof globalThis.runCompanionSpeciesIdentityAudit==="function"&&globalThis.runCompanionSpeciesIdentityAudit().pass],
     ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"&&globalThis.runAffiliationIdentityDepthAudit().pass],
+    ["政治階層深化",()=>typeof globalThis.runPoliticalHierarchyDepthAudit==="function"&&globalThis.runPoliticalHierarchyDepthAudit().pass],
     ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"&&globalThis.runAffiliationEntryGateAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
