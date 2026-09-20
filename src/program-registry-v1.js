@@ -1,11 +1,11 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.84.0
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.85.0
  * PROGRAM-REGISTRY-1.4
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.84.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.84.0";
+const RELEASE=CORE?.release?.("CURRENT-1.85.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.85.0";
 const REV="PROGRAM-REGISTRY-1.4";
 
 const GROUPS=Object.freeze({
@@ -20,7 +20,7 @@ const GROUPS=Object.freeze({
     "src/world-autonomy-v1.js","src/runtime-patches.js"
   ],
   world:[
-    "src/affiliation-contribution-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js",
+    "src/affiliation-contribution-v1.js","src/affiliation-entry-gate-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js",
     "src/npc-depth-v1.js","src/npc-depth-v2.js","src/dungeon-depth-v2.js"
   ],
   progression:[
@@ -101,6 +101,7 @@ function audit(){
     ["夥伴特色深化",()=>typeof globalThis.runCompanionIdentityDepthAudit==="function"&&globalThis.runCompanionIdentityDepthAudit().pass],
     ["夥伴物種簽章",()=>typeof globalThis.runCompanionSpeciesIdentityAudit==="function"&&globalThis.runCompanionSpeciesIdentityAudit().pass],
     ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"&&globalThis.runAffiliationIdentityDepthAudit().pass],
+    ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"&&globalThis.runAffiliationEntryGateAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
     ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]
