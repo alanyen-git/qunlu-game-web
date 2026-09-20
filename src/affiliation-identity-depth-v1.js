@@ -1,4 +1,4 @@
-/* 群陸旅誌：組織／流派辨識度深化 CURRENT-1.85.1
+/* 群陸旅誌：組織／流派辨識度深化 CURRENT-1.85.2
  * AFFILIATION-IDENTITY-DEPTH-1.2
  * 同質勢力收斂、冒險類組織50%整併、舊ID映射、歷史／現況／特色補全與作用域上限稽核。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.85.1";
+const RELEASE="CURRENT-1.85.2";
 const REV="AFFILIATION-IDENTITY-DEPTH-1.2";
 const CAPS=Object.freeze({world:4,kingdom:3,region:2});
 const R=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
@@ -252,7 +252,7 @@ if(DB.discipline_system&&typeof DB.discipline_system==="object"){
   DB.discipline_system.rules=uniq((DB.discipline_system.rules||[]).map(rule=>String(rule)
     .replace(/維持49個canonical武技／魔法流派/g,`維持${disciplineTotal}個canonical武技／魔法流派`)
     .replace(/物理系31個、魔法系30個/g,`物理系${disciplinePhysical}個、魔法系${disciplineMagic}個`)));
-  DB.discipline_system.rules.push("CURRENT-1.85.1：玩法循環、技能家族、對應職業、接觸設施與會員加成高度重疊者改列同一傳承的專修支系；只共享技能家族但訓練目的、制度或高階資格不同者保留獨立。");
+  DB.discipline_system.rules.push("CURRENT-1.85.2：玩法循環、技能家族、對應職業、接觸設施與會員加成高度重疊者改列同一傳承的專修支系；只共享技能家族但訓練目的、制度或高階資格不同者保留獨立。");
 }
 const canonAI=find(DB.management_ai||[],"AI-DISCIPLINE-CANON");
 if(canonAI){
