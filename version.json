@@ -478,7 +478,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.4",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 54,
+    "active_src_programs": 55,
     "groups": [
       "core",
       "data",
@@ -498,7 +498,11 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.86.0：新增 political-hierarchy-depth-v1.js，正式載入 src 程序共54個；PROGRAM-REGISTRY、index.html、sw.js 與部署完整性檢查同步。"
+    "note": "CURRENT-1.86.0：新增 political-hierarchy-depth-v1.js，正式載入 src 程序共54個；PROGRAM-REGISTRY、index.html、sw.js 與部署完整性檢查同步。",
+    "last_verified_release": "CURRENT-1.87.0",
+    "notes": [
+      "CURRENT-1.87.0新增src/world-map-geopolitics-v1.js；正式入口、PROGRAM-REGISTRY與PWA清單同步為55個src程序。"
+    ]
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.1",
   "full_program_debug": {
