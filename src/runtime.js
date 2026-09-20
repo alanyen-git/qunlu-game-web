@@ -5221,7 +5221,7 @@ function runGeneratorAudit(){
    for(const mid of (c.monster_reference_ids||[]))if(!IDX.monster.has(mid))issues.push(`夥伴魔物關聯缺失:${c.name}->${mid}`)
  }
  if((G?.worldState?.integratedEvents||[]).length>60)issues.push("整合世界事件超過60筆");
- if((DB.political_entities||[]).length<18)issues.push(`政治單位核心數量不足:${(DB.political_entities||[]).length}`);
+ if((DB.political_entities||[]).length<15)issues.push(`政治單位核心數量不足:${(DB.political_entities||[]).length}`);
  if((DB.world_regions||[]).length<20)issues.push(`宏觀地區核心數量不足:${(DB.world_regions||[]).length}`);
  if((DB.culture_profiles||[]).length<20)issues.push(`文化資料核心數量不足:${(DB.culture_profiles||[]).length}`);
  const polityIds=new Set((DB.political_entities||[]).map(x=>x.id)),regionIds=new Set((DB.world_regions||[]).map(x=>x.id)),cultureIds=new Set((DB.culture_profiles||[]).map(x=>x.id));
@@ -5343,7 +5343,7 @@ function runGeneratorAudit(){
  if((G?.worldState?.sTierEvents||[]).length>20)issues.push("S級世界影響事件超過20筆");
 
  const cpo=DB.continental_political_order,ou=DB.overseas_unknown_horizons||[];
- if(!cpo||cpo.political_unit_count<20||cpo.governed_polity_count<17||cpo.regional_power_count<2||cpo.nonstate_political_zone_count<1)issues.push("大陸政治體系統缺失或核心數量不足");
+ if(!cpo||cpo.political_unit_count<17||cpo.governed_polity_count<14||cpo.regional_power_count<2||cpo.nonstate_political_zone_count<1)issues.push("大陸政治體系統缺失或核心數量不足");
  if(politicalEntity("POL-020")?.name!=="黑月深庭")issues.push("POL-020未修正為黑月深庭");
  if(politicalEntity("POL-020")?.primary_authority_archetype_id!=="AUT-005")issues.push("黑月深庭主權原型錯誤");
  if(worldRegion("REG-20")?.political_entity_id!==null)issues.push("龍脊火山群誤掛政治體");

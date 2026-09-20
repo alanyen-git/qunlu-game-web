@@ -226,6 +226,16 @@ function rewrite(v){
 }
 for(const x of [DB.locations,DB.dialogue_database?.records,DB.intel_database?.records,DB.regional_content_profiles,DB.regional_npc_archetypes,DB.regional_adventure_hooks,DB.regional_life_events,DB.regional_economy_profiles,DB.generator_material_packs,DB.management_ai])if(x)rewrite(x);
 
+/* scope_id已由舊政治體遷移後，查詢索引必須以新scope重新建立；舊key不能繼續當CURRENT索引。 */
+if(Array.isArray(DB.lore_records)){
+ const rebuilt={};
+ for(const r of DB.lore_records){
+   const key=String(r.scope_type||"world")+":"+String(r.scope_id||"global");
+   (rebuilt[key]||(rebuilt[key]=[])).push(r.id);
+ }
+ DB.lore_query_index=rebuilt;
+}
+
 function audit(){
  const issues=[];
  const active=new Set((DB.political_entities||[]).map(x=>x.id));
