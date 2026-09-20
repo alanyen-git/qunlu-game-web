@@ -186,6 +186,7 @@ if(rp10)Object.assign(rp10,{
  structure:"幕府以征海大將軍、老中評定、海防奉行與諸島大名構成軍政網絡；它是POL-010內部的實權政府，而不是另一個獨立國家。",
  authority_ceiling:"AUTH-7",political_role:"黑潮群島主權政治體內部的幕府軍政權力中心，與潮皇王庭形成法統／實權雙軌。"
 });
+if(rp10)delete rp10.legacy_polity_id;
 const rpa10=(DB.regional_power_authority_profiles||[]).find(x=>x?.regional_power_id==="RP-010");
 if(rpa10)Object.assign(rpa10,{top_office:"征海大將軍",authority_tier:"AUTH-7",sovereign_rights:false,notes:"幕府擁有POL-010授權下的軍政實權；國家主權與法統仍屬POL-010整體，而非RP-010自身。"});
 const rpr10=(DB.regional_power_relations||[]).find(x=>x?.b==="RP-010"||x?.a==="RP-010");
