@@ -1,11 +1,19 @@
 {
-  "version": "CURRENT-1.88.0",
-  "previous_version": "CURRENT-1.87.0",
+  "version": "CURRENT-1.89.0",
+  "previous_version": "CURRENT-1.88.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "世界地理骨架：在既有政治疆域上加入海岸、山脈、河川、湖泊、6個氣候帶、6條主要道路與6處國境關隘，並依天然屏障與交通孔道微調國境形狀與形成原因。",
+  "summary": "政治版圖整併：取消洛文邊侯領與維薩林貴族共和國；卡薩維爾整合維爾河城邦；金衡整合黑潮群島；主大陸CURRENT政治體由18縮減為15，世界地圖重新推演並固定標示北方。",
   "changelog": [
+    "POLITY-CONSOLIDATION-1.0：CURRENT政治體由18縮減為15；POL-005維薩林與POL-018洛文併入POL-001阿斯戴爾，POL-006維爾河併入POL-007卡薩維爾。",
+    "POL-007改為「卡薩維爾－維爾河自由城盟」：卡薩維爾為共同議會所在地，維爾港保留河海商路、橋關與成員城市自治功能。",
+    "REG-10黑潮群島正式納入POL-008金衡自由都市主權；RP-010改為「黑潮群島船長議會」海上自治勢力，保留港灣自治但不具有獨立外交與國家法統。",
+    "洛文西境與維薩南境改為阿斯戴爾直轄行政區；洛文既有NPC、情報、地點與地方官署外鍵同步遷移到POL-001，新增西境總督與王領行政鏈。",
+    "舊政治體ID保留存檔遷移：POL-005→POL-001、POL-006→POL-007、POL-018→POL-001；角色政治聲望會自動轉入新主權體。",
+    "WORLD-MAP-GEOPOLITICS-1.2：多大區同主權體採單一國名標示，各大區保留小型地理標籤；政治疆界依整併後主權重新判定。",
+    "世界地圖右上新增固定「北 N」方向箭頭；REG-17鐵旗邊原與REG-20龍脊火山群仍維持非統一主權區，黑潮群島不再以非主權虛線表示。",
+    "政治階層、發布完整性、五回合自檢、PWA快取與PROGRAM-REGISTRY載入順序同步更新；舊存檔相容。",
     "WORLD-MAP-GEOPOLITICS-1.1：政治疆域由大面積幾何直線重塑為沿山脊、分水嶺、河谷、火山高地與道路孔道形成的有機邊界。",
     "新增6段主要海岸、5條山脈／高地、5條主要河川、3座湖泊與6個氣候帶；世界地圖可切換政治＋地形、自然地理、氣候帶、地下主權。",
     "新增6條主要道路與6處國境關隘；石冠西門、藍塔隘、赤牙關、龍脊北口、霜角口、東門隘成為跨境交通與軍政節點。",
@@ -484,7 +492,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.6",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 55,
+    "active_src_programs": 56,
     "groups": [
       "core",
       "data",
@@ -504,11 +512,12 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.86.0：新增 political-hierarchy-depth-v1.js，正式載入 src 程序共54個；PROGRAM-REGISTRY、index.html、sw.js 與部署完整性檢查同步。",
-    "last_verified_release": "CURRENT-1.88.0",
+    "note": "CURRENT-1.89.0新增src/political-consolidation-v1.js，正式載入src程序共56個；PROGRAM-REGISTRY、index.html、sw.js與部署完整性檢查同步。",
+    "last_verified_release": "CURRENT-1.89.0",
     "notes": [
       "CURRENT-1.87.0新增src/world-map-geopolitics-v1.js；正式入口、PROGRAM-REGISTRY與PWA清單同步為55個src程序。",
-      "CURRENT-1.88.0：世界政治地圖升級為地理骨架1.1，不增加程序數，維持55個正式src程序。"
+      "CURRENT-1.88.0：世界政治地圖升級為地理骨架1.1，不增加程序數，維持55個正式src程序。",
+      "CURRENT-1.89.0：新增政治體整併資料層；CURRENT政治體18→15，世界地圖升級至1.2並加入北方標示。"
     ]
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.1",
@@ -940,5 +949,19 @@
     ],
     "save_compatible": true
   },
-  "world_physical_geography_revision": "WORLD-MAP-GEOPOLITICS-1.1"
+  "world_physical_geography_revision": "WORLD-MAP-GEOPOLITICS-1.1",
+  "political_consolidation_revision": "POLITY-CONSOLIDATION-1.0",
+  "world_map_geopolitics_revision": "WORLD-MAP-GEOPOLITICS-1.2",
+  "political_consolidation": {
+    "active_polities_before": 18,
+    "active_polities_after": 15,
+    "merge_map": {
+      "POL-005": "POL-001",
+      "POL-006": "POL-007",
+      "POL-018": "POL-001"
+    },
+    "black_tide_sovereignty": "POL-008",
+    "black_tide_autonomy": "RP-010",
+    "save_compatible": true
+  }
 }

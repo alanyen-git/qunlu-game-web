@@ -1,4 +1,4 @@
-/* 群陸旅誌：政治階層深化 CURRENT-1.86.0
+/* 群陸旅誌：政治階層深化 CURRENT-1.89.0
  * POLITICAL-HIERARCHY-DEPTH-1.0
  * 將政治禮序、法定權能、官職、爵位與榮譽身分分離，並為每種CURRENT政治體建立可查詢的完整階層。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.86.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.89.0")||"CURRENT-1.89.0";
 const REV="POLITICAL-HIERARCHY-DEPTH-1.0";
 
 const RANK_CLASSES=Object.freeze({
@@ -224,12 +224,12 @@ const TEMPLATES=Object.freeze({
 
 const FREE_CITY_OVERRIDES=Object.freeze({
  "POL-007":[
-   n("護城主","civic_mandate","AUTH-5",{acquisition:"市議堂與主要行會共同推舉"}),
-   n("市議長","civic_mandate","AUTH-5",{acquisition:"市議會選舉"}),
+   n("城盟議長","civic_mandate","AUTH-5",{acquisition:"卡薩維爾與維爾河諸城代表共同推舉"}),
+   n("維爾諸城議長","civic_mandate","AUTH-4",{acquisition:"維爾河成員城市代表互選"}),
    n("資深議員","civic_seat","AUTH-4"),
    n("市議員","civic_seat","AUTH-3"),
    n("行會席代表","civic_seat","AUTH-3",{track:"guild"}),
-   n("河港監／稅關長","administrative","AUTH-3"),
+   n("河港監／橋關長","administrative","AUTH-3"),
    n("自由市民","citizen","AUTH-1",{governing_default:false}),
    n("登記居民","citizen","AUTH-0",{governing_default:false}),
    n("榮譽市民","honorary","AUTH-0",{rights_note:"無自動投票、議席、司法、稅務或軍令權"})
@@ -237,6 +237,7 @@ const FREE_CITY_OVERRIDES=Object.freeze({
  "POL-008":[
    n("首席商監","civic_mandate","AUTH-5",{acquisition:"商館出資、信用與市議堂選舉"}),
    n("商議會議長","civic_mandate","AUTH-5"),
+   n("黑潮島務議長","civic_seat","AUTH-4",{track:"maritime_autonomy"}),
    n("大商館議員","civic_seat","AUTH-5",{track:"merchant"}),
    n("資深議員","civic_seat","AUTH-4"),
    n("市議員","civic_seat","AUTH-3"),
@@ -369,5 +370,5 @@ DB.political_hierarchy_depth_system.audit=audit();
 globalThis.runPoliticalHierarchyDepthAudit=audit;
 globalThis.QUNLU_CORE?.registerModule?.("src/political-hierarchy-depth-v1.js",{domain:"data",revision:REV,release:RELEASE});
 
-if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：18個CURRENT政治體新增完整政治／社會階序；封建王國細分國王、王儲／親王、公侯伯子男、稱號騎士、榮譽騎士；自由都市細分最高市政職、議長、資深議員／議員、市政官、市民與榮譽市民，並將禮序與實際AUTH權能分離。");
+if(Array.isArray(DB.integration_registry?.optimization_notes))DB.integration_registry.optimization_notes.push(RELEASE+"／"+REV+"：15個CURRENT政治體新增完整政治／社會階序；封建王國細分國王、王儲／親王、公侯伯子男、稱號騎士、榮譽騎士；自由都市細分最高市政職、議長、資深議員／議員、市政官、市民與榮譽市民，並將禮序與實際AUTH權能分離。");
 })();

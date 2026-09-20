@@ -1,5 +1,5 @@
-/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-1.88.0
- * WORLD-MAP-GEOPOLITICS-1.1
+/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-1.89.0
+ * WORLD-MAP-GEOPOLITICS-1.2
  * 在既有政治疆域底板上加入海岸、山脈、河川、湖泊、氣候帶、主要道路與國境關隘，
  * 並使政治疆界的形狀與說明受到天然屏障、分水嶺、河谷與交通控制點影響；不改旅行解鎖與存檔schema。
  */
@@ -7,8 +7,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.88.0")||"CURRENT-1.88.0";
-const REV="WORLD-MAP-GEOPOLITICS-1.1";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.89.0")||"CURRENT-1.89.0";
+const REV="WORLD-MAP-GEOPOLITICS-1.2";
 const W=1800,H=1100;
 
 /* 地表政治疆域：1.1版將原先大面積直線切割改成沿河谷、山脊、火山高地與交通走廊的折線。
@@ -24,7 +24,7 @@ const REGION_GEOMETRY=[
  {region_id:"REG-07",layer:"surface",points:[[470,720],[520,705],[565,680],[610,650],[645,720],[670,760],[635,780],[610,800],[590,830],[555,845],[520,860],[500,815],[485,765]],label:[565,760]},
  {region_id:"REG-08",layer:"surface",points:[[400,900],[445,884],[485,875],[520,870],[555,895],[590,920],[620,950],[600,995],[560,1040],[510,1028],[465,1020],[420,1010],[410,960]],label:[510,960],island:true},
  {region_id:"REG-09",layer:"surface",points:[[820,540],[900,530],[955,525],[1000,520],[1025,560],[1060,590],[1100,620],[1090,675],[1080,760],[1020,760],[960,758],[900,760],[900,710],[900,650],[875,620],[845,585]],label:[965,650]},
- {region_id:"REG-10",layer:"surface",points:[[120,910],[160,902],[205,897],[250,890],[290,920],[330,970],[305,1010],[260,1050],[210,1045],[165,1040],[130,1030],[115,980]],label:[220,975],island:true,nonstate:true},
+ {region_id:"REG-10",layer:"surface",points:[[120,910],[160,902],[205,897],[250,890],[290,920],[330,970],[305,1010],[260,1050],[210,1045],[165,1040],[130,1030],[115,980]],label:[220,975],island:true},
  {region_id:"REG-11",layer:"surface",points:[[590,80],[650,85],[715,92],[770,96],[820,100],[842,150],[862,205],[890,260],[865,285],[830,312],[770,340],[730,295],[690,255],[650,220],[625,145]],label:[735,190]},
  {region_id:"REG-12",layer:"surface",points:[[820,100],[880,112],[950,125],[1020,138],[1110,150],[1130,200],[1150,260],[1180,350],[1135,365],[1085,385],[1050,420],[1000,395],[945,365],[890,330],[865,285],[890,260],[862,205],[842,150]],label:[1010,265]},
  {region_id:"REG-13",layer:"surface",points:[[300,70],[355,72],[420,74],[500,76],[590,80],[625,145],[650,220],[610,250],[560,310],[505,295],[455,278],[400,266],[340,260],[342,225],[340,190]],label:[465,175]},
@@ -43,8 +43,6 @@ const CAPITALS=[
  {political_entity_id:"POL-002",name:"赫薩爾帝都",type:"fixed",layer:"surface",x:875,y:435},
  {political_entity_id:"POL-003",name:"聖冠城",type:"fixed",layer:"surface",x:555,y:375},
  {political_entity_id:"POL-004",name:"晨鐘聖城",type:"fixed",layer:"surface",x:730,y:575},
- {political_entity_id:"POL-005",name:"維薩城",type:"fixed",layer:"surface",x:405,y:810},
- {political_entity_id:"POL-006",name:"維爾港",type:"fixed",layer:"surface",x:700,y:745},
  {political_entity_id:"POL-007",name:"卡薩維爾",type:"fixed",layer:"surface",x:565,y:760},
  {political_entity_id:"POL-008",name:"金衡港",type:"fixed",layer:"surface",x:510,y:955},
  {political_entity_id:"POL-009",name:"灰刃城",type:"fixed",layer:"surface",x:965,y:650},
@@ -54,7 +52,6 @@ const CAPITALS=[
  {political_entity_id:"POL-014",name:"赤牙大營",type:"fixed",layer:"surface",x:1265,y:510},
  {political_entity_id:"POL-015",name:"大汗金帳（季節性位置）",canonical_capital:"無固定都城",type:"mobile_court",layer:"surface",x:1535,y:500,note:"僅為當季汗庭地圖錨點；不建立永久首都。"},
  {political_entity_id:"POL-016",name:"霜角石圈",type:"fixed",layer:"surface",x:205,y:170},
- {political_entity_id:"POL-018",name:"洛文城",type:"fixed",layer:"surface",x:190,y:445},
  {political_entity_id:"POL-019",name:null,type:"none",layer:"surface",note:"無主之地沒有被共同承認的固定首都。"},
  {political_entity_id:"POL-020",name:"黑月城",type:"fixed",layer:"subterranean",x:490,y:210}
 ];
@@ -159,7 +156,9 @@ const BORDER_LOGIC=[
 ];
 
 const POLITICAL_NOTES={
- "POL-001":"阿斯戴爾王國本土；POL-018洛文邊侯領是王冠封臣但保有獨立地圖區。西北界主要受瑟倫河谷與石冠山地交通限制。",
+ "POL-001":"阿斯戴爾王國主權涵蓋中央王原、西境河谷與維薩南境；洛文城與維薩城為區域行政中樞，不再是獨立政治體首都。西北界主要受瑟倫河谷、霜角山地與石冠山地交通限制。",
+ "POL-007":"卡薩維爾與維爾河諸城構成同一自由城盟；卡薩維爾為共同議會所在地，維爾港是河海交通與橋關中樞。",
+ "POL-008":"金衡自由都市主權包含金衡群島與黑潮群島；黑潮船長議會保有港灣自治但不具獨立主權。",
  "POL-013":"石冠氏族王國控制地表山口、主要山廳與礦道；REG-13更深層另有黑月深庭主權。地表邊界大多順山脊與礦路關口。",
  "POL-015":"疆域按主要季節牧路、草場與承認範圍呈現，不代表固定城牆式邊界；與南方火山高地的界線以可放牧坡地為準。",
  "POL-019":"邊界代表長期無穩定主權的斷境荒野，不代表統一政府有效控制；道路、河谷與補給點的實際影響高於紙面界線。",
@@ -168,10 +167,15 @@ const POLITICAL_NOTES={
 
 const regionById=id=>(DB.world_regions||[]).find(x=>x?.id===id)||null;
 const polityById=id=>(DB.political_entities||[]).find(x=>x?.id===id)||null;
-const geomForPolity=pid=>{
-  if(pid==="POL-020")return REGION_GEOMETRY.find(x=>x.political_entity_id===pid);
-  const p=polityById(pid);return p?REGION_GEOMETRY.find(x=>x.region_id===p.core_region_id&&x.layer==="surface"):null;
+const geomsForPolity=pid=>{
+  if(pid==="POL-020")return REGION_GEOMETRY.filter(x=>x.political_entity_id===pid);
+  return REGION_GEOMETRY.filter(x=>x.layer==="surface"&&polityIdForGeometry(x)===pid);
 };
+const geomForPolity=pid=>{
+  const p=polityById(pid),all=geomsForPolity(pid);
+  return pid==="POL-020"?all[0]:(all.find(x=>x.region_id===p?.core_region_id)||all[0]||null);
+};
+const regionIdsForPolity=pid=>geomsForPolity(pid).filter(x=>x.layer==="surface").map(x=>x.region_id);
 const capitalForPolity=pid=>CAPITALS.find(x=>x.political_entity_id===pid)||null;
 const fmtPoints=pts=>(pts||[]).map(p=>p[0]+","+p[1]).join(" ");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -200,12 +204,18 @@ function polityIdForGeometry(g){
 function adjacentPolities(pid){
  const p=polityById(pid);if(!p)return [];
  if(pid==="POL-020")return ["POL-013"];
- const rids=REGION_ADJACENCY[p.core_region_id]||[];
- return [...new Set(rids.map(r=>regionById(r)?.political_entity_id).filter(Boolean))];
+ const own=new Set(regionIdsForPolity(pid)),out=new Set();
+ for(const rid of own)for(const n of REGION_ADJACENCY[rid]||[]){
+   const np=regionById(n)?.political_entity_id;
+   if(np&&np!==pid)out.add(np);
+ }
+ return [...out];
 }
 function adjacentNonstateRegions(pid){
- const p=polityById(pid);if(!p||pid==="POL-020")return [];
- return (REGION_ADJACENCY[p.core_region_id]||[]).filter(r=>!regionById(r)?.political_entity_id);
+ if(!polityById(pid)||pid==="POL-020")return [];
+ const own=new Set(regionIdsForPolity(pid)),out=new Set();
+ for(const rid of own)for(const n of REGION_ADJACENCY[rid]||[])if(!regionById(n)?.political_entity_id)out.add(n);
+ return [...out];
 }
 function featuresForRegion(rid){
  const rows=[];
@@ -227,9 +237,11 @@ function featureById(id){
 
 for(const p of (DB.political_entities||[])){
  const cap=capitalForPolity(p.id),geom=geomForPolity(p.id),rid=p.id==="POL-020"?"REG-13":p.core_region_id;
+ const pidRegionIds=p.id==="POL-020"?["REG-13"]:regionIdsForPolity(p.id);
  p.world_map_profile={
    revision:REV,
    geometry_region_id:rid,
+   geometry_region_ids:pidRegionIds,
    layer:geom?.layer||"surface",
    capital_type:cap?.type||"unknown",
    capital_point:cap&&Number.isFinite(cap.x)?{x:cap.x,y:cap.y}:null,
@@ -267,11 +279,12 @@ DB.world_geopolitical_map={
    "政治疆界優先沿山脊、分水嶺、主要河川、海岸與火山高地形成；只有缺乏天然屏障時才以歷史界標或協定補足。",
    "主要道路不是單純裝飾：道路穿越天然屏障的位置會形成關隘、稅關、橋頭堡與軍事爭奪點。",
    "河川可同時是邊界與交通線；可航行河段附近的政治控制密度通常高於偏遠直線邊界。",
-   "封臣政體可以有自己的地圖區與首府；宗主關係另外標示，不把封臣疆域直接抹除。",
+   "CURRENT主權以實際政治整併後的外國界為準；已取消的洛文、維薩林與維爾河舊政體只保留行政／歷史區域，不再繪成國界。",
    "遊牧汗國使用季節性汗庭錨點；草原國境依牧路、季節河與可放牧坡地呈帶狀變動，不建立虛假的永久直線。",
    "無主之地沒有固定首都；道路、補給點與水源的事實控制比名義邊界更重要。",
    "地下主權使用獨立layer，不能與地表疆域面積直接比較。",
-   "REG-10黑潮群島、REG-17鐵旗邊原、REG-20龍脊火山群維持非統一主權區，不誤升格為國家。"
+   "REG-10黑潮群島屬POL-008金衡自由都市；REG-17鐵旗邊原與REG-20龍脊火山群維持非統一主權區。",
+   "地圖固定標示北方；座標原點仍位於西北，畫面上方即北方。"
  ],
  save_compatible:true
 };
@@ -317,6 +330,9 @@ function renderPhysicalFeatures(parts,mode){
    parts.push('<g onclick="openWorldMapPass(\''+p.id+'\')" style="cursor:pointer"><circle cx="'+p.x+'" cy="'+p.y+'" r="11" fill="#1b201e" stroke="#f0c96c" stroke-width="4"></circle><text x="'+p.x+'" y="'+(p.y-17)+'" text-anchor="middle" fill="#f0d899" font-size="14" font-weight="800">'+esc(p.name)+'</text></g>');
  }
 }
+function renderNorthMarker(parts){
+ parts.push('<g aria-label="北方" pointer-events="none"><path d="M1680 150 L1680 72" stroke="#f0eee6" stroke-width="6" stroke-linecap="round"></path><polygon points="1680,48 1665,82 1695,82" fill="#f0eee6"></polygon><text x="1680" y="182" text-anchor="middle" fill="#f0eee6" font-size="22" font-weight="900">北 N</text></g>');
+}
 function renderSurfaceSvg(mode="surface"){
  const parts=['<rect width="'+W+'" height="'+H+'" fill="#0d1c22"></rect>'];
  const physicalOnly=mode==="physical"||mode==="climate";
@@ -329,10 +345,23 @@ function renderSurfaceSvg(mode="surface"){
    parts.push('<polygon points="'+fmtPoints(g.points)+'" fill="'+fill+'" fill-opacity="'+(physicalOnly?".28":".72")+'" stroke="'+(physicalOnly?"#66736d":"#91a19a")+'" stroke-width="'+(physicalOnly?2:4)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+' onclick="'+click+'" style="cursor:pointer"><title>'+esc((p?.name||region?.name||g.region_id)+(g.nonstate?"（非統一主權區）":""))+'</title></polygon>');
  }
  renderPhysicalFeatures(parts,mode);
+ renderNorthMarker(parts);
  for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
-   const region=regionById(g.region_id),pid=polityIdForGeometry(g),p=polityById(pid),lp=g.label||centroid(g.points);
-   parts.push('<text x="'+lp[0]+'" y="'+lp[1]+'" text-anchor="middle" fill="#f0eee6" font-size="'+(physicalOnly?19:23)+'" font-weight="700" pointer-events="none">'+esc(p?.name||region?.name||g.region_id)+'</text>');
-   if(!physicalOnly)parts.push('<text x="'+lp[0]+'" y="'+(lp[1]+27)+'" text-anchor="middle" fill="#b8c2bd" font-size="17" pointer-events="none">'+esc(region?.name||"")+'</text>');
+   const region=regionById(g.region_id),pid=polityIdForGeometry(g),lp=g.label||centroid(g.points);
+   parts.push('<text x="'+lp[0]+'" y="'+lp[1]+'" text-anchor="middle" fill="'+(physicalOnly?"#e7e6df":"#c9d0cc")+'" font-size="'+(physicalOnly?18:16)+'" font-weight="700" pointer-events="none">'+esc(region?.name||g.region_id)+'</text>');
+ }
+ if(!physicalOnly){
+   const grouped=new Map();
+   for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
+     const pid=polityIdForGeometry(g);if(!pid)continue;
+     if(!grouped.has(pid))grouped.set(pid,[]);
+     grouped.get(pid).push(...g.points);
+   }
+   for(const [pid,points] of grouped){
+     const p=polityById(pid);if(!p)continue;
+     const lp=centroid(points);
+     parts.push('<text x="'+lp[0]+'" y="'+(lp[1]+24)+'" text-anchor="middle" fill="#fff4d0" font-size="'+(points.length>30?25:22)+'" font-weight="900" pointer-events="none">'+esc(p.name)+'</text>');
+   }
  }
  for(const c of CAPITALS.filter(x=>x.layer==="surface"&&x.type!=="none")){
    const p=polityById(c.political_entity_id);if(!p)continue;
@@ -375,7 +404,7 @@ function atlasLegend(mode){
 function openWorldMapAtlas(layer){
  layer=["surface","physical","climate","subterranean"].includes(layer)?layer:"surface";
  const title=layer==="surface"?"政治＋地形":layer==="physical"?"自然地理":layer==="climate"?"氣候帶":"地下主權";
- const body='<div class="card small"><b>世界地圖・地理骨架 1.1</b><br>政治疆域已依海岸、山脊、分水嶺、河谷、火山高地與交通孔道微調；道路穿越屏障的位置形成關隘與稅關，而非以任意直線切割國境。</div>'+
+ const body='<div class="card small"><b>世界地圖・地理骨架 1.2</b><br>政治體整併後已重新推演主權版圖：阿斯戴爾統合西境與維薩南境、卡薩維爾統合維爾河、金衡統合黑潮群島；外國界沿山脊、河谷、海岸與交通孔道重新解讀，地圖右上固定標示北方。</div>'+
    '<div class="actions"><button'+(layer==="surface"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'surface\')">政治＋地形</button><button'+(layer==="physical"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'physical\')">自然地理</button><button'+(layer==="climate"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'climate\')">氣候帶</button><button'+(layer==="subterranean"?' class="primary"':'')+' onclick="openWorldMapAtlas(\'subterranean\')">地下主權</button></div>'+
    (layer==="subterranean"?renderUndergroundSvg():renderSurfaceSvg(layer))+
    '<div class="card small"><b>圖例</b>：'+atlasLegend(layer)+'</div>'+
@@ -387,6 +416,8 @@ function openWorldMapPolityTerritory(pid){
  const p=polityById(pid);if(!p)return;
  const c=capitalForPolity(pid),g=geomForPolity(pid),r=regionById(pid==="POL-020"?"REG-13":p.core_region_id);
  const rid=pid==="POL-020"?"REG-13":p.core_region_id;
+ const territoryRegionIds=pid==="POL-020"?["REG-13"]:regionIdsForPolity(pid);
+ const territoryNames=territoryRegionIds.map(x=>regionById(x)?.name).filter(Boolean);
  const ad=adjacentPolities(pid).map(x=>polityById(x)?.name).filter(Boolean);
  const ns=adjacentNonstateRegions(pid).map(x=>regionById(x)?.name).filter(Boolean);
  const cap=c?.type==="none"?"無固定首都":c?.type==="mobile_court"?(c.name+"；"+(c.note||"")):(c?.name||p.capital||"—");
@@ -402,7 +433,7 @@ function openWorldMapPolityTerritory(pid){
    return '<div style="margin-top:6px"><b>對 '+esc(otherName)+'</b>：'+esc(x.note)+'<br><span class="small">依據：'+esc(fs)+'</span></div>';
  }).join("");
  const body='<div class="card"><b>'+esc(p.name)+'</b> <span class="tier">'+esc(p.world_tier||"—")+'</span><br><span class="small">'+esc(p.government_type||"")+'｜'+esc(layer)+'｜'+esc(relation)+'</span></div>'+
-   '<div class="card small"><b>疆域核心</b>：'+esc(r?.name||p.core_region_id)+'<br><b>首都／統治中樞</b>：'+esc(cap)+'<br><b>相鄰政治體</b>：'+esc(ad.join("、")||"無直接政治邊界")+(ns.length?'<br><b>相鄰非主權區</b>：'+esc(ns.join("、")):"")+(note?'<br><b>主權說明</b>：'+esc(note):"")+'</div>'+
+   '<div class="card small"><b>疆域核心</b>：'+esc(r?.name||p.core_region_id)+'<br><b>所轄大區</b>：'+esc(territoryNames.join("、")||r?.name||"—")+'<br><b>首都／統治中樞</b>：'+esc(cap)+'<br><b>相鄰政治體</b>：'+esc(ad.join("、")||"無直接政治邊界")+(ns.length?'<br><b>相鄰非主權區</b>：'+esc(ns.join("、")):"")+(note?'<br><b>主權說明</b>：'+esc(note):"")+'</div>'+
    (g?.layer==="subterranean"?'':'<div class="card small"><b>自然與交通骨架</b><br>'+(featureRows||"目前無大型地理要素標記")+(climates?'<br><b>氣候</b>：'+esc(climates):"")+'</div>')+
    (borders?'<div class="card small"><b>國境形成原因</b>'+borders+'</div>':"")+
    '<div class="actions"><button onclick="openWorldMapAtlas(\''+(g?.layer==="subterranean"?"subterranean":"surface")+'\')">回地圖</button>'+(typeof openPolity==="function"?'<button onclick="openPolity(\''+p.id+'\')">政治體資料</button>':"")+(typeof openRealmRegionMap==="function"&&pid!=="POL-020"?'<button onclick="openRealmRegionMap(\'RMAP-'+p.id+'\')">區域層級</button>':"")+'</div>';
@@ -439,7 +470,7 @@ globalThis.QUNLU_PREVIOUS_WORLD_MAP_HIERARCHY=previousWorldMap;
 function audit(){
  const issues=[];
  const polities=DB.political_entities||[];
- if(polities.length!==18)issues.push("政治體數量偏離CURRENT基準18："+polities.length);
+ if(polities.length!==15)issues.push("政治體數量偏離CURRENT基準15："+polities.length);
  const regionIds=new Set((DB.world_regions||[]).map(x=>x.id));
  const geomSurface=new Map(REGION_GEOMETRY.filter(x=>x.layer==="surface").map(x=>[x.region_id,x]));
  for(let i=1;i<=20;i++){
@@ -455,7 +486,7 @@ function audit(){
    if(c.type==="fixed"&&c.name!==p.capital)issues.push("固定首都名稱與正史不一致："+p.id+" "+c.name+"!="+p.capital);
    if(c.type==="mobile_court"&&p.capital!=="無固定都城")issues.push("移動宮廷卻存在固定首都："+p.id);
    if(c.type==="none"&&p.capital!=="無固定都城")issues.push("無首都策略與正史不一致："+p.id);
-   if(c.type!=="none"&&!pointInPolygon(c.x,c.y,g.points))issues.push("首都座標不在自身疆域："+p.id);
+   if(c.type!=="none"&&!geomsForPolity(p.id).some(x=>pointInPolygon(c.x,c.y,x.points)))issues.push("首都座標不在自身疆域："+p.id);
  }
  for(const [rid,neighbors] of Object.entries(REGION_ADJACENCY)){
    for(const n of neighbors)if(!(REGION_ADJACENCY[n]||[]).includes(rid))issues.push("邊界相鄰關係非對稱："+rid+"->"+n);
@@ -486,9 +517,10 @@ function audit(){
  if(ROADS.length<6)issues.push("主要道路資料不足");
  if(PASSES.length<6)issues.push("國境關隘資料不足");
  if(BORDER_LOGIC.length<10)issues.push("國境地理成因覆蓋不足");
- if(polityById("POL-018")?.vassal_of!=="POL-001")issues.push("洛文邊侯領宗主關係遺失");
+ for(const id of ["POL-005","POL-006","POL-018"])if(polityById(id))issues.push("已整併政治體仍出現在地圖："+id);
+ if(regionById("REG-10")?.political_entity_id!=="POL-008")issues.push("黑潮群島未納入金衡主權");
  if(!REGION_GEOMETRY.some(x=>x.political_entity_id==="POL-020"&&x.layer==="subterranean"))issues.push("黑月深庭地下主權層遺失");
- for(const rid of ["REG-10","REG-17","REG-20"])if(regionById(rid)?.political_entity_id)issues.push("非統一主權區被誤升格："+rid);
+ for(const rid of ["REG-17","REG-20"])if(regionById(rid)?.political_entity_id)issues.push("非統一主權區被誤升格："+rid);
  return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{
    political_entities:polities.length,
    surface_regions:REGION_GEOMETRY.filter(x=>x.layer==="surface").length,
