@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.85.2",
-  "previous_version": "CURRENT-1.85.1",
+  "version": "CURRENT-1.86.0",
+  "previous_version": "CURRENT-1.85.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "流派反同質深化正式修正版：完整載入庫55→48，7組高同質流派改列支系；五回合自檢改為讀取合併後canonical基準，不再以舊固定數量誤判。",
+  "summary": "政治階層深化：18個CURRENT政治體建立完整政治／社會階序，將禮序、爵位、王族、官職、議席與純榮譽身分和AUTH法定權能分離；政治頁同步顯示身分階序與真正權力鏈。",
   "changelog": [
+    "POLITICAL-HIERARCHY-DEPTH-1.0：18個CURRENT政治體新增完整rank_ladder，依政體分別建立封建、帝國、神權、共和、市政、奧術、精靈、氏族、部落、汗國、邊侯、無主地與地下母系城邦階序。",
+    "封建王國細分為國王、王儲／王太子、親王、公爵、侯爵、伯爵、子爵、男爵、稱號騎士、榮譽騎士；不再把侯爵／伯爵或騎士／官吏壓成同一階。",
+    "三座自由都市依各自制度深化：最高市政職、市議長、資深議員／議員、行會／商館／武契代表、市政執行官、自由市民與榮譽市民；商業、河港、傭兵特色保持不同。",
+    "禮序與實權分離：親王、王儲等王族身分不因血統自動取得現任治理權；爵位是否具課稅、司法、徵役等權能仍由封地、官職、特許與office_nodes決定。",
+    "純榮譽身分規則：榮譽騎士、榮譽市民、榮譽盟客等預設不帶課稅、司法、軍令、任命、議席、投票、領地或世襲權。",
+    "政治UI改為先呈現「政治／身分階序」，再呈現「法定權力鏈」；AUTH-0～7仍只代表制度權能，與F–S戰力、冒險者階級及職業等級完全獨立。",
+    "新增政治階層發布稽核：檢查18個政治體階層深度、rank_class、AUTH引用、榮譽身分越權，以及封建王國與自由都市必要階級；舊存檔與既有政治委託ID保持相容。",
     "CURRENT-1.85.2修正：五回合自檢的物理／魔法／總流派數量門檻改為讀取AFFILIATION-IDENTITY-DEPTH-1.2合併後基準，不再硬編碼25／24／49。",
     "合併後正式基準為物理27、魔法21、總計48；未來合法新增可高於基準，低於基準則仍會報錯。",
     "AFFILIATION-IDENTITY-DEPTH-1.2：完整載入庫由55個流派重新稽核，不再只看名稱／family，而是比較玩法循環、技能家族、對應職業、接觸設施、會員加成與訓練制度。",
@@ -879,5 +886,14 @@
     "existing_discovery_migrates_to_contact": true,
     "existing_members_migrate_to_exam_passed": true,
     "save_compatible": true
+  },
+  "political_hierarchy_depth_revision": "POLITICAL-HIERARCHY-DEPTH-1.0",
+  "political_hierarchy_depth": {
+    "release": "CURRENT-1.86.0",
+    "polity_profiles": 18,
+    "rank_classes": 15,
+    "authority_model": "rank_ladder precedence is separate from office_nodes legal authority",
+    "save_compatible": true,
+    "honorary_titles_have_automatic_rights": false
   }
 }
