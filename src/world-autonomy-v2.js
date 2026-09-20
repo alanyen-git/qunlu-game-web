@@ -1,11 +1,11 @@
 /* 群陸旅誌：自主世界第二階段
- * WORLD-AUTONOMY-2.0
+ * WORLD-AUTONOMY-2.1
  * NPC日程／商隊物流／資源再生／地下城重生與佔領／跨區天候鋒面
  */
 (()=>{
   if(typeof DB!=="object"||!DB)return;
 
-  const REVISION="WORLD-AUTONOMY-2.0";
+  const REVISION="WORLD-AUTONOMY-2.1";
   const CFG={
     heartbeat_ms:30000,
     npc_tick_hours:1,
@@ -28,6 +28,7 @@
       "NPC位置由世界時刻決定，不等待玩家觸發。",
       "商隊離開產地時降低當地供應，抵達目的地時增加當地供應，沿用MARKET-PRICE-SYNC-2.0價格模型。",
       "採集會扣除當地資源節點容量，節點依世界時間逐步恢復。",
+      "新手區可用resource_economy依地方繁榮、產業與環境修正資源容量與恢復速度；不改變素材層級上限。",
       "地下城討伐會降低怪物壓力，之後依世界時間再生並可能改變佔領者。",
       "天候以行省為單位保存，鋒面會跨行省移動；角色所在地天候同步到既有weather欄位。",
       "離線補算只推進世界狀態，不直接傷害角色或強制發生戰鬥。"
@@ -199,11 +200,15 @@
 
   function genericResourceConfig(l,d){const rank=tierRank(d?.tier||l?.tier||"F"),max=[18,15,12,8,5,3,1][rank]||8,regen=[4,6,8,12,24,48,96][rank]||12;return {max,regen_hours_per_unit:regen}}
   function resourceKey(locationId,itemId){return `${locationId}::${itemId}`}
-  function resourceConfig(locationId,itemId){return SPECIAL_RESOURCE_CONFIG[itemId]||genericResourceConfig(getLoc(locationId),getItem(itemId))}
+  function resourceConfig(locationId,itemId){
+    const l=getLoc(locationId),base=SPECIAL_RESOURCE_CONFIG[itemId]||genericResourceConfig(l,getItem(itemId)),eco=l?.resource_economy||null;
+    const capacityMult=clampValue(Number(eco?.capacity_mult||1),.65,1.35),regenMult=clampValue(Number(eco?.regen_hours_mult||1),.65,1.5);
+    return {max:Math.max(1,Math.round(Number(base.max||1)*capacityMult)),regen_hours_per_unit:Math.max(1,Math.round(Number(base.regen_hours_per_unit||12)*regenMult))}
+  }
   function ensureResourceNode(locationId,itemId,current=nowHour()){
     const s=phase2State(),key=resourceKey(locationId,itemId),cfg=resourceConfig(locationId,itemId);
     if(!s.resourceNodes[key])s.resourceNodes[key]={locationId,itemId,current:cfg.max,max:cfg.max,regenHoursPerUnit:cfg.regen_hours_per_unit,lastHour:current,regenCarry:0};
-    const node=s.resourceNodes[key];node.max=cfg.max;node.regenHoursPerUnit=cfg.regen_hours_per_unit;if(!Number.isFinite(Number(node.current)))node.current=cfg.max;if(!Number.isFinite(Number(node.lastHour)))node.lastHour=current;if(!Number.isFinite(Number(node.regenCarry)))node.regenCarry=0;return node;
+    const node=s.resourceNodes[key];node.max=cfg.max;node.regenHoursPerUnit=cfg.regen_hours_per_unit;if(!Number.isFinite(Number(node.current)))node.current=cfg.max;node.current=Math.min(node.max,Math.max(0,Number(node.current||0)));if(!Number.isFinite(Number(node.lastHour)))node.lastHour=current;if(!Number.isFinite(Number(node.regenCarry)))node.regenCarry=0;return node;
   }
   function allResourcePairs(){const pairs=[];for(const l of (DB.locations||[]))for(const itemId of (l.gather||[]))if(getItem(itemId)?.wild_gather_eligible)pairs.push([l.id,itemId]);return pairs}
   function syncResourceNodes(force=false){
@@ -218,7 +223,7 @@
   function resourceAvailable(locationId,itemId){return Number(worldResourceNodeState(locationId,itemId)?.current||0)>0}
   function consumeResource(locationId,itemId,qty){const node=worldResourceNodeState(locationId,itemId);if(!node)return 0;const take=Math.max(0,Math.min(Number(qty||0),Number(node.current||0)));node.current-=take;node.lastHarvestHour=nowHour();if(node.current<=0)pushWorldEvent("resource_depleted",`${getLoc(locationId)?.name||locationId}的${getItem(itemId)?.name||itemId}暫時採盡，等待自然恢復。`,{locationId,itemId});return take}
 
-  function dungeonRespawnHours(tier){return ({F:24,E:30,D:36,C:48,B:72,A:120,S:240})[tier]||48}
+  function dungeonRespawnHours(tier,l=null){const base=({F:24,E:30,D:36,C:48,B:72,A:120,S:240})[tier]||48,mult=clampValue(Number(l?.dungeon_economy?.respawn_hours_mult||1),.7,1.4);return Math.max(12,Math.round(base*mult))}
   function dungeonOccupierFor(l,population){if(population<.18)return {type:"vacant",id:null,name:"低活動／近乎空置"};const monsters=(DB.monsters||[]).filter(m=>Array.isArray(m.habitat)&&m.habitat.includes(l.id));if(monsters.length){const m=monsters[Math.floor(Math.random()*monsters.length)];return {type:"monster",id:m.id,name:m.name}}if(l.tier==="B")return {type:"restricted",id:null,name:"封鎖區監管與未知活動"};return {type:"wild",id:null,name:"零散魔物與野生生物"}}
   function ensureDungeonState(locationId,current=nowHour()){
     const s=phase2State(),l=getLoc(locationId);if(!l||l.kind!=="dungeon")return null;
@@ -228,7 +233,7 @@
   function syncDungeonStates(force=false){
     const s=phase2State();if(!s)return false;const current=nowHour(),elapsed=Math.max(0,current-Number(s.lastDungeonHour||current));if(!force&&elapsed<CFG.dungeon_tick_hours)return false;
     for(const l of (DB.locations||[]).filter(x=>x.kind==="dungeon")){
-      const d=ensureDungeonState(l.id,current),delta=Math.max(0,current-Number(d.lastHour||current)),respawn=dungeonRespawnHours(l.tier);d.population=clampValue(Number(d.population||0)+delta/respawn*.35,0,1);d.lastHour=current;
+      const d=ensureDungeonState(l.id,current),delta=Math.max(0,current-Number(d.lastHour||current)),respawn=dungeonRespawnHours(l.tier,l);d.population=clampValue(Number(d.population||0)+delta/respawn*.35,0,1);d.lastHour=current;
       if(current>=Number(d.nextOccupationHour||0)){const old=d.occupier?.name||"";d.occupier=dungeonOccupierFor(l,d.population);d.nextOccupationHour=current+24;if(old&&old!==d.occupier.name)pushWorldEvent("dungeon_occupation",`${l.name}的活動主體由「${old}」轉為「${d.occupier.name}」。`,{locationId:l.id,occupier:d.occupier})}
     }
     s.lastDungeonHour=current;return true;
