@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-1.84.1",
-  "previous_version": "CURRENT-1.84.0",
+  "version": "CURRENT-1.84.2",
+  "previous_version": "CURRENT-1.84.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "修正戰鬥畫面的寵物／召喚獸資訊：光環、專屬技能與戰術核心直接顯示文字敘述，並加入舊資料 fallback。",
+  "summary": "戰鬥畫面夥伴資訊改為精簡標籤：寵物、召喚獸與契約獸只顯示光環、專屬技能與戰術核心名稱，不顯示效果文字說明。",
   "changelog": [
+    "COMPANION-BATTLE-COMPACT-1.0：戰鬥畫面的夥伴光環改為只顯示名稱，不再顯示己方增益數值與戰術文字說明。",
+    "專屬技能在戰鬥卡片只顯示技能名稱與主動／被動／輔助類型，不再展開技能 description。",
+    "戰術核心只保留核心名稱；條件實際觸發時僅顯示精簡的『觸發』狀態，不顯示機制解說。",
+    "此次變更僅調整戰鬥介面呈現；光環、技能、AI判斷、物種差異化與實際戰鬥效果全部保留。",
     "COMPANION-BATTLE-DESCRIPTION-1.0：戰鬥卡片直接渲染出戰夥伴的光環、專屬技能與戰術核心，不再依賴後載入裝飾器才出現文字。",
     "光環優先顯示物種家族、AI定位與夥伴類型的戰術規則；技能優先顯示深化後的特色、AI修正與夥伴類型敘述，舊資料缺欄位時仍提供安全文字 fallback。",
     "既有 companion-aura、companion-unique-skill、companion-identity-depth 模組保留，並更新同一組 DOM class，因此不會重複產生技能或光環卡片。",
@@ -782,5 +786,6 @@
     "save_schema_changed": false,
     "save_compatible": true
   },
-  "companion_battle_description_revision": "COMPANION-BATTLE-DESCRIPTION-1.0"
+  "companion_battle_description_revision": "COMPANION-BATTLE-DESCRIPTION-1.1",
+  "companion_battle_compact_revision": "COMPANION-BATTLE-COMPACT-1.0"
 }
