@@ -3768,6 +3768,18 @@ function skillResourceCost(s){
 }
 function skillUsesMana(s){return (s.resource||"stamina")==="mana"}
 function battleCritFromRoll(roll,critRate){const steps=Math.max(0,Math.floor(critRate/5));return steps>0&&roll>=Math.max(11,21-steps)}
+function companionBattleAbilityHTML(companion){
+ if(!companion)return "";
+ const sp=companionSpecies(companion.speciesId);if(!sp)return "";
+ const aura=sp.unique_aura||null,skill=sp.unique_skill||null;
+ if(!aura&&!skill)return "";
+ const auraRules=(aura?.tactical_rules||[]).map(x=>x?.rule).filter(Boolean);
+ const auraDescription=auraRules.length?auraRules.join("｜"):(aura?.description||aura?.identity_summary||"出戰且未倒下時持續支援主人與隊伍；實際增益依物種、階級、羈絆與戰況計算。");
+ const skillDescription=skill?.description||skill?.summary||"此專屬技能由夥伴AI依戰況自動使用，效果依物種階級與戰鬥狀態判定。";
+ const coreTitle=skill?.identity?.family_title||aura?.identity?.family_title||sp.family||"夥伴戰術";
+ const coreSummary=aura?.identity_summary||[skill?.identity?.ai_trait,skill?.identity?.kind_trait].filter(Boolean).join("｜")||`${sp.ai_label||"自動AI"}｜${sp.companion_kind_label||"夥伴"}`;
+ return `<div class="companion-battle-kit">${aura?`<div class="small companion-aura-line"><b>光環：${aura.name||"物種光環"}</b><br><span class="companion-ability-desc">${auraDescription}</span></div>`:""}${skill?`<div class="small companion-skill-line"><b>專屬技能：${skill.name||"物種技能"}</b>［${skill.kind||"自動"}］<br><span class="companion-ability-desc">${skillDescription}</span></div>`:""}<div class="small companion-identity-depth-line"><b>戰術核心：${coreTitle}</b><br><span class="companion-ability-desc">${coreSummary}</span></div></div>`;
+}
 function renderBattle(sharedCombatStats=null){
  const back=$("#battleBack");if(!G.battle?.active){back.classList.add("hide");document.body.classList.remove("battle-open");return}
  const opening=back.classList.contains("hide"),b=G.battle,e=b.enemy,c=G.character,cs=sharedCombatStats||combatStats(),php=clamp(c.hp/c.maxHp*100,0,100),ehp=clamp(e.hp/e.maxHp*100,0,100);
@@ -3777,7 +3789,7 @@ function renderBattle(sharedCombatStats=null){
  <div class="small">先攻${cs.initiative}｜移速${cs.moveSpeed}｜射程${cs.range}m｜格擋${cs.blockRate}%/${cs.blockValue}%${b.playerStaggered?"｜硬直":""}</div>
  <div class="hpbar"><i style="width:${php}%"></i></div></div>
  ${b.party?.length?`<div class="party-battle-strip">${b.party.map(m=>`<div class="party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><span>${m.roleLabel}｜AI</span><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")}</div>`:""}
- ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div><div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
+ ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div>${companionBattleAbilityHTML(b.companion)}<div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
  <div class="battleversus">VS</div>
  <div class="battleunit enemy"><b>${e.name} <span class="tier">${e.tier}</span></b><div class="small">${e.category||"敵人"}｜戰鬥回合 ${b.round}</div>
  <div>HP ${Math.max(0,Math.round(e.hp))}/${e.maxHp}</div><div class="small">先攻${Math.round(e.initiative||0)}｜移速${Math.round(e.moveSpeed||100)}｜韌性${Math.round(e.poise||0)}</div><div class="hpbar"><i style="width:${ehp}%"></i></div></div></div>
