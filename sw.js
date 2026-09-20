@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v85";
+const CACHE_NAME=CACHE_PREFIX+"v86";
 const CORE=[
   "./",
   "./index.html",
@@ -16,6 +16,7 @@ const CORE=[
   "./src/asdail-narrative-depth-v1.js",
   "./src/asdail-integration-v1.js",
   "./src/affiliation-identity-depth-v1.js",
+  "./src/political-hierarchy-depth-v1.js",
   "./src/alchemy-healing-recipe-v1.js",
   "./src/equipment-depth-v1.js",
   "./src/crafting-recipe-semantic-v1.js",
