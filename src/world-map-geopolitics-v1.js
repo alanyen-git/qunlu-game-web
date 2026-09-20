@@ -84,7 +84,7 @@ const REGION_ADJACENCY={
  "REG-10":["REG-08","REG-20"],
  "REG-11":["REG-15","REG-03","REG-02","REG-14","REG-17"],
  "REG-12":["REG-19","REG-05"],
- "REG-13":["REG-19","REG-18","REG-01"],
+ "REG-13":["REG-19","REG-18"],
  "REG-14":["REG-11","REG-17","REG-20"],
  "REG-15":["REG-16","REG-03","REG-11"],
  "REG-16":["REG-15"],

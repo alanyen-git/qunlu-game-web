@@ -5440,7 +5440,7 @@ function runGeneratorAudit(){
  if((DB.regional_powers||[]).length<2)issues.push(`區域勢力核心數量不足:${(DB.regional_powers||[]).length}`);
  for(const rp of (DB.regional_powers||[])){if(rp.recognized_sovereignty!==false)issues.push(`區域勢力誤具主權:${rp.name}`);if(politicalEntity(rp.legacy_polity_id))issues.push(`退役政體仍存在:${rp.legacy_polity_id}`)}
  for(const rid of ["REG-17"]){const r=worldRegion(rid);if(r?.political_entity_id!==null)issues.push(`區域勢力地區誤掛政體:${rid}`);if(!regionalPowersForRegion(rid).length)issues.push(`區域勢力地區缺勢力:${rid}`)}
- const blackTide=worldRegion("REG-10");if(blackTide?.political_entity_id!=="POL-008")issues.push("黑潮群島主權未併入金衡自由都市");if(!regionalPowersForRegion("REG-10").length)issues.push("黑潮群島自治勢力缺失");
+ const blackTide=worldRegion("REG-10");if(blackTide?.political_entity_id!=="POL-010")issues.push("黑潮群島主權未建立為POL-010");if(!regionalPowersForRegion("REG-10").length)issues.push("黑潮群島幕府軍政勢力缺失");
  for(const id of ["POL-005","POL-006","POL-018"])if(politicalEntity(id))issues.push(`已整併政治體仍存在:${id}`);
  for(const pid of ["POL-007","POL-008","POL-009"]){if(politicalEntity(pid)?.government_type!=="自由都市")issues.push(`自由都市類型未統整:${pid}`)}
  const disciplineCanonicalFloor=Math.max(1,Number(DB.affiliation_identity_depth_system?.discipline_consolidation?.canonical_after||49));

@@ -41,7 +41,7 @@ if(p1)Object.assign(p1,{
  identity:"阿斯戴爾王冠直轄中央王原、維薩南境與縮小後的西境河谷；洛文仍是西境行政中樞，但不再構成獨立主權。"
 });
 if(p7)Object.assign(p7,{
- name:"卡薩維爾自由城盟",government_type:"城邦聯盟",world_tier:"C",current_title:"城盟議長",
+ name:"卡薩維爾自由城盟",government_type:"自由都市",world_tier:"C",current_title:"城盟議長",
  ruling_structure:"卡薩維爾與維爾河成員城市共同組成城盟議會；卡薩維爾主持共同外交、防務與主要商路協調，各成員城市保留市政自治。",
  legal_tradition:"城市特許、河港盟約與行會慣例",
  identity:"以卡薩維爾為政治中樞、維爾河城市群為商路腹地的自由城盟。",
@@ -182,7 +182,7 @@ if(DB.world_map){
 const rp10=(DB.regional_powers||[]).find(x=>x?.id==="RP-010");
 if(rp10)Object.assign(rp10,{
  name:"黑潮幕府評定所",category:"黑潮群島幕府軍政機構",recognized_sovereignty:false,leader_title:"征海大將軍",base:"黑潮灣幕府",
- parent_polity_id:"POL-010",legacy_polity_id:"POL-010",
+ parent_polity_id:"POL-010",restored_polity_id:"POL-010",
  structure:"幕府以征海大將軍、老中評定、海防奉行與諸島大名構成軍政網絡；它是POL-010內部的實權政府，而不是另一個獨立國家。",
  authority_ceiling:"AUTH-7",political_role:"黑潮群島主權政治體內部的幕府軍政權力中心，與潮皇王庭形成法統／實權雙軌。"
 });
@@ -204,13 +204,13 @@ const upsertLore=row=>{
  const i=DB.lore_records.findIndex(x=>x?.id===row.id);
  if(i>=0)DB.lore_records[i]=row;else DB.lore_records.push(row);
 };
-upsertLore({id:"LORE-C190-P010-01",scope_type:"polity",scope_id:"POL-010",category:"founding",title:"黑潮群島雙軌政體的形成",text:"黑潮諸島原有王庭法統、武門與船團多層秩序；紀元131年前後的海上法典與武門整合，使征海大將軍幕府成為實際軍政中樞，而潮皇王庭持續維繫祭祀、冊封與群島共同法統。過往外國資料曾把幕府船團誤記為無主權的船長同盟。",verification:"current_retcon",era_id:"ERA-05",source_refs:["POL-010","RP-010","REG-10"],tags:["政治史","正史修訂"],common_knowledge:false});
+upsertLore({id:"LORE-C190-P010-01",scope_type:"polity",scope_id:"POL-010",category:"founding",title:"黑潮群島雙軌政體的形成",text:"黑潮諸島原有王庭法統、武門與船團多層秩序；紀元131年前後的海上法典與武門整合，使征海大將軍幕府成為實際軍政中樞，而潮皇王庭持續維繫祭祀、冊封與群島共同法統。過往外國資料曾把幕府船團誤記為無主權的船長同盟。",verification:"recorded",era_id:"ERA-05",source_refs:["POL-010","RP-010","REG-10"],tags:["政治史","正史修訂"],common_knowledge:false});
 upsertLore({id:"LORE-C190-P010-02",scope_type:"polity",scope_id:"POL-010",category:"governance",title:"黑潮群島的王庭與幕府",text:"潮皇依王統世襲，掌祭祀、冊封與法統；征海大將軍掌海防、稅務、司法與諸島軍政。諸島大名在幕府安堵下治理島領，同時接受王庭名義冊封。兩條權力線互相需要，但不是單一職位。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","RP-010"],tags:["政治文化","權力結構"],common_knowledge:false});
 upsertLore({id:"LORE-C190-P010-03",scope_type:"polity",scope_id:"POL-010",category:"current_context",title:"黑潮群島・紀元317年",text:"黑潮群島目前是獲承認的獨立海島政治體，由三大島、五小島與周圍小型海島構成。王庭維持法統，幕府掌實際軍政；金衡自由都市是平等的外國貿易夥伴與競爭者。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","REG-10","POL-008"],tags:["當代政治"],common_knowledge:false});
 upsertLore({id:"LORE-C190-P010-04",scope_type:"polity",scope_id:"POL-010",category:"authority_structure",title:"黑潮群島的權力層級",text:"最高層由潮皇王庭與征海大將軍幕府並立。潮皇掌法統、祭祀與冊命；大將軍掌軍政。其下為諸島大名、幕府老中與各類奉行，再下接武家、港代與島民社群。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","RP-010"],tags:["政治體","權力層級"],common_knowledge:false});
 
 const oldCurrent=(DB.lore_records||[]).find(x=>x?.id==="LORE-0315");
-if(oldCurrent){oldCurrent.category="superseded_external_record";oldCurrent.verification="superseded";oldCurrent.text="舊外國資料曾把黑潮幕府船團誤判為沒有統一主權的『黑潮船長同盟』；CURRENT正史已由POL-010黑潮群島的王庭－幕府雙軌制度取代此判讀。";}
+if(oldCurrent){oldCurrent.category="superseded_external_record";oldCurrent.verification="recorded";oldCurrent.text="舊外國資料曾把黑潮幕府船團誤判為沒有統一主權的『黑潮船長同盟』；CURRENT正史已由POL-010黑潮群島的王庭－幕府雙軌制度取代此判讀。";}
 
 if(DB.continental_political_order){
  const cpo=DB.continental_political_order;
@@ -234,7 +234,7 @@ if(DB.continental_political_order){
 
 if(DB.political_system){
  DB.political_system.version="POLITY-1.4";DB.political_system.entity_count=DB.political_entities.length;
- DB.political_system.rules=(DB.political_system.rules||[]).filter(x=>!String(x).includes("黑潮群島已納入金衡")&&!String(x).includes("卡薩維爾－維爾河")).concat([
+ DB.political_system.rules=(DB.political_system.rules||[]).filter(x=>!String(x).includes("黑潮群島已納入金衡")&&!String(x).includes("黑潮船長同盟與鐵旗")&&!String(x).includes("卡薩維爾－維爾河")).concat([
   "洛文邊侯領與維薩林貴族共和國仍退出CURRENT政治名錄，現為阿斯戴爾王國直轄區域。",
   "維爾河城市群與卡薩維爾共同構成卡薩維爾自由城盟。",
   "黑潮群島恢復為POL-010獨立主權政治體；王庭掌法統、幕府掌軍政。",
@@ -280,6 +280,14 @@ function rewrite(v){
  return v;
 }
 for(const x of [DB.locations,DB.dialogue_database?.records,DB.intel_database?.records,DB.regional_content_profiles,DB.regional_npc_archetypes,DB.regional_adventure_hooks,DB.regional_life_events,DB.regional_economy_profiles,DB.generator_material_packs,DB.management_ai])if(x)rewrite(x);
+
+if(DB.history_entity_index&&typeof DB.history_entity_index==="object"){
+ DB.history_entity_index["POL-010"]=[...new Set([...(DB.history_entity_index["POL-010"]||[]),...(DB.history_entity_index["RP-010"]||[]),...(DB.history_entity_index["REG-10"]||[])])];
+}
+if(DB.historical_relationship_index&&typeof DB.historical_relationship_index==="object"){
+ DB.historical_relationship_index["polity:POL-010"]=[...new Set([...(DB.historical_relationship_index["polity:POL-010"]||[]),...(DB.historical_relationship_index["regional_power:RP-010"]||[])])];
+}
+if(DB.lore_system&&typeof DB.lore_system==="object")DB.lore_system.record_count=(DB.lore_records||[]).length;
 
 if(Array.isArray(DB.lore_records)){
  const rebuilt={};
