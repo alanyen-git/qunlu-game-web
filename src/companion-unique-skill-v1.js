@@ -17,13 +17,13 @@ const clip=(n,a,b)=>Math.max(a,Math.min(b,n));
 const bySpecies=id=>(DB.companion_species||[]).find(x=>x?.id===id)||null;
 
 const FAMILY_PROFILE={
-  "野獸系":{active:"野性猛襲",passive:"獵性本能",support:"守群低吼"},
-  "飛行系":{active:"裂風俯衝",passive:"翔空本能",support:"翼幕護持"},
-  "魔法與植物系":{active:"靈芽脈衝",passive:"魔素根脈",support:"花靈恩澤"},
-  "龍系":{active:"龍息爆發",passive:"龍鱗本能",support:"龍威護佑"},
-  "元素系":{active:"元素脈衝",passive:"元素共鳴",support:"元素護幕"},
-  "惡魔與不死暗影系":{active:"幽蝕獵魂",passive:"冥契本能",support:"幽影庇護"},
-  "神聖與傳奇系":{active:"聖輝震擊",passive:"傳奇血脈",support:"神佑之光"}
+  "野獸系":{active:"猛撲",passive:"狩獵本能",support:"鼓舞嚎叫"},
+  "飛行系":{active:"俯衝攻擊",passive:"飛行本能",support:"空中掩護"},
+  "魔法與植物系":{active:"魔力衝擊",passive:"魔力循環",support:"自然治癒"},
+  "龍系":{active:"龍息",passive:"龍鱗防護",support:"龍族守護"},
+  "元素系":{active:"元素衝擊",passive:"元素親和",support:"元素護盾"},
+  "惡魔與不死暗影系":{active:"暗影衝擊",passive:"不死本能",support:"暗影護盾"},
+  "神聖與傳奇系":{active:"聖光衝擊",passive:"傳奇本能",support:"聖光治癒"}
 };
 
 function skillKind(sp){
@@ -39,7 +39,7 @@ function skillKind(sp){
 function suffixFor(sp,kind){
   const p=FAMILY_PROFILE[sp.family]||FAMILY_PROFILE["野獸系"];
   let suffix=kind==="主動"?p.active:kind==="被動"?p.passive:p.support;
-  if(sp.family==="元素系"&&sp.element)suffix=sp.element+(kind==="主動"?"脈衝":kind==="被動"?"共鳴":"護幕");
+  if(sp.family==="元素系"&&sp.element)suffix=sp.element+(kind==="主動"?"衝擊":kind==="被動"?"親和":"護盾");
   if(sp.family==="龍系"&&sp.element&&kind==="主動")suffix=sp.element+"龍息";
   return suffix;
 }
