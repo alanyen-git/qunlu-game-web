@@ -1,11 +1,11 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.96.3
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.96.4
  * RELEASE-INTEGRITY-2.9
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.96.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.3";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.96.4")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.4";
 const REV="RELEASE-INTEGRITY-2.9";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
