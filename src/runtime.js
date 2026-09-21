@@ -3,11 +3,11 @@ const CURRENT_VERSION=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.78.0";
 const AUDIT_INTERVAL_TURNS=5;
 DB.meta.current_version=CURRENT_VERSION;
 DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
-DB.meta.runtime_optimization_revision="RUNTIME-OPT-1.4";
+DB.meta.runtime_optimization_revision="RUNTIME-OPT-1.5";
 DB.meta.ui_runtime_revision="UI-RUNTIME-1.0";
 DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
-DB.runtime_optimization_system.version="RUNTIME-OPT-1.4";
+DB.runtime_optimization_system.version="RUNTIME-OPT-1.5";
 DB.status_system.version="STATUS-1.11";
 Object.assign(DB.status_system.definitions,{
  confusion:{name:"混亂",category:"control",cleanse:["confusion"],effect:"每回合45%無法行動，命中下降"},
@@ -24,6 +24,7 @@ DB.integration_registry.optimization_notes.push("RUNTIME-OPT-1.1：移除戰鬥�
 DB.integration_registry.optimization_notes.push("CURRENT-1.52.0／QUALITY-AUDIT-1.0：修正製作扣料、戰鬥行動驗證、狀態引用/runtime與窄螢幕可讀性；不改canonical世界內容與存檔結構。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.53.0／UI-RUNTIME-1.0：快取靜態DOM、略過相同介面重寫、批次同步背包型委託、共用戰鬥數值，並補齊彈窗鍵盤焦點；不改canonical世界內容與存檔結構。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.54.0／RUNTIME-OPT-1.4：補齊能力點與技能XP舊存檔正規化、三次教會復活、商店每日庫存及每日收購資金；不改canonical世界內容與既有角色資料。");
+DB.integration_registry.optimization_notes.push("CURRENT-2.07.1／RUNTIME-OPT-1.5：相同狀態存檔略過重複localStorage寫入、主畫面共用負重結果，降低大型存檔與背包反覆序列化／掃描成本；不改canonical世界內容與存檔schema。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
@@ -330,7 +331,7 @@ c.currentFacility=null;c.battle=null;
  normalizeAbilityPoints();normalizeRevivalState();for(const s of (c.skills||[]))normalizeSkillXp(s);G.worldState.questMarketLedger=Array.isArray(G.worldState.questMarketLedger)?G.worldState.questMarketLedger:[];for(const q of (G.quests||[])){const o=q.objective||{};if(["item","gather"].includes(o.kind)&&o.item_id)o.consume_on_turnin=true;const cap=DB.progression_system.quest_xp_by_tier[q.tier]||12;q.xp_reward=Math.min(Number(q.xp_reward||cap),cap)}syncAllQuestInventoryProgress(true);
  normalizeAffiliationMemberships();syncResourceCaps(true);persist()
 }
-let lastPersistError=null;
+let lastPersistError=null,lastPersistSerialized="";
 function renderSaveHealth(error=null){
  const el=$("#saveWarning");if(!el)return;
  if(error){el.classList.remove("hide");const msg=el.querySelector("span");if(msg)msg.textContent=`${error} 請先匯出存檔備份。`}
@@ -339,7 +340,10 @@ function renderSaveHealth(error=null){
 function persist(){
  try{
    if(!window.localStorage)throw new Error("瀏覽器未提供本機儲存空間。");
-   localStorage.setItem("chronicle_save",JSON.stringify(G));
+   const serialized=JSON.stringify(G);
+   if(serialized===lastPersistSerialized)return true;
+   localStorage.setItem("chronicle_save",serialized);
+   lastPersistSerialized=serialized;
    if(lastPersistError){lastPersistError=null;renderSaveHealth(null)}
    return true
  }catch(e){
@@ -861,7 +865,7 @@ function elementalResistances(){
  return out
 }
 function poisonResistance(){return clamp(combatStats().statusResist+talentSpecial("poisonResist"),0,95)}
-function combatStats(){
+function combatStats(sharedWeight=null){
  const e=equipmentCombat(),s=skillCombat(),b=buffCombat(),bp=battlePercentBuffs(),af=affiliationEffects(),r=raceCombat(),t=talentCombat(),ae=advancedEquipment(),ab=advancedBuffs(),ca=classCombatAdvanced(),ci=classCombatIdentityEffects(),wp=mainWeaponProfile();
  const str=effectiveStat("力量"),dex=effectiveStat("敏捷"),con=effectiveStat("體力"),intl=effectiveStat("智力"),wis=effectiveStat("意志"),cha=effectiveStat("魅力"),luck=effectiveStat("幸運");
  const cc=cls(G.character.classId),role=cc?.combat_role||"",group=wp.group;
@@ -877,7 +881,7 @@ function combatStats(){
  const attackSpeed=clamp((.82+dex*.012+e.attackSpeed+s.attackSpeed+b.attackSpeed+r.attackSpeed+t.attackSpeed)*(1+(af.attack_speed_pct+ci.attack_speed_pct)/100),.55,2.5);
  const castSpeed=clamp((.78+intl*.009+wis*.008+e.castSpeed+s.castSpeed+b.castSpeed+r.castSpeed+t.castSpeed)*(1+(af.cast_speed_pct+ci.cast_speed_pct)/100),.55,2.5);
  const carry=resourceCaps().carry+ae.carryCapacity+ab.carryCapacity+af.carryCapacity;
- const loadRatio=carry>0?calcWeight()/carry:0,overloadMove=loadRatio>1?Math.min(35,(loadRatio-1)*50):0;
+ const loadWeight=sharedWeight==null?calcWeight():sharedWeight,loadRatio=carry>0?loadWeight/carry:0,overloadMove=loadRatio>1?Math.min(35,(loadRatio-1)*50):0;
  const blockRate=clamp(Math.round(2+con*.18+e.blockRate+s.blockRate+b.blockRate+r.blockRate+t.blockRate+(ae.blockRate||0)+af.blockRate),0,75);
  const cs={
    attack:Math.round((atkBase+e.attack+s.attack+b.attack+r.attack+t.attack)*(1+(af.attack_pct+ci.attack_pct)/100)),
@@ -984,7 +988,7 @@ function resourceCard(kind,label,value,max,percent){
 }
 function renderAll(){
  if(!G)return;syncBodyScrollLock();normalizeAbilityPoints();normalizeRevivalState();syncAllQuestInventoryProgress(true);
- const c=G.character,cs=combatStats(),weight=calcWeight(),hpPct=c.maxHp?c.hp/c.maxHp*100:0,spPct=c.maxStamina?c.stamina/c.maxStamina*100:0,mpPct=c.maxMana?c.mana/c.maxMana*100:0;
+ const c=G.character,weight=calcWeight(),cs=combatStats(weight),hpPct=c.maxHp?c.hp/c.maxHp*100:0,spPct=c.maxStamina?c.stamina/c.maxStamina*100:0,mpPct=c.maxMana?c.mana/c.maxMana*100:0;
  setUIText($("#timeTop"),timeText());setUIText($("#turnTop"),G.turn);
  const here=loc(c.locationId);setUIHTML($("#locTop"),`<span class="loc-main">${here.name} <span class="tier">${here.tier}</span>｜安全${locationSafety(here)}/100 ${safetyLabel(here)}</span>`);
  setUIText($("#moneyTop"),"");
