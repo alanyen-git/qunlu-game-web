@@ -1,11 +1,11 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.96.2
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.96.3
  * PROGRAM-REGISTRY-1.9
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.96.2")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.2";
+const RELEASE=CORE?.release?.("CURRENT-1.96.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.3";
 const REV="PROGRAM-REGISTRY-1.9";
 
 const GROUPS=Object.freeze({
