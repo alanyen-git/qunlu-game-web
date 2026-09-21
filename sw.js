@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v110";
+const CACHE_NAME=CACHE_PREFIX+"v111";
 const CORE=[
   "./",
   "./index.html",
@@ -18,7 +18,7 @@ const CORE=[
   "./src/affiliation-identity-depth-v1.js",
   "./src/political-consolidation-v1.js",
   "./src/political-hierarchy-depth-v1.js",
-  "./src/starter-settlements-v1.js",
+  "./src/starter-settlements-v1.js",\n  "./src/anweir-seruvia-depth-v1.js",
   "./src/black-tide-depth-v1.js",
   "./src/tyervalon-depth-v1.js",
   "./src/blue-tower-depth-v1.js",
