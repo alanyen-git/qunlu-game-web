@@ -1,11 +1,19 @@
 {
-  "version": "CURRENT-2.01.0",
-  "previous_version": "CURRENT-2.00.0",
+  "version": "CURRENT-2.02.0",
+  "previous_version": "CURRENT-2.01.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.01.0：完整深化白氈汗國（POL-015／REG-15）；保留無固定首都與風泉村新手區，建立季移大汗庭＋五大旗帳制度，新增6大季牧／商牧區、8聚落、12野外、8地下城、22怪物、14素材、20核心NPC與8個地方組織。",
+  "summary": "CURRENT-2.02.0：完整深化聖曜帝國（POL-003／REG-03）；重構帝冠、諸侯封邑與跨境晨律加冕教權的雙軌合法性，新增8大治理區、11城鎮、16野外、10地下城、26怪物、18素材、24核心NPC，並整合10個既有／新設組織。",
   "changelog": [
+    "CURRENT-2.02.0：聖曜帝國完整深化正式接入網站；沿用POL-003／REG-03、聖冠城與既有神聖帝國正史，不建立重複政治體。",
+    "政治制度修正為「帝冠世俗主權＋諸侯封邑／盟議＋跨境晨律加冕教權」：最高牧首可影響完整加冕法統，但不直接掌握聖曜稅賦、軍隊或世俗諸侯行政。",
+    "新增聖冠直轄領、北鐘邊侯領、曜穗王領、西冠大道領、藍脊西麓侯領、赫薩爾分水領、白鐘修院帶、諸侯城堡帶八大可遊玩區域。",
+    "新增11座城鎮、16張野外地圖、10處地下城／遺構、26種F～B區域怪物、18種地方素材與24名核心NPC；B級內容限制於初代聖冠地下墓、西脊封印塔基等受控深層。",
+    "整合晨盾騎士團、金曜騎士團、諸侯盟議會三個既有組織，新增御前議政院、宰相府、誓約法院、驛政署、糧賦總署、北鐘聯防署、修院書記院，避免同質組織重複。",
+    "地方經濟接入有限糧倉、輪伐林地、採掘配額、修院節期、邊境互市、寒潮與道路承載；所有野外打獵仍須進入戰鬥，怪物掉落採棲地白名單。",
+    "新增10條區域冒險鉤子與10種生活事件，涵蓋加冕文書、諸侯軍役、北境互市、藍脊封印、修院書庫、糧賦與跨國契約。",
+    "PROGRAM-REGISTRY、RELEASE-INTEGRITY、Service Worker與PWA快取同步納入HOLY-RADIANCE-DEPTH-1.0；正式src程序由64增至65，舊存檔schema維持相容。",
     "CURRENT-2.01.0：白氈汗國完整深化正式接入網站；沿用POL-015／REG-15與既有風泉村，不建立重複政治體或破壞新手出生ID。",
     "政治制度深化為白氈大汗＋五大旗帳＋汗庭官署＋千戶百戶／營帳；大汗掌共同外交、跨旗裁議與獲授權動員，旗帳保留日常牧地與家戶治理。",
     "白氈汗國維持「無固定都城」正史；白氈大汗庭依春夏秋冬法定牧圈季移，金轅市、北氈驛、雁河市、藍脊牧關與南帳市等固定據點維持跨季服務。",
@@ -244,7 +252,7 @@
     "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
     "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
-  "content_revision": "CURRENT-2.01.0",
+  "content_revision": "CURRENT-2.02.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -280,7 +288,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v108",
+  "pwa_cache_revision": "v109",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1263,6 +1271,28 @@
       "D-WS-STONERING"
     ],
     "governance": "白氈大汗＋五大旗帳＋汗庭官署＋千戶百戶與季節營帳",
+    "save_compatible": true
+  },
+  "holy_radiance_depth_revision": "HOLY-RADIANCE-DEPTH-1.0",
+  "holy_radiance_depth": {
+    "political_entity_id": "POL-003",
+    "region_id": "REG-03",
+    "world_tier": "B",
+    "zones": 8,
+    "towns": 11,
+    "wilds": 16,
+    "dungeons": 10,
+    "monsters": 26,
+    "materials": 18,
+    "npcs": 24,
+    "organizations": 10,
+    "existing_organizations_integrated": [
+      "ORG-019",
+      "ORG-020",
+      "ORG-099"
+    ],
+    "governance": "聖冠皇帝＋帝國中央官署＋諸侯封邑／盟議；晨律最高牧首保留跨境加冕與教律權，不等於帝國日常行政隸屬",
+    "tier_model": "E～C一般內容＋受控B級皇陵／封印塔基深層",
     "save_compatible": true
   }
 }
