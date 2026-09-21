@@ -5540,7 +5540,7 @@ function runGeneratorAudit(){
    if(g.audit_status!=="PASS")issues.push(`生成器未通過系統稽核:${g.id}`);
  }
  for(const a of DB.management_ai||[])if(a.audit_status!=="PASS")issues.push(`管理AI未通過系統稽核:${a.id}`);
- const retiredPolities=new Set(["POL-010","POL-017"]);
+ const retiredPolities=new Set(["POL-017"]);
  for(const [name,rows] of [["regional_content_profiles",DB.regional_content_profiles],["regional_economy_profiles",DB.regional_economy_profiles],["regional_npc_archetypes",DB.regional_npc_archetypes],["regional_adventure_hooks",DB.regional_adventure_hooks]]){
    for(const x of rows||[])if(x.polity_id&&retiredPolities.has(x.polity_id))issues.push(`退役政體殘留:${name}/${x.id}/${x.polity_id}`)
  }
