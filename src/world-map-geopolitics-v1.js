@@ -1,4 +1,4 @@
-/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-1.92.0
+/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-2.05.0
  * WORLD-MAP-GEOPOLITICS-1.4
  * 在既有政治疆域底板上加入海岸、山脈、河川、湖泊、氣候帶、主要道路與國境關隘，
  * 並使政治疆界的形狀與說明受到天然屏障、分水嶺、河谷與交通控制點影響；不改旅行解鎖與存檔schema。
@@ -7,8 +7,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.92.0")||"CURRENT-1.92.0";
-const REV="WORLD-MAP-GEOPOLITICS-1.5";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.05.0")||"CURRENT-2.05.0";
+const REV="WORLD-MAP-GEOPOLITICS-1.6";
 const W=1800,H=1100;
 
 /* 地表政治疆域：1.1版將原先大面積直線切割改成沿河谷、山脊、火山高地與交通走廊的折線。
@@ -47,7 +47,7 @@ const REGION_GEOMETRY=[
  {region_id:"REG-16",layer:"surface",points:[[650,30],[735,20],[825,25],[910,35],[980,65],[995,105],[955,135],[870,135],[780,120],[690,115],[655,80]],label:[825,80]},
  {region_id:"REG-17",layer:"surface",points:[[1260,360],[1320,320],[1360,390],[1430,440],[1410,510],[1370,570],[1300,600],[1260,570],[1290,500],[1260,430],[1190,390]],label:[1325,465],nonstate:true},
  {region_id:"REG-18",layer:"surface",points:[[455,420],[500,425],[535,450],[555,490],[550,530],[535,570],[515,605],[485,590],[465,550],[470,510],[450,470]],label:[505,515]},
- {region_id:"REG-19",layer:"surface",points:[[205,380],[275,410],[345,420],[405,390],[455,415],[470,470],[455,535],[430,600],[390,660],[345,710],[300,725],[255,700],[220,650],[195,585],[185,510]],label:[320,550]},
+ {region_id:"REG-19",layer:"surface",points:[[205,380],[275,410],[345,420],[405,390],[455,415],[470,470],[455,535],[430,600],[390,660],[345,710],[300,725],[255,700],[220,650],[195,585],[185,510]],label:[320,550],nonstate:true},
  {region_id:"REG-20",layer:"surface",points:[[1360,650],[1410,570],[1510,470],[1600,460],[1680,410],[1740,470],[1760,560],[1740,650],[1700,720],[1650,790],[1580,850],[1490,880],[1400,850],[1350,780],[1350,720]],label:[1560,680],nonstate:true},
  {region_id:"REG-13",political_entity_id:"POL-020",layer:"subterranean",points:[[210,205],[260,190],[320,195],[380,220],[410,270],[390,325],[340,360],[280,350],[225,320],[195,265]],label:[300,275],overlap:true}
 ];
@@ -470,7 +470,7 @@ function renderSurfaceSvg(mode="surface"){
  if(mode!=="wilderness")renderWildernessZones(parts,false);
  if(mode==="climate")renderClimateBands(parts);
  for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
-   const region=regionById(g.region_id),pid=polityIdForGeometry(g),p=polityById(pid);
+   const region=regionById(g.region_id),rawPid=polityIdForGeometry(g),pid=g.nonstate?null:rawPid,p=polityById(rawPid);
    const fill=pid?colorForPolity(pid):"#2b3130";
    const dash=g.nonstate?"10 7":"";
    const click=pid?"openWorldMapPolityTerritory('"+pid+"')":"openWorldMapNonStateRegion('"+g.region_id+"')";
@@ -486,7 +486,7 @@ function renderSurfaceSvg(mode="surface"){
  if(!physicalOnly){
    const grouped=new Map();
    for(const g of REGION_GEOMETRY.filter(x=>x.layer==="surface")){
-     const pid=polityIdForGeometry(g);if(!pid)continue;
+     const pid=g.nonstate?null:polityIdForGeometry(g);if(!pid)continue;
      if(!grouped.has(pid))grouped.set(pid,[]);
      grouped.get(pid).push(...g.points);
    }
@@ -611,6 +611,7 @@ function audit(){
  if(polities.length!==16)issues.push("政治體數量偏離CURRENT基準16："+polities.length);
  const regionIds=new Set((DB.world_regions||[]).map(x=>x.id));
  const geomSurface=new Map(REGION_GEOMETRY.filter(x=>x.layer==="surface").map(x=>[x.region_id,x]));
+ for(const rid of ["REG-17","REG-19","REG-20"])if(!geomSurface.get(rid)?.nonstate)issues.push("非統一主權區地圖標記遺失："+rid);
  for(let i=1;i<=20;i++){
    const rid="REG-"+String(i).padStart(2,"0");
    if(!regionIds.has(rid))issues.push("世界大區缺資料："+rid);
