@@ -1,4 +1,4 @@
-/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-2.05.1
+/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-2.06.0
  * WORLD-MAP-GEOPOLITICS-1.4
  * 在既有政治疆域底板上加入海岸、山脈、河川、湖泊、氣候帶、主要道路與國境關隘，
  * 並使政治疆界的形狀與說明受到天然屏障、分水嶺、河谷與交通控制點影響；不改旅行解鎖與存檔schema。
@@ -7,7 +7,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.05.1")||"CURRENT-2.05.1";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.06.0")||"CURRENT-2.06.0";
 const REV="WORLD-MAP-GEOPOLITICS-1.6";
 const W=1800,H=1100;
 
@@ -339,7 +339,7 @@ DB.world_geopolitical_map={
    {id:"physical",name:"自然地理",description:"弱化政治填色，突出海岸、山脈、河川、湖泊、道路與關隘。"},
    {id:"climate",name:"氣候帶",description:"顯示主要氣候帶與自然地理骨架，協助理解農牧、聚落與交通。"},
    {id:"wilderness",name:"跨境野外",description:"顯示政治體之間的荒野、邊境生態帶、有限資源與局部探索節點。"},
-   {id:"subterranean",name:"地下主權",description:"黑月深庭與安威爾西北山地的重疊主權；地下河與礦道仍可後續深化。"}
+   {id:"subterranean",name:"地下主權",description:"黑月深庭與安威爾西北山地的重疊主權；地下河、深井、礦道、外環市集與七家治理區已接入可遊玩區域。"}
  ],
  region_geometry:REGION_GEOMETRY,
  wilderness_maps:WILDERNESS_ZONES,
@@ -573,7 +573,7 @@ function openWorldMapPolityTerritory(pid){
    (gp?'<div class="card small"><b>位置與地理環境</b><br><b>位置</b>：'+esc(gp.position)+'<br><b>地形</b>：'+esc(gp.terrain)+'<br><b>氣候</b>：'+esc(gp.climate)+'<br><b>水系</b>：'+esc(gp.water)+'<br><b>交通</b>：'+esc(gp.access)+'<br><b>地緣意義</b>：'+esc(gp.strategic)+'</div>':"")+
    (g?.layer==="subterranean"?'':'<div class="card small"><b>自然與交通骨架</b><br>'+(featureRows||"目前無大型地理要素標記")+(climates?'<br><b>氣候帶</b>：'+esc(climates):"")+'</div>')+
    (borders?'<div class="card small"><b>國境形成原因</b>'+borders+'</div>':"")+
-   '<div class="actions"><button onclick="openWorldMapAtlas(\''+(g?.layer==="subterranean"?"subterranean":"surface")+'\')">回地圖</button>'+(typeof openPolity==="function"?'<button onclick="openPolity(\''+p.id+'\')">政治體資料</button>':"")+(typeof openRealmRegionMap==="function"&&pid!=="POL-020"?'<button onclick="openRealmRegionMap(\'RMAP-'+p.id+'\')">區域層級</button>':"")+'</div>';
+   '<div class="actions"><button onclick="openWorldMapAtlas(\''+(g?.layer==="subterranean"?"subterranean":"surface")+'\')">回地圖</button>'+(typeof openPolity==="function"?'<button onclick="openPolity(\''+p.id+'\')">政治體資料</button>':"")+(typeof openRealmRegionMap==="function"?'<button onclick="openRealmRegionMap(\'RMAP-'+p.id+'\')">區域層級</button>':"")+'</div>';
  if(typeof showModal==="function")showModal(p.name+"・疆域與地理",body);
 }
 function openWorldMapNonStateRegion(rid){
