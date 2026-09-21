@@ -1,4 +1,4 @@
-/* 群陸旅誌：斷境無主地＋龍脊火山群完整區域深化 CURRENT-2.05.0
+/* 群陸旅誌：斷境無主地＋龍脊火山群完整區域深化 CURRENT-2.05.1
  * BOUNDARY-DRAGONSPINE-DEPTH-1.0
  * REG-19 / POL-019 與 REG-20：
  * 非國家區域治理、聚落、野外、地下城、怪物、素材、NPC、地方組織、經濟與活世界鉤子。
@@ -9,7 +9,7 @@
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.05.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.05.0";
+const RELEASE=CORE?.release?.("CURRENT-2.05.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.05.1";
 const REV="BOUNDARY-DRAGONSPINE-DEPTH-1.0";
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const uniq=a=>[...new Set((a||[]).filter(Boolean))];
