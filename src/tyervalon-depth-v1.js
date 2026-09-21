@@ -1,4 +1,4 @@
-/* 群陸旅誌：泰爾瓦隆百族部落完整區域深化 CURRENT-1.96.2
+/* 群陸旅誌：泰爾瓦隆百族部落完整區域深化 CURRENT-1.96.3
  * TYERVALON-DEPTH-1.0
  * POL-014 / REG-14：百族會盟、政治結構、六大地帶、城鎮、野外、地下城、怪物、NPC與地方循環。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.96.2")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.2";
+const RELEASE=CORE?.release?.("CURRENT-1.96.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.3";
 const REV="TYERVALON-DEPTH-1.0";
 const POLITY_ID="POL-014",REGION_ID="REG-14",CULTURE_ID="CUL-014",REALM_ID="RMAP-POL-014";
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
@@ -233,6 +233,31 @@ if(polity){polity.lore_record_ids=Array.isArray(polity.lore_record_ids)?polity.l
 
 DB.content_link_index=DB.content_link_index||{};DB.content_link_index.location_content=DB.content_link_index.location_content||{};
 for(const l of [...TOWNS,...FIELDS,...DUNGEONS].map(x=>loc(x.id)).filter(Boolean))DB.content_link_index.location_content[l.id]={facility_ids:[...(l.facilities||[])],gather_item_ids:[...(l.gather||[])],fish_item_ids:[...(l.fish||[])],encounter_monster_ids:MONSTERS.filter(m=>m.habitat.includes(l.id)).map(m=>m.id),companion_species_ids:[],organization_ids:ORGS.filter(o=>o.base_location_id===l.id).map(o=>o.id),pantheon_ids:[]};
+
+
+/* 後載入區域資料符合現行組織／世界誌／聚落schema。 */
+{
+ const facilityByOrg={"ORG-TV-MOOT":"guild","ORG-TV-WARHORN":"guild","ORG-TV-ANCESTORFIRE":"church","ORG-TV-WATERGRASS":"guild","ORG-TV-WESTPASS":"general","ORG-TV-RANGERS":"guild","ORG-TV-HERDERS":"general","ORG-TV-CRAFT":"blacksmith"};
+ for(const t of TOWNS){const x=loc(t.id);if(x)x.settlement_world_tier=x.tier}
+ for(const n of NPCS){const x=row("regional_npc_archetypes",n.id);if(x&&rank(x.combat_tier_ceiling)>rank("C"))x.combat_tier_ceiling="C"}
+ for(const o0 of ORGS){
+  const o=row("world_organizations",o0.id);if(!o)continue;
+  o.political_entity_id=POLITY_ID;o.scope="地方／區域";o.alignment=o.alignment||"neutral";
+  o.primary_facility=facilityByOrg[o.id]||"guild";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;o.min_join_level=Math.max(1,Number(o.min_join_level)||1);
+  o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];
+  o.history=Array.isArray(o.history)&&o.history.length?o.history:["由百族共同生活的實際需求逐步形成，先有慣例與共同責任，後才固定名稱與議事程序。"];
+  o.history_summary=o.history_summary||o.history.join(" ");
+  o.current_state=o.current_state||"目前維持跨部協調與地方自治的平衡，優先處理能被共同記錄與查驗的公共事務。";
+  o.signature=o.signature||({government:"百族共同議事",military:"授權式跨部動員",ritual:"祖火誓約見證",civic:"水草資源裁議",trade:"西關互市協調",ranger:"生態巡獵與搜救",civilian:"牧群與泉地協作",craft:"圖騰與實用工藝"}[o.kind]||"百族地方協作");
+  o.distinctive_features=Array.isArray(o.distinctive_features)&&o.distinctive_features.length?o.distinctive_features:[o.signature,"跨部合作但不取消部族自治","以水源、牧地、商道與季節承載量約束實際運作"];
+  o.institutional_culture=o.institutional_culture||"重視見證、使用記錄、季節條件與各部共同承擔。";
+  o.strategic_tension=o.strategic_tension||"共同治理需求與部族自治、資源承載量之間持續需要協商。";
+ }
+ const verifyKeys=Object.keys(DB.lore_system?.verification_levels||{});
+ const verify=verifyKeys.includes("verified")?"verified":(verifyKeys[0]||"verified");
+ for(const l of LORE){const x=row("lore_records",l[0]);if(x&&!x.verification)x.verification=verify}
+ if(Array.isArray(DB.lore_records)){const rebuilt={};for(const x of DB.lore_records){const k=String(x.scope_type||"world")+":"+String(x.scope_id||"global");(rebuilt[k]||(rebuilt[k]=[])).push(x.id)}DB.lore_query_index=rebuilt}
+}
 
 DB.tyervalon_confederacy={version:REV,release:RELEASE,political_entity_id:POLITY_ID,region_id:REGION_ID,structure:"十二大圖騰席＋中小部族席團＋地方氏族；六大地理治理區",great_totem_seats:TRIBES.map(x=>clone(x)),zone_ids:ZONES.map(x=>x.id),town_ids:TOWNS.map(x=>x.id),wild_ids:FIELDS.map(x=>x.id),dungeon_ids:DUNGEONS.map(x=>x.id),monster_ids:MONSTERS.map(x=>x.id),npc_ids:NPCS.map(x=>x.id),organization_ids:ORGS.map(x=>x.id),governance:{common_center:"泰爾瓦隆大營／百族會盟",executive_role:"百族大酋長執行共同決議並代表共同外交",local_autonomy:"各部與氏族在共同誓約、水草法與跨部決議範圍內保留高度自治",war_rule:"戰角大統領的跨部指揮權只在會盟授權或共同防衛時生效",resource_rule:"泉眼、牧地、獵場與林地具有承載量、輪替與封養規則"},save_compatible:true};
 
