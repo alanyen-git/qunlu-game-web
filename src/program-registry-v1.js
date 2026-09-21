@@ -11,7 +11,7 @@ const REV="PROGRAM-REGISTRY-1.17";
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
   data:[
-    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/combat-class-identity-depth-v1.js","src/talent-identity-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js","src/political-consolidation-v1.js","src/political-hierarchy-depth-v1.js","src/starter-settlements-v1.js","src/anweir-seruvia-depth-v1.js","src/boundary-dragonspine-depth-v1.js","src/black-tide-depth-v1.js","src/tyervalon-depth-v1.js","src/blue-tower-depth-v1.js","src/vanrek-depth-v1.js","src/gray-blade-depth-v1.js","src/frost-horn-depth-v1.js","src/white-felt-depth-v1.js","src/holy-radiance-depth-v1.js","src/dawn-casavelle-depth-v1.js",
+    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/combat-class-identity-depth-v1.js","src/talent-identity-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js","src/political-consolidation-v1.js","src/political-hierarchy-depth-v1.js","src/starter-settlements-v1.js","src/anweir-seruvia-depth-v1.js","src/black-tide-depth-v1.js","src/tyervalon-depth-v1.js","src/blue-tower-depth-v1.js","src/vanrek-depth-v1.js","src/gray-blade-depth-v1.js","src/frost-horn-depth-v1.js","src/white-felt-depth-v1.js","src/holy-radiance-depth-v1.js","src/dawn-casavelle-depth-v1.js","src/boundary-dragonspine-depth-v1.js",
     "src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js",
     "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js"
   ],
