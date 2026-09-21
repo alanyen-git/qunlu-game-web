@@ -1,12 +1,12 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.96.4
- * RELEASE-INTEGRITY-2.9
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.97.0
+ * RELEASE-INTEGRITY-2.10
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.96.4")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.4";
-const REV="RELEASE-INTEGRITY-2.9";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.97.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.97.0";
+const REV="RELEASE-INTEGRITY-2.10";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -83,6 +83,8 @@ function audit(){
   else issues.push("黑潮群島深化:稽核runtime缺失");
   if(typeof globalThis.runTyervalonDepthAudit==="function")pushResult(issues,"泰爾瓦隆百族部落深化:",globalThis.runTyervalonDepthAudit());
   else issues.push("泰爾瓦隆百族部落深化:稽核runtime缺失");
+  if(typeof globalThis.runBlueTowerDepthAudit==="function")pushResult(issues,"藍塔魔導王國深化:",globalThis.runBlueTowerDepthAudit());
+  else issues.push("藍塔魔導王國深化:稽核runtime缺失");
   if(typeof globalThis.runWorldGeopoliticalMapAudit==="function")pushResult(issues,"世界政治地圖:",globalThis.runWorldGeopoliticalMapAudit());
   else issues.push("世界政治地圖:稽核runtime缺失");
   if(typeof globalThis.runAffiliationEntryGateAudit==="function")pushResult(issues,"勢力接觸門檻:",globalThis.runAffiliationEntryGateAudit());
@@ -103,7 +105,7 @@ if(typeof base==="function"&&!base.__releaseIntegrityPatched){
 }
 DB.meta=DB.meta||{};
 DB.meta.release_integrity_revision=REV;
-DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","配方素材量／成本／成品價值平衡","鍛造／裁縫／附魔裝備物量、成對結構與材質語意","配方最終載入鎖定","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","戰鬥職業同質合併／戰術特色／實際職業修正／舊ID映射","天賦同質合併／特色軸／代價／武器條件／副職業差異／舊ID映射","技能命名／階級／元素／語義效果","技能機制／條件／連段／反擊／陷阱／群體支援runtime","角色出身合併／特色／側寫／舊存檔映射","組織／流派同質合併／世界4王國3地區2上限／歷史現況特色","16政治體修訂後完整政治階層／禮序與AUTH權能分離／榮譽稱號無自動統治權","6新手村／5個非阿斯戴爾政治體／種族出身職業加權出生／周邊F-E級區域","黑潮群島3大島＋5小島／城鎮野外地下城／18怪物／16核心NPC／王庭幕府地方權力鏈","泰爾瓦隆十二大圖騰席＋六大地帶／8城鎮／12野外／8地下城／20怪物／18核心NPC／百族分權治理","20大區政治疆域／海岸山河湖泊／氣候帶／主要道路／國境關隘／國境地理成因／首都座標／地下重疊主權地圖","高階組織／流派劇情性接觸／入門考核／舊存檔相容","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接","夥伴光環條件觸發／21種專屬技能核心／復起救援／元素調律","20種物種簽章／光環效果差異／技能名稱唯一／物種附加行為","程序載入清單與順序由PROGRAM-REGISTRY獨立稽核"],save_compatible:true,initial_audit:audit()};
+DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","配方素材量／成本／成品價值平衡","鍛造／裁縫／附魔裝備物量、成對結構與材質語意","配方最終載入鎖定","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","戰鬥職業同質合併／戰術特色／實際職業修正／舊ID映射","天賦同質合併／特色軸／代價／武器條件／副職業差異／舊ID映射","技能命名／階級／元素／語義效果","技能機制／條件／連段／反擊／陷阱／群體支援runtime","角色出身合併／特色／側寫／舊存檔映射","組織／流派同質合併／世界4王國3地區2上限／歷史現況特色","16政治體修訂後完整政治階層／禮序與AUTH權能分離／榮譽稱號無自動統治權","6新手村／5個非阿斯戴爾政治體／種族出身職業加權出生／周邊F-E級區域","黑潮群島3大島＋5小島／城鎮野外地下城／18怪物／16核心NPC／王庭幕府地方權力鏈","泰爾瓦隆十二大圖騰席＋六大地帶／8城鎮／12野外／8地下城／20怪物／18核心NPC／百族分權治理","藍塔六大區域帶／8城鎮／12野外／8地下城／21怪物／18核心NPC／塔主議會與術式安全治理／一般區E-C與受控B級深層分流","20大區政治疆域／海岸山河湖泊／氣候帶／主要道路／國境關隘／國境地理成因／首都座標／地下重疊主權地圖","高階組織／流派劇情性接觸／入門考核／舊存檔相容","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接","夥伴光環條件觸發／21種專屬技能核心／復起救援／元素調律","20種物種簽章／光環效果差異／技能名稱唯一／物種附加行為","程序載入清單與順序由PROGRAM-REGISTRY獨立稽核"],save_compatible:true,initial_audit:audit()};
 globalThis.runReleaseIntegrityAudit=audit;
 globalThis.QUNLU_CORE?.registerModule?.("src/release-integrity-v1.js",{domain:"finalization",revision:REV,release:RELEASE});
 })();
