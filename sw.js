@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v103";
+const CACHE_NAME=CACHE_PREFIX+"v104";
 const CORE=[
   "./",
   "./index.html",
@@ -23,6 +23,7 @@ const CORE=[
   "./src/tyervalon-depth-v1.js",
   "./src/blue-tower-depth-v1.js",
   "./src/vanrek-depth-v1.js",
+  "./src/gray-blade-depth-v1.js",
   "./src/alchemy-healing-recipe-v1.js",
   "./src/equipment-depth-v1.js",
   "./src/crafting-recipe-semantic-v1.js",

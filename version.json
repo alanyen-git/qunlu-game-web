@@ -1,11 +1,20 @@
 {
-  "version": "CURRENT-1.98.0",
-  "previous_version": "CURRENT-1.97.0",
+  "version": "CURRENT-1.99.0",
+  "previous_version": "CURRENT-1.98.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-1.98.0：凡雷克帝國（POL-002／REG-02）由世界政治背景深化為完整可遊玩B級帝國；新增七大治理區、10城鎮、14野外、10地下城、24怪物、22核心NPC、9個帝國／地方職能組織，並建立帝冠、舊王法、總督、軍團、貢賦與宗教軍學合作結構。",
+  "summary": "CURRENT-1.99.0：灰刃自由都市（POL-009／REG-09）深化為完整可遊玩C級自由都市；新增六大玩法區、8城鎮、12野外、8地下城、22怪物、18核心NPC、8個城市職能組織，建立武契議會＋市議堂雙議軌、契約仲裁、軍需工坊與龍脊北麓循環。",
   "changelog": [
+    "CURRENT-1.99.0：灰刃自由都市完整深化並接入正式網頁入口、PWA、PROGRAM-REGISTRY與五回合發布稽核；正式src程序增為62個。",
+    "GRAY-BLADE-DEPTH-1.0：沿用POL-009／REG-09既有灰刃自由都市正史與灰刃城首都，不建立重複政治體。",
+    "新增灰刃城核心區、北灰脊工礦帶、東白鐘河渡帶、南武契原、西三岔商路帶、龍脊北麓前哨帶六大可遊玩區。",
+    "新增8座城鎮、12張野外地圖、8處地下城／遺構、22種區域怪物、14種素材、18名核心NPC與8個城市職能組織。",
+    "政治結構深化為武契議會＋市議堂雙議軌；契約仲裁院獨立處理違約、損害與跨團體爭議。",
+    "明確灰刃不是傭兵團私人領地：私人契約不得凌駕市法，大型武裝須登記責任人、兵力、武器、駐紮期限與損害責任。",
+    "建立軍需工坊、白鐘河運、三岔商路、營原輪駐與龍脊北麓灰季的地方經濟／活世界循環，市場與資源均為有限供應。",
+    "區域層級採F～C分流：日常城郊F～E，一般邊郊與地下城D，封存軍需庫、黑玻璃谷與火山深層為受控C級內容。",
+    "所有野外維持有限資源容量與恢復週期，打獵必須進入戰鬥；區域怪物掉落依棲地與生態限定。",
     "CURRENT-1.98.0：最高權限總測試通過：61/61正式程序載入、8/8 stateful tests、42/42 audits；凡雷克深化與藍塔共通schema修正通過發布品質閘門。",
     "VANREK-DEPTH-1.0：沿用POL-002／REG-02既有凡雷克帝國正史，不建立重複政治體；赫薩爾帝都維持帝國首都。",
     "新增帝都皇冠區、赫薩爾河心區、北境黑松丘陵、東門軍鎮帶、南部金麥平原、西脊舊王領、赤槍修院帶七大可遊玩治理區。",
@@ -212,7 +221,7 @@
     "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
     "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
-  "content_revision": "DATABASE-GROWTH-COMPAT-1.0",
+  "content_revision": "CURRENT-1.99.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -222,7 +231,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.6",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.8",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -248,7 +257,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v101",
+  "pwa_cache_revision": "v104",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -324,7 +333,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.10",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.12",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -601,7 +610,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.11",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 61,
+    "active_src_programs": 62,
     "groups": [
       "core",
       "data",
@@ -621,9 +630,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.98.0新增凡雷克帝國完整區域深化模組；61個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-1.98.0",
+    "note": "CURRENT-1.99.0新增灰刃自由都市完整區域深化模組；62個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
+    "last_verified_release": "CURRENT-1.99.0",
     "notes": [
+      "CURRENT-1.99.0：新增src/gray-blade-depth-v1.js；灰刃自由都市啟用六大可遊玩區，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為62個src程序。",
       "CURRENT-1.98.0：新增src/vanrek-depth-v1.js；凡雷克帝國啟用七大可遊玩治理區，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為61個src程序（待本版發布驗證後更新last_verified_release）。",
       "CURRENT-1.97.0：新增src/blue-tower-depth-v1.js；藍塔魔導王國啟用六大可遊玩區域帶，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為60個src程序。",
       "CURRENT-1.96.2：修正既有58程序統計漂移並新增src/tyervalon-depth-v1.js；正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為59個src程序。",
@@ -1188,5 +1198,21 @@
       "release_integrity": "PASS",
       "validated_release": "CURRENT-1.98.0"
     }
+  },
+  "gray_blade_depth_revision": "GRAY-BLADE-DEPTH-1.0",
+  "gray_blade_depth": {
+    "political_entity_id": "POL-009",
+    "region_id": "REG-09",
+    "world_tier": "C",
+    "zones": 6,
+    "towns": 8,
+    "wilds": 12,
+    "dungeons": 8,
+    "monsters": 22,
+    "npcs": 18,
+    "organizations": 8,
+    "materials": 14,
+    "governance": "武契議會＋市議堂雙議軌／契約仲裁院",
+    "save_compatible": true
   }
 }
