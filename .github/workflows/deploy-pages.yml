@@ -1,4 +1,6 @@
-name: Deploy public web game
+# Pushes are deployed by the repository's native GitHub Pages branch pipeline.
+# This workflow is the release-quality gate on push; manual dispatch may also perform an explicit Pages deployment.
+name: Validate public web game
 
 on:
   push:
@@ -165,6 +167,7 @@ jobs:
           node tools/debug-all-programs.js
 
       - name: Stage production site
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -euo pipefail
@@ -178,13 +181,16 @@ jobs:
           find _site -maxdepth 2 -type f | sort
 
       - name: Setup Pages
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-pages-artifact@v4
         with:
           path: "_site"
 
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'workflow_dispatch'
         id: deployment
         uses: actions/deploy-pages@v4
