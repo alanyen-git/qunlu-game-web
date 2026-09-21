@@ -7,7 +7,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="SKILL-NAMING-REFERENCE-1.2";
+const REV="SKILL-NAMING-REFERENCE-1.3";
 const RELEASE="CURRENT-1.95.3";
 const TIER_RANK=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
 const VALID_TIERS=new Set(Object.keys(TIER_RANK));
@@ -66,7 +66,7 @@ const EFFECT_RULES=Object.freeze([
   {token:"隱形",ok:s=>s?.invisibility===true||Number(s?.stealth||0)>0||/隱形/.test(String(s?.effect_text||s?.desc||""))}
 ]);
 
-function clean(v){return String(v||"").trim()}
+function clean(v){return String(v||"").trim()}\nfunction normalizedSkillName(v){return clean(v).replace(/－通用（[^）]+）$/,"").trim()}
 function canonicalElement(v){
   if(v==null)return null;
   const t=clean(v);if(!t)return "";
@@ -135,7 +135,7 @@ function validateSkillName(name,tier="F",context={}){
   if(/(?:冰|霜|寒)/.test(s)&&modelElement&&modelElement!=="水")warnings.push("名稱為冰霜系但element不是水");
   if(/(?:雷|電)/.test(s)&&modelElement&&modelElement!=="雷")warnings.push("名稱為雷系但element不是雷");
   if(/(?:疾風|狂風|旋風|龍捲|真空|風刃|風切|風行|風之|風輪|風壁)/.test(s)&&modelElement&&modelElement!=="風")warnings.push("名稱為風系但element不是風");
-  if(context.allowExisting!==true&&allSkills().some(x=>clean(x.name)===s&&tierOf(x.tier)===t))warnings.push("CURRENT已有同名同階技能，新增前應先查重");
+  if(context.allowExisting!==true&&allSkills().some(x=>normalizedSkillName(x.name)===normalizedSkillName(s)&&tierOf(x.tier)===t))warnings.push("CURRENT已有同名同階技能，新增前應先查重");
   return {ok:issues.length===0,name:s,tier:t,issues:[...new Set(issues)],warnings:[...new Set(warnings)],revision:REV};
 }
 function referenceFor(familyId,tier="F"){
@@ -163,7 +163,7 @@ const ADVANCED_FORMS=Object.freeze({
 });
 
 function suggestSkillName(familyId,tier="F",context={}){
-  const id=FAMILIES[familyId]?familyId:"blade",f=FAMILIES[id],t=tierOf(tier),used=new Set(allSkills().map(x=>clean(x.name))),forms=[];
+  const id=FAMILIES[familyId]?familyId:"blade",f=FAMILIES[id],t=tierOf(tier),used=new Set(allSkills().map(x=>normalizedSkillName(x.name))),forms=[];
   if(TIER_RANK[t]<=1){
     for(const v of f.verbs||[]){
       forms.push(v);
@@ -175,7 +175,7 @@ function suggestSkillName(familyId,tier="F",context={}){
   }
   for(const raw of forms){
     const name=clean(raw).replace(/擊擊$/,"擊").replace(/術術$/,"術");
-    if(!name||used.has(name))continue;
+    if(!name||used.has(normalizedSkillName(name)))continue;
     const check=validateSkillName(name,t,Object.assign({},context,{allowExisting:true}));
     if(check.ok)return name;
   }
@@ -195,7 +195,7 @@ function audit(){
       if(prev&&clean(prev.name)!==clean(s.name))issues.push("canonical_skill_id名稱衝突:"+cid);
       else seenCanonical.set(cid,s);
     }
-    const nt=clean(s.name)+"|"+tierOf(s.tier);
+    const nt=normalizedSkillName(s.name)+"|"+tierOf(s.tier);
     nameTier.set(nt,(nameTier.get(nt)||0)+1);
     if(!inferFamily(s))warnings.push("技能尚未歸入參照家族:"+skillKey(s)+"("+s.name+")");
     const checked=validateSkillName(s.name,s.tier,{skill:s,allowExisting:true});
@@ -216,7 +216,7 @@ DB.skill_naming_reference={
   rules:[
     "技能名稱必須對應實際技能資料；破甲、麻痺、中毒、治癒、召喚、汲取、反射、隱形等詞不可只作裝飾。",
     "F/E級優先使用斬、刺、射擊、格檔、火球、冰箭等直觀名稱；高階才逐步使用無雙、裁決、萬法、主宰等稱號。",
-    "同名同階技能新增前先查canonical_skill_id、技能家族與實際效果，避免只改名稱的重複技能。",
+    "同名同階技能新增前先查canonical_skill_id、技能家族與實際效果，避免只改名稱的重複技能。",\n    "查重時會忽略「－通用（物理系／魔法系／魔武雙修）」等資料標記尾碼，避免把同一技能誤判為新名稱。",
     "元素名稱須與CURRENT九元素一致：光明、黑暗、火、風、水、地、雷、生命、死亡；舊資料光／暗會自動正規化為光明／黑暗，冰霜歸水元素。",
     "主動／輔助／被動、物理／魔法／混合／治療／淨化／增益／減益必須由資料欄位決定，不由名稱猜測。",
     "技能等級上限維持10；Lv6與Lv10里程碑由既有技能成長系統管理。",
