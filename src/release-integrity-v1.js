@@ -87,8 +87,8 @@ function audit(){
   else issues.push("藍塔魔導王國深化:稽核runtime缺失");
   if(typeof globalThis.runVanrekDepthAudit==="function")pushResult(issues,"凡雷克帝國深化:",globalThis.runVanrekDepthAudit());
   else issues.push("凡雷克帝國深化:稽核runtime缺失");
-  if(typeof globalThis.runGrayBladeDepthAudit==="function")pushResult(issues,"灰刃自由都市深化:",globalThis.runGrayBladeDepthAudit());
-  else issues.push("灰刃自由都市深化:稽核runtime缺失");
+  if(typeof globalThis.runGrayBladeDepthAudit==="function")pushResult(issues,"傭兵都市深化:",globalThis.runGrayBladeDepthAudit());
+  else issues.push("傭兵都市深化:稽核runtime缺失");
   if(typeof globalThis.runWorldGeopoliticalMapAudit==="function")pushResult(issues,"世界政治地圖:",globalThis.runWorldGeopoliticalMapAudit());
   else issues.push("世界政治地圖:稽核runtime缺失");
   if(typeof globalThis.runAffiliationEntryGateAudit==="function")pushResult(issues,"勢力接觸門檻:",globalThis.runAffiliationEntryGateAudit());
