@@ -1,5 +1,5 @@
-/* 群陸旅誌：CURRENT政治體整併與疆域正史修訂 CURRENT-1.96.1
- * POLITY-CONSOLIDATION-1.2
+/* 群陸旅誌：CURRENT政治體整併與疆域正史修訂 CURRENT-1.96.3
+ * POLITY-CONSOLIDATION-1.3
  * 保留洛文／維薩南境／維爾河既有整併，同步修訂北方、東北、西南政治布局；
  * 黑潮群島恢復為獨立主權政治體，金衡回復為獨立貿易自由島。
  */
@@ -7,8 +7,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.96.1")||"CURRENT-1.96.1";
-const REV="POLITY-CONSOLIDATION-1.2";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.96.3")||"CURRENT-1.96.3";
+const REV="POLITY-CONSOLIDATION-1.3";
 const MERGE=Object.freeze({"POL-005":"POL-001","POL-006":"POL-007","POL-018":"POL-001"});
 const RETIRED=Object.freeze(Object.keys(MERGE));
 const polity=id=>(DB.political_entities||[]).find(x=>x?.id===id)||null;
@@ -159,6 +159,13 @@ DB.polity_authority_profiles.push({
  player_interaction_summary:"玩家通常先接觸港代、武家與島領；高階劇情才會進入黑潮幕府評定或皓月御國冊命層。",
  succession_method:p10.succession_method,regalia:p10.regalia,
  notes:"潮皇與征夷大將軍是平行頂層：前者提供世襲法統與儀禮正統，後者掌實際軍政；兩者不可合併成單一君主職。"
+});
+
+p10=polity("POL-010");
+if(p10)Object.assign(p10,{
+ government_type:"幕府雙軌島國",
+ current_title:"潮皇／征夷大將軍",
+ top_office:"潮皇／征夷大將軍"
 });
 
 const rm1=realm("RMAP-POL-001"),rm7=realm("RMAP-POL-007"),rm8=realm("RMAP-POL-008"),rm13=realm("RMAP-POL-013"),rm14=realm("RMAP-POL-014"),rm15=realm("RMAP-POL-015");
