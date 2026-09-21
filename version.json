@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.96.4",
-  "previous_version": "CURRENT-1.96.3",
+  "version": "CURRENT-1.97.0",
+  "previous_version": "CURRENT-1.96.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "泰爾瓦隆／黑潮最終資料閉環：區域怪物關閉通用掉落fallback，只能依生態授權素材掉落；13個後載入區域組織補齊唯一會員加成，接入現行組織bonus runtime。",
+  "summary": "CURRENT-1.97.0：藍塔魔導王國由世界背景區升級為完整可遊玩B級魔法強國；新增六大區域帶、8城鎮、12野外、8地下城、21怪物、18核心NPC、6個地方職能組織與完整塔主議會／術式安全治理。",
   "changelog": [
+    "BLUE-TOWER-DEPTH-1.0：POL-011／REG-11正式啟用為可遊玩區域，保留既有藍塔法令、首席塔主、藍塔奧術院與元素塔議會正史。",
+    "新增中央塔城、鏡塔湖盆、西脊塔院、北部觀星臺地、東界季市、藍塔隘源谷六大區域帶；8城鎮、12野外、8地下城彼此以旅行路線接通。",
+    "新增21種藍塔區域怪物、18名核心NPC、14種地方素材與6個地方職能組織；既有群陸法師公會、藍塔奧術院與元素塔議會正式接入藍塔地點。",
+    "B級區域採威脅分流：一般居民區與常規野外維持E～C級，B級怪物與地下城集中在原初藍塔基座等受限深層，避免整區高階化。",
+    "塔主議會權力鏈補充議會書記長、術式安全審議官、塔域執政官、巡界監與認證／事故調查職；政治權力與個人戰力維持分離。",
+    "市場與資源遵守有限供給：導晶砂、藍脊鐵晶、高階術具、鏡湖漁產與研究材料受採集配額、資格、庫存、季節與水務優先級約束。",
+    "PROGRAM-REGISTRY、RELEASE-INTEGRITY、PWA離線快取同步納入BLUE-TOWER-DEPTH-1.0；正式src程序由59增至60，舊存檔相容。",
     "CURRENT-1.96.4：黑潮18種與泰爾瓦隆20種新區域怪物全部設定LOOT-ECOLOGY-1.0 fallback_policy=none，杜絕通用素材fallback污染。",
     "黑潮5個與泰爾瓦隆8個區域組織補齊唯一member_bonus ID與現行runtime支援效果；加成採低幅度職能型設計，不複製大型商會或高階流派數值。",
     "本版延續1.96.3的組織schema、世界誌驗證索引、聚落層級、NPC上限、POL-010主權與征夷大將軍階層修正。",
@@ -307,7 +314,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.9",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.10",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -581,10 +588,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.9",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.10",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 59,
+    "active_src_programs": 60,
     "groups": [
       "core",
       "data",
@@ -604,9 +611,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.96.2新增泰爾瓦隆完整區域深化模組；59個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-1.96.4",
+    "note": "CURRENT-1.97.0新增藍塔魔導王國完整區域深化模組；60個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
+    "last_verified_release": "CURRENT-1.97.0",
     "notes": [
+      "CURRENT-1.97.0：新增src/blue-tower-depth-v1.js；藍塔魔導王國啟用六大可遊玩區域帶，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為60個src程序。",
       "CURRENT-1.96.2：修正既有58程序統計漂移並新增src/tyervalon-depth-v1.js；正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為59個src程序。",
       "CURRENT-1.95.1：57個正式src程序語法與清單一致性通過；修正PROGRAM-REGISTRY revision、發布fallback與PWA Service Worker版本漂移。",
       "CURRENT-1.94.0：新手區擴為柳橋同規模1＋3＋3並接入繁榮度市場倍率；正式src程序維持57個。",
@@ -1121,6 +1129,26 @@
     "core_npcs": 18,
     "organizations": 8,
     "regional_materials": 13,
+    "save_compatible": true
+  },
+  "blue_tower_depth_revision": "BLUE-TOWER-DEPTH-1.0",
+  "blue_tower_depth": {
+    "political_entity_id": "POL-011",
+    "region_id": "REG-11",
+    "playable_zones": 6,
+    "towns": 8,
+    "wild_maps": 12,
+    "dungeons": 8,
+    "monsters": 21,
+    "core_npcs": 18,
+    "organizations": 6,
+    "regional_materials": 14,
+    "existing_magic_orgs_integrated": [
+      "ORG-076",
+      "ORG-077",
+      "ORG-078"
+    ],
+    "tier_model": "E～C一般內容＋受控B級深層",
     "save_compatible": true
   }
 }
