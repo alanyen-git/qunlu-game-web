@@ -35,7 +35,7 @@ function field(x){
   allow_demons:false,allow_undead:!!x.allowUndead,allow_aquatic:!!x.aquatic,archetype:x.archetype||"open_wild",space_class:x.space||"open",
   preferred_monster_ids:[...(x.preferred||[])]});
  return {id:x.id,name:x.name,kind:x.kind||"wild",tier:x.tier,world_tier:x.tier,size:x.size,region:"凡雷克帝國",description:x.description,links:[],
-  risk:x.risk??18,safety_score:x.safety??Math.max(20,100-(x.risk??18)),world_region_id:REGION_ID,region_id:REGION_ID,political_entity_id:POLITY_ID,polity_id:POLITY_ID,culture_id:CULTURE_ID,
+  risk:x.risk??18,safety_score:x.safety??Math.max(20,100-(x.risk??18)),safety_label:x.safetyLabel||((x.risk??18)<=15?"安穩":(x.risk??18)<=25?"普通":(x.risk??18)<=35?"警戒":"危險"),world_region_id:REGION_ID,region_id:REGION_ID,political_entity_id:POLITY_ID,polity_id:POLITY_ID,culture_id:CULTURE_ID,
   province_region_id:x.province,settlement_region_id:x.smap,realm_region_map_id:REALM_ID,vanrek_zone_id:x.zoneId,tags:[...(x.tags||[])],
   gather:[...(x.gather||[])],mining:[...(x.mining||[])],woodcut:[...(x.woodcut||[])],fish:[...(x.fish||[])],hunt:[...(x.hunt||[])],explore:[...(x.explore||[])],
   encounter_profile:ep,resource_capacity:clone(x.resourceCapacity||{forage:14,hunt:8,ore:6}),resource_regen_hours:x.regen??48,hunt_requires_battle:true};
@@ -151,7 +151,8 @@ const ITEMS=[
  ["VRK-MAT-015","修院白芷","E",.08,16,"修院藥圃與附近荒丘栽培的藥草。"],
  ["VRK-MAT-016","帝國構裝芯片","B",.55,126,"舊軍團重型構裝的封存核心碎片，只能由受控B級軍械任務取得。"]
 ].map(x=>({id:x[0],name:x[1],tier:x[2],weight:x[3],value:x[4],description:x[5]}));
-for(const x of ITEMS)upsert("items",{...x,kind:"material",type:"素材",catalog_group:"素材",stackable:true,regional_origin_id:REGION_ID});
+const GATHER_ELIGIBLE=new Set([...FIELDS,...DUNGEONS].flatMap(x=>x.gather||[]));
+for(const x of ITEMS)upsert("items",{...x,kind:"material",type:"素材",catalog_group:"素材",stackable:true,regional_origin_id:REGION_ID,wild_gather_eligible:GATHER_ELIGIBLE.has(x.id)});
 
 function mon(x){
  const drops=[...(x.drops||[])];
@@ -213,7 +214,7 @@ const NPCS=[
  {id:"NPC-VRK-021",name:"諾菈・提斯",role:"帝國檔案官",tier:"C",location_id:"L-VRK-HESAR",knowledge_scope:"詔令、總督檔案、舊王領條約與可公開史料",combat_tier_ceiling:"F",organization_ids:["ORG-VRK-CROWN"],services:["檔案查詢","歷史引介"],description:"清楚區分皇室宣稱、地方版本與已存檔條約文本。"},
  {id:"NPC-VRK-022",name:"芬恩・羅克",role:"皇家大道巡查長",tier:"C",location_id:"L-VRK-CROWNGATE",knowledge_scope:"道路、橋梁、驛站、商隊失蹤與跨區物流",combat_tier_ceiling:"C",organization_ids:["ORG-VRK-ROAD"],services:["護路委託","道路情報"],description:"帝國最實際的統一工具在他眼中不是徽章，而是能通車的道路。"}
 ];
-for(const n of NPCS)upsert("regional_npc_archetypes",{...n,region_id:REGION_ID,polity_id:POLITY_ID});
+for(const n of NPCS){if(tierRank(n.combat_tier_ceiling)>tierRank("C"))n.combat_tier_ceiling="C";upsert("regional_npc_archetypes",{...n,region_id:REGION_ID,polity_id:POLITY_ID})}
 
 const ORGS=[
  {id:"ORG-VRK-CROWN",name:"帝國冠議會",kind:"government",tier:"B",base_location_id:"L-VRK-HESAR",description:"皇帝、宰相、主要舊王冠與中央高官處理帝國法令、總督任命與跨區衝突的最高政務機構。"},
@@ -226,7 +227,28 @@ const ORGS=[
  {id:"ORG-VRK-REDSPEAR",name:"赤槍軍牧會",kind:"religious",tier:"C",base_location_id:"L-VRK-REDSPEAR",description:"承接赤槍教會與帝國軍之間的軍牧、療養、祭儀與救護合作。"},
  {id:"ORG-VRK-TACTIC",name:"戰策修院議事會",kind:"research",tier:"C",base_location_id:"L-VRK-REDSPEAR",description:"維護軍官教育、戰史、兵棋與學術自治，與帝國軍合作但不直接隸屬軍團總署。"}
 ];
-for(const o of ORGS)upsert("world_organizations",{...o,region_id:REGION_ID,political_entity_id:POLITY_ID,scope:o.tier==="B"?"kingdom":"local_regional",joinable:o.kind!=="government",mission_issuer:true,can_be_enemy:true,contact_location_ids:[o.base_location_id]});
+for(const o of ORGS)upsert("world_organizations",{...o,region_id:REGION_ID,political_entity_id:POLITY_ID});
+const facilityByOrg={
+ "ORG-VRK-CROWN":"guild","ORG-VRK-LEGION":"guild","ORG-VRK-JUSTICE":"guild","ORG-VRK-TRIBUTE":"general","ORG-VRK-ROAD":"guild",
+ "ORG-VRK-WARDEN":"guild","ORG-VRK-OLDLAW":"guild","ORG-VRK-REDSPEAR":"church","ORG-VRK-TACTIC":"guild"
+};
+const lightOrgIds=new Set(["ORG-VRK-JUSTICE","ORG-VRK-WARDEN","ORG-VRK-REDSPEAR"]);
+const bonusByOrgKind={government:{statusResist:4},military:{defense_pct:3},civic:{carryCapacity:4},ranger:{perception:4},religious:{healingPower:4},research:{perception:4}};
+for(const o0 of ORGS){
+ const o=row("world_organizations",o0.id);if(!o)continue;
+ o.scope=o.tier==="B"?"kingdom":"local_regional";o.alignment=lightOrgIds.has(o.id)?"light":"neutral";o.category=o.kind;
+ o.primary_facility=facilityByOrg[o.id]||"guild";o.min_join_level=Math.max(1,Number(o.min_join_level)||1);o.join_reputation=Number(o.join_reputation)||0;
+ o.visibility="public";o.legal_status="legal";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;
+ o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];
+ o.member_bonus=o.member_bonus||{id:"BONUS-"+o.id,text:"凡雷克職能會員訓練",effects:{...(bonusByOrgKind[o.kind]||{perception:3})}};
+ o.history=Array.isArray(o.history)&&o.history.length?o.history:["隨凡雷克帝國整合舊王冠、總督區與跨區道路後，逐步由臨時職能固定為可追責的帝國或地方機構。"];
+ o.history_summary=o.history_summary||o.history.join(" ");
+ o.current_state=o.current_state||"目前以維持跨區治理與地方實務為主，權限受帝國法、地方舊法、預算與實際承載量共同約束。";
+ o.signature=o.signature||({government:"法令、司法與跨區責任",military:"軍團輪調、補給與邊防",civic:"貢賦、道路與公共運輸",ranger:"林務、巡獵與山路救援",religious:"軍牧、療養與祭儀協作",research:"戰史、兵棋與軍官教育"}[o.kind]||"帝國地方職能");
+ o.distinctive_features=Array.isArray(o.distinctive_features)&&o.distinctive_features.length?o.distinctive_features:[o.signature,"依道路、帳冊、法令與地方權限運作","不以國家B級直接等同個人成員B級戰力"];
+ o.institutional_culture=o.institutional_culture||"重視文書、職責、補給、法定權限與可追查的行政紀錄。";
+ o.strategic_tension=o.strategic_tension||"帝冠整合效率、地方舊法與民生承載量之間長期需要協調。";
+}
 
 upsert("regional_content_profiles",{id:"RCP-VRK-01",region_id:REGION_ID,polity_id:POLITY_ID,region_name:"凡雷克帝國",recommended_tier:"F～B",
  identity:"由帝都、舊王冠領、總督區、軍鎮、糧倉與宗教軍學機構共同維持的B級帝國。道路、軍團、貢賦與法律整合不同地區，但地方舊法仍具有實際效力。",
@@ -336,6 +358,18 @@ for(const l of [...TOWNS,...FIELDS,...DUNGEONS].map(x=>loc(x.id)).filter(Boolean
   encounter_monster_ids:MONSTERS.filter(m=>(m.habitat||[]).includes(l.id)).map(m=>m.id),companion_species_ids:[],
   organization_ids:ORGS.filter(o=>o.base_location_id===l.id).map(o=>o.id),pantheon_ids:[]};
 }
+DB.content_link_index.item_sources=DB.content_link_index.item_sources||{};
+for(const d of DB.items||[]){
+ const s=DB.content_link_index.item_sources[d.id]=DB.content_link_index.item_sources[d.id]||{};
+ for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=Array.isArray(s[k])?[...new Set(s[k])]:[];
+}
+for(const l of DB.locations||[])for(const id of [...(l.gather||[]),...(l.mining||[]),...(l.woodcut||[]),...(l.fish||[]),...(l.hunt||[])]){
+ const s=DB.content_link_index.item_sources[id];if(s&&!s.gather_locations.includes(l.id))s.gather_locations.push(l.id);
+}
+for(const m of DB.monsters||[])for(const d of m.loot_materials||[]){
+ const s=DB.content_link_index.item_sources[d.id];if(s&&!s.monster_drops.includes(m.id))s.monster_drops.push(m.id);
+}
+if(DB.integration_registry?.counts)DB.integration_registry.counts.lore_records=(DB.lore_records||[]).length;
 const verifyKeys=Object.keys(DB.lore_system?.verification_levels||{}),verify=verifyKeys.includes("verified")?"verified":(verifyKeys.includes("recorded")?"recorded":(verifyKeys[0]||"recorded"));
 for(const l of LORE){const x=row("lore_records",l.id);if(x)x.verification=verify}
 if(Array.isArray(DB.lore_records)){const rebuilt={};for(const x of DB.lore_records){const k=String(x.scope_type||"world")+":"+String(x.scope_id||"global");(rebuilt[k]||(rebuilt[k]=[])).push(x.id)}DB.lore_query_index=rebuilt}
