@@ -55,9 +55,9 @@
   window.addEventListener("load",()=>{
     if(!("serviceWorker" in navigator))return;
     if(!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=CURRENT-1.86.0",{scope:"./"})
+    navigator.serviceWorker.register("sw.js?v=CURRENT-1.95.1",{scope:"./"})
       .then(registration=>registration.update().catch(()=>null))
       .catch(error=>console.warn("Service worker registration failed",error));
   },{once:true});
-  globalThis.QUNLU_CORE?.registerModule?.("src/pwa.js",{domain:"finalization",revision:"PWA-BOOT-1.1",release:globalThis.QUNLU_RELEASE_VERSION});
+  globalThis.QUNLU_CORE?.registerModule?.("src/pwa.js",{domain:"finalization",revision:"PWA-BOOT-1.2",release:globalThis.QUNLU_RELEASE_VERSION});
 })();
