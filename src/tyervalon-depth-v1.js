@@ -1,4 +1,4 @@
-/* 群陸旅誌：泰爾瓦隆百族部落完整區域深化 CURRENT-1.96.3
+/* 群陸旅誌：泰爾瓦隆百族部落完整區域深化 CURRENT-1.96.4
  * TYERVALON-DEPTH-1.0
  * POL-014 / REG-14：百族會盟、政治結構、六大地帶、城鎮、野外、地下城、怪物、NPC與地方循環。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.96.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.3";
+const RELEASE=CORE?.release?.("CURRENT-1.96.4")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.4";
 const REV="TYERVALON-DEPTH-1.0";
 const POLITY_ID="POL-014",REGION_ID="REG-14",CULTURE_ID="CUL-014",REALM_ID="RMAP-POL-014";
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
@@ -96,7 +96,7 @@ const ITEMS=[
 ].map(x=>({id:x[0],name:x[1],tier:x[2],weight:x[3],value:x[4],description:x[5]}));
 for(const x of ITEMS)upsert("items",{...x,kind:"material",type:"素材",catalog_group:"素材",stackable:true,regional_origin_id:REGION_ID});
 
-function mon(x){const drops=[...(x.drops||[])];return{id:x.id,name:x.name,tier:x.tier,lore_role:x.role||"一般",category:"野獸與一般魔物系",habitat:[...x.habitat],habitats:[...x.habitat],hp:x.hp,attack:x.atk,defense:x.def,magicDefense:x.def,accuracy:x.acc,initiative:x.init??10,damage:[...x.damage],primary_element:x.element||null,element:x.element||null,xp_reward:({F:10,E:18,D:34,C:58}[x.tier]||12),description:x.description,near_town_eligible:!!x.near,encounter_enabled:true,encounter_weight:1,ecology_profile:{body_scale:x.scale||"medium",tags:[...(x.tags||["wildlife"])]},loot_profile:{version:"LOOT-ECOLOGY-1.0",allowed_material_ids:drops},loot_materials:drops.map((id,i)=>({id,chance:Math.max(.18,.44-i*.08),min:1,max:1}))}}
+function mon(x){const drops=[...(x.drops||[])];return{id:x.id,name:x.name,tier:x.tier,lore_role:x.role||"一般",category:"野獸與一般魔物系",habitat:[...x.habitat],habitats:[...x.habitat],hp:x.hp,attack:x.atk,defense:x.def,magicDefense:x.def,accuracy:x.acc,initiative:x.init??10,damage:[...x.damage],primary_element:x.element||null,element:x.element||null,xp_reward:({F:10,E:18,D:34,C:58}[x.tier]||12),description:x.description,near_town_eligible:!!x.near,encounter_enabled:true,encounter_weight:1,ecology_profile:{body_scale:x.scale||"medium",tags:[...(x.tags||["wildlife"])]},loot_profile:{version:"LOOT-ECOLOGY-1.0",fallback_policy:"none",allowed_material_ids:drops},loot_materials:drops.map((id,i)=>({id,chance:Math.max(.18,.44-i*.08),min:1,max:1}))}}
 const MONSTERS=[
  {id:"MON-TV-001",name:"蒿草跳鼠",tier:"F",habitat:["L-TV-HEARTGRASS","L-TV-NORTHPASTURE","D-TV-GRANARY"],hp:24,atk:8,def:4,acc:67,damage:[2,5],scale:"small",tags:["wildlife","small_intruder"],drops:["TV-MAT-001"],near:true,description:"草原與糧窖常見的小型齧獸。"},
  {id:"MON-TV-002",name:"泉地泥蟹",tier:"F",habitat:["L-TV-SEASONALRIVER","L-TV-EASTRIVER","D-TV-SUNKWELL"],hp:30,atk:10,def:8,acc:65,damage:[3,6],element:"水",scale:"small",tags:["aquatic","invertebrate","small_intruder"],drops:["TV-MAT-002"],near:true,description:"泉池與季流淺灘的小型甲殼獸。"},
@@ -244,6 +244,8 @@ for(const l of [...TOWNS,...FIELDS,...DUNGEONS].map(x=>loc(x.id)).filter(Boolean
   const o=row("world_organizations",o0.id);if(!o)continue;
   o.political_entity_id=POLITY_ID;o.scope="地方／區域";o.alignment=o.alignment||"neutral";
   o.primary_facility=facilityByOrg[o.id]||"guild";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;o.min_join_level=Math.max(1,Number(o.min_join_level)||1);
+  const bonusByKind={government:{statusResist:4},military:{initiative_pct:4},ritual:{healingPower:4},civic:{carryCapacity:5},trade:{perception:3},ranger:{perception:4},civilian:{moveSpeed:3},craft:{craft_success:4}};
+  o.member_bonus=o.member_bonus||{id:"BONUS-"+o.id,text:"百族職能會員訓練",effects:{...(bonusByKind[o.kind]||{perception:3})}};
   o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];
   o.history=Array.isArray(o.history)&&o.history.length?o.history:["由百族共同生活的實際需求逐步形成，先有慣例與共同責任，後才固定名稱與議事程序。"];
   o.history_summary=o.history_summary||o.history.join(" ");
