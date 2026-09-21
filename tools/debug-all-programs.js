@@ -394,6 +394,35 @@ statefulStep("market_buy_sell_transaction",()=>{
   return detail;
 });
 
+statefulStep("carry_capacity_penalty_consistency",()=>{
+  if(!baselineState)throw new Error("缺少建角基準狀態");
+  context.__baselineState=structuredClone(baselineState);
+  const detail=ctx(`(()=>{
+    G=structuredClone(__baselineState);
+    G.character.hunger=0;G.character.fatigue=0;G.character.thirst=0;
+    const weight=calcWeight(),dynamicCap=combatStats().carryCapacity;
+    if(!(dynamicCap>weight))throw new Error("基準角色負重不低於即時上限:"+weight+"/"+dynamicCap);
+    G.character.weightCap=Math.max(0,weight-.1);
+    const normalPenalty=survivalPenalty();
+    if(normalPenalty!==0)throw new Error("即時負重上限足夠時仍套用D20超重懲罰:"+normalPenalty);
+    applySurvival();
+    if((G.character.conditions||[]).some(x=>String(x).includes("超重")))throw new Error("即時負重上限足夠時仍標記超重");
+    const equipmentTypes=new Set(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"]);
+    const filler=(DB.items||[]).filter(d=>d?.id&&Number(d.weight)>0&&!equipmentTypes.has(d.type)).sort((a,b)=>Number(b.weight)-Number(a.weight))[0];
+    if(!filler)throw new Error("找不到可用於超重回歸測試的正重量物品");
+    const beforeHeavy=calcWeight(),capBeforeHeavy=combatStats().carryCapacity,unit=Math.max(.1,Number(filler.weight));
+    const qty=Math.max(1,Math.ceil((capBeforeHeavy-beforeHeavy+1)/unit));
+    addItem(filler.id,qty);
+    const heavyWeight=calcWeight(),heavyCap=combatStats().carryCapacity;
+    if(!(heavyWeight>heavyCap))throw new Error("未能建立超重測試狀態:"+heavyWeight+"/"+heavyCap);
+    const overloadedPenalty=survivalPenalty();
+    if(overloadedPenalty!==-2)throw new Error("實際超重時D20懲罰異常:"+overloadedPenalty);
+    return {weight,dynamicCap,staleWeightCap:G.character.weightCap,normalPenalty,filler:filler.id,qty,heavyWeight,heavyCap,overloadedPenalty};
+  })()`,30000);
+  ctx("G=structuredClone(__baselineState)");
+  return detail;
+});
+
 if(baselineState)ctx("G=structuredClone(__baselineState)");
 
 

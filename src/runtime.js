@@ -611,7 +611,7 @@ function effectiveStat(n){
  if(G.character.hunger>=90||G.character.fatigue>=90||G.character.thirst>=90)v=Math.floor(v/2);
  return Math.max(1,v)
 }
-function survivalPenalty(){let p=0;[G.character.hunger,G.character.fatigue,G.character.thirst].forEach(v=>{if(v>=70)p-=2});if(calcWeight()>G.character.weightCap)p-=2;return p}
+function survivalPenalty(){let p=0;[G.character.hunger,G.character.fatigue,G.character.thirst].forEach(v=>{if(v>=70)p-=2});if(calcWeight()>combatStats().carryCapacity)p-=2;return p}
 function isShieldItem(d){return !!d&&d.catalog_subcategory==="盾牌"}
 function isOneHandedWeapon(d){return !!d&&d.type==="主武器"&&!isShieldItem(d)&&(d.weapon_profile?.hands||1)===1}
 function offhandEligible(d){return isShieldItem(d)||isOneHandedWeapon(d)}

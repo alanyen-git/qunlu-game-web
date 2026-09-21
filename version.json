@@ -1,11 +1,14 @@
 {
-  "version": "CURRENT-2.06.0",
-  "previous_version": "CURRENT-2.05.1",
+  "version": "CURRENT-2.06.1",
+  "previous_version": "CURRENT-2.06.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.06.0：黑月深庭完整深化正式接入；沿用POL-020與REG-13地下分層主權，新增7治理區、9地下聚落、15地下野外、10地下城、24怪物、16素材、20核心NPC、七大家門、誓井議庭與6條活世界事件鏈，並與安威爾深界堡完成停戰線接線。",
+  "summary": "CURRENT-2.06.1：完成全程序除錯與負重判定一致性修正；D20超重懲罰改用即時負重上限，並新增回歸測試防止裝備、Buff或陣營負重加成與介面判定分歧。",
   "changelog": [
+    "CURRENT-2.06.1：完成全程序除錯；修正D20超重懲罰仍使用舊weightCap的問題，統一改用combatStats().carryCapacity，確保與HUD、超重狀態及移動速度判定一致。",
+    "最高權限總測試新增負重容量一致性回歸案例，覆蓋「舊weightCap較低但即時上限足夠」與「實際超重」兩種情境；不改世界內容與存檔schema。",
+    "PWA快取由v114升至v115；正式入口、版本同步、程序註冊與發布完整性fallback同步升至CURRENT-2.06.1。",
     "CURRENT-2.06.0：黑月深庭完整深化正式接入網站；沿用既有POL-020、CUL-020與REG-13地下主權層，不建立新的地表政治體。",
     "政治制度深化為首席主母＋誓井議庭＋七大母系家門＋公共水脈／外環商監／礦道監領；首席主母負責獲授權對外代表，永久條約、公共水權與重大工程受議庭程序制衡。",
     "七大家門具名為月鏡、深泉、銀絲、黑脈、夜橋、灰燈、靜刃；母系繼承不等於男性奴役，專業官職依資格與任命取得。",
@@ -704,7 +707,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.06.0完成黑月深庭地下主權可玩化與活世界接線；69個正式src程序保持index、Service Worker與PROGRAM-REGISTRY同步。",
-    "last_verified_release": "CURRENT-2.06.0",
+    "last_verified_release": "CURRENT-2.06.1",
     "notes": [
       "CURRENT-2.06.0：新增src/black-moon-depth-v1.js；黑月深庭7治理區、STATE-BM-20活世界與安威爾深界停戰線接線，正式入口、PROGRAM-REGISTRY與PWA同步為69個src程序。",
       "CURRENT-2.05.1：斷境／龍脊定稿；REG-19非主權視覺、跨區道路載入與PWA v113同步完成。",

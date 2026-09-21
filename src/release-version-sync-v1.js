@@ -3,7 +3,7 @@
   const REVISION="RELEASE-VERSION-SYNC-1.17";
   const scriptVersion=typeof document!=="undefined"?String(document.currentScript?.dataset?.release||"").trim():"";
   const titleVersion=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
-  const RELEASE_VERSION=scriptVersion||titleVersion||globalThis.DB?.meta?.current_version||"CURRENT-2.06.0";
+  const RELEASE_VERSION=scriptVersion||titleVersion||globalThis.DB?.meta?.current_version||"CURRENT-2.06.1";
 
   if(globalThis.DB?.meta){
     DB.meta.current_version=RELEASE_VERSION;
