@@ -2,7 +2,7 @@
   "schema": "QUNLU-RELEASE-VALIDATION-1.0",
   "release": "CURRENT-2.01.0",
   "feature_revision": "WHITE-FELT-DEPTH-1.0",
-  "validated_commit": "72bdb0d794fe03d4d5bfc1f2481ccd8398024a7f",
+  "validated_commit": "befc201acead983e9bd1e1f49ee2d2bfa84f941b",
   "included_commits": [
     "36e81df8d42b7e4c8bf91bde301693043834cff6",
     "550781e766bdbd00b4566e0bd1565df3f1875411",
@@ -12,7 +12,8 @@
     "eef78061928e98834e76caefd154de00ac8068cb",
     "cc1487df8979543aca2e67629cf2e1da7dc91370",
     "d0980d8f18762fc401fe965e44c5545a19984e35",
-    "72bdb0d794fe03d4d5bfc1f2481ccd8398024a7f"
+    "72bdb0d794fe03d4d5bfc1f2481ccd8398024a7f",
+    "befc201acead983e9bd1e1f49ee2d2bfa84f941b"
   ],
   "validated_date": "2026-09-21",
   "status": "pass",
@@ -65,10 +66,22 @@
         "L-WS-GOOSEFORD",
         "D-WS-STONERING"
       ]
+    },
+    "github_actions": {
+      "status": "pass",
+      "validate_public_web_game_run_id": 35607315746,
+      "pages_build_and_deployment_run_id": 35607315031,
+      "programs_loaded": "64/64",
+      "stateful_tests": "8/8",
+      "audits": 46,
+      "release": "CURRENT-2.01.0"
     }
   },
   "release_decision": "approved_for_main",
   "notes": [
+    "最終修正版 befc201a 已修正白氈採集來源合法性與風泉新手區節點數，未降低既有稽核標準。",
+    "GitHub Actions「Validate public web game」run 35607315746 成功：64/64正式程序載入、8/8 stateful tests、46 audits。",
+    "GitHub Pages 原生 pages build and deployment run 35607315031 成功。",
     "白氈汗國沿用POL-015／REG-15與既有風泉村新手叢集，不建立重複政治體。",
     "白氈大汗庭維持季移制度，政治體capital仍為「無固定都城」。",
     "正式程序清單以允許額外script attributes的解析方式比對，index／registry／Service Worker均為64支且順序一致。",
