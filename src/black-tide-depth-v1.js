@@ -447,9 +447,13 @@ function audit(){
  }
  if(NPCS.length!==16)issues.push("核心NPC應為16名");
  for(const n of NPCS){const x=row("regional_npc_archetypes",n.id);if(!x||!loc(x.location_id))issues.push("NPC所在地缺失:"+n.id)}
- for(const id of ORGS.map(x=>x.id))if(!row("world_organizations",id))issues.push("組織缺失:"+id);\n  if(row("world_organizations","ORG-BT-COURT")?.name!=="皓月御國")issues.push("皓月御國正式名稱失步");\n  if(row("world_organizations","ORG-BT-BAKUFU")?.name!=="黑潮幕府")issues.push("黑潮幕府正式名稱失步");\n  if(row("regional_npc_archetypes","NPC-BT-002")?.role!=="征夷大將軍")issues.push("征夷大將軍職稱失步");
+ for(const id of ORGS.map(x=>x.id))if(!row("world_organizations",id))issues.push("組織缺失:"+id);
+  if(row("world_organizations","ORG-BT-COURT")?.name!=="皓月御國")issues.push("皓月御國正式名稱失步");
+  if(row("world_organizations","ORG-BT-BAKUFU")?.name!=="黑潮幕府")issues.push("黑潮幕府正式名稱失步");
+  if(row("regional_npc_archetypes","NPC-BT-002")?.role!=="征夷大將軍")issues.push("征夷大將軍職稱失步");
  const a=(DB.polity_authority_profiles||[]).find(x=>x?.polity_id===POLITY_ID);
- for(const id of ["POL-010-O1","POL-010-O2","POL-010-O5","POL-010-O6","POL-010-O9","POL-010-O10"])if(!a?.office_nodes?.some(x=>x.id===id))issues.push("政治權力節點缺失:"+id);\n  if(a?.office_nodes?.find(x=>x.id==="POL-010-O2")?.title!=="征夷大將軍")issues.push("POL-010-O2職稱應為征夷大將軍");
+ for(const id of ["POL-010-O1","POL-010-O2","POL-010-O5","POL-010-O6","POL-010-O9","POL-010-O10"])if(!a?.office_nodes?.some(x=>x.id===id))issues.push("政治權力節點缺失:"+id);
+  if(a?.office_nodes?.find(x=>x.id==="POL-010-O2")?.title!=="征夷大將軍")issues.push("POL-010-O2職稱應為征夷大將軍");
  return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],
   stats:{islands:ISLANDS.length,major:3,minor:5,outer_islets:OUTER_ISLETS.length,towns:TOWNS.length,existing_starter_town:!!loc("L-START-TIDEBORN"),wilds:FIELDS.length,dungeons:DUNGEONS.length,monsters:MONSTERS.length,npcs:NPCS.length,organizations:ORGS.length,materials:ITEMS.length}};
 }
