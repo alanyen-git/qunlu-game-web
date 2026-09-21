@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.96.1",
-  "previous_version": "CURRENT-1.96.0",
+  "version": "CURRENT-1.96.2",
+  "previous_version": "CURRENT-1.96.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "黑潮群島命名統一：潮皇王庭正式更名為「皓月御國」、幕府正式更名為「黑潮幕府」、征海大將軍正式更名為「征夷大將軍」；既有3大島、5小島、7外圍島礁與所有玩法資料保持不變。",
+  "summary": "泰爾瓦隆百族部落完整區域深化：十二大圖騰席與中小部族席團正式建立，六大地帶、8座城鎮、12張野外地圖、8處地下城、20種怪物、18名核心NPC與8個區域組織接入現行世界。",
   "changelog": [
+    "TYERVALON-DEPTH-1.0：POL-014泰爾瓦隆百族部落由世界政治骨架深化為可遊玩區域；保留泰爾瓦隆大營、百族大酋長與REG-14既有正史。",
+    "政治結構建立十二大圖騰席＋中小部族席團＋地方氏族；百族大酋長掌共同外交與授權下戰時統合，水草議庭、祖火薩滿庭、戰角營與各部維持分權。",
+    "新增會盟心原、西關風門、北泉草海、東岸雷台、南麓赤坡、林緣霧谷六大可遊玩治理區，全部接入RMAP-POL-014。",
+    "新增8座城鎮、12張野外地圖、8處地下城／遺構、20種REG-14怪物、13種素材、18名核心NPC、8個地方組織、8條冒險鉤子與8種生活事件。",
+    "泉眼、牧地、獵場、林地與火地採集納入承載量、輪替、封養與封路概念，不視為無限資源。",
+    "正式入口、PROGRAM-REGISTRY、RELEASE-INTEGRITY與PWA離線快取同步納入泰爾瓦隆深化模組；舊存檔schema不變。",
+    "修正version.json既有程序統計漂移：CURRENT-1.96.1實際正式src程序為58個而非57個；新增泰爾瓦隆後為59個。",
     "CURRENT-1.96.1：僅調整黑潮群島政治命名與發布快取版本；不改地圖、怪物、NPC數量、戰鬥規則或存檔schema。",
     "BLACK-TIDE-NAMING-1.0：黑潮群島三項正式名詞統一為「皓月御國／黑潮幕府／征夷大將軍」，同步政治體、組織、NPC、官署、世界地圖、地方敘述與稽核。",
     "BLACK-TIDE-DEPTH-1.0：黑潮群島正式完成3大島（玄潮、赤浦、青岬）＋5小島（白砂、潮見、灰燈、鯨背、霧浦）＋7外圍小型島礁的島內結構。",
@@ -213,7 +220,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.8",
+  "pwa_cache_revision": "v99",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -289,7 +296,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.7",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.9",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -563,10 +570,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.8",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.9",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 57,
+    "active_src_programs": 59,
     "groups": [
       "core",
       "data",
@@ -586,9 +593,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.95.1完成57個正式src程序除錯與發布同步；index、PROGRAM-REGISTRY、Service Worker清單與順序一致，PWA與版本fallback同步。",
-    "last_verified_release": "CURRENT-1.95.1",
+    "note": "CURRENT-1.96.2新增泰爾瓦隆完整區域深化模組；59個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
+    "last_verified_release": "CURRENT-1.96.2",
     "notes": [
+      "CURRENT-1.96.2：修正既有58程序統計漂移並新增src/tyervalon-depth-v1.js；正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為59個src程序。",
       "CURRENT-1.95.1：57個正式src程序語法與清單一致性通過；修正PROGRAM-REGISTRY revision、發布fallback與PWA Service Worker版本漂移。",
       "CURRENT-1.94.0：新手區擴為柳橋同規模1＋3＋3並接入繁榮度市場倍率；正式src程序維持57個。",
       "CURRENT-1.93.0：新增多政治體新手村與出生分配資料層；正式入口、PROGRAM-REGISTRY與PWA清單同步為57個src程序。",
@@ -1088,5 +1096,20 @@
     "starter_town_preserved": true,
     "save_schema_changed": false
   },
-  "black_tide_naming_revision": "BLACK-TIDE-NAMING-1.0"
+  "black_tide_naming_revision": "BLACK-TIDE-NAMING-1.0",
+  "tyervalon_depth_revision": "TYERVALON-DEPTH-1.0",
+  "tyervalon_depth": {
+    "political_entity_id": "POL-014",
+    "region_id": "REG-14",
+    "great_totem_seats": 12,
+    "playable_zones": 6,
+    "towns": 8,
+    "wild_maps": 12,
+    "dungeons": 8,
+    "monsters": 20,
+    "core_npcs": 18,
+    "organizations": 8,
+    "regional_materials": 13,
+    "save_compatible": true
+  }
 }
