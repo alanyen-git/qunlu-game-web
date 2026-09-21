@@ -127,9 +127,9 @@ const MONSTERS=[
 for(const x of MONSTERS)upsert("monsters",mon(x));
 
 const ORGS=[
- {id:"ORG-GB-WARPACT",name:"傭兵都市共治議會",kind:"government",tier:"C",base_location_id:"L-GB-GRAYBLADE",joinable:false,description:"遠境冒險團、冒險者總公會與傭兵總公會各持一席的最高共同議事機構。輪值召集人只主持程序，不額外增加表決權。"},
- {id:"ORG-GB-CIVIC",name:"傭兵都市市政事務院",kind:"government",tier:"C",base_location_id:"L-GB-GRAYBLADE",joinable:false,description:"依共治議會決議主管稅務、道路、市場、公共工程、市籍與日常行政，不具有獨立主權席次。"},
- {id:"ORG-GB-COURT",name:"契約仲裁院",kind:"civic",tier:"C",base_location_id:"L-GB-GRAYBLADE",joinable:false,description:"獨立處理傭兵契約、冒險者委託、商路護衛、違約、損害與跨團體仲裁；三方共治成員涉案時不得自行主持仲裁。"},
+ {id:"ORG-GB-WARPACT",name:"傭兵都市共治議會",kind:"government",tier:"C",base_location_id:"L-GB-GRAYBLADE",description:"遠境冒險團、冒險者總公會與傭兵總公會各持一席的最高共同議事機構。輪值召集人只主持程序，不額外增加表決權。"},
+ {id:"ORG-GB-CIVIC",name:"傭兵都市市政事務院",kind:"government",tier:"C",base_location_id:"L-GB-GRAYBLADE",description:"依共治議會決議主管稅務、道路、市場、公共工程、市籍與日常行政，不具有獨立主權席次。"},
+ {id:"ORG-GB-COURT",name:"契約仲裁院",kind:"civic",tier:"C",base_location_id:"L-GB-GRAYBLADE",description:"獨立處理傭兵契約、冒險者委託、商路護衛、違約、損害與跨團體仲裁；三方共治成員涉案時不得自行主持仲裁。"},
  {id:"ORG-GB-ARSENAL",name:"灰爐軍需工坊聯席",kind:"craft",tier:"C",base_location_id:"L-GB-ARSENALWARD",description:"兵器、護具、車具與修造工坊的聯席組織，負責軍需規格、工期、材料與危險品存放規則。"},
  {id:"ORG-GB-ROAD",name:"三岔商路署",kind:"civic",tier:"D",base_location_id:"L-GB-BLADECROSS",description:"維護西向與南向商路、驛馬、橋涵、車隊登記與道路警訊。"},
  {id:"ORG-GB-RIVER",name:"白鐘河務會",kind:"civic",tier:"D",base_location_id:"L-GB-CROSSFORD",description:"管理橋渡、水磨、春汛、河岸工程與糧運時段。"},
@@ -139,11 +139,11 @@ const ORGS=[
 const bonusByKind={government:{statusResist:3},civic:{carryCapacity:3},craft:{craft_success:2},military:{defense_pct:2},mercenary:{accuracy:3}};
 for(const base of ORGS){
  const o=upsert("world_organizations",{...base,region_id:REGION_ID,political_entity_id:POLITY_ID});
- o.scope=o.tier==="C"?"kingdom":"local_regional";o.alignment="neutral";o.category=o.kind;o.primary_facility=o.kind==="craft"?"blacksmith":"guild";o.member_bonus=o.member_bonus||{id:"BONUS-"+o.id,text:"灰刃職能會員訓練",effects:{...(bonusByKind[o.kind]||{perception:3})}};o.min_join_level=Math.max(1,Number(o.min_join_level)||1);o.join_reputation=Number(o.join_reputation)||0;o.visibility="public";o.legal_status="legal";o.joinable=base.joinable!==false;o.mission_issuer=true;o.can_be_enemy=true;o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];o.history=o.history?.length?o.history:["灰刃城從戰時聚落轉型後，先形成可登記、可追責的武契制度；其後由遠境冒險團、冒險者總公會與傭兵總公會締結共治章程，建立現行三方議會。"];o.history_summary=o.history.join(" ");o.current_state=o.current_state||"目前以維持三方權力平衡、城市中立、契約可信度與南東商路安全為首要目標。";o.signature=o.signature||"三方共治、契約登記、責任可追溯與武裝權力受城市章程約束";o.distinctive_features=o.distinctive_features||[o.signature,"任何單一共治成員都不能獨占城市主權","組織層級不等同成員個人戰力"];o.institutional_culture=o.institutional_culture||"重視書面契約、押印、責任人、物資清單與期限。";o.strategic_tension=o.strategic_tension||"武裝效率、商業自由與市民公共安全之間需要持續平衡。";
+ o.scope=o.tier==="C"?"kingdom":"local_regional";o.alignment="neutral";o.category=o.kind;o.primary_facility=o.kind==="craft"?"blacksmith":"guild";o.member_bonus=o.member_bonus||{id:"BONUS-"+o.id,text:"灰刃職能會員訓練",effects:{...(bonusByKind[o.kind]||{perception:3})}};o.min_join_level=Math.max(1,Number(o.min_join_level)||1);o.join_reputation=Number(o.join_reputation)||0;o.visibility="public";o.legal_status="legal";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];o.history=o.history?.length?o.history:["灰刃城從戰時聚落轉型後，先形成可登記、可追責的武契制度；其後由遠境冒險團、冒險者總公會與傭兵總公會締結共治章程，建立現行三方議會。"];o.history_summary=o.history.join(" ");o.current_state=o.current_state||"目前以維持三方權力平衡、城市中立、契約可信度與南東商路安全為首要目標。";o.signature=o.signature||"三方共治、契約登記、責任可追溯與武裝權力受城市章程約束";o.distinctive_features=o.distinctive_features||[o.signature,"任何單一共治成員都不能獨占城市主權","組織層級不等同成員個人戰力"];o.institutional_culture=o.institutional_culture||"重視書面契約、押印、責任人、物資清單與期限。";o.strategic_tension=o.strategic_tension||"武裝效率、商業自由與市民公共安全之間需要持續平衡。";
 }
 
 const CO_GOVERNORS=[
- {id:"ORG-002",name:"遠境冒險團",legacy_name:"遠路探勘協會",governance_role:"世界級冒險團共治席",scope:"world",tier:"A",joinable:false,base_location_id:"L-GB-GRAYBLADE",description:"以長距離遠征、未知區域踏查與高風險撤離能力聞名的世界級冒險團。核心成員固定而精簡，不作一般公開招募；在傭兵都市共治議會持一席。"},
+ {id:"ORG-002",name:"遠境冒險團",legacy_name:"遠路探勘協會",governance_role:"世界級冒險團共治席",scope:"world",tier:"A",joinable:true,base_location_id:"L-GB-GRAYBLADE",description:"以長距離遠征、未知區域踏查與高風險撤離能力聞名的世界級冒險團。核心成員固定而精簡，不作一般公開招募；在傭兵都市共治議會持一席。"},
  {id:"ORG-001",name:"冒險者總公會",legacy_name:"群陸冒險者公會",governance_role:"冒險者總公會共治席",base_location_id:"L-GB-GRAYBLADE",description:"跨境冒險者資格、委託、信用、情報與功績紀錄的總公會；總部設於灰刃城，在傭兵都市共治議會持一席。"},
  {id:"ORG-016",name:"傭兵總公會",legacy_name:"自由傭兵工會",governance_role:"傭兵總公會共治席",base_location_id:"L-GB-GRAYBLADE",description:"負責跨境傭兵登記、雇傭契約、團體信用、戰傷與退役紀錄的總公會；總部設於灰刃城，在傭兵都市共治議會持一席。"}
 ];
@@ -153,7 +153,7 @@ for(const patch of CO_GOVERNORS){
  o.name=patch.name;o.governance_role=patch.governance_role;o.governing_polity_id=POLITY_ID;o.governing_council_id="ORG-GB-WARPACT";
  o.base_location_id=patch.base_location_id;o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),patch.base_location_id].filter(Boolean))];
  o.description=patch.description;
- if(patch.scope)o.scope=patch.scope;if(patch.tier)o.tier=patch.tier;if(patch.joinable===false)o.joinable=false;
+ if(patch.scope)o.scope=patch.scope;if(patch.tier)o.tier=patch.tier;if(patch.joinable!=null)o.joinable=!!patch.joinable;
  o.current_state=(o.current_state?o.current_state+" ":"")+"現於灰刃城設置共治席代表；城市主權依三方共治章程行使。";
  o.distinctive_features=[...new Set([...(o.distinctive_features||[]),patch.governance_role,"共治席不等於對另外兩方的指揮權"])];
 }
