@@ -1,0 +1,61 @@
+{
+  "schema": "QUNLU-RELEASE-VALIDATION-1.0",
+  "release": "CURRENT-2.00.0",
+  "feature_revision": "FROST-HORN-DEPTH-1.0",
+  "validated_commit": "f933e47de86d92d6523c0ddbc3b1db0306492720",
+  "included_commits": [
+    "980a63ab44912cf58537e0ee855ec5349a4c6266",
+    "56531f9cf3721ba6cf2a70a79e8b6cdf4efb612d",
+    "f933e47de86d92d6523c0ddbc3b1db0306492720"
+  ],
+  "validated_date": "2026-09-21",
+  "status": "pass",
+  "checks": {
+    "javascript_syntax": {
+      "status": "pass",
+      "file_count": 7
+    },
+    "version_json": {
+      "status": "pass",
+      "version": "CURRENT-2.00.0"
+    },
+    "program_lists": {
+      "status": "pass",
+      "index_count": 63,
+      "registry_count": 63,
+      "service_worker_count": 63,
+      "same_order": true,
+      "duplicate_count": 0
+    },
+    "release_integration": {
+      "status": "pass",
+      "frost_horn_in_index": true,
+      "frost_horn_in_registry": true,
+      "frost_horn_in_service_worker": true,
+      "release_integrity_hook": true,
+      "program_registry_critical_hook": true
+    },
+    "frost_horn_headless_audit": {
+      "status": "pass",
+      "issues": [],
+      "stats": {
+        "major_fire_seats": 6,
+        "zones": 6,
+        "towns": 8,
+        "wilds": 12,
+        "dungeons": 8,
+        "monsters": 22,
+        "npcs": 18,
+        "organizations": 8,
+        "materials": 14
+      }
+    }
+  },
+  "release_decision": "approved_for_main",
+  "notes": [
+    "驗證已包含霜角採集來源與古祭壇生態池修正後的最新main內容。",
+    "所有新增區域地點沿用POL-016／REG-16與首府霜角石圈。",
+    "正式程序清單以PROGRAM-REGISTRY的GROUPS區段比對，避免誤計registry自身註冊字串。",
+    "本次驗證未發現語法、程序清單、發布接線或霜角headless資料稽核問題。"
+  ]
+}
