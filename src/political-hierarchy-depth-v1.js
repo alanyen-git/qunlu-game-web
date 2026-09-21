@@ -1,5 +1,5 @@
 /* 群陸旅誌：政治階層深化 CURRENT-1.90.0
- * POLITICAL-HIERARCHY-DEPTH-1.1
+ * POLITICAL-HIERARCHY-DEPTH-1.2
  * 將政治禮序、法定權能、官職、爵位與榮譽身分分離，並為每種CURRENT政治體建立可查詢的完整階層。
  */
 (()=>{
@@ -7,7 +7,7 @@
 if(typeof DB!=="object"||!DB)return;
 
 const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.90.0")||"CURRENT-1.90.0";
-const REV="POLITICAL-HIERARCHY-DEPTH-1.1";
+const REV="POLITICAL-HIERARCHY-DEPTH-1.2";
 
 const RANK_CLASSES=Object.freeze({
   sovereign:{label:"主權位",governing_default:true,hereditary_default:false},
@@ -182,7 +182,7 @@ const TEMPLATES=Object.freeze({
   "幕府雙軌島國":[
     n("潮皇","sovereign","AUTH-7",{territorial:true,hereditary:true,track:"court",acquisition:"王統世襲＋王庭儀禮",rights_note:"法統、祭祀與冊命；日常軍政通常由幕府執行"}),
     n("皇嗣／王族","dynastic","AUTH-6",{hereditary:true,track:"court",governing_default:false,note:"王統繼承身分不等於幕府軍政權。"}),
-    n("征海大將軍","military","AUTH-7",{territorial:true,hereditary:true,track:"shogunate",acquisition:"主導武門繼承＋王庭冊命＋主要大名承認",rights_note:"幕府實際軍政最高職"}),
+    n("征夷大將軍","military","AUTH-7",{territorial:true,hereditary:true,track:"shogunate",acquisition:"主導武門繼承＋王庭冊命＋主要大名承認",rights_note:"幕府實際軍政最高職"}),
     n("幕府老中／評定眾","administrative","AUTH-5",{track:"shogunate",acquisition:"大將軍任命"}),
     n("諸島大名","high_nobility","AUTH-5",{territorial:true,hereditary:true,track:"domain",acquisition:"家門繼承＋幕府安堵"}),
     n("奉行／港代","administrative","AUTH-4",{track:"service",acquisition:"幕府或大名任命"}),
@@ -375,7 +375,7 @@ function audit(){
     const honorary=rows.find(x=>x.title==="榮譽市民");if(honorary?.governing_default)issues.push("榮譽市民誤具統治權:"+pid);
   }
   const blackTide=profiles.find(x=>x.polity_id==="POL-010")?.rank_ladder||[];
-  for(const title of ["潮皇","征海大將軍","諸島大名"])if(!blackTide.some(x=>x.title.includes(title)))issues.push("黑潮雙軌階層缺失:"+title);
+  for(const title of ["潮皇","征夷大將軍","諸島大名"])if(!blackTide.some(x=>x.title.includes(title)))issues.push("黑潮雙軌階層缺失:"+title);
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{polities:polities.length,covered_profiles:DB.political_hierarchy_depth_system.covered_polities,government_types:Object.keys(TEMPLATES).length,rank_classes:Object.keys(RANK_CLASSES).length}};
 }
 DB.political_hierarchy_depth_system.audit=audit();
