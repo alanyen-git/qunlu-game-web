@@ -38,7 +38,7 @@ function field(x){
   preferred_monster_ids:[...(x.preferred||[])]});
  return {
   id:x.id,name:x.name,kind:x.kind||"wild",tier:x.tier,world_tier:x.tier,size:x.size,region:"藍塔高地",description:x.description,links:[],
-  risk:x.risk??18,safety_score:x.safety??Math.max(20,100-(x.risk??18)),world_region_id:REGION_ID,region_id:REGION_ID,political_entity_id:POLITY_ID,polity_id:POLITY_ID,culture_id:CULTURE_ID,
+  risk:x.risk??18,safety_score:x.safety??Math.max(20,100-(x.risk??18)),safety_label:x.safetyLabel||((x.risk??18)<=15?"安穩":(x.risk??18)<=25?"普通":(x.risk??18)<=35?"警戒":"危險"),world_region_id:REGION_ID,region_id:REGION_ID,political_entity_id:POLITY_ID,polity_id:POLITY_ID,culture_id:CULTURE_ID,
   province_region_id:x.province,settlement_region_id:x.smap,realm_region_map_id:REALM_ID,blue_tower_zone_id:x.zoneId,tags:[...(x.tags||[])],
   gather:[...(x.gather||[])],mining:[...(x.mining||[])],woodcut:[...(x.woodcut||[])],fish:[...(x.fish||[])],hunt:[...(x.hunt||[])],
   explore:[...(x.explore||[])],encounter_profile:ep,resource_capacity:clone(x.resourceCapacity||{forage:14,hunt:8,ore:6}),
@@ -153,7 +153,7 @@ const DUNGEONS=[
   preferred:["MON-BLT-007","MON-BLT-017"],gather:["BLT-MAT-009","BLT-MAT-014"],explore:[["樣本間",25],["風沙測試廊",20],["構裝棚",20],["舊宿舍",20],["封存地下室",15]]},
  {id:"D-BLT-GATEWORKS",name:"隘門舊機關層",zoneId:"BLT-Z-06",province:"PROV-BLT-06",smap:"SMAP-BLT-06",tier:"C",size:"關隘地下防禦層",tags:["dungeon","ruins","mountain"],space:"large",risk:36,safety:38,
   description:"隘門城舊防禦系統的一部分。新守備線早已移到地表，但部分石門、警戒符與構裝仍在地下運作。",
-  preferred:["MON-BLT-019","MON-BLT-020"],gather:["BLT-MAT-013"],explore:[["舊閘門",25],["警戒符廊",20],["守衛槽",20],["落石控制室",20],["封閉指揮間",15]]},
+  preferred:["MON-BLT-019","MON-BLT-020"],gather:["BLT-MAT-004","BLT-MAT-014"],explore:[["舊閘門",25],["警戒符廊",20],["守衛槽",20],["落石控制室",20],["封閉指揮間",15]]},
  {id:"D-BLT-HEADSPRING",name:"源谷石泉穴",zoneId:"BLT-Z-06",province:"PROV-BLT-06",smap:"SMAP-BLT-06",tier:"D",size:"河源天然洞穴",tags:["dungeon","cave","water"],aquatic:true,risk:25,safety:52,
   description:"河源側壁的天然石灰洞，水務官定期檢查是否有崩塌、污染與大型水生生物進入。洞穴本身不是禁區，但雨季會封閉。",
   preferred:["MON-BLT-005","MON-BLT-009","MON-BLT-013"],gather:["BLT-MAT-006"],fish:["I-RAWFISH"],explore:[["泉水入口",25],["石灰臺",20],["冷水池",20],["窄縫支洞",20],["深泉回音",15]]}
@@ -187,7 +187,8 @@ const ITEMS=[
  ["BLT-MAT-013","舊塔核心片","B",.45,118,"古塔構裝核心碎片，只能由授權封鎖區清理任務取得。"],
  ["BLT-MAT-014","封式樹脂","D",.16,29,"舊式材庫與研究站常見的封存樹脂，需確認未受污染後才能回收。"]
 ].map(x=>({id:x[0],name:x[1],tier:x[2],weight:x[3],value:x[4],description:x[5]}));
-for(const x of ITEMS)upsert("items",{...x,kind:"material",type:"素材",catalog_group:"素材",stackable:true,regional_origin_id:REGION_ID});
+const GATHER_ELIGIBLE=new Set([...FIELDS,...DUNGEONS].flatMap(x=>x.gather||[]));
+for(const x of ITEMS)upsert("items",{...x,kind:"material",type:"素材",catalog_group:"素材",stackable:true,regional_origin_id:REGION_ID,wild_gather_eligible:GATHER_ELIGIBLE.has(x.id)});
 
 function mon(x){
  const drops=[...(x.drops||[])];
@@ -244,7 +245,7 @@ const NPCS=[
  {id:"NPC-BLT-017",name:"佩特・羅梭",role:"學徒宿舍長",tier:"E",location_id:"L-BLT-BLUESTEPS",knowledge_scope:"學徒規章、基礎資格、宿舍事故與課程安排",combat_tier_ceiling:"E",organization_ids:["ORG-077"],services:["學徒引導","基礎資格資訊"],description:"負責宿舍與基礎學程紀律，最常處理的事故不是禁術，而是睡眠不足和違規練習。"},
  {id:"NPC-BLT-018",name:"茱蒂・克萊",role:"事故記錄員",tier:"D",location_id:"L-BLT-CITY",knowledge_scope:"公開事故檔案、研究封存編號與調查流程",combat_tier_ceiling:"F",organization_ids:["ORG-BLT-CENSOR"],services:["事故檔案查詢","研究紀錄引介"],description:"只提供權限允許的事故資料，並清楚區分目擊、推定原因與已驗證結論。"}
 ];
-for(const n of NPCS)upsert("regional_npc_archetypes",{...n,region_id:REGION_ID,polity_id:POLITY_ID});
+for(const n of NPCS){if(tierRank(n.combat_tier_ceiling)>tierRank("C"))n.combat_tier_ceiling="C";upsert("regional_npc_archetypes",{...n,region_id:REGION_ID,polity_id:POLITY_ID})}
 const DIALOGUES=[
  ["DIA-BLT-001","NPC-BLT-001","議會","塔主議會不是比誰施法更強；真正難的是讓研究自由、城市安全和各塔責任能同時成立。"],
  ["DIA-BLT-002","NPC-BLT-002","研究","沒有方法與紀錄的成果，只能叫一次性的幸運。"],
@@ -412,6 +413,18 @@ for(const l of [...TOWNS,...FIELDS,...DUNGEONS].map(x=>loc(x.id)).filter(Boolean
   organization_ids:[...ORGS,row("world_organizations","ORG-077"),row("world_organizations","ORG-078")].filter(Boolean).filter(o=>o.base_location_id===l.id).map(o=>o.id),pantheon_ids:[]
  };
 }
+DB.content_link_index.item_sources=DB.content_link_index.item_sources||{};
+for(const d of DB.items||[]){
+ const s=DB.content_link_index.item_sources[d.id]=DB.content_link_index.item_sources[d.id]||{};
+ for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=Array.isArray(s[k])?[...new Set(s[k])]:[];
+}
+for(const l of DB.locations||[])for(const id of [...(l.gather||[]),...(l.mining||[]),...(l.woodcut||[]),...(l.fish||[]),...(l.hunt||[])]){
+ const s=DB.content_link_index.item_sources[id];if(s&&!s.gather_locations.includes(l.id))s.gather_locations.push(l.id);
+}
+for(const m of DB.monsters||[])for(const d of m.loot_materials||[]){
+ const s=DB.content_link_index.item_sources[d.id];if(s&&!s.monster_drops.includes(m.id))s.monster_drops.push(m.id);
+}
+if(DB.integration_registry?.counts)DB.integration_registry.counts.lore_records=(DB.lore_records||[]).length;
 const verifyKeys=Object.keys(DB.lore_system?.verification_levels||{});
 const verify=verifyKeys.includes("verified")?"verified":(verifyKeys.includes("recorded")?"recorded":(verifyKeys[0]||"recorded"));
 for(const l of LORE){const x=row("lore_records",l.id);if(x)x.verification=verify}
