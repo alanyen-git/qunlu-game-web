@@ -1,17 +1,17 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.95.1
- * PROGRAM-REGISTRY-1.7
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-1.96.0
+ * PROGRAM-REGISTRY-1.8
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.95.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.95.1";
-const REV="PROGRAM-REGISTRY-1.7";
+const RELEASE=CORE?.release?.("CURRENT-1.96.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.0";
+const REV="PROGRAM-REGISTRY-1.8";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
   data:[
-    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/combat-class-identity-depth-v1.js","src/talent-identity-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js","src/political-consolidation-v1.js","src/political-hierarchy-depth-v1.js","src/starter-settlements-v1.js",
+    "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/combat-class-identity-depth-v1.js","src/talent-identity-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js","src/political-consolidation-v1.js","src/political-hierarchy-depth-v1.js","src/starter-settlements-v1.js","src/black-tide-depth-v1.js",
     "src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js",
     "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js"
   ],
@@ -104,6 +104,7 @@ function audit(){
     ["政治體整併",()=>typeof globalThis.runPoliticalConsolidationAudit==="function"&&globalThis.runPoliticalConsolidationAudit().pass],
     ["政治階層深化",()=>typeof globalThis.runPoliticalHierarchyDepthAudit==="function"&&globalThis.runPoliticalHierarchyDepthAudit().pass],
     ["新手村出生分配",()=>typeof globalThis.runStarterSettlementsAudit==="function"&&globalThis.runStarterSettlementsAudit().pass],
+    ["黑潮群島深化",()=>typeof globalThis.runBlackTideDepthAudit==="function"&&globalThis.runBlackTideDepthAudit().pass],
     ["世界政治地圖",()=>typeof globalThis.runWorldGeopoliticalMapAudit==="function"&&globalThis.runWorldGeopoliticalMapAudit().pass],
     ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"&&globalThis.runAffiliationEntryGateAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
