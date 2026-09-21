@@ -9,6 +9,7 @@
     "CURRENT-2.05.0：斷境無主地與龍脊火山群完整深化正式接入網站；沿用REG-19與REG-20，不建立重複區域或新王國。",
     "斷境新增6區帶、8地方聚落、14野外、9地下城、24怪物、16素材、18核心NPC與8個互保／渡運／回收／救援／商旅／引路／崖岸／醫療組織。",
     "斷境維持無共同承認首都與中央政府；POL-019僅作既有資料索引，地方規約權力限定於實際服務範圍，安威爾與瑟露維亞均不取得REG-19主權。",
+    "世界政治地圖同步修正REG-19：斷境保留POL-019舊資料索引與「無固定都城」相容值，但地圖以虛線非統一主權區呈現、點擊進入非國家區域詳情，不再視覺化成一般國家疆域。",
     "斷境接通安威爾冠脊南門堡與瑟露維亞銀葉門；灰河水位、道路、拾礦壓力、裂脊穩定、食物庫存與地方信任會驅動委託、市場、NPC反應及傳聞。",
     "龍脊新增6區帶、8地方聚落／前哨、14野外、10地下城、24怪物、16素材、18核心NPC與8個道路／水議／礦站／觀測／商旅／採硫／海岸／救援組織。",
     "龍脊REG-20維持非主權火山高地，不建立政治體、首都或中央政府；北口接泰爾瓦隆赤坡寨／龍脊北麓，西北灰路接灰刃灰燼哨鎮。",
@@ -1115,7 +1116,7 @@
     "honorary_titles_have_automatic_rights": false,
     "revision": "POLITICAL-HIERARCHY-DEPTH-1.1"
   },
-  "world_geopolitical_map_revision": "WORLD-MAP-GEOPOLITICS-1.4",
+  "world_geopolitical_map_revision": "WORLD-MAP-GEOPOLITICS-1.6",
   "world_geopolitical_map": {
     "political_entities": 16,
     "surface_regions": 20,
@@ -1135,14 +1136,20 @@
       "surface",
       "physical",
       "climate",
+      "wilderness",
       "subterranean"
     ],
     "save_compatible": true,
-    "geography_profiles": 16
+    "geography_profiles": 16,
+    "nonstate_surface_regions": [
+      "REG-17",
+      "REG-19",
+      "REG-20"
+    ]
   },
-  "world_physical_geography_revision": "WORLD-MAP-GEOPOLITICS-1.4",
+  "world_physical_geography_revision": "WORLD-MAP-GEOPOLITICS-1.6",
   "political_consolidation_revision": "POLITY-CONSOLIDATION-1.3",
-  "world_map_geopolitics_revision": "WORLD-MAP-GEOPOLITICS-1.4",
+  "world_map_geopolitics_revision": "WORLD-MAP-GEOPOLITICS-1.6",
   "political_consolidation": {
     "active_polities_before": 15,
     "active_polities_after": 16,
