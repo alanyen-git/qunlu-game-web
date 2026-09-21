@@ -1,11 +1,20 @@
 {
-  "version": "CURRENT-1.97.0",
-  "previous_version": "CURRENT-1.96.4",
+  "version": "CURRENT-1.98.0",
+  "previous_version": "CURRENT-1.97.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-1.97.0：藍塔魔導王國由世界背景區升級為完整可遊玩B級魔法強國；新增六大區域帶、8城鎮、12野外、8地下城、21怪物、18核心NPC、6個地方職能組織與完整塔主議會／術式安全治理。",
+  "summary": "CURRENT-1.98.0：凡雷克帝國（POL-002／REG-02）由世界政治背景深化為完整可遊玩B級帝國；新增七大治理區、10城鎮、14野外、10地下城、24怪物、22核心NPC、9個帝國／地方職能組織，並建立帝冠、舊王法、總督、軍團、貢賦與宗教軍學合作結構。",
   "changelog": [
+    "VANREK-DEPTH-1.0：沿用POL-002／REG-02既有凡雷克帝國正史，不建立重複政治體；赫薩爾帝都維持帝國首都。",
+    "新增帝都皇冠區、赫薩爾河心區、北境黑松丘陵、東門軍鎮帶、南部金麥平原、西脊舊王領、赤槍修院帶七大可遊玩治理區。",
+    "新增10座城鎮、14張野外地圖、10處地下城／遺構、24種區域怪物、16種素材與22名核心NPC，全部接入REG-02與RMAP-POL-002。",
+    "帝國政治結構深化為皇帝＋帝國冠議會＋宰相府＋高等法院＋軍團總署＋舊王冠領＋行省總督；帝國法與地方舊王法在不同權限範圍並行。",
+    "赤槍教會與凡雷克軍旅合作軍牧、醫療與祭儀；戰策修院提供軍官教育與戰史研究，同時保留宗教／學術內規與自治。",
+    "B級帝國採威脅分流：普通農田、河岸、林地與市鎮維持F～C級；B級怪物與內容集中於沉冠王墓深層、帝國封存軍械庫等受控區。",
+    "市場與資源遵守有限供給：軍團採購、洪水、冬季封路、採伐配額、糧倉容量與地方市場流動性都會影響區域供應。",
+    "PROGRAM-REGISTRY、RELEASE-INTEGRITY、PWA與Service Worker正式納入src/vanrek-depth-v1.js；正式src程序由60增至61，舊存檔schema維持相容。",
+    "世界政治地圖將東門隘殘留的「赫薩爾帝國東境」舊稱正規化為「凡雷克帝國東境」，並補POL-002主權說明。",
     "BLUE-TOWER-DEPTH-1.0：POL-011／REG-11正式啟用為可遊玩區域，保留既有藍塔法令、首席塔主、藍塔奧術院與元素塔議會正史。",
     "新增中央塔城、鏡塔湖盆、西脊塔院、北部觀星臺地、東界季市、藍塔隘源谷六大區域帶；8城鎮、12野外、8地下城彼此以旅行路線接通。",
     "新增21種藍塔區域怪物、18名核心NPC、14種地方素材與6個地方職能組織；既有群陸法師公會、藍塔奧術院與元素塔議會正式接入藍塔地點。",
@@ -588,10 +597,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.10",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.11",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 60,
+    "active_src_programs": 61,
     "groups": [
       "core",
       "data",
@@ -611,9 +620,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.97.0新增藍塔魔導王國完整區域深化模組；60個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
+    "note": "CURRENT-1.98.0新增凡雷克帝國完整區域深化模組；61個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
     "last_verified_release": "CURRENT-1.97.0",
     "notes": [
+      "CURRENT-1.98.0：新增src/vanrek-depth-v1.js；凡雷克帝國啟用七大可遊玩治理區，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為61個src程序（待本版發布驗證後更新last_verified_release）。",
       "CURRENT-1.97.0：新增src/blue-tower-depth-v1.js；藍塔魔導王國啟用六大可遊玩區域帶，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為60個src程序。",
       "CURRENT-1.96.2：修正既有58程序統計漂移並新增src/tyervalon-depth-v1.js；正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為59個src程序。",
       "CURRENT-1.95.1：57個正式src程序語法與清單一致性通過；修正PROGRAM-REGISTRY revision、發布fallback與PWA Service Worker版本漂移。",
@@ -1149,6 +1159,26 @@
       "ORG-078"
     ],
     "tier_model": "E～C一般內容＋受控B級深層",
+    "save_compatible": true
+  },
+  "vanrek_depth_revision": "VANREK-DEPTH-1.0",
+  "vanrek_depth": {
+    "political_entity_id": "POL-002",
+    "region_id": "REG-02",
+    "playable_zones": 7,
+    "towns": 10,
+    "wild_maps": 14,
+    "dungeons": 10,
+    "monsters": 24,
+    "core_npcs": 22,
+    "organizations": 9,
+    "regional_materials": 16,
+    "governance_model": "帝冠中央官署＋舊王冠領＋行省總督＋軍團邊防＋地方舊法",
+    "institution_relations": [
+      "赤槍教會：cooperation",
+      "戰策修院：cooperation"
+    ],
+    "tier_model": "F～C一般內容＋受控B級王墓／軍械深層",
     "save_compatible": true
   }
 }
