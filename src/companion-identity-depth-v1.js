@@ -9,7 +9,7 @@ if(typeof DB!=="object"||!DB||!Array.isArray(DB.companion_species))return;
 
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-1.83.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.83.0";
-const REV="COMPANION-IDENTITY-DEPTH-1.0";
+const REV="COMPANION-IDENTITY-DEPTH-1.1";
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const clip=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const round1=n=>Math.round((Number(n)||0)*10)/10;
