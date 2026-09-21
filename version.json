@@ -626,7 +626,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.12",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 62,
+    "active_src_programs": 63,
     "groups": [
       "core",
       "data",
@@ -646,9 +646,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.99.1完成灰刃自由都市資料治理hotfix；62個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-1.99.1",
+    "note": "CURRENT-2.00.0新增霜角酋邦完整區域深化；63個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
+    "last_verified_release": "CURRENT-2.00.0",
     "notes": [
+      "CURRENT-2.00.0：新增src/frost-horn-depth-v1.js；霜角酋邦六大治理區完整接線，正式程序數增為63。",
       "CURRENT-1.99.1：灰刃世界誌索引、素材來源與組織會員加成補齊；正式程序數維持62。",
       "CURRENT-1.99.0：新增src/gray-blade-depth-v1.js；灰刃自由都市啟用六大可遊玩區，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為62個src程序。",
       "CURRENT-1.98.0：新增src/vanrek-depth-v1.js；凡雷克帝國啟用七大可遊玩治理區，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為61個src程序（待本版發布驗證後更新last_verified_release）。",
