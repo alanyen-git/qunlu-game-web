@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-2.00.0",
-  "previous_version": "CURRENT-1.99.2",
+  "version": "CURRENT-2.01.0",
+  "previous_version": "CURRENT-2.00.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.00.0：完整深化霜角酋邦（POL-016／REG-16）；建立冬議石圈＋六大火席的高地酋邦制度，新增6大治理區、8城鎮、12野外、8地下城、22怪物、14素材、18核心NPC與8個地方組織。",
+  "summary": "CURRENT-2.01.0：完整深化白氈汗國（POL-015／REG-15）；保留無固定首都與風泉村新手區，建立季移大汗庭＋五大旗帳制度，新增6大季牧／商牧區、8聚落、12野外、8地下城、22怪物、14素材、20核心NPC與8個地方組織。",
   "changelog": [
+    "CURRENT-2.01.0：白氈汗國完整深化正式接入網站；沿用POL-015／REG-15與既有風泉村，不建立重複政治體或破壞新手出生ID。",
+    "政治制度深化為白氈大汗＋五大旗帳＋汗庭官署＋千戶百戶／營帳；大汗掌共同外交、跨旗裁議與獲授權動員，旗帳保留日常牧地與家戶治理。",
+    "白氈汗國維持「無固定都城」正史；白氈大汗庭依春夏秋冬法定牧圈季移，金轅市、北氈驛、雁河市、藍脊牧關與南帳市等固定據點維持跨季服務。",
+    "新增汗庭季牧圈、北風牧道、白草泉原、雁河西岸、東丘牧界、南界商牧帶六大可遊玩地帶；既有風泉村、白草牧野、雁回河灘與石圈舊營直接併入正式汗國地圖。",
+    "新增8個核心聚落、12張野外、8處地下城／遺構、22種F～C級區域怪物、14種素材、20名核心NPC、8個地方組織、8條冒險鉤子與8種生活事件。",
+    "牧地、泉眼、河灘、鹽地、牲畜、驛馬與季市庫存全部採有限容量、輪牧、封養、繁殖／剪毛週期及旱年水權模型；打獵必須進入戰鬥。",
+    "PROGRAM-REGISTRY、RELEASE-INTEGRITY、Service Worker與PWA快取同步納入WHITE-FELT-DEPTH-1.0；正式src程序由63增至64，舊存檔schema與新手出生點保持相容。",
     "CURRENT-2.00.0：霜角酋邦完整深化正式接入網站；沿用POL-016／REG-16與首府「霜角石圈」，不建立重複政治體。",
     "政治制度深化為霜角大酋長＋冬議石圈＋六大火席＋谷地氏族／火塘；大酋長掌共同外交與危機協調，但各氏族保留地方自治，政治權力與個人戰力分離。",
     "新增石圈核心高地、北嶺霜原、西冰河谷、東石針礦脊、南口松煙帶、霜湖黑苔地六大可遊玩治理區。",
@@ -237,7 +244,7 @@
     "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
     "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
-  "content_revision": "CURRENT-2.00.0",
+  "content_revision": "CURRENT-2.01.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -247,7 +254,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.10",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.11",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -273,7 +280,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v107",
+  "pwa_cache_revision": "v108",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -349,7 +356,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.14",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.15",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -623,10 +630,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.12",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.13",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 63,
+    "active_src_programs": 64,
     "groups": [
       "core",
       "data",
@@ -1233,5 +1240,29 @@
     "governance": "武契議會＋市議堂雙議軌／契約仲裁院",
     "save_compatible": true
   },
-  "frost_horn_depth_revision": "FROST-HORN-DEPTH-1.0"
+  "frost_horn_depth_revision": "FROST-HORN-DEPTH-1.0",
+  "white_felt_depth_revision": "WHITE-FELT-DEPTH-1.0",
+  "white_felt_depth": {
+    "political_entity_id": "POL-015",
+    "region_id": "REG-15",
+    "permanent_capital": false,
+    "mobile_court": "白氈大汗庭",
+    "major_banners": 5,
+    "zones": 6,
+    "towns": 8,
+    "wilds": 12,
+    "dungeons": 8,
+    "monsters": 22,
+    "materials": 14,
+    "npcs": 20,
+    "organizations": 8,
+    "starter_compatibility": [
+      "L-START-WINDSPRING",
+      "L-WS-WHITEGRASS",
+      "L-WS-GOOSEFORD",
+      "D-WS-STONERING"
+    ],
+    "governance": "白氈大汗＋五大旗帳＋汗庭官署＋千戶百戶與季節營帳",
+    "save_compatible": true
+  }
 }
