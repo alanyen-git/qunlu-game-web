@@ -48,6 +48,7 @@ function build(C){
  for(const e of C.life)upsert("regional_life_events",{id:e[0],name:e[1],text:e[2],region_id:C.regionId,polity_id:C.polityId||null,state_effects:e[3]||{}});
  const verifyKeys=Object.keys(DB.lore_system?.verification_levels||{}),verify=verifyKeys.includes("verified")?"verified":(verifyKeys.includes("recorded")?"recorded":(verifyKeys[0]||"recorded"));
  for(const l of C.lore)upsert("lore_records",{id:l[0],category:l[1],title:l[2],text:l[3],scope_type:"region",scope_id:C.regionId,verification:verify,era_id:"ERA-05",source_refs:[C.regionId,...(C.polityId?[C.polityId]:[])],tags:[C.name,"區域深化","非國家區域"],common_knowledge:true,political_entity_id:C.polityId||null,region_ids:[C.regionId],visibility:"public"});
+ if(Array.isArray(DB.lore_records)){const rebuilt={};for(const x of DB.lore_records){const k=String(x.scope_type||"world")+":"+String(x.scope_id||"global");(rebuilt[k]||(rebuilt[k]=[])).push(x.id)}DB.lore_query_index=rebuilt}
  for(const z of C.zones){
   const towns=C.towns.filter(x=>x.zoneId===z.id).map(x=>x.id),wilds=C.fields.filter(x=>x.zoneId===z.id).map(x=>x.id),dungeons=C.dungeons.filter(x=>x.zoneId===z.id).map(x=>x.id);
   upsert("province_region_maps",{id:z.province,layer:"province_region",name:z.name,display_name:C.name+"・"+z.name,parent_realm_map_id:C.realmId,political_entity_id:C.polityId||null,world_region_id:C.regionId,world_tier:z.tier,map_status:"playable_current",capital_location_id:z.seat,all_settlement_ids:towns,wild_location_ids:wilds,dungeon_location_ids:dungeons,identity:z.role,depth_zone_id:z.id,nonstate_region:true});
@@ -212,13 +213,13 @@ const BOUNDARY={
   ["NPC-BND-018","蘇雅・河頁","灰河記錄員","L-BND-GRAYFORD","水位、洪水、橋損、漁獲與渡運量","F",["ORG-BND-RIVER"],"用多年水位紀錄決定是否停渡。"]
  ],
  orgs:[
-  {id:"ORG-BND-MUTUAL",name:"斷境聚落互保公議",kind:"civic",tier:"C",base_location_id:"L-BND-BROKENKEEP",contact_location_ids:["L-BND-NORTHMARKET","L-BND-GRAYFORD","L-BND-TWINGATE"],description:"各聚落可自願加入的互保協調網，只處理救援、夜巡、公共倉與道路警訊，沒有全域主權。",member_bonus:{id:"BONUS-ORG-BND-MUTUAL",text:"互保路標識讀",effects:{perception:3}}},
-  {id:"ORG-BND-RIVER",name:"灰河渡運聯議",kind:"civic",tier:"D",base_location_id:"L-BND-GRAYFORD",description:"協調渡船、橋梁、水位、河岸倉與洪水停渡。",member_bonus:{id:"BONUS-ORG-BND-RIVER",text:"灰河水路訓練",effects:{perception:2}}},
+  {id:"ORG-BND-MUTUAL",name:"斷境聚落互保公議",kind:"mutual_aid",tier:"C",base_location_id:"L-BND-BROKENKEEP",contact_location_ids:["L-BND-NORTHMARKET","L-BND-GRAYFORD","L-BND-TWINGATE"],description:"各聚落可自願加入的互保協調網，只處理救援、夜巡、公共倉與道路警訊，沒有全域主權。",member_bonus:{id:"BONUS-ORG-BND-MUTUAL",text:"互保路標識讀",effects:{perception:3}}},
+  {id:"ORG-BND-RIVER",name:"灰河渡運聯議",kind:"transport",tier:"D",base_location_id:"L-BND-GRAYFORD",description:"協調渡船、橋梁、水位、河岸倉與洪水停渡。",member_bonus:{id:"BONUS-ORG-BND-RIVER",text:"灰河水路訓練",effects:{perception:2}}},
   {id:"ORG-BND-SALVAGE",name:"拾礦與回收公簿會",kind:"craft",tier:"C",base_location_id:"L-BND-MINERREST",description:"登記可進入廢礦、回收批次與封坑狀態，避免同一遺址被無限翻採。",member_bonus:{id:"BONUS-ORG-BND-SALVAGE",text:"回收辨材",effects:{carryCapacity:4}}},
-  {id:"ORG-BND-RESCUE",name:"裂脊救援誓隊",kind:"civic",tier:"C",base_location_id:"L-BND-RIDGEPOST",description:"維護繩橋、救援線、失蹤名冊與深井開放時段。",member_bonus:{id:"BONUS-ORG-BND-RESCUE",text:"高地救援",effects:{perception:3}}},
+  {id:"ORG-BND-RESCUE",name:"裂脊救援誓隊",kind:"rescue",tier:"C",base_location_id:"L-BND-RIDGEPOST",description:"維護繩橋、救援線、失蹤名冊與深井開放時段。",member_bonus:{id:"BONUS-ORG-BND-RESCUE",text:"高地救援",effects:{perception:3}}},
   {id:"ORG-BND-CARAVAN",name:"百帳商旅互助會",kind:"trade",tier:"C",base_location_id:"L-BND-CARAVANCAMP",description:"協調商季營位、保證金、馱獸與護衛媒合。",member_bonus:{id:"BONUS-ORG-BND-CARAVAN",text:"商旅估價",effects:{perception:2}}},
   {id:"ORG-BND-GUIDES",name:"無印引路人會",kind:"civilian",tier:"C",base_location_id:"L-BND-NORTHMARKET",description:"維護路況、路標日期、危險岔路與嚮導責任紀錄。",member_bonus:{id:"BONUS-ORG-BND-GUIDES",text:"斷境辨路",effects:{perception:4}}},
-  {id:"ORG-BND-CLIFF",name:"西崖棚戶互保會",kind:"civic",tier:"D",base_location_id:"L-BND-WESTCLIFF",description:"負責繩道、潮窗、蓄水、風暴避難與小型碼頭。",member_bonus:{id:"BONUS-ORG-BND-CLIFF",text:"崖岸避險",effects:{defense_pct:2}}},
+  {id:"ORG-BND-CLIFF",name:"西崖棚戶互保會",kind:"infrastructure",tier:"D",base_location_id:"L-BND-WESTCLIFF",description:"負責繩道、潮窗、蓄水、風暴避難與小型碼頭。",member_bonus:{id:"BONUS-ORG-BND-CLIFF",text:"崖岸避險",effects:{defense_pct:2}}},
   {id:"ORG-BND-MEDIC",name:"斷境流動醫帳聯社",kind:"civilian",tier:"C",base_location_id:"L-BND-TWINGATE",contact_location_ids:["L-BND-CARAVANCAMP","L-BND-RIDGEPOST"],description:"以流動醫帳、藥材交換與傷患轉送維持跨聚落救護。",member_bonus:{id:"BONUS-ORG-BND-MEDIC",text:"野外救護",effects:{perception:2}}}
  ],
  links:[
@@ -304,13 +305,13 @@ const DRAGON={
   {id:"L-DRG-WINDGAP",name:"熱風鞍部",zoneId:"DRG-Z-01",province:"PROV-DRG-01",smap:"SMAP-DRG-01",tier:"C",template:"L-HILL",tags:["volcanic","pass"],risk:36,gather:["DRG-MAT-002"],preferred:["MON-DRG-005","MON-DRG-008"],hazards:["陣風","地熱裂隙"],description:"北口少數可供大型隊伍穿越的鞍部，地熱風會突然增強。"},
   {id:"L-DRG-ASHPLAIN",name:"長灰原",zoneId:"DRG-Z-02",province:"PROV-DRG-02",smap:"SMAP-DRG-02",tier:"D",template:"L-LOWFIELD",tags:["volcanic","ash"],risk:31,gather:["DRG-MAT-001"],hunt:["DRG-MAT-007"],preferred:["MON-DRG-002","MON-DRG-006"],description:"厚薄不一的灰層覆蓋舊熔岩臺地，腳印可留數日。"},
   {id:"L-DRG-BASALTFIELD",name:"玄武岩柱原",zoneId:"DRG-Z-02",province:"PROV-DRG-02",smap:"SMAP-DRG-02",tier:"C",template:"L-HILL",tags:["volcanic","rock"],risk:35,mining:["DRG-MAT-003","DRG-MAT-004"],preferred:["MON-DRG-007","MON-DRG-010"],description:"冷卻節理形成密集石柱，採石量受道路搬運能力限制。"},
-  {id:"L-DRG-REDBASIN",name:"赤泉外環",zoneId:"DRG-Z-03",province:"PROV-DRG-03",smap:"SMAP-DRG-03",tier:"D",template:"L-HILL",tags:["spring","volcanic"],risk:24,gather:["DRG-MAT-005","DRG-MAT-006"],preferred:["MON-DRG-003","MON-DRG-009"],description:"冷泉、溫泉與耐熱灌叢交錯，是龍脊少數可穩定採集食藥材的地帶。"},
+  {id:"L-DRG-REDBASIN",name:"赤泉外環",zoneId:"DRG-Z-03",province:"PROV-DRG-03",smap:"SMAP-DRG-03",tier:"D",template:"L-HILL",tags:["spring","volcanic"],risk:24,gather:["DRG-MAT-005"],preferred:["MON-DRG-003","MON-DRG-009"],description:"冷泉、溫泉與耐熱灌叢交錯，是龍脊少數可穩定採集食藥材的地帶。"},
   {id:"L-DRG-STEAMMARSH",name:"蒸汽濕地",zoneId:"DRG-Z-03",province:"PROV-DRG-03",smap:"SMAP-DRG-03",tier:"C",template:"L-RIVER",tags:["wetland","volcanic","water"],aquatic:true,risk:35,gather:["DRG-MAT-006"],preferred:["MON-DRG-009","MON-DRG-012"],hazards:["熱水","霧氣"],description:"地下熱水與冷溪交會形成的濕地，部分水池不可直接飲用。"},
   {id:"L-DRG-OBSIDIANRIDGE",name:"黑曜主稜",zoneId:"DRG-Z-04",province:"PROV-DRG-04",smap:"SMAP-DRG-04",tier:"C",template:"L-HILL",tags:["volcanic","mountain"],risk:45,mining:["DRG-MAT-008","DRG-MAT-010"],preferred:["MON-DRG-013","MON-DRG-016"],hazards:["玻璃碎坡","地震"],description:"大面積黑曜石與熔結岩裸露的主稜，採掘面必須保留安全通道。"},
   {id:"L-DRG-CALDERARIM",name:"沉火口外環",zoneId:"DRG-Z-04",province:"PROV-DRG-04",smap:"SMAP-DRG-04",tier:"B",template:"L-HILL",tags:["volcanic","caldera"],risk:55,mining:["DRG-MAT-012"],preferred:["MON-DRG-018","MON-DRG-020"],accessRule:"C級以上隊伍＋火山監測許可；核心B級地帶另需前置",hazards:["火山氣體","落石","地震"],description:"大型舊火口的外環稜線，日常不開放自由採集。"},
   {id:"L-DRG-SOUTHPLATEAU",name:"南路熔岩臺",zoneId:"DRG-Z-05",province:"PROV-DRG-05",smap:"SMAP-DRG-05",tier:"D",template:"L-HILL",tags:["volcanic","road"],risk:32,gather:["DRG-MAT-002"],mining:["DRG-MAT-004"],preferred:["MON-DRG-011","MON-DRG-014"],description:"龍脊南路跨越的冷卻熔岩臺，是南向車隊最穩定的地面。"},
   {id:"L-DRG-SULFURRIFT",name:"硫煙裂谷",zoneId:"DRG-Z-05",province:"PROV-DRG-05",smap:"SMAP-DRG-05",tier:"C",template:"L-HILL",tags:["volcanic","rift"],risk:46,mining:["DRG-MAT-009"],preferred:["MON-DRG-015","MON-DRG-019"],hazards:["毒氣","熱地"],description:"多個噴氣孔沿裂谷分布，採硫作業按風向輪區。"},
-  {id:"L-DRG-BLACKCOAST",name:"黑熔海岸",zoneId:"DRG-Z-06",province:"PROV-DRG-06",smap:"SMAP-DRG-06",tier:"D",template:"L-RIVER",tags:["coast","volcanic","water"],aquatic:true,risk:30,gather:["DRG-MAT-011"],fish:["DRG-MAT-013"],preferred:["MON-DRG-017","MON-DRG-021"],description:"黑色熔岩崖、礫灘與潮池相間的東風海岸。"},
+  {id:"L-DRG-BLACKCOAST",name:"黑熔海岸",zoneId:"DRG-Z-06",province:"PROV-DRG-06",smap:"SMAP-DRG-06",tier:"D",template:"L-RIVER",tags:["coast","volcanic","water"],aquatic:true,risk:30,gather:["DRG-MAT-011"],fish:["DRG-MAT-013"],preferred:["MON-DRG-011","MON-DRG-017","MON-DRG-021"],description:"黑色熔岩崖、礫灘與潮池相間的東風海岸。"},
   {id:"L-DRG-ASHCOAST",name:"灰潮灣岸",zoneId:"DRG-Z-06",province:"PROV-DRG-06",smap:"SMAP-DRG-06",tier:"C",template:"L-RIVER",tags:["coast","ash","water"],aquatic:true,risk:36,gather:["DRG-MAT-011"],fish:["DRG-MAT-013"],preferred:["MON-DRG-021","MON-DRG-022"],hazards:["灰潮","崖風"],description:"灰季時火山灰進入海灣形成混濁潮帶，漁場會暫時遷移。"},
   {id:"L-DRG-GLASSVALLEY",name:"黑玻璃長谷",zoneId:"DRG-Z-04",province:"PROV-DRG-04",smap:"SMAP-DRG-04",tier:"C",template:"L-HILL",tags:["volcanic","valley"],risk:43,mining:["DRG-MAT-008"],preferred:["MON-DRG-013","MON-DRG-023"],description:"舊熔岩流冷卻後留下的黑玻璃谷，是主要礦站採區之一。"},
   {id:"L-DRG-REDCLIFF",name:"赤崖風臺",zoneId:"DRG-Z-06",province:"PROV-DRG-06",smap:"SMAP-DRG-06",tier:"C",template:"L-HILL",tags:["coast","volcanic"],risk:39,gather:["DRG-MAT-014"],preferred:["MON-DRG-017","MON-DRG-022"],description:"富含鐵氧化物的紅色海崖，可觀察外海風向與灰雲。"}
@@ -348,7 +349,7 @@ const DRAGON={
   {id:"MON-DRG-008",name:"風鳴洞火蝠",tier:"C",habitat:["L-DRG-WINDGAP","D-DRG-WINDTUBE"],hp:142,atk:37,def:19,init:17,element:"火",description:"棲息高溫熔岩管的群居蝠獸。"},
   {id:"MON-DRG-009",name:"赤泉蒸甲龜",tier:"D",habitat:["L-DRG-REDBASIN","L-DRG-STEAMMARSH","D-DRG-OLDPUMP"],hp:120,atk:27,def:28,element:"水",description:"會利用溫熱泥地保溫的厚甲龜。"},
   {id:"MON-DRG-010",name:"玄武岩掘獸",tier:"C",habitat:["L-DRG-BASALTFIELD","D-DRG-ASHVAULT"],hp:168,atk:38,def:31,element:"地",description:"能沿破碎玄武岩挖掘洞穴的大型獸。"},
-  {id:"MON-DRG-011",name:"南臺赤尾蜥",tier:"D",habitat:["L-DRG-SOUTHPLATEAU"],hp:105,atk:29,def:20,element:"火",drops:["DRG-MAT-007"],description:"南路熔岩臺常見的中型火蜥。"},
+  {id:"MON-DRG-011",name:"南臺赤尾蜥",tier:"D",habitat:["L-DRG-SOUTHPLATEAU","L-DRG-BLACKCOAST"],hp:105,atk:29,def:20,element:"火",drops:["DRG-MAT-007"],description:"南路熔岩臺常見的中型火蜥。"},
   {id:"MON-DRG-012",name:"蒸霧長足獸",tier:"C",habitat:["L-DRG-STEAMMARSH","D-DRG-STEAMGROTTO"],hp:158,atk:36,def:25,element:"水",description:"以長足跨越熱泥池的濕地獸。"},
   {id:"MON-DRG-013",name:"黑曜刃背獸",tier:"C",habitat:["L-DRG-OBSIDIANRIDGE","L-DRG-GLASSVALLEY"],hp:172,atk:40,def:29,drops:["DRG-MAT-008"],description:"背部附著火山玻璃片的高地獸。"},
   {id:"MON-DRG-014",name:"熔臺灰角羊",tier:"C",habitat:["L-DRG-SOUTHPLATEAU","D-DRG-SOUTHLAVATUBE"],hp:155,atk:37,def:25,drops:["DRG-MAT-007"],description:"能在高溫岩臺尋找稀疏植物的山羊獸。"},
@@ -384,14 +385,14 @@ const DRAGON={
   ["NPC-DRG-018","艾朵・赤蕨","耐熱植物採集師","L-DRG-REDSHSPRING","赤泉植物、蒸汽蕨與採集輪休","E",["ORG-DRG-WATER"],"只採成熟區並保留復育帶。"]
  ],
  orgs:[
-  {id:"ORG-DRG-ROAD",name:"龍脊北口路棚聯議",kind:"civic",tier:"C",base_location_id:"L-DRG-NORTHPASS",description:"維護北口風旗、封路、避灰屋與商旅撤離。",member_bonus:{id:"BONUS-ORG-DRG-ROAD",text:"灰季辨路",effects:{perception:3}}},
-  {id:"ORG-DRG-WATER",name:"赤泉水議",kind:"civic",tier:"C",base_location_id:"L-DRG-REDSHSPRING",description:"管理冷泉、飲水優先、農圃、浴池與泉量監測。",member_bonus:{id:"BONUS-ORG-DRG-WATER",text:"泉地生存",effects:{perception:2}}},
+  {id:"ORG-DRG-ROAD",name:"龍脊北口路棚聯議",kind:"infrastructure",tier:"C",base_location_id:"L-DRG-NORTHPASS",description:"維護北口風旗、封路、避灰屋與商旅撤離。",member_bonus:{id:"BONUS-ORG-DRG-ROAD",text:"灰季辨路",effects:{perception:3}}},
+  {id:"ORG-DRG-WATER",name:"赤泉水議",kind:"resource",tier:"C",base_location_id:"L-DRG-REDSHSPRING",description:"管理冷泉、飲水優先、農圃、浴池與泉量監測。",member_bonus:{id:"BONUS-ORG-DRG-WATER",text:"泉地生存",effects:{perception:2}}},
   {id:"ORG-DRG-MINERS",name:"黑玻璃礦站聯議",kind:"craft",tier:"B",base_location_id:"L-DRG-OBSIDIAN",description:"管理黑曜石採區、配額、深層路線與礦難責任。",member_bonus:{id:"BONUS-ORG-DRG-MINERS",text:"火山辨材",effects:{carryCapacity:5}}},
   {id:"ORG-DRG-OBSERVE",name:"龍脊火山觀測會",kind:"scholarly",tier:"B",base_location_id:"L-DRG-OBSIDIAN",contact_location_ids:["L-DRG-EASTFIREBAY"],description:"記錄地震、氣體、溫度、灰雲與地熱變化，提供深層開放依據。",member_bonus:{id:"BONUS-ORG-DRG-OBSERVE",text:"地熱觀測",effects:{perception:4}}},
   {id:"ORG-DRG-CARAVAN",name:"南北灰路商旅會",kind:"trade",tier:"C",base_location_id:"L-DRG-ASHROAD",contact_location_ids:["L-DRG-SOUTHROAD"],description:"協調水槽、馱運、貨期與灰季改道。",member_bonus:{id:"BONUS-ORG-DRG-CARAVAN",text:"灰路補給",effects:{carryCapacity:4}}},
   {id:"ORG-DRG-SULFUR",name:"硫煙採區監測會",kind:"craft",tier:"C",base_location_id:"L-DRG-SULFURPOST",description:"依風向與氣體濃度輪封採硫區。",member_bonus:{id:"BONUS-ORG-DRG-SULFUR",text:"毒氣辨識",effects:{perception:3}}},
-  {id:"ORG-DRG-COAST",name:"東風火灣棚戶聯社",kind:"civic",tier:"C",base_location_id:"L-DRG-EASTFIREBAY",contact_location_ids:["L-DRG-LAVACOVE"],description:"維護航標、棚港、漁場輪休、風暴救援與外海補給。",member_bonus:{id:"BONUS-ORG-DRG-COAST",text:"火灣航路",effects:{perception:3}}},
-  {id:"ORG-DRG-RESCUE",name:"龍脊跨區救援隊",kind:"civic",tier:"C",base_location_id:"L-DRG-REDSHSPRING",contact_location_ids:["L-DRG-NORTHPASS","L-DRG-SOUTHROAD"],description:"協調火山傷患、失蹤、熔管撤離與跨聚落救援。",member_bonus:{id:"BONUS-ORG-DRG-RESCUE",text:"火地救援",effects:{defense_pct:2}}}
+  {id:"ORG-DRG-COAST",name:"東風火灣棚戶聯社",kind:"transport",tier:"C",base_location_id:"L-DRG-EASTFIREBAY",contact_location_ids:["L-DRG-LAVACOVE"],description:"維護航標、棚港、漁場輪休、風暴救援與外海補給。",member_bonus:{id:"BONUS-ORG-DRG-COAST",text:"火灣航路",effects:{perception:3}}},
+  {id:"ORG-DRG-RESCUE",name:"龍脊跨區救援隊",kind:"rescue",tier:"C",base_location_id:"L-DRG-REDSHSPRING",contact_location_ids:["L-DRG-NORTHPASS","L-DRG-SOUTHROAD"],description:"協調火山傷患、失蹤、熔管撤離與跨聚落救援。",member_bonus:{id:"BONUS-ORG-DRG-RESCUE",text:"火地救援",effects:{defense_pct:2}}}
  ],
  links:[
   ["L-DRG-NORTHPASS","L-DRG-NORTHASH",.8],["L-DRG-NORTHPASS","L-DRG-WINDGAP",1.1],["L-DRG-WINDGAP","D-DRG-WINDTUBE",1],
