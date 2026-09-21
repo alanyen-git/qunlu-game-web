@@ -1,4 +1,4 @@
-/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-2.05.0
+/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-2.05.1
  * WORLD-MAP-GEOPOLITICS-1.4
  * 在既有政治疆域底板上加入海岸、山脈、河川、湖泊、氣候帶、主要道路與國境關隘，
  * 並使政治疆界的形狀與說明受到天然屏障、分水嶺、河谷與交通控制點影響；不改旅行解鎖與存檔schema。
@@ -7,7 +7,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.05.0")||"CURRENT-2.05.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.05.1")||"CURRENT-2.05.1";
 const REV="WORLD-MAP-GEOPOLITICS-1.6";
 const W=1800,H=1100;
 
