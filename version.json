@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.99.2",
-  "previous_version": "CURRENT-1.99.1",
+  "version": "CURRENT-2.00.0",
+  "previous_version": "CURRENT-1.99.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-1.99.2：POL-009 正式改名為「傭兵都市」；保留灰刃城為首都與既有存檔 ID，政治改為世界級「遠境冒險團」、冒險者總公會、傭兵總公會三方共治的會議制度。",
+  "summary": "CURRENT-2.00.0：完整深化霜角酋邦（POL-016／REG-16）；建立冬議石圈＋六大火席的高地酋邦制度，新增6大治理區、8城鎮、12野外、8地下城、22怪物、14素材、18核心NPC與8個地方組織。",
   "changelog": [
+    "CURRENT-2.00.0：霜角酋邦完整深化正式接入網站；沿用POL-016／REG-16與首府「霜角石圈」，不建立重複政治體。",
+    "政治制度深化為霜角大酋長＋冬議石圈＋六大火席＋谷地氏族／火塘；大酋長掌共同外交與危機協調，但各氏族保留地方自治，政治權力與個人戰力分離。",
+    "新增石圈核心高地、北嶺霜原、西冰河谷、東石針礦脊、南口松煙帶、霜湖黑苔地六大可遊玩治理區。",
+    "新增8座城鎮、12張野外、8處地下城／遺構、22種F～C級區域怪物、14種素材、18名核心NPC、8個地方組織、8條冒險鉤子與8種生活事件。",
+    "霜角南口被正式定義為大型商隊與使節南下的唯一主要通道；暴雪封關會影響糧食、布匹、鹽與精製鐵器供給。",
+    "越冬倉、獵場、湖漁、凍松林、礦坑與寒晶來源全部接入容量、恢復、輪採／封養與安全存量概念；打獵必須進入戰鬥，怪物掉落綁定實際棲地。",
+    "PROGRAM-REGISTRY、RELEASE-INTEGRITY、Service Worker與PWA快取同步納入FROST-HORN-DEPTH-1.0；正式src程序由62增至63，舊存檔ID與schema維持相容。",
     "CURRENT-1.99.2：POL-009／REG-09 正式名稱由「灰刃自由都市」改為「傭兵都市」；POL-009、REG-09、既有地圖與存檔 ID 全部保留相容，灰刃城繼續作為首都。",
     "三方共治議會：世界級「遠境冒險團」、冒險者總公會、傭兵總公會各持一席；輪值召集人只主持程序，不取得額外表決權。",
     "會議規則：一般議案採 2/3 通過；主權讓渡、永久性特別稅、長期總動員、解散共治章程與永久改變三方席次必須三方一致。",
@@ -230,7 +237,7 @@
     "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
     "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
-  "content_revision": "CURRENT-1.99.1",
+  "content_revision": "CURRENT-2.00.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -240,7 +247,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.9",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.10",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -266,7 +273,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v105",
+  "pwa_cache_revision": "v107",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -342,7 +349,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.13",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.14",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -616,7 +623,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.11",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.12",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 62,
@@ -1224,5 +1231,6 @@
     "materials": 14,
     "governance": "武契議會＋市議堂雙議軌／契約仲裁院",
     "save_compatible": true
-  }
+  },
+  "frost_horn_depth_revision": "FROST-HORN-DEPTH-1.0"
 }

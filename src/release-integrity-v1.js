@@ -1,12 +1,12 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-1.99.1
- * RELEASE-INTEGRITY-2.13
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-2.00.0
+ * RELEASE-INTEGRITY-2.14
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.99.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.99.1";
-const REV="RELEASE-INTEGRITY-2.13";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.00.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.00.0";
+const REV="RELEASE-INTEGRITY-2.14";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -89,6 +89,8 @@ function audit(){
   else issues.push("凡雷克帝國深化:稽核runtime缺失");
   if(typeof globalThis.runGrayBladeDepthAudit==="function")pushResult(issues,"傭兵都市深化:",globalThis.runGrayBladeDepthAudit());
   else issues.push("傭兵都市深化:稽核runtime缺失");
+  if(typeof globalThis.runFrostHornDepthAudit==="function")pushResult(issues,"霜角酋邦深化:",globalThis.runFrostHornDepthAudit());
+  else issues.push("霜角酋邦深化:稽核runtime缺失");
   if(typeof globalThis.runWorldGeopoliticalMapAudit==="function")pushResult(issues,"世界政治地圖:",globalThis.runWorldGeopoliticalMapAudit());
   else issues.push("世界政治地圖:稽核runtime缺失");
   if(typeof globalThis.runAffiliationEntryGateAudit==="function")pushResult(issues,"勢力接觸門檻:",globalThis.runAffiliationEntryGateAudit());
