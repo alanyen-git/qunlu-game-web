@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.95.0",
-  "previous_version": "CURRENT-1.94.0",
+  "version": "CURRENT-1.95.1",
+  "previous_version": "CURRENT-1.95.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "新手區繁榮深化CURRENT-1.95.0：維持柳橋鎮1城鎮＋3野外＋3地下城的7節點基準，5個外地新手區不增加地圖數量；把地方繁榮度延伸到道路／補給敘事、野外資源容量與恢復速度、地下城敵對活動重生速度，並保留既有市場資金、庫存、流動性與價格差異。",
+  "summary": "全程序除錯 CURRENT-1.95.1：完成57個正式src程序語法與載入清單核對、主資料庫結構稽核及headless建角驗證；修正發布版本fallback、PWA Service Worker版本參數、PROGRAM-REGISTRY修訂號與除錯統計失步。玩法規則與存檔schema不變。",
   "changelog": [
+    "DEBUG-SYNC-1.0：57個正式src程序全部完成語法檢查；index、PROGRAM-REGISTRY、Service Worker三份正式程序清單皆為57個且順序一致。",
+    "主資料庫與資料補丁稽核：無重複ID、無失效地圖連結、無失效配方素材引用；新手村、政治體、政治階層、配方、裝備、出身、戰鬥職業與天賦稽核均通過。",
+    "headless建角驗證通過：Lv1角色可正常建立，起始2技能、2天賦與存檔寫入正常；Water Source重建物品來源索引後runGeneratorAudit為0項。",
+    "修正src/bootstrap.js發布fallback至CURRENT-1.95.1；release-version-sync升級RELEASE-VERSION-SYNC-1.5。",
+    "修正PWA註冊仍指向sw.js?v=CURRENT-1.86.0的版本漂移；PWA-BOOT升級1.2、Service Worker快取升級v96。",
+    "PROGRAM-REGISTRY修訂號由檔頭1.7／runtime 1.6失步統一為PROGRAM-REGISTRY-1.7；發布完整性橋接升級RELEASE-INTEGRITY-2.7。",
+    "本次不改遊戲規則、不改資料內容、不改存檔schema，舊存檔原地相容。",
     "STARTER-SETTLEMENTS-1.2：再次以SMAP-WILLOW動態基準稽核5個外地新手區，固定每區1個F級城鎮＋3張F級野外＋3座E級地下城，共7節點；本次不再增加地圖數量。",
     "新增五區繁榮細節模型：道路維護、商隊／補貨週期、倉儲能力、委託量、資源管理方式與地下城巡查壓力各自差異化，避免只以單一繁榮分數表現。",
     "晨穗村76：農牧與朝聖經濟使補貨快、道路與糧倉完善，可再生資源容量＋12%、恢復時間×0.85，E級地下城清理後重生時間×1.20。",
@@ -171,7 +178,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.4",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.5",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -197,7 +204,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.6",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.7",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -273,7 +280,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.5",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.7",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -547,7 +554,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.6",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.7",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 57,
@@ -570,9 +577,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-1.94.0不增加src程序數；starter-settlements-v1.js升級至1.1，正式入口、PROGRAM-REGISTRY與PWA仍為57個src程序。",
-    "last_verified_release": "CURRENT-1.94.0",
+    "note": "CURRENT-1.95.1完成57個正式src程序除錯與發布同步；index、PROGRAM-REGISTRY、Service Worker清單與順序一致，PWA與版本fallback同步。",
+    "last_verified_release": "CURRENT-1.95.1",
     "notes": [
+      "CURRENT-1.95.1：57個正式src程序語法與清單一致性通過；修正PROGRAM-REGISTRY revision、發布fallback與PWA Service Worker版本漂移。",
       "CURRENT-1.94.0：新手區擴為柳橋同規模1＋3＋3並接入繁榮度市場倍率；正式src程序維持57個。",
       "CURRENT-1.93.0：新增多政治體新手村與出生分配資料層；正式入口、PROGRAM-REGISTRY與PWA清單同步為57個src程序。",
       "CURRENT-1.87.0新增src/world-map-geopolitics-v1.js；正式入口、PROGRAM-REGISTRY與PWA清單同步為55個src程序。",
@@ -580,10 +588,10 @@
       "CURRENT-1.89.0：新增政治體整併資料層；CURRENT政治體18→15，世界地圖升級至1.2並加入北方標示。"
     ]
   },
-  "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.1",
+  "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 45,
-    "programs_loaded": 45,
+    "programs_total": 57,
+    "programs_loaded": 57,
     "stateful_tests": 8,
     "stateful_tests_passed": 8,
     "full_audits_executed": 26,
@@ -608,7 +616,8 @@
     "tools_syntax_gate": true,
     "deployment_gate": true,
     "last_result": "pass",
-    "save_compatible": true
+    "save_compatible": true,
+    "last_verified_release": "CURRENT-1.95.1"
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-1.0",
   "program_optimization": {
