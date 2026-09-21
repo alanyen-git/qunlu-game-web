@@ -6,6 +6,7 @@
   "entrypoint": "index.html",
   "summary": "CURRENT-1.98.0：凡雷克帝國（POL-002／REG-02）由世界政治背景深化為完整可遊玩B級帝國；新增七大治理區、10城鎮、14野外、10地下城、24怪物、22核心NPC、9個帝國／地方職能組織，並建立帝冠、舊王法、總督、軍團、貢賦與宗教軍學合作結構。",
   "changelog": [
+    "CURRENT-1.98.0：最高權限總測試通過：61/61正式程序載入、8/8 stateful tests、42/42 audits；凡雷克深化與藍塔共通schema修正通過發布品質閘門。",
     "VANREK-DEPTH-1.0：沿用POL-002／REG-02既有凡雷克帝國正史，不建立重複政治體；赫薩爾帝都維持帝國首都。",
     "新增帝都皇冠區、赫薩爾河心區、北境黑松丘陵、東門軍鎮帶、南部金麥平原、西脊舊王領、赤槍修院帶七大可遊玩治理區。",
     "新增10座城鎮、14張野外地圖、10處地下城／遺構、24種區域怪物、16種素材與22名核心NPC，全部接入REG-02與RMAP-POL-002。",
@@ -621,7 +622,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-1.98.0新增凡雷克帝國完整區域深化模組；61個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-1.97.0",
+    "last_verified_release": "CURRENT-1.98.0",
     "notes": [
       "CURRENT-1.98.0：新增src/vanrek-depth-v1.js；凡雷克帝國啟用七大可遊玩治理區，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為61個src程序（待本版發布驗證後更新last_verified_release）。",
       "CURRENT-1.97.0：新增src/blue-tower-depth-v1.js；藍塔魔導王國啟用六大可遊玩區域帶，正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為60個src程序。",
@@ -636,12 +637,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 57,
-    "programs_loaded": 57,
+    "programs_total": 61,
+    "programs_loaded": 61,
     "stateful_tests": 8,
     "stateful_tests_passed": 8,
-    "full_audits_executed": 26,
-    "full_audits_passed": 26,
+    "full_audits_executed": 42,
+    "full_audits_passed": 42,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -663,7 +664,7 @@
     "deployment_gate": true,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-1.95.1"
+    "last_verified_release": "CURRENT-1.98.0"
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-1.0",
   "program_optimization": {
@@ -1179,6 +1180,13 @@
       "戰策修院：cooperation"
     ],
     "tier_model": "F～C一般內容＋受控B級王墓／軍械深層",
-    "save_compatible": true
+    "save_compatible": true,
+    "validation": {
+      "program_load": "61/61",
+      "stateful_tests": "8/8",
+      "audits": "42/42",
+      "release_integrity": "PASS",
+      "validated_release": "CURRENT-1.98.0"
+    }
   }
 }
