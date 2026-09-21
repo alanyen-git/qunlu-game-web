@@ -1,5 +1,5 @@
 /* 群陸旅誌：夥伴光環與專屬技能深化 CURRENT-1.83.0
- * COMPANION-IDENTITY-DEPTH-1.0
+ * COMPANION-IDENTITY-DEPTH-1.1
  * 將寵物／召喚獸／契約獸從固定數值模板深化為物種家族核心、AI戰術觸發、夥伴類型特性與元素互動。
  * 不新增存檔欄位；戰鬥暫態資料只存在 G.battle。
  */
@@ -19,59 +19,59 @@ const STATUS_BY_ELEMENT={光明:null,黑暗:"curse",火:"burn",風:"slow",水:"s
 
 const FAMILY_IDENTITY={
  "野獸系":{
-   title:"群獵與追跡",auraKey:"prey_sense",auraName:"群獵感知",auraRule:"敵人進入負傷階段後，主人獲得追獵命中與終結壓力；越接近瀕死越強。",
+   title:"群獵與追跡",auraKey:"prey_sense",auraName:"狩獵本能",auraRule:"敵人進入負傷階段後，主人獲得追獵命中與終結壓力；越接近瀕死越強。",
    skills:{
-     "主動":{pattern:"pack_hunt",name:"裂喉追獵",summary:"對負傷目標顯著增傷，並有機會造成流血；不是單純固定倍率技能。"},
-     "被動":{pattern:"hunt_instinct",name:"獵痕本能",summary:"敵人生命過半以下時才進入追獵狀態，臨時提高攻擊與命中。"},
-     "輔助":{pattern:"rally_howl",name:"守群號令",summary:"在開戰或隊伍受傷時鼓舞主人，兼具小幅恢復與短暫命中／攻勢強化。"}
+     "主動":{pattern:"pack_hunt",name:"追獵攻擊",summary:"對負傷目標顯著增傷，並有機會造成流血；不是單純固定倍率技能。"},
+     "被動":{pattern:"hunt_instinct",name:"狩獵本能",summary:"敵人生命過半以下時才進入追獵狀態，臨時提高攻擊與命中。"},
+     "輔助":{pattern:"rally_howl",name:"鼓舞嚎叫",summary:"在開戰或隊伍受傷時鼓舞主人，兼具小幅恢復與短暫命中／攻勢強化。"}
    }
  },
  "飛行系":{
-   title:"制空與先手",auraKey:"air_superiority",auraName:"制空視野",auraRule:"前兩回合提供明顯先手、命中與迴避優勢，久戰後優勢收斂。",
+   title:"制空與先手",auraKey:"air_superiority",auraName:"制空優勢",auraRule:"前兩回合提供明顯先手、命中與迴避優勢，久戰後優勢收斂。",
    skills:{
-     "主動":{pattern:"dive_break",name:"破勢俯衝",summary:"開戰前段威力較高，命中後可施加緩速，適合搶節奏而非持續站樁輸出。"},
-     "被動":{pattern:"sky_dance",name:"高空獵域",summary:"開戰時取得額外迴避與首輪命中，之後回歸常態，凸顯飛行單位的制空窗口。"},
-     "輔助":{pattern:"wing_screen",name:"翼幕掩護",summary:"展翼掩護主人並進入護衛，同時提供短時間迴避與抗壓。"}
+     "主動":{pattern:"dive_break",name:"俯衝攻擊",summary:"開戰前段威力較高，命中後可施加緩速，適合搶節奏而非持續站樁輸出。"},
+     "被動":{pattern:"sky_dance",name:"空中機動",summary:"開戰時取得額外迴避與首輪命中，之後回歸常態，凸顯飛行單位的制空窗口。"},
+     "輔助":{pattern:"wing_screen",name:"空中掩護",summary:"展翼掩護主人並進入護衛，同時提供短時間迴避與抗壓。"}
    }
  },
  "魔法與植物系":{
-   title:"根脈與循環",auraKey:"root_cadence",auraName:"根脈循環",auraRule:"主人穩定時偏向魔力循環，受傷後則轉為防禦與治療增幅，會依戰況切換。",
+   title:"根脈與循環",auraKey:"root_cadence",auraName:"自然循環",auraRule:"主人穩定時偏向魔力循環，受傷後則轉為防禦與治療增幅，會依戰況切換。",
    skills:{
-     "主動":{pattern:"root_snare",name:"根脈束縛",summary:"魔法傷害伴隨緩速；目標已被束縛時，高階個體有機會進一步造成麻痺。"},
-     "被動":{pattern:"root_cycle",name:"根脈輪替",summary:"每隔數回合自我再生並回補主人少量魔力，形成長戰續航節奏。"},
-     "輔助":{pattern:"life_bloom",name:"生命綻放",summary:"治療受傷較重的一方，並優先清除恐懼、混亂、魅惑、沉默或緩速等干擾。"}
+     "主動":{pattern:"root_snare",name:"藤蔓束縛",summary:"魔法傷害伴隨緩速；目標已被束縛時，高階個體有機會進一步造成麻痺。"},
+     "被動":{pattern:"root_cycle",name:"自然恢復",summary:"每隔數回合自我再生並回補主人少量魔力，形成長戰續航節奏。"},
+     "輔助":{pattern:"life_bloom",name:"自然治癒",summary:"治療受傷較重的一方，並優先清除恐懼、混亂、魅惑、沉默或緩速等干擾。"}
    }
  },
  "龍系":{
-   title:"威壓與龍息",auraKey:"dragon_pressure",auraName:"龍威壓境",auraRule:"主人狀態良好時偏向壓迫輸出，危急時轉為防禦、格擋與韌性。",
+   title:"威壓與龍息",auraKey:"dragon_pressure",auraName:"龍威",auraRule:"主人狀態良好時偏向壓迫輸出，危急時轉為防禦、格擋與韌性。",
    skills:{
-     "主動":{pattern:"dragon_breath",name:"龍息爆發",summary:"高冷卻、高威力的元素吐息，並依元素附帶灼燒、緩速、麻痺或詛咒等效果。"},
-     "被動":{pattern:"dragon_majesty",name:"龍鱗威儀",summary:"高生命時強化攻勢；低生命時主動轉入護衛，呈現龍族攻守兩態。"},
-     "輔助":{pattern:"scale_guard",name:"翼鱗守護",summary:"以自身承擔壓力，短時間強化防禦並賦予主人對應元素護持。"}
+     "主動":{pattern:"dragon_breath",name:"龍息",summary:"高冷卻、高威力的元素吐息，並依元素附帶灼燒、緩速、麻痺或詛咒等效果。"},
+     "被動":{pattern:"dragon_majesty",name:"龍鱗防護",summary:"高生命時強化攻勢；低生命時主動轉入護衛，呈現龍族攻守兩態。"},
+     "輔助":{pattern:"scale_guard",name:"龍鱗守護",summary:"以自身承擔壓力，短時間強化防禦並賦予主人對應元素護持。"}
    }
  },
  "元素系":{
-   title:"元素調律",auraKey:"elemental_resonance",auraName:"元素共振",auraRule:"敵人出現異常狀態時提升術式穿透與異常命中；同元素抗性也會進一步提高。",
+   title:"元素調律",auraKey:"elemental_resonance",auraName:"元素親和",auraRule:"敵人出現異常狀態時提升術式穿透與異常命中；同元素抗性也會進一步提高。",
    skills:{
-     "主動":{pattern:"resonance_burst",name:"共振爆裂",summary:"面對元素弱點會放大傷害，遇到抗性時則削減部分抗性效果，避免只是換色攻擊。"},
+     "主動":{pattern:"resonance_burst",name:"元素衝擊",summary:"面對元素弱點會放大傷害，遇到抗性時則削減部分抗性效果，避免只是換色攻擊。"},
      "被動":{pattern:"element_core",name:"元素核心",summary:"自身攻擊會暫時削薄目標對本元素的抗性，讓元素體真正擅長對應元素。"},
-     "輔助":{pattern:"element_ward",name:"調律護幕",summary:"依自身元素建立短暫抗性護幕，同時回復少量生命與魔力。"}
+     "輔助":{pattern:"element_ward",name:"元素護盾",summary:"依自身元素建立短暫抗性護幕，同時回復少量生命與魔力。"}
    }
  },
  "惡魔與不死暗影系":{
-   title:"蝕命與不滅",auraKey:"blood_eclipse",auraName:"蝕命月影",auraRule:"敵人受創後提高吸血、爆傷與異常壓力，屬於越打越危險的收割型光環。",
+   title:"蝕命與不滅",auraKey:"blood_eclipse",auraName:"暗影氣息",auraRule:"敵人受創後提高吸血、爆傷與異常壓力，屬於越打越危險的收割型光環。",
    skills:{
-     "主動":{pattern:"soul_drain",name:"蝕魂汲取",summary:"造成傷害並大量自癒，可施加詛咒；對已受詛咒目標還會回復主人。"},
-     "被動":{pattern:"undying_shadow",name:"不滅冥影",summary:"每場戰鬥第一次被擊倒時可自行復起一次，之後才真正失去戰鬥能力。"},
-     "輔助":{pattern:"grave_veil",name:"墓影帷幕",summary:"清理精神干擾並賦予主人短暫迴避、爆擊抗性與異常抗性。"}
+     "主動":{pattern:"soul_drain",name:"生命汲取",summary:"造成傷害並大量自癒，可施加詛咒；對已受詛咒目標還會回復主人。"},
+     "被動":{pattern:"undying_shadow",name:"不死本能",summary:"每場戰鬥第一次被擊倒時可自行復起一次，之後才真正失去戰鬥能力。"},
+     "輔助":{pattern:"grave_veil",name:"暗影護幕",summary:"清理精神干擾並賦予主人短暫迴避、爆擊抗性與異常抗性。"}
    }
  },
  "神聖與傳奇系":{
-   title:"誓約與救援",auraKey:"vow_guard",auraName:"誓約聖域",auraRule:"主人生命危急時明顯轉向守護、治療與抗性；安全時只保留溫和常駐效果。",
+   title:"誓約與救援",auraKey:"vow_guard",auraName:"守護誓約",auraRule:"主人生命危急時明顯轉向守護、治療與抗性；安全時只保留溫和常駐效果。",
    skills:{
-     "主動":{pattern:"judgment",name:"誓光裁決",summary:"對黑暗／死亡屬性敵人更強，造成傷害後同時治療主人。"},
-     "被動":{pattern:"oathkeeper",name:"守誓者",summary:"每場戰鬥可在主人第一次遭受致命傷時救回一次，與一般復活道具分開判定。"},
-     "輔助":{pattern:"sanctuary",name:"聖域回響",summary:"恢復並淨化主人，且在短時間內預備一次致命傷救援。"}
+     "主動":{pattern:"judgment",name:"聖光裁決",summary:"對黑暗／死亡屬性敵人更強，造成傷害後同時治療主人。"},
+     "被動":{pattern:"oathkeeper",name:"守護誓約",summary:"每場戰鬥可在主人第一次遭受致命傷時救回一次，與一般復活道具分開判定。"},
+     "輔助":{pattern:"sanctuary",name:"聖光治癒",summary:"恢復並淨化主人，且在短時間內預備一次致命傷救援。"}
    }
  }
 };
@@ -83,7 +83,7 @@ const AI_IDENTITY={
  caster:{name:"術式破綻",rule:"敵人已有異常狀態時，提高魔法穿透與異常命中。"},
  support:{name:"救援節奏",rule:"主人受傷時提升治療與異常抗性。"},
  dark:{name:"傷勢共鳴",rule:"主人或敵人進入負傷階段時，吸血與爆傷提高。"},
- legend:{name:"王者節拍",rule:"奇數回合偏進攻、偶數回合偏守勢，形成輪替節奏。"},
+ legend:{name:"攻守輪替",rule:"奇數回合偏進攻、偶數回合偏守勢，形成輪替節奏。"},
  balanced:{name:"穩定共鳴",rule:"沒有爆發窗口，但維持小幅命中與異常抗性。"}
 };
 const KIND_IDENTITY={
@@ -344,19 +344,19 @@ function supportSkill(c,skill){
  if(!supportShouldUse(c,skill))return false;markSkill(c);
  const ef=skill.effect||{},pattern=skill.mechanic_pattern,rank=tierRank(bySpecies(c.speciesId)),choice=lowestOwnerOrCompanion(c),extra=[];let heal=0;
  if(pattern==="rally_howl"){
-   heal=healTarget(c,choice.target,.34,.012);addDepthBuff("rally_howl","守群號令",{attack:1+rank*.35,accuracy:3+Math.floor(rank/2)}, {},2);extra.push("主人獲得2回合守群攻勢");
+   heal=healTarget(c,choice.target,.34,.012);addDepthBuff("rally_howl","鼓舞嚎叫",{attack:1+rank*.35,accuracy:3+Math.floor(rank/2)}, {},2);extra.push("主人獲得2回合守群攻勢");
  }else if(pattern==="wing_screen"){
-   heal=healTarget(c,choice.target,.26,.01);c.guarding=true;addDepthBuff("wing_screen","翼幕掩護",{evasion:5+Math.floor(rank/2),statusResist:2+rank*.4},{},2);extra.push("夥伴進入護衛");
+   heal=healTarget(c,choice.target,.26,.01);c.guarding=true;addDepthBuff("wing_screen","空中掩護",{evasion:5+Math.floor(rank/2),statusResist:2+rank*.4},{},2);extra.push("夥伴進入護衛");
  }else if(pattern==="life_bloom"){
    heal=healTarget(c,choice.target,.62,.025);const clean=cleanseOwnerOne();if(clean)extra.push(`淨化${clean}`);if(G.character.maxMana){const mp=Math.max(1,Math.round(G.character.maxMana*(.025+rank*.003)));G.character.mana=clip(G.character.mana+mp,0,G.character.maxMana);extra.push(`主人恢復${mp}MP`)}
  }else if(pattern==="scale_guard"){
    heal=healTarget(c,choice.target,.28,.012);c.guarding=true;if(!c.depthBaseDefense)c.depthBaseDefense=c.defense;c.defense=Math.max(c.defense,Math.round(c.depthBaseDefense*(1.22+rank*.015)));c.depthDefenseUntil=currentRound()+1;
-   if(c.element)addDepthBuff("scale_guard","翼鱗守護",{}, {[c.element]:8+rank*2},2);extra.push("夥伴進入護衛");
+   if(c.element)addDepthBuff("scale_guard","龍鱗守護",{}, {[c.element]:8+rank*2},2);extra.push("夥伴進入護衛");
  }else if(pattern==="element_ward"){
    heal=healTarget(c,choice.target,.32,.012);if(G.character.maxMana){const mp=Math.max(1,Math.round(G.character.maxMana*(.04+rank*.003)));G.character.mana=clip(G.character.mana+mp,0,G.character.maxMana);extra.push(`主人恢復${mp}MP`)}
    if(c.element)addDepthBuff("element_ward","元素護幕",{statusResist:2+rank*.5},{[c.element]:10+rank*2},3);
  }else if(pattern==="grave_veil"){
-   heal=healTarget(c,choice.target,.30,.01);const clean=cleanseOwnerOne();if(clean)extra.push(`驅散${clean}`);addDepthBuff("grave_veil","墓影帷幕",{evasion:4+Math.floor(rank/2),critResist:4+rank,statusResist:4+rank},{},2);
+   heal=healTarget(c,choice.target,.30,.01);const clean=cleanseOwnerOne();if(clean)extra.push(`驅散${clean}`);addDepthBuff("grave_veil","暗影護幕",{evasion:4+Math.floor(rank/2),critResist:4+rank,statusResist:4+rank},{},2);
  }else if(pattern==="sanctuary"){
    choice.label="主人";heal=healTarget(c,G.character,.72,.035);const clean=cleanseOwnerOne();if(clean)extra.push(`淨化${clean}`);G.battle.companionDepthRescue={source:"sanctuary",untilRound:currentRound()+2,hpPct:18+rank*2};extra.push("短暫預備致命傷救援");
  }else heal=healTarget(c,choice.target,.55,.02);
@@ -374,7 +374,7 @@ function passivePreTurn(c,skill){
  }
  if(pattern==="root_cycle"&&b&&c.depthRootCycleRound!==s.round&&s.round%3===1){
    c.depthRootCycleRound=s.round;const hp=Math.max(1,Math.round(c.maxHp*.035));c.hp=clip(c.hp+hp,0,c.maxHp);
-   if(G.character.maxMana){const mp=Math.max(1,Math.round(G.character.maxMana*.025));G.character.mana=clip(G.character.mana+mp,0,G.character.maxMana);skillLog(c,skill,`根脈循環恢復自身${hp}HP與主人${mp}MP。`)}
+   if(G.character.maxMana){const mp=Math.max(1,Math.round(G.character.maxMana*.025));G.character.mana=clip(G.character.mana+mp,0,G.character.maxMana);skillLog(c,skill,`自然循環恢復自身${hp}HP與主人${mp}MP。`)}
  }
  if(pattern==="dragon_majesty"){
    if(s.companionRatio>.5){const a=c.attack,m=c.magic;c.attack=Math.round(c.attack*1.12);c.magic=Math.round(c.magic*1.12);restore.push(()=>{c.attack=a;c.magic=m})}
@@ -492,7 +492,7 @@ DB.companion_identity_depth_system={
 DB.meta=DB.meta||{};DB.meta.companion_identity_depth_revision=REV;
 DB.companion_system=DB.companion_system||{};DB.companion_system.identity_depth_revision=REV;
 if(DB.integration_registry?.optimization_notes&&!DB.integration_registry.optimization_notes.some(x=>String(x).includes(REV))){
- DB.integration_registry.optimization_notes.push("CURRENT-1.83.0／COMPANION-IDENTITY-DEPTH-1.0：200種寵物、召喚獸與契約獸的光環改為條件式戰術光環，技能建立7家族×主動／被動／輔助共21種核心機制，加入負傷追獵、制空窗口、根脈循環、龍息、元素抗性調律、不滅復起與守誓救援等實際runtime差異。")
+ DB.integration_registry.optimization_notes.push("CURRENT-1.83.0／COMPANION-IDENTITY-DEPTH-1.0：200種寵物、召喚獸與契約獸的光環改為條件式戰術光環，技能建立7家族×主動／被動／輔助共21種核心機制，加入負傷追獵、制空窗口、自然循環、龍息、元素抗性調律、不滅復起與守誓救援等實際runtime差異。")
 }
 if(typeof runGeneratorAudit==="function"){
  const baseRunGeneratorAudit=runGeneratorAudit;
