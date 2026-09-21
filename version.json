@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.96.2",
-  "previous_version": "CURRENT-1.96.1",
+  "version": "CURRENT-1.96.3",
+  "previous_version": "CURRENT-1.96.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "泰爾瓦隆百族部落完整區域深化：十二大圖騰席與中小部族席團正式建立，六大地帶、8座城鎮、12張野外地圖、8處地下城、20種怪物、18名核心NPC與8個區域組織接入現行世界。",
+  "summary": "泰爾瓦隆／黑潮區域整合修正：後載入城鎮、組織、世界誌與NPC完整接入現行schema；黑潮POL-010主權與征夷大將軍政治階層同步，最高權限debug不再沿用舊退役政體判定。",
   "changelog": [
+    "CURRENT-1.96.3：修正泰爾瓦隆與黑潮後載入區域的現行schema整合，不降低任何發布稽核標準。",
+    "兩區新增組織補齊primary_facility、加入門檻、任務／敵對能力、歷史、現況、signature與distinctive_features，正式納入組織深化與會員系統。",
+    "兩區世界誌補上現行verification層級並重建lore_query_index；新增聚落補上settlement_world_tier。",
+    "地方NPC原型combat_tier_ceiling統一遵守C級上限；政治身分B級不再誤當成普通NPC原型戰力上限。",
+    "POL-010黑潮群島政府類型正規化為幕府雙軌島國；政治階層正式使用『征夷大將軍』。",
+    "最高權限runtime移除已恢復主權的POL-010退役政體誤判；POL-017仍維持退役判定。",
+    "PWA快取升至v100；正式src程序維持59個，index／Service Worker／PROGRAM-REGISTRY同序。",
     "TYERVALON-DEPTH-1.0：POL-014泰爾瓦隆百族部落由世界政治骨架深化為可遊玩區域；保留泰爾瓦隆大營、百族大酋長與REG-14既有正史。",
     "政治結構建立十二大圖騰席＋中小部族席團＋地方氏族；百族大酋長掌共同外交與授權下戰時統合，水草議庭、祖火薩滿庭、戰角營與各部維持分權。",
     "新增會盟心原、西關風門、北泉草海、東岸雷台、南麓赤坡、林緣霧谷六大可遊玩治理區，全部接入RMAP-POL-014。",
@@ -220,7 +227,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v99",
+  "pwa_cache_revision": "v100",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -594,7 +601,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-1.96.2新增泰爾瓦隆完整區域深化模組；59個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-1.96.2",
+    "last_verified_release": "CURRENT-1.96.3",
     "notes": [
       "CURRENT-1.96.2：修正既有58程序統計漂移並新增src/tyervalon-depth-v1.js；正式入口、PROGRAM-REGISTRY、PWA與發布稽核同步為59個src程序。",
       "CURRENT-1.95.1：57個正式src程序語法與清單一致性通過；修正PROGRAM-REGISTRY revision、發布fallback與PWA Service Worker版本漂移。",
@@ -1002,7 +1009,7 @@
     "existing_members_migrate_to_exam_passed": true,
     "save_compatible": true
   },
-  "political_hierarchy_depth_revision": "POLITICAL-HIERARCHY-DEPTH-1.1",
+  "political_hierarchy_depth_revision": "POLITICAL-HIERARCHY-DEPTH-1.2",
   "political_hierarchy_depth": {
     "release": "CURRENT-1.86.0",
     "polity_profiles": 16,
@@ -1038,7 +1045,7 @@
     "geography_profiles": 16
   },
   "world_physical_geography_revision": "WORLD-MAP-GEOPOLITICS-1.4",
-  "political_consolidation_revision": "POLITY-CONSOLIDATION-1.2",
+  "political_consolidation_revision": "POLITY-CONSOLIDATION-1.3",
   "world_map_geopolitics_revision": "WORLD-MAP-GEOPOLITICS-1.4",
   "political_consolidation": {
     "active_polities_before": 15,
