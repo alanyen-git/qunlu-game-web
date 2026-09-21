@@ -363,7 +363,7 @@ if(region)Object.assign(region,{map_status:"playable_current",recommended_tier:"
 const polity=row("political_entities",POLITY_ID);
 if(polity){
  Object.assign(polity,{
-  capital:"藍塔城",secondary_centers:["鏡湖鎮","符脊鎮","星盤鎮","東界市","隘門城"],
+  capital:"藍塔城",map_status:"playable_current",secondary_centers:["鏡湖鎮","符脊鎮","星盤鎮","東界市","隘門城"],
   ruling_structure:"首席塔主主持塔主議會；各塔塔主、藍塔奧術院、元素塔議會與術式安全審議署分掌研究、教育、事故責任與塔域治理，地方民生由塔域執政官、水務、關貿與守備體系執行。",
   legal_tradition:"藍塔法令、塔規、學院章程、術式資格法、研究事故責任誓約與地方民生條例",
   identity:"魔法教育與術式資格影響身份與仕途，但國家運作同時依賴水務、工匠、農牧、商旅、礦務、守備與可追責的研究制度。",
