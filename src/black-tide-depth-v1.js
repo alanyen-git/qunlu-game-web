@@ -1,4 +1,4 @@
-/* 群陸旅誌：黑潮群島完整區域深化 CURRENT-1.96.3
+/* 群陸旅誌：黑潮群島完整區域深化 CURRENT-1.96.4
  * BLACK-TIDE-DEPTH-1.1
  * 將POL-010由宏觀政體骨架深化為可遊玩的三大島、五小島與外圍島鏈。
  * 建立政治權力落點、城鎮、野外、地下城、怪物、NPC、經濟、傳聞與委託脈絡。
@@ -8,7 +8,7 @@
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.96.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.3";
+const RELEASE=CORE?.release?.("CURRENT-1.96.4")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.4";
 const REV="BLACK-TIDE-DEPTH-1.1";
 const POLITY_ID="POL-010",REGION_ID="REG-10",CULTURE_ID="CUL-010",REALM_ID="RMAP-POL-010";
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
@@ -220,7 +220,7 @@ function mon(x){
   xp_reward:x.xp||({F:10,E:18,D:34,C:58}[x.tier]||12),description:x.description,near_town_eligible:!!x.near,
   encounter_enabled:true,encounter_weight:x.weight||1,
   ecology_profile:{body_scale:x.scale||"medium",tags:[...(x.tags||["wildlife"])]},
-  loot_profile:{version:"LOOT-ECOLOGY-1.0",allowed_material_ids:allowed},
+  loot_profile:{version:"LOOT-ECOLOGY-1.0",fallback_policy:"none",allowed_material_ids:allowed},
   loot_materials:allowed.map((id,i)=>({id,chance:Math.max(.18,(x.lootChance??.45)-i*.08),min:1,max:1}))
  };
 }
@@ -410,6 +410,8 @@ for(const l of [...TOWNS.map(x=>loc(x.id)),...FIELDS.map(x=>loc(x.id)),...DUNGEO
   const o=row("world_organizations",o0.id);if(!o)continue;
   o.political_entity_id=POLITY_ID;o.scope="地方／區域";o.alignment=o.alignment||"neutral";
   o.primary_facility=facilityByOrg[o.id]||"guild";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;o.min_join_level=Math.max(1,Number(o.min_join_level)||1);
+  const bonusByKind={court:{statusResist:4},government:{defense_pct:3},craft:{craft_success:4},trade:{carryCapacity:5},civilian:{perception:4}};
+  o.member_bonus=o.member_bonus||{id:"BONUS-"+o.id,text:"群島職能會員訓練",effects:{...(bonusByKind[o.kind]||{perception:3})}};
   o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];
   o.history=Array.isArray(o.history)&&o.history.length?o.history:["由群島地方職能逐步制度化，隨島際交通與共同治理需求形成現行組織。"];
   o.history_summary=o.history_summary||o.history.join(" ");
