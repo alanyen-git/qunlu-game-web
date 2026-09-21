@@ -125,7 +125,7 @@
       for(const id of f?.stock||[])if(src[id])src[id].shops=uniqList([...src[id].shops,fid]);
     }
     for(const l of DB.locations||[]){
-      for(const id of l?.gather||[])if(src[id])src[id].gather_locations=uniqList([...src[id].gather_locations,l.id]);
+      for(const id of [...(l?.gather||[]),...(l?.mining||[]),...(l?.woodcut||[]),...(l?.fish||[]),...(l?.hunt||[])])if(src[id])src[id].gather_locations=uniqList([...src[id].gather_locations,l.id]);
     }
     for(const m of DB.monsters||[]){
       for(const drop of m?.loot_materials||[])if(drop?.id&&src[drop.id])src[drop.id].monster_drops=uniqList([...src[drop.id].monster_drops,m.id]);
