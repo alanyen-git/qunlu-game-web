@@ -87,7 +87,9 @@ function buildPolity(C){
  }
  for(const h of C.hooks)upsert("regional_adventure_hooks",{id:h[0],title:h[1],premise:h[2],tier:h[3],region_id:h[4]||C.regionIds[0],polity_id:C.polityId});
  for(const e of C.life)upsert("regional_life_events",{id:e[0],name:e[1],text:e[2],region_id:e[3]||C.regionIds[0],polity_id:C.polityId});
- for(const l of C.lore)upsert("lore_records",{id:l[0],category:l[1],title:l[2],text:l[3],political_entity_id:C.polityId,region_ids:C.regionIds,visibility:"public"});
+ const verifyKeys=Object.keys(DB.lore_system?.verification_levels||{}),verify=verifyKeys.includes("verified")?"verified":(verifyKeys.includes("recorded")?"recorded":(verifyKeys[0]||"recorded"));
+ for(const l of C.lore)upsert("lore_records",{id:l[0],category:l[1],title:l[2],text:l[3],scope_type:"polity",scope_id:C.polityId,verification:verify,era_id:"ERA-05",
+  source_refs:[C.polityId,...C.regionIds],tags:[C.name,"區域深化"],common_knowledge:true,political_entity_id:C.polityId,region_ids:C.regionIds,visibility:"public"});
  for(const z of C.zones){
   const towns=C.towns.filter(x=>x.zoneId===z.id).map(x=>x.id),wilds=C.fields.filter(x=>x.zoneId===z.id).map(x=>x.id),dungeons=C.dungeons.filter(x=>x.zoneId===z.id).map(x=>x.id);
   upsert("province_region_maps",{id:z.province,layer:"province_region",name:z.name,display_name:C.name+"・"+z.name,parent_realm_map_id:C.realmId,political_entity_id:C.polityId,
@@ -107,10 +109,23 @@ function buildPolity(C){
  if(p)Object.assign(p,{name:C.name,government_type:C.governmentType,capital:C.capital,map_status:"playable_current",world_tier:C.worldTier,current_title:C.currentTitle,top_office:C.currentTitle,
   ruling_structure:C.rulingStructure,legal_tradition:C.legalTradition,succession_method:C.succession,identity:C.identity,gameplay_role:C.gameplayRole,secondary_centers:C.centers.filter(x=>x!==C.capital),
   economic_base:C.economicBase,military_structure:C.military,current_tensions:C.tensions,internal_regions:C.zones.map(x=>({id:x.id,name:x.name,role:x.role,tier:x.tier,region_id:x.regionId})),
-  key_organization_ids:uniq([...(p.key_organization_ids||[]),...C.orgs.map(x=>x.id)])});
+  key_organization_ids:uniq([...(p.key_organization_ids||[]),...C.orgs.map(x=>x.id)]),lore_record_ids:uniq([...(p.lore_record_ids||[]),...C.lore.map(x=>x[0])])});
  const auth=(DB.polity_authority_profiles||[]).find(x=>x?.polity_id===C.polityId);
  if(auth){auth.top_office_ids=[C.offices[0].id];auth.office_nodes=clone(C.offices);auth.rival_power_centers=[...C.powerCenters];auth.player_interaction_summary=C.playerInteraction;auth.succession_method=C.succession;}
  for(const [a,b,h] of C.links)twoWay(a,b,h);
+ DB.content_link_index=DB.content_link_index&&typeof DB.content_link_index==="object"?DB.content_link_index:{};
+ DB.content_link_index.location_content=DB.content_link_index.location_content&&typeof DB.content_link_index.location_content==="object"?DB.content_link_index.location_content:{};
+ DB.content_link_index.item_sources=DB.content_link_index.item_sources&&typeof DB.content_link_index.item_sources==="object"?DB.content_link_index.item_sources:{};
+ for(const l of [...C.towns,...C.fields,...C.dungeons].map(x=>loc(x.id)).filter(Boolean))DB.content_link_index.location_content[l.id]={
+  facility_ids:[...(l.facilities||[])],gather_item_ids:uniq([...(l.gather||[]),...(l.mining||[]),...(l.woodcut||[])]),fish_item_ids:[...(l.fish||[])],
+  encounter_monster_ids:C.monsters.filter(m=>(m.habitat||[]).includes(l.id)).map(m=>m.id),companion_species_ids:[],
+  organization_ids:C.orgs.map(x=>row("world_organizations",x.id)).filter(Boolean).filter(o=>o.base_location_id===l.id||(o.contact_location_ids||[]).includes(l.id)).map(o=>o.id),pantheon_ids:[]};
+ for(const it of C.materials){
+  const s=DB.content_link_index.item_sources[it.id]=DB.content_link_index.item_sources[it.id]||{};
+  for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=Array.isArray(s[k])?s[k]:[];
+  for(const l0 of [...C.fields,...C.dungeons])if(uniq([...(l0.gather||[]),...(l0.mining||[]),...(l0.woodcut||[]),...(l0.fish||[]),...(l0.hunt||[])]).includes(it.id)&&!s.gather_locations.includes(l0.id))s.gather_locations.push(l0.id);
+  for(const m of C.monsters)if((m.drops||[]).includes(it.id)&&!s.monster_drops.includes(m.id))s.monster_drops.push(m.id);
+ }
  const dossier={version:REV,release:RELEASE,political_entity_id:C.polityId,region_ids:C.regionIds,world_tier:C.worldTier,capital:C.capital,
   zone_ids:C.zones.map(x=>x.id),town_ids:C.towns.map(x=>x.id),wild_ids:C.fields.map(x=>x.id),dungeon_ids:C.dungeons.map(x=>x.id),monster_ids:C.monsters.map(x=>x.id),
   npc_ids:C.npcs.map(x=>x[0]),organization_ids:C.orgs.map(x=>x.id),material_ids:C.materials.map(x=>x.id),governance:C.governance,tier_model:C.tierModel,save_compatible:true};
@@ -367,7 +382,7 @@ const CAS={
   {id:"D-CAS-DOCKVAULT",name:"維爾舊船渠",zoneId:"CAS-Z-04",regionId:"REG-06",province:"PROV-CAS-04",smap:"SMAP-CAS-04",tier:"C",template:"D-AQUEDUCT",aquatic:true,risk:41,gather:["CAS-MAT-014"],preferred:["MON-CAS-019","MON-CAS-023"],description:"舊式乾船塢下方的水門、鏈道與維修坑。"},
   {id:"D-CAS-CANALLOCK",name:"三渠封閉水門",zoneId:"CAS-Z-05",regionId:"REG-06",province:"PROV-CAS-05",smap:"SMAP-CAS-05",tier:"C",template:"D-AQUEDUCT",aquatic:true,risk:35,gather:["CAS-MAT-010"],preferred:["MON-CAS-020","MON-CAS-023"],description:"被新運河取代的舊水門與機械室。"},
   {id:"D-CAS-LEVEETUNNEL",name:"南閘堤心隧道",zoneId:"CAS-Z-06",regionId:"REG-06",province:"PROV-CAS-06",smap:"SMAP-CAS-06",tier:"C",template:"D-AQUEDUCT",risk:37,gather:["CAS-MAT-014"],preferred:["MON-CAS-017","MON-CAS-024"],description:"用於檢修堤體與排洪閘的狹長隧道。"},
-  {id:"D-CAS-WINECELLAR",name:"葡藤舊酒窖城",zoneId:"CAS-Z-07",regionId:"REG-07",province:"PROV-CAS-07",smap:"SMAP-CAS-07",tier:"D",template:"D-AQUEDUCT",risk:29,gather:["CAS-MAT-012"],preferred:["MON-CAS-018","MON-CAS-022"],description:"多個老酒窖連成的地下通道。"},
+  {id:"D-CAS-WINECELLAR",name:"葡藤舊酒窖城",zoneId:"CAS-Z-07",regionId:"REG-07",province:"PROV-CAS-07",smap:"SMAP-CAS-07",tier:"C",template:"D-AQUEDUCT",risk:29,gather:["CAS-MAT-012"],preferred:["MON-CAS-018","MON-CAS-022"],description:"多個老酒窖連成的地下通道。"},
   {id:"D-CAS-CHARTERARCHIVE",name:"城盟封印章庫",zoneId:"CAS-Z-01",regionId:"REG-07",province:"PROV-CAS-01",smap:"SMAP-CAS-01",tier:"C",template:"D-AQUEDUCT",risk:42,gather:["CAS-MAT-015"],preferred:["MON-CAS-021","MON-CAS-024"],description:"保存成員城最早特許狀與印模的高戒備地下檔案層。"}
  ],
  materials:[
@@ -504,6 +519,7 @@ const CAS={
 
 const dawnData=buildPolity(DAWN);
 const casData=buildPolity(CAS);
+if(Array.isArray(DB.lore_records)){const rebuilt={};for(const x of DB.lore_records){const k=String(x.scope_type||"world")+":"+String(x.scope_id||"global");(rebuilt[k]||(rebuilt[k]=[])).push(x.id)}DB.lore_query_index=rebuilt}
 function runDawnLawDepthAudit(){return auditPolity(DAWN)}
 function runCasavelleDepthAudit(){return auditPolity(CAS)}
 DB.meta=DB.meta||{};DB.meta.dawn_casavelle_depth_revision=REV;
