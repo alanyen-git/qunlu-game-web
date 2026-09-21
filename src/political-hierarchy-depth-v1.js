@@ -257,15 +257,16 @@ const FREE_CITY_OVERRIDES=Object.freeze({
    n("榮譽市民","honorary","AUTH-0",{rights_note:"無自動商館席位、投票權或關稅權"})
  ],
  "POL-009":[
-   n("武契議長","civic_mandate","AUTH-5",{acquisition:"主要武契團、市議席與工坊代表推舉"}),
-   n("市議長","civic_mandate","AUTH-5"),
-   n("武契議員","civic_seat","AUTH-4",{track:"mercenary"}),
-   n("資深議員","civic_seat","AUTH-4"),
-   n("市議員","civic_seat","AUTH-3"),
-   n("契約仲裁官／軍需監","administrative","AUTH-3"),
+   n("三方共治議會召集人","civic_mandate","AUTH-5",{acquisition:"遠境冒險團、冒險者總公會、傭兵總公會三席按期輪值",note:"召集人只主持程序，不增加表決權"}),
+   n("遠境冒險團共治代表","civic_seat","AUTH-5",{track:"adventure_party",acquisition:"遠境冒險團內部指定"}),
+   n("冒險者總公會共治代表","civic_seat","AUTH-5",{track:"adventurer_guild",acquisition:"冒險者總公會依章程指定"}),
+   n("傭兵總公會共治代表","civic_seat","AUTH-5",{track:"mercenary_guild",acquisition:"傭兵總公會依章程指定"}),
+   n("市政事務院總務官","administrative","AUTH-4",{acquisition:"三方共治議會任命"}),
+   n("首席契約仲裁官","administrative","AUTH-4",{acquisition:"三方一致提名、仲裁院確認"}),
+   n("市民諮詢議員／工坊諮詢議員","civic_seat","AUTH-2",{acquisition:"選舉／團體推派",note:"諮詢席不構成第四個主權共治席"}),
    n("登記傭兵市民","citizen","AUTH-1",{governing_default:false}),
    n("自由市民","citizen","AUTH-1",{governing_default:false}),
-   n("榮譽市民","honorary","AUTH-0",{rights_note:"無自動武契表決、傭兵指揮或市政權"})
+   n("榮譽市民","honorary","AUTH-0",{rights_note:"無自動共治表決、傭兵指揮或市政權"})
  ]
 });
 
