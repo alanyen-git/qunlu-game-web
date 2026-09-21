@@ -1,5 +1,5 @@
-/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-2.06.0
- * WORLD-MAP-GEOPOLITICS-1.4
+/* 群陸旅誌：世界政治地圖地理骨架 CURRENT-2.07.0
+ * WORLD-MAP-GEOPOLITICS-1.7
  * 在既有政治疆域底板上加入海岸、山脈、河川、湖泊、氣候帶、主要道路與國境關隘，
  * 並使政治疆界的形狀與說明受到天然屏障、分水嶺、河谷與交通控制點影響；不改旅行解鎖與存檔schema。
  */
@@ -7,9 +7,105 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.06.0")||"CURRENT-2.06.0";
-const REV="WORLD-MAP-GEOPOLITICS-1.6";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.07.0")||"CURRENT-2.07.0";
+const REV="WORLD-MAP-GEOPOLITICS-1.7";
 const W=1800,H=1100;
+
+const POLITY_TIER_MODEL_VERSION="POLITY-WORLD-TIER-1.0";
+const POLITY_TIER_WEIGHTS=Object.freeze({
+ geography:15,
+ resources:20,
+ history_institutions:15,
+ productivity:25,
+ population_specialization:15,
+ strategic_network:10
+});
+const POLITY_TIER_AXIS_LABELS=Object.freeze({
+ geography:"地理與交通",
+ resources:"資源基礎",
+ history_institutions:"歷史與制度",
+ productivity:"生產力",
+ population_specialization:"人口／種族專業化",
+ strategic_network:"戰略與跨區網路"
+});
+/* 種族不以天生優劣計分；此軸只評估已建立的人口結構、教育、專業分工、
+ * 長壽族群形成的制度記憶與跨族協作等社會條件。
+ * 政治體世界層級＝能穩定承載的綜合文明／供應層級；城鎮、野外、地下城危險度維持獨立。
+ */
+const POLITY_TIER_FACTORS=Object.freeze({
+ "POL-001":{geography:4,resources:4,history_institutions:4,productivity:4,population_specialization:3,strategic_network:4,basis:"中央河谷、王領道路、農糧與中階礦工業形成均衡供應網；王都具B級鍛造與行政能力，但高階產能仍集中。"},
+ "POL-002":{geography:4,resources:4,history_institutions:5,productivity:5,population_specialization:4,strategic_network:5,basis:"赫薩爾河谷、帝國道路、軍團採購、貢賦與高密度工坊共同形成跨區規模生產與軍需體系。"},
+ "POL-003":{geography:4,resources:4,history_institutions:5,productivity:5,population_specialization:4,strategic_network:4,basis:"北中部交通咽喉、帝都與諸侯體系、農牧糧倉、高階工坊及跨境加冕網路共同支撐大型帝國供應。"},
+ "POL-004":{geography:4,resources:2,history_institutions:5,productivity:4,population_specialization:4,strategic_network:5,basis:"中央湖盆與朝聖路帶來高網路效應；教廷、醫療、教育與文書體系成熟，但原料與軍工資源基盤不及大型帝國。"},
+ "POL-007":{geography:5,resources:3,history_institutions:4,productivity:5,population_specialization:4,strategic_network:5,basis:"河海轉運、共同市場、商法金融、船塢與多城工坊形成高效率城市生產網；領土與原生高階資源較有限。"},
+ "POL-008":{geography:4,resources:2,history_institutions:4,productivity:4,population_specialization:3,strategic_network:5,basis:"深水港、中立商法、倉儲保險與跨國商館使小島具超越面積的商業承載力；淡水、腹地與原料高度受限。"},
+ "POL-009":{geography:3,resources:2,history_institutions:4,productivity:3,population_specialization:4,strategic_network:4,basis:"傭兵契約、訓練、仲裁與冒險者網路高度專業化，但本地資源與一般民生產能有限，維持中階城市型政治體。"},
+ "POL-010":{geography:4,resources:3,history_institutions:4,productivity:4,population_specialization:4,strategic_network:4,basis:"三大島與多港灣支撐魚鹽、船材、造船與海防；皓月御國—黑潮幕府雙軌制度能統合群島，但仍受風暴與輸入依賴限制。"},
+ "POL-011":{geography:3,resources:4,history_institutions:5,productivity:5,population_specialization:5,strategic_network:4,basis:"高地術式資源、長期魔法教育、研究與資格制度形成世界級知識密集產能；地形與山口限制大宗物流。"},
+ "POL-012":{geography:4,resources:5,history_institutions:5,productivity:4,population_specialization:5,strategic_network:3,basis:"古林、水系與海岸資源豐富；精靈長世代制度記憶、林地工藝與封養治理成熟，但對外交通刻意受控。"},
+ "POL-013":{geography:3,resources:5,history_institutions:5,productivity:5,population_specialization:5,strategic_network:4,basis:"西北巨型礦脈、山廳、冶金工坊與長期氏族技術傳承構成最高等級的工業資源組合；山口限制是主要瓶頸。"},
+ "POL-014":{geography:3,resources:3,history_institutions:3,productivity:3,population_specialization:4,strategic_network:3,basis:"多族百族會盟具牧畜、皮革、藥草與地方工藝，但水草承載、分權治理與精製品進口依賴限制穩定高階產能。"},
+ "POL-015":{geography:4,resources:2,history_institutions:3,productivity:3,population_specialization:4,strategic_network:4,basis:"草海牧路、馬匹與南北互市形成高機動網路；季節水源、草場承載與金屬／穀物輸入依賴限制工業化程度。"},
+ "POL-016":{geography:2,resources:3,history_institutions:4,productivity:2,population_specialization:4,strategic_network:2,basis:"高寒封閉地形壓低總產能，但冬議、越冬倉、輪獵輪採與氏族專業分工使其穩定承載力高於早期D級估算。"},
+ "POL-019":{geography:2,resources:4,history_institutions:2,productivity:2,population_specialization:3,strategic_network:3,basis:"廢礦、回收金屬與安威爾—瑟露維亞商路帶來中階資源價值；無中央政府、道路中斷與進口依賴壓低整體承載。C級不代表存在C級中央政權。"},
+ "POL-020":{geography:2,resources:5,history_institutions:5,productivity:4,population_specialization:5,strategic_network:3,basis:"深層礦脈、晶絲、附魔織物與長期家門制度形成高專業地下經濟；糧食、木材與對外通道依賴使其未達A級。"}
+});
+function polityTierScore(factors){
+ let score=0;
+ for(const [axis,weight] of Object.entries(POLITY_TIER_WEIGHTS)){
+   const value=Number(factors?.[axis]||0);
+   score+=(Math.max(0,Math.min(5,value))/5)*weight;
+ }
+ return Math.round(score*10)/10;
+}
+function polityTierFromScore(score){
+ if(score>=96)return "S";
+ if(score>=88)return "A";
+ if(score>=65)return "B";
+ if(score>=50)return "C";
+ if(score>=35)return "D";
+ if(score>=20)return "E";
+ return "F";
+}
+function applyPolityTierReassessment(){
+ const results=[];
+ for(const p of DB.political_entities||[]){
+   const factors=POLITY_TIER_FACTORS[p.id];
+   if(!factors)continue;
+   const previousTier=p.world_tier||null;
+   const score=polityTierScore(factors);
+   const tier=polityTierFromScore(score);
+   p.world_tier=tier;
+   p.world_tier_assessment={
+     version:POLITY_TIER_MODEL_VERSION,revision:REV,score,tier,previous_tier:previousTier,
+     factors:Object.fromEntries(Object.keys(POLITY_TIER_WEIGHTS).map(axis=>[axis,factors[axis]])),
+     basis:factors.basis,
+     local_danger_independent:true
+   };
+   for(const realm of (DB.realm_region_maps||[]).filter(x=>x?.political_entity_id===p.id)){
+     realm.world_tier=tier;
+     realm.world_tier_basis=POLITY_TIER_MODEL_VERSION;
+   }
+   results.push({polity_id:p.id,name:p.name,previous_tier:previousTier,tier,score,factors:{...p.world_tier_assessment.factors},basis:factors.basis});
+ }
+ const distribution={F:0,E:0,D:0,C:0,B:0,A:0,S:0};
+ for(const x of results)distribution[x.tier]=(distribution[x.tier]||0)+1;
+ DB.polity_world_tier_assessment={
+   version:POLITY_TIER_MODEL_VERSION,revision:REV,release:RELEASE,
+   model:{
+     scale:"F-S",factor_scale:"1-5",weights:{...POLITY_TIER_WEIGHTS},
+     thresholds:{F:"0-19.9",E:"20-34.9",D:"35-49.9",C:"50-64.9",B:"65-87.9",A:"88-95.9",S:"96-100"},
+     definition:"政治體能長期穩定承載的綜合文明、供應與組織層級。",
+     species_policy:"不以種族天生優劣計分；只計已建立的人口結構、教育、專業分工、制度記憶與跨族協作。",
+     adventure_tier_independent:true
+   },
+   distribution,results
+ };
+ DB.meta.polity_world_tier_revision=POLITY_TIER_MODEL_VERSION;
+ return results;
+}
+const POLITY_TIER_RESULTS=applyPolityTierReassessment();
+
 
 /* 地表政治疆域：1.1版將原先大面積直線切割改成沿河谷、山脊、火山高地與交通走廊的折線。
  * 同一區域仍維持原region_id / political_entity_id，不破壞既有世界資料與存檔。
@@ -526,7 +622,8 @@ function mapPolityRows(){
    const c=capitalForPolity(p.id);
    const cap=c?.type==="none"?"無固定首都":c?.type==="mobile_court"?"季節性汗庭":c?.name||p.capital||"—";
    const layer=p.world_map_profile?.layer==="subterranean"?"地下":"地表";
-   return '<div class="itemrow"><span><b>'+esc(p.name)+'</b> <span class="tier">'+esc(p.world_tier||"—")+'</span><br><span class="small">'+esc(p.government_type||"")+'｜'+layer+'｜首都／中樞：'+esc(cap)+'</span></span><button onclick="openWorldMapPolityTerritory(\''+p.id+'\')">疆域</button></div>';
+   const ta=p.world_tier_assessment;
+   return '<div class="itemrow"><span><b>'+esc(p.name)+'</b> <span class="tier">'+esc(p.world_tier||"—")+'</span><br><span class="small">'+esc(p.government_type||"")+'｜'+layer+'｜首都／中樞：'+esc(cap)+(ta?'｜綜合承載 '+esc(ta.score)+'/100':'')+'</span></span><button onclick="openWorldMapPolityTerritory(\''+p.id+'\')">疆域</button></div>';
  }).join("");
 }
 function atlasLegend(mode){
@@ -558,6 +655,7 @@ function openWorldMapPolityTerritory(pid){
  const cap=c?.type==="none"?"無固定首都":c?.type==="mobile_court"?(c.name+"；"+(c.note||"")):(c?.name||p.capital||"—");
  const note=POLITICAL_NOTES[pid]||r?.sovereignty_note||"";
  const gp=GEOGRAPHY_PROFILES[pid]||null;
+ const ta=p.world_tier_assessment||null;
  const relation=p.vassal_of?("宗主："+(polityById(p.vassal_of)?.name||p.vassal_of)):"獨立主權／特殊非國家區";
  const layer=g?.layer==="subterranean"?"地下主權":"地表疆域";
  const featureRows=featuresForRegion(rid).map(x=>'<b>'+esc(x.kind)+'</b>：'+esc(x.names.join("、"))).join("<br>");
@@ -570,6 +668,7 @@ function openWorldMapPolityTerritory(pid){
  }).join("");
  const body='<div class="card"><b>'+esc(p.name)+'</b> <span class="tier">'+esc(p.world_tier||"—")+'</span><br><span class="small">'+esc(p.government_type||"")+'｜'+esc(layer)+'｜'+esc(relation)+'</span></div>'+
    '<div class="card small"><b>疆域核心</b>：'+esc(r?.name||p.core_region_id)+'<br><b>所轄大區</b>：'+esc(territoryNames.join("、")||r?.name||"—")+'<br><b>首都／統治中樞</b>：'+esc(cap)+'<br><b>相鄰政治體</b>：'+esc(ad.join("、")||"無直接政治邊界")+(ns.length?'<br><b>相鄰非主權區</b>：'+esc(ns.join("、")):"")+(note?'<br><b>主權說明</b>：'+esc(note):"")+'</div>'+
+   (ta?'<div class="card small"><b>世界層級重估</b>：<span class="tier">'+esc(ta.tier)+'</span>｜綜合承載 '+esc(ta.score)+'/100'+(ta.previous_tier&&ta.previous_tier!==ta.tier?'｜原 '+esc(ta.previous_tier):'')+'<br>'+Object.entries(ta.factors||{}).map(([axis,value])=>'<b>'+esc(POLITY_TIER_AXIS_LABELS[axis]||axis)+'</b> '+esc(value)+'/5').join('｜')+'<br><b>依據</b>：'+esc(ta.basis||"")+'<br><span class="small">政治體層級衡量長期文明／供應承載；城鎮、野外、地下城危險度仍獨立計算。</span></div>':"")+
    (gp?'<div class="card small"><b>位置與地理環境</b><br><b>位置</b>：'+esc(gp.position)+'<br><b>地形</b>：'+esc(gp.terrain)+'<br><b>氣候</b>：'+esc(gp.climate)+'<br><b>水系</b>：'+esc(gp.water)+'<br><b>交通</b>：'+esc(gp.access)+'<br><b>地緣意義</b>：'+esc(gp.strategic)+'</div>':"")+
    (g?.layer==="subterranean"?'':'<div class="card small"><b>自然與交通骨架</b><br>'+(featureRows||"目前無大型地理要素標記")+(climates?'<br><b>氣候帶</b>：'+esc(climates):"")+'</div>')+
    (borders?'<div class="card small"><b>國境形成原因</b>'+borders+'</div>':"")+
@@ -609,6 +708,17 @@ function audit(){
  const issues=[];
  const polities=DB.political_entities||[];
  if(polities.length!==16)issues.push("政治體數量偏離CURRENT基準16："+polities.length);
+ if(Object.keys(POLITY_TIER_FACTORS).length!==16)issues.push("政治體世界層級評估表應為16："+Object.keys(POLITY_TIER_FACTORS).length);
+ if(DB.polity_world_tier_assessment?.model?.adventure_tier_independent!==true)issues.push("政治體世界層級與地方危險度未明確分離");
+ for(const p of polities){
+   const f=POLITY_TIER_FACTORS[p.id];
+   if(!f){issues.push("政治體缺世界層級評估："+p.id);continue}
+   const score=polityTierScore(f),expected=polityTierFromScore(score);
+   if(p.world_tier!==expected)issues.push("政治體世界層級未套用："+p.id+" "+p.world_tier+"!="+expected);
+   if(Number(p.world_tier_assessment?.score)!==score)issues.push("政治體世界層級分數失步："+p.id);
+   const realm=(DB.realm_region_maps||[]).find(x=>x?.political_entity_id===p.id);
+   if(realm&&realm.world_tier!==expected)issues.push("政體區域圖世界層級失步："+p.id);
+ }
  const regionIds=new Set((DB.world_regions||[]).map(x=>x.id));
  const geomSurface=new Map(REGION_GEOMETRY.filter(x=>x.layer==="surface").map(x=>[x.region_id,x]));
  for(const rid of ["REG-17","REG-19","REG-20"])if(!geomSurface.get(rid)?.nonstate)issues.push("非統一主權區地圖標記遺失："+rid);
@@ -699,7 +809,9 @@ function audit(){
    no_capital_zones:CAPITALS.filter(x=>x.type==="none").length,
    coastlines:COASTLINES.length,mountain_ranges:MOUNTAIN_RANGES.length,rivers:RIVERS.length,lakes:LAKES.length,
    climate_bands:CLIMATE_BANDS.length,major_roads:ROADS.length,border_passes:PASSES.length,border_logic:BORDER_LOGIC.length,
-   wilderness_maps:WILDERNESS_ZONES.length,wilderness_nodes:WILDERNESS_ZONES.reduce((n,z)=>n+(z.nodes?.length||0),0)
+   wilderness_maps:WILDERNESS_ZONES.length,wilderness_nodes:WILDERNESS_ZONES.reduce((n,z)=>n+(z.nodes?.length||0),0),
+   polity_tier_model:POLITY_TIER_MODEL_VERSION,
+   polity_tier_distribution:{...(DB.polity_world_tier_assessment?.distribution||{})}
  }};
 }
 DB.world_geopolitical_map.initial_audit=audit();
