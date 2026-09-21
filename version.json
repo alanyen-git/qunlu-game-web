@@ -11,6 +11,7 @@
     "RUNTIME-OPT-1.5：persist()在序列化結果未變時略過重複localStorage.setItem；仍保留所有狀態變更即時寫回，不改每回合自動存檔規則。",
     "RUNTIME-OPT-1.5：renderAll()與combatStats()共用同一次負重計算，避免大型背包在單次主畫面更新中被重複掃描。",
     "PROGRAM-REGISTRY-1.20：程序完整性稽核改用Set做載入／預期成員查找，保留原本缺漏、額外、重複與順序檢查。",
+    "PROGRAM-REGISTRY-1.21：22個已由release-integrity實際執行的深度audit改為載入存在性檢查；System Integrity、斷境／龍脊、晨律／卡薩維爾、阿斯戴爾劇情與活世界等未重複覆蓋項目仍保留實際執行。",
     "本次只調整載入、快取、存檔寫入與稽核查找效能；canonical世界內容、戰鬥規則、經濟規則與存檔schema均未修改。",
     "CURRENT-2.07.0：新增POLITY-WORLD-TIER-1.0，以地理與交通15%、資源20%、歷史與制度15%、生產力25%、人口／種族專業化15%、戰略與跨區網路10%重算16個CURRENT政治體世界層級。",
     "分級結果：A級5個（凡雷克帝國、聖曜帝國、藍塔魔導王國、瑟露維亞精靈王庭、安威爾帝國）；B級6個（阿斯戴爾王國、晨律教國、卡薩維爾自由城盟、金衡自由都市、黑潮群島、黑月深庭）；C級5個（傭兵都市、泰爾瓦隆百族部落、白氈汗國、霜角酋邦、斷境無主地）。",
@@ -697,7 +698,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.20",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.21",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 69,
@@ -788,7 +789,10 @@
     "canonical_world_content_changed": false,
     "gameplay_rules_changed": false,
     "save_schema_changed": false,
-    "save_compatible": true
+    "save_compatible": true,
+    "duplicate_deep_audits_removed": 22,
+    "covered_by_release_integrity": true,
+    "uncovered_runtime_audits_preserved": true
   },
   "asdail_narrative_depth_revision": "ASDAIL-NARRATIVE-DEPTH-1.0",
   "asdail_narrative_runtime_revision": "ASDAIL-NARRATIVE-RUNTIME-2.0",
