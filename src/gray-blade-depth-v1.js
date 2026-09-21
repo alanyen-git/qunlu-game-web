@@ -1,4 +1,4 @@
-/* 群陸旅誌：灰刃自由都市完整區域深化 CURRENT-1.99.0
+/* 群陸旅誌：灰刃自由都市完整區域深化 CURRENT-1.99.1
  * GRAY-BLADE-DEPTH-1.0
  * POL-009 / REG-09：武契議會、市政雙議軌、契約法、軍需工坊、城鎮、野外、地下城、怪物、NPC與地方循環。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.99.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.99.0";
+const RELEASE=CORE?.release?.("CURRENT-1.99.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.99.1";
 const REV="GRAY-BLADE-DEPTH-1.0";
 const POLITY_ID="POL-009",REGION_ID="REG-09",CULTURE_ID="CUL-009",REALM_ID="RMAP-POL-009";
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
@@ -90,6 +90,11 @@ const ITEMS=[
 ].map(x=>({id:x[0],name:x[1],tier:x[2],weight:x[3],value:x[4],description:x[5]}));
 const gatherable=new Set([...FIELDS,...DUNGEONS].flatMap(x=>[...(x.gather||[]),...(x.mining||[]),...(x.fish||[])]));
 for(const x of ITEMS)upsert("items",{...x,kind:"material",type:"素材",catalog_group:"素材",stackable:true,regional_origin_id:REGION_ID,wild_gather_eligible:gatherable.has(x.id)});
+DB.content_link_index=DB.content_link_index&&typeof DB.content_link_index==="object"?DB.content_link_index:{};
+DB.content_link_index.item_sources=DB.content_link_index.item_sources&&typeof DB.content_link_index.item_sources==="object"?DB.content_link_index.item_sources:{};
+const civicSource=DB.content_link_index.item_sources["GB-MAT-011"]=DB.content_link_index.item_sources["GB-MAT-011"]||{};
+for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])civicSource[k]=Array.isArray(civicSource[k])?civicSource[k]:[];
+if(!civicSource.special_sources.includes("civic_recycling:L-GB-GRAYBLADE"))civicSource.special_sources.push("civic_recycling:L-GB-GRAYBLADE");
 
 function mon(x){
  const drops=[...(x.drops||[])];
@@ -131,9 +136,10 @@ const ORGS=[
  {id:"ORG-GB-WARDEN",name:"南境守備隊",kind:"military",tier:"C",base_location_id:"L-GB-EMBERPOST",description:"負責灰燼哨、龍脊北麓巡防、救援與南境警戒，不對龍脊非主權區宣稱統治。"},
  {id:"ORG-GB-MUSTER",name:"登記武契團聯絡會",kind:"mercenary",tier:"C",base_location_id:"L-GB-CAMPMARCH",description:"合法傭兵團的聯絡與自律平台，負責營位輪替、戰傷救助、失蹤回報與共同演訓協調。"}
 ];
+const bonusByKind={government:{statusResist:3},civic:{carryCapacity:3},craft:{craft_success:2},military:{defense_pct:2},mercenary:{accuracy:3}};
 for(const base of ORGS){
  const o=upsert("world_organizations",{...base,region_id:REGION_ID,political_entity_id:POLITY_ID});
- o.scope=o.tier==="C"?"kingdom":"local_regional";o.alignment="neutral";o.category=o.kind;o.primary_facility=o.kind==="craft"?"blacksmith":"guild";o.min_join_level=Math.max(1,Number(o.min_join_level)||1);o.join_reputation=Number(o.join_reputation)||0;o.visibility="public";o.legal_status="legal";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];o.history=o.history?.length?o.history:["灰刃從戰時聚落轉型為自由都市後，將私人武裝、工坊、道路與仲裁需求逐步納入可登記、可追責的城市機構。"];o.history_summary=o.history.join(" ");o.current_state=o.current_state||"目前以維持城市中立、契約可信度與南東商路安全為首要目標。";o.signature=o.signature||"契約登記、責任可追溯與武裝權力受市法約束";o.distinctive_features=o.distinctive_features||[o.signature,"不以單一傭兵團控制整座城市","組織層級不等同成員個人戰力"];o.institutional_culture=o.institutional_culture||"重視書面契約、押印、責任人、物資清單與期限。";o.strategic_tension=o.strategic_tension||"武裝效率、商業自由與市民公共安全之間需要持續平衡。";
+ o.scope=o.tier==="C"?"kingdom":"local_regional";o.alignment="neutral";o.category=o.kind;o.primary_facility=o.kind==="craft"?"blacksmith":"guild";o.member_bonus=o.member_bonus||{id:"BONUS-"+o.id,text:"灰刃職能會員訓練",effects:{...(bonusByKind[o.kind]||{perception:3})}};o.min_join_level=Math.max(1,Number(o.min_join_level)||1);o.join_reputation=Number(o.join_reputation)||0;o.visibility="public";o.legal_status="legal";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];o.history=o.history?.length?o.history:["灰刃從戰時聚落轉型為自由都市後，將私人武裝、工坊、道路與仲裁需求逐步納入可登記、可追責的城市機構。"];o.history_summary=o.history.join(" ");o.current_state=o.current_state||"目前以維持城市中立、契約可信度與南東商路安全為首要目標。";o.signature=o.signature||"契約登記、責任可追溯與武裝權力受市法約束";o.distinctive_features=o.distinctive_features||[o.signature,"不以單一傭兵團控制整座城市","組織層級不等同成員個人戰力"];o.institutional_culture=o.institutional_culture||"重視書面契約、押印、責任人、物資清單與期限。";o.strategic_tension=o.strategic_tension||"武裝效率、商業自由與市民公共安全之間需要持續平衡。";
 }
 
 const NPCS=[
@@ -175,8 +181,12 @@ for(const e of LIFE)upsert("regional_life_events",{...e,region_id:REGION_ID,poli
 
 const LORE=[
  ["LORE-GB-01","history","灰刃城的自由化","灰刃最初是軍路與商路交會的武裝聚落。長期戰事結束後，居民把臨時軍令改造成有期限、有登記、有仲裁的武契制度，城市逐步形成自由都市。"],["LORE-GB-02","politics","雙議軌治理","武契議會掌防務、外來武裝與總契約；市議堂掌民政、稅務、市場與公共工程。重大戰時稅與長期動員需要雙方共同同意。"],["LORE-GB-03","law","契約不能高於市法","私人契約可約定報酬、期限、護衛與損害責任，但不能合法化綁架、私刑、無授權徵收或對市民的任意暴力。"],["LORE-GB-04","military","傭兵城市不等於傭兵統治","灰刃有大量傭兵與武裝工坊，但主權屬自由都市本身。任何武契團的駐紮、招募與武器存放都受登記與期限限制。"],["LORE-GB-05","economy","戰事季的價格","大型護衛或邊境衝突會提高鐵料、皮革、乾糧、馬匹與旅宿需求，但市場庫存仍受實際產地、道路與工期限制。"],["LORE-GB-06","geography","灰刃的十字路口","REG-09位於中央核心、凡雷克方向、鐵旗邊原、龍脊火山群與西向自由城盟商路之間；繁榮主要來自陸路節點。"]
-].map(x=>({id:x[0],category:x[1],title:x[2],text:x[3]}));
+].map(x=>({id:x[0],category:x[1],title:x[2],text:x[3],scope_type:"polity",scope_id:POLITY_ID,verification:"recorded",era_id:"ERA-05",source_refs:[POLITY_ID,REGION_ID],tags:["灰刃自由都市"],common_knowledge:true}));
 for(const l of LORE)upsert("lore_records",{...l,region_id:REGION_ID,political_entity_id:POLITY_ID});
+DB.lore_query_index=DB.lore_query_index&&typeof DB.lore_query_index==="object"?DB.lore_query_index:{};
+const loreIndexKey="polity:"+POLITY_ID;
+DB.lore_query_index[loreIndexKey]=Array.isArray(DB.lore_query_index[loreIndexKey])?DB.lore_query_index[loreIndexKey]:[];
+for(const l of LORE)if(!DB.lore_query_index[loreIndexKey].includes(l.id))DB.lore_query_index[loreIndexKey].push(l.id);
 
 upsert("regional_content_profiles",{id:"RCP-GB-01",region_id:REGION_ID,polity_id:POLITY_ID,region_name:"灰刃自由都市",recommended_tier:"F～C",identity:"以契約可信度、傭兵登記、軍需工坊與陸路轉運維持繁榮的C級自由都市。武裝力量很多，但任何私人武力都必須受市法、契約法院與駐紮規則約束。",terrain:"白鐘河下游、東南丘陵、南向草原、灰脊低山與龍脊北麓火山緩坡",common_exports:["兵器與護具修造","車具","護衛服務","石材","皮革","陸路轉運"],common_imports:["糧食","優質木材","高階礦材","海產","稀有藥材"],food_staples:["黑麥餅","燉豆","鹽肉","河魚","洋蔥湯"],recurring_risks:["戰事季軍需擠壓民用市場","春汛","商路伏擊","傭兵團違約","火山灰季"]});
 upsert("regional_economy_profiles",{id:"ECO-GB-01",region_id:REGION_ID,polity_id:POLITY_ID,exports:["軍需修造","護衛服務","石材","皮革","車具","轉運服務"],imports:["糧食","木材","高階礦材","海產","稀有藥材"],notes:"灰刃不是無限軍需市場。工坊產能、礦石、皮革、馬匹、道路與倉儲都有上限；大型武契會推高局部需求，也可能讓民用商品短期缺貨。"});
