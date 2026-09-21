@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-1.95.1",
-  "previous_version": "CURRENT-1.95.0",
+  "version": "CURRENT-1.96.0",
+  "previous_version": "CURRENT-1.95.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全程序除錯 CURRENT-1.95.1：完成57個正式src程序語法與載入清單核對、主資料庫結構稽核及headless建角驗證；修正發布版本fallback、PWA Service Worker版本參數、PROGRAM-REGISTRY修訂號與除錯統計失步。玩法規則與存檔schema不變。",
+  "summary": "黑潮群島完整深化：在既有獨立主權與王庭—幕府雙軌正史上，建立3大島、5小島、7外圍島礁的可遊玩地圖層，補齊城鎮、野外、地下城、怪物、NPC、地方組織、經濟與政治權力落點；潮生村保留並接入島際航線。",
   "changelog": [
+    "BLACK-TIDE-DEPTH-1.0：黑潮群島正式完成3大島（玄潮、赤浦、青岬）＋5小島（白砂、潮見、灰燈、鯨背、霧浦）＋7外圍小型島礁的島內結構。",
+    "新增9個主要城鎮／港町、11張野外、8座地下城；既有潮生村保留為外圍小島新手入口，並接入潮見町與黑潮灣島際航路。",
+    "新增18種黑潮專屬怪物與10種掉落素材，怪物層級限制於F～C並綁定實際棲地、海岸／山林／地下城生態與掉落白名單。",
+    "新增16名核心NPC與5個地方組織，涵蓋潮皇、征海大將軍、幕府老中、海防奉行、主要島大名、港代、水先人、船匠、公會與地方產業角色。",
+    "政治權力鏈深化：保留潮皇王庭法統與征海大將軍幕府軍政雙軌，新增老中首座、海防／財賦／裁判奉行、島代官、港代等實際地方治理節點。",
+    "黑潮經濟、地方生活與冒險鉤子接入REG-10：島際市場受船期、風暴、霧季與輸入依賴影響；魚鹽、船材、竹木、石材與藥草為主要本地產出。",
+    "新增BLACK-TIDE-DEPTH完整性稽核並接入PROGRAM-REGISTRY與RELEASE-INTEGRITY；PWA快取升級v97，舊存檔schema不變。",
     "DEBUG-SYNC-1.0：57個正式src程序全部完成語法檢查；index、PROGRAM-REGISTRY、Service Worker三份正式程序清單皆為57個且順序一致。",
     "主資料庫與資料補丁稽核：無重複ID、無失效地圖連結、無失效配方素材引用；新手村、政治體、政治階層、配方、裝備、出身、戰鬥職業與天賦稽核均通過。",
     "headless建角驗證通過：Lv1角色可正常建立，起始2技能、2天賦與存檔寫入正常；Water Source重建物品來源索引後runGeneratorAudit為0項。",
@@ -178,7 +185,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.5",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.6",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -204,7 +211,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "PWA-CACHE-FIX-4.7",
+  "pwa_cache_revision": "PWA-CACHE-FIX-4.8",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -554,7 +561,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.7",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.8",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 57,
@@ -1061,6 +1068,22 @@
       "野外資源恢復時間",
       "地下城重生時間"
     ],
+    "save_schema_changed": false
+  },
+  "black_tide_depth_revision": "BLACK-TIDE-DEPTH-1.0",
+  "black_tide_depth": {
+    "islands": 8,
+    "major_islands": 3,
+    "minor_islands": 5,
+    "outer_islets": 7,
+    "new_towns": 9,
+    "new_wilds": 11,
+    "new_dungeons": 8,
+    "new_monsters": 18,
+    "new_npcs": 16,
+    "new_organizations": 5,
+    "new_materials": 10,
+    "starter_town_preserved": true,
     "save_schema_changed": false
   }
 }
