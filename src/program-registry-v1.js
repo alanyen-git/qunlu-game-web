@@ -107,7 +107,7 @@ function audit(){
     ["黑潮群島深化",()=>typeof globalThis.runBlackTideDepthAudit==="function"&&globalThis.runBlackTideDepthAudit().pass],
     ["泰爾瓦隆百族部落深化",()=>typeof globalThis.runTyervalonDepthAudit==="function"&&globalThis.runTyervalonDepthAudit().pass],
     ["藍塔魔導王國深化",()=>typeof globalThis.runBlueTowerDepthAudit==="function"&&globalThis.runBlueTowerDepthAudit().pass],
-    ["灰刃自由都市深化",()=>typeof globalThis.runGrayBladeDepthAudit==="function"&&globalThis.runGrayBladeDepthAudit().pass],
+    ["傭兵都市深化",()=>typeof globalThis.runGrayBladeDepthAudit==="function"&&globalThis.runGrayBladeDepthAudit().pass],
     ["世界政治地圖",()=>typeof globalThis.runWorldGeopoliticalMapAudit==="function"&&globalThis.runWorldGeopoliticalMapAudit().pass],
     ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"&&globalThis.runAffiliationEntryGateAudit().pass],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
