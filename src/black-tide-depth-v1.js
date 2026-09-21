@@ -1,4 +1,4 @@
-/* 群陸旅誌：黑潮群島完整區域深化 CURRENT-1.96.1
+/* 群陸旅誌：黑潮群島完整區域深化 CURRENT-1.96.3
  * BLACK-TIDE-DEPTH-1.1
  * 將POL-010由宏觀政體骨架深化為可遊玩的三大島、五小島與外圍島鏈。
  * 建立政治權力落點、城鎮、野外、地下城、怪物、NPC、經濟、傳聞與委託脈絡。
@@ -8,7 +8,7 @@
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.locations))return;
 
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.96.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.1";
+const RELEASE=CORE?.release?.("CURRENT-1.96.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.96.3";
 const REV="BLACK-TIDE-DEPTH-1.1";
 const POLITY_ID="POL-010",REGION_ID="REG-10",CULTURE_ID="CUL-010",REALM_ID="RMAP-POL-010";
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
@@ -398,6 +398,31 @@ for(const l of [...TOWNS.map(x=>loc(x.id)),...FIELDS.map(x=>loc(x.id)),...DUNGEO
   encounter_monster_ids:MONSTERS.filter(m=>(m.habitat||[]).includes(l.id)).map(m=>m.id),
   companion_species_ids:[],organization_ids:ORGS.filter(o=>o.base_location_id===l.id).map(o=>o.id),pantheon_ids:[]
  };
+}
+
+
+/* 後載入區域資料符合現行組織／世界誌／聚落schema。 */
+{
+ const facilityByOrg={"ORG-BT-COURT":"church","ORG-BT-BAKUFU":"guild","ORG-BT-SHIPWRIGHTS":"blacksmith","ORG-BT-FISH-SALT":"general","ORG-BT-PILOTS":"guild"};
+ for(const t of TOWNS){const x=loc(t.id);if(x)x.settlement_world_tier=x.tier}
+ for(const n of NPCS){const x=row("regional_npc_archetypes",n.id);if(x&&tierRank(x.combat_tier_ceiling)>tierRank("C"))x.combat_tier_ceiling="C"}
+ for(const o0 of ORGS){
+  const o=row("world_organizations",o0.id);if(!o)continue;
+  o.political_entity_id=POLITY_ID;o.scope="地方／區域";o.alignment=o.alignment||"neutral";
+  o.primary_facility=facilityByOrg[o.id]||"guild";o.joinable=true;o.mission_issuer=true;o.can_be_enemy=true;o.min_join_level=Math.max(1,Number(o.min_join_level)||1);
+  o.contact_location_ids=[...new Set([...(o.contact_location_ids||[]),o.base_location_id].filter(Boolean))];
+  o.history=Array.isArray(o.history)&&o.history.length?o.history:["由群島地方職能逐步制度化，隨島際交通與共同治理需求形成現行組織。"];
+  o.history_summary=o.history_summary||o.history.join(" ");
+  o.current_state=o.current_state||"目前以維持群島既有職能、島際協調與季節性供應為主，不無限制擴張權限。";
+  o.signature=o.signature||({court:"王庭法統與典儀",government:"島際軍政協調",craft:"船舶修造標準",trade:"漁鹽民生協調",civilian:"潮路水先與航行安全"}[o.kind]||"群島地方協作");
+  o.distinctive_features=Array.isArray(o.distinctive_features)&&o.distinctive_features.length?o.distinctive_features:[o.signature,"依島際航路與港灣條件運作","權責受皓月御國與黑潮幕府雙軌制度約束"];
+  o.institutional_culture=o.institutional_culture||"重視可查驗的船期、文書、技術標準與地方責任。";
+  o.strategic_tension=o.strategic_tension||"島際需求、風暴季供應與中央協調能力長期拉鋸。";
+ }
+ const verifyKeys=Object.keys(DB.lore_system?.verification_levels||{});
+ const verify=verifyKeys.includes("verified")?"verified":(verifyKeys[0]||"verified");
+ for(const l of LORE){const x=row("lore_records",l.id);if(x&&!x.verification)x.verification=verify}
+ if(Array.isArray(DB.lore_records)){const rebuilt={};for(const x of DB.lore_records){const k=String(x.scope_type||"world")+":"+String(x.scope_id||"global");(rebuilt[k]||(rebuilt[k]=[])).push(x.id)}DB.lore_query_index=rebuilt}
 }
 
 DB.black_tide_archipelago={
