@@ -257,7 +257,7 @@ const FREE_CITY_OVERRIDES=Object.freeze({
    n("榮譽市民","honorary","AUTH-0",{rights_note:"無自動商館席位、投票權或關稅權"})
  ],
  "POL-009":[
-   n("三方共治議會召集人","civic_mandate","AUTH-5",{acquisition:"遠境冒險團、冒險者總公會、傭兵總公會三席按期輪值",note:"召集人只主持程序，不增加表決權"}),
+   n("三方共治議長／輪值召集人","civic_mandate","AUTH-5",{acquisition:"遠境冒險團、冒險者總公會、傭兵總公會三席按期輪值",note:"召集人只主持程序，不增加表決權"}),
    n("遠境冒險團共治代表","civic_seat","AUTH-5",{track:"adventure_party",acquisition:"遠境冒險團內部指定"}),
    n("冒險者總公會共治代表","civic_seat","AUTH-5",{track:"adventurer_guild",acquisition:"冒險者總公會依章程指定"}),
    n("傭兵總公會共治代表","civic_seat","AUTH-5",{track:"mercenary_guild",acquisition:"傭兵總公會依章程指定"}),
