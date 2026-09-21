@@ -1,4 +1,4 @@
-/* 群陸旅誌：技能命名與語義參考 CURRENT-1.71.1
+/* 群陸旅誌：技能命名與語義參考 CURRENT-1.95.3
  * SKILL-NAMING-REFERENCE-1.0
  * 將使用者提供的大型技能名稱清單萃取為15類核心語彙，並補CURRENT九元素所需2類延伸，共17類技能參照與效果驗證規則。
  * 不直接批量新增換皮技能；新增技能仍必須符合CURRENT技能欄位、階級、職業、元素與實際runtime效果。
@@ -7,8 +7,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="SKILL-NAMING-REFERENCE-1.1";
-const RELEASE="CURRENT-1.71.1";
+const REV="SKILL-NAMING-REFERENCE-1.2";
+const RELEASE="CURRENT-1.95.3";
 const TIER_RANK=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
 const VALID_TIERS=new Set(Object.keys(TIER_RANK));
 const VALID_KINDS=new Set(["主動","輔助","被動"]);
@@ -142,16 +142,39 @@ function referenceFor(familyId,tier="F"){
   const id=FAMILIES[familyId]?familyId:"blade",f=FAMILIES[id];
   return Object.assign({family_id:id,tier:tierOf(tier)},f);
 }
+const ADVANCED_FORMS=Object.freeze({
+  blade:["破甲斬","迅捷突刺","迴旋斬","反擊斬","劍氣斬","連續斬","十字斬","貫穿刺"],
+  heavy:["震地重擊","破甲重擊","旋風重擊","盾牌猛擊","壓制打擊","破盾擊","橫掃重擊"],
+  polearm:["貫穿突刺","橫掃槍","攔截","投槍","破陣突刺","連續突刺","長槍反擊"],
+  archery:["精準射擊","貫穿箭","連射","箭雨","壓制射擊","狙擊","追蹤箭"],
+  assassination:["背刺","伏擊","毒刃","飛刀","煙幕","弱點突襲","斷筋"],
+  unarmed:["連環拳","震掌","旋風腿","破防掌","擒拿","反擊拳","護體"],
+  defense:["防禦姿態","盾牆","援護","迎擊","反擊架式","陣型防禦","殿後"],
+  rage:["狂暴","戰鬥怒吼","猛攻","撕裂","衝鋒","不屈","最後一搏"],
+  elemental_general:["元素衝擊","元素爆發","元素護盾","元素結界","元素引導","元素洪流"],
+  sacred_life:["聖光術","治癒術","淨化術","祝福術","神聖護盾","群體治癒","神聖審判"],
+  fire:["火球術","爆炎術","烈焰風暴","火焰護盾","熔岩爆發","灼熱射線"],
+  frost:["寒冰箭","冰霜新星","暴風雪","冰霜護盾","冰封術","寒冰地刺"],
+  storm:["雷擊術","閃電鏈","雷霆風暴","風刃術","旋風術","風之護盾","雷光護盾"],
+  earth_nature:["石彈術","岩槍術","大地震擊","藤蔓束縛","石膚術","荊棘術","自然恢復"],
+  shadow_necro:["暗影彈","生命吸取","詛咒術","骨矛","暗影護盾","亡靈召喚","死亡之觸"],
+  mind_arcane:["魔法飛彈","奧術衝擊","魔法護盾","反制魔法","鏡像術","念力衝擊","符文護盾"],
+  spellblade:["魔刃斬","元素附刃","火焰附刃","雷斬","奧術斬","符文斬","元素爆斬"]
+});
+
 function suggestSkillName(familyId,tier="F",context={}){
-  const f=FAMILIES[familyId]||FAMILIES.blade,t=tierOf(tier),used=new Set(allSkills().map(x=>clean(x.name)));
-  const verbs=f.verbs||[],motifs=f.motifs||[],forms=[];
+  const id=FAMILIES[familyId]?familyId:"blade",f=FAMILIES[id],t=tierOf(tier),used=new Set(allSkills().map(x=>clean(x.name))),forms=[];
   if(TIER_RANK[t]<=1){
-    for(const v of verbs){forms.push(v,v+"擊",v+"術");}
+    for(const v of f.verbs||[]){
+      forms.push(v);
+      if(!/(擊|斬|刺|射|箭|拳|掌|踢|術|盾|吼|舞|雨|鏈|刃|矛|槍|彈|光)$/.test(v))forms.push(v+"擊");
+      if(f.track==="magic"&&!/(術|盾|光|箭|彈|刃|擊|雨|鏈|流|爆發)$/.test(v))forms.push(v+"術");
+    }
   }else{
-    for(const m of motifs)for(const v of verbs)forms.push(m+v);
+    forms.push(...(ADVANCED_FORMS[id]||[]));
   }
   for(const raw of forms){
-    const name=raw.replace(/擊擊$/,"擊").replace(/術術$/,"術");
+    const name=clean(raw).replace(/擊擊$/,"擊").replace(/術術$/,"術");
     if(!name||used.has(name))continue;
     const check=validateSkillName(name,t,Object.assign({},context,{allowExisting:true}));
     if(check.ok)return name;
@@ -197,10 +220,12 @@ DB.skill_naming_reference={
     "元素名稱須與CURRENT九元素一致：光明、黑暗、火、風、水、地、雷、生命、死亡；舊資料光／暗會自動正規化為光明／黑暗，冰霜歸水元素。",
     "主動／輔助／被動、物理／魔法／混合／治療／淨化／增益／減益必須由資料欄位決定，不由名稱猜測。",
     "技能等級上限維持10；Lv6與Lv10里程碑由既有技能成長系統管理。",
-    "明顯外部作品招式或混入英文殘字的候選名稱不得加入CURRENT生成詞庫。"
+    "明顯外部作品招式或混入英文殘字的候選名稱不得加入CURRENT生成詞庫。",
+    "高階技能不得以意象詞×動作詞做全排列硬拼；改用各技能家族的策展候選名稱，若沒有自然且不重複的候選就回傳null。"
   ],
   grand_tokens:GRAND_TOKENS,
   blocked_tokens:EXTERNAL_OR_BAD_TOKENS,
+  advanced_curated_forms:ADVANCED_FORMS,
   element_aliases:ELEMENT_ALIASES,
   normalized_element_alias_count:NORMALIZED_ELEMENT_ALIAS_COUNT,
   save_compatible:true
@@ -227,7 +252,8 @@ if(gen){
   gen.inputs=Array.from(new Set([...(gen.inputs||[]),REV]));
   gen.constraints=Array.from(new Set([...(gen.constraints||[]),
     "技能命名先指定技能家族、tier、kind、damage_type、element與實裝效果。",
-    "技能名中的破甲、控制、召喚、治療、汲取等語義必須通過資料驗證。"
+    "技能名中的破甲、控制、召喚、治療、汲取等語義必須通過資料驗證。",
+    "禁止用意象詞與動作詞全排列拼出高階技能名稱；優先採玩家可直接理解的RPG常用名稱。"
   ]));
   gen.skill_reference_function="skillNamingReference";
   gen.skill_validation_function="validateSkillName";
