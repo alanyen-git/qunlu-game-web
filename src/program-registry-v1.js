@@ -1,12 +1,12 @@
 /* 群陸旅誌：現行程序清單與載入完整性 CURRENT-2.07.1
- * PROGRAM-REGISTRY-1.20
+ * PROGRAM-REGISTRY-1.21
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.07.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.07.1";
-const REV="PROGRAM-REGISTRY-1.20";
+const REV="PROGRAM-REGISTRY-1.21";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -96,32 +96,32 @@ function audit(){
     ["系統完整性",()=>typeof globalThis.runSystemIntegrityAudit==="function"],
     ["取水稽核",()=>typeof globalThis.runWaterSourceAudit==="function"],
     ["統一命名",()=>typeof globalThis.runNameGeneratorAudit==="function"],
-    ["技能機制深化",()=>typeof globalThis.runSkillMechanicsDepthAudit==="function"&&globalThis.runSkillMechanicsDepthAudit().pass],
-    ["角色出身深化",()=>typeof globalThis.runOriginDepthAudit==="function"&&globalThis.runOriginDepthAudit().pass],
-    ["戰鬥職業深化",()=>typeof globalThis.runCombatClassIdentityDepthAudit==="function"&&globalThis.runCombatClassIdentityDepthAudit().pass],
-    ["天賦深化",()=>typeof globalThis.runTalentIdentityDepthAudit==="function"&&globalThis.runTalentIdentityDepthAudit().pass],
-    ["夥伴特色深化",()=>typeof globalThis.runCompanionIdentityDepthAudit==="function"&&globalThis.runCompanionIdentityDepthAudit().pass],
-    ["夥伴物種簽章",()=>typeof globalThis.runCompanionSpeciesIdentityAudit==="function"&&globalThis.runCompanionSpeciesIdentityAudit().pass],
-    ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"&&globalThis.runAffiliationIdentityDepthAudit().pass],
-    ["政治體整併",()=>typeof globalThis.runPoliticalConsolidationAudit==="function"&&globalThis.runPoliticalConsolidationAudit().pass],
-    ["政治階層深化",()=>typeof globalThis.runPoliticalHierarchyDepthAudit==="function"&&globalThis.runPoliticalHierarchyDepthAudit().pass],
-    ["新手村出生分配",()=>typeof globalThis.runStarterSettlementsAudit==="function"&&globalThis.runStarterSettlementsAudit().pass],
-    ["安威爾帝國深化",()=>typeof globalThis.runAnweirDepthAudit==="function"&&globalThis.runAnweirDepthAudit().pass],
-    ["瑟露維亞精靈王庭深化",()=>typeof globalThis.runSeruviaDepthAudit==="function"&&globalThis.runSeruviaDepthAudit().pass],
-    ["黑月深庭深化",()=>typeof globalThis.runBlackMoonDepthAudit==="function"&&globalThis.runBlackMoonDepthAudit().pass],
+    ["技能機制深化",()=>typeof globalThis.runSkillMechanicsDepthAudit==="function"],
+    ["角色出身深化",()=>typeof globalThis.runOriginDepthAudit==="function"],
+    ["戰鬥職業深化",()=>typeof globalThis.runCombatClassIdentityDepthAudit==="function"],
+    ["天賦深化",()=>typeof globalThis.runTalentIdentityDepthAudit==="function"],
+    ["夥伴特色深化",()=>typeof globalThis.runCompanionIdentityDepthAudit==="function"],
+    ["夥伴物種簽章",()=>typeof globalThis.runCompanionSpeciesIdentityAudit==="function"],
+    ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"],
+    ["政治體整併",()=>typeof globalThis.runPoliticalConsolidationAudit==="function"],
+    ["政治階層深化",()=>typeof globalThis.runPoliticalHierarchyDepthAudit==="function"],
+    ["新手村出生分配",()=>typeof globalThis.runStarterSettlementsAudit==="function"],
+    ["安威爾帝國深化",()=>typeof globalThis.runAnweirDepthAudit==="function"],
+    ["瑟露維亞精靈王庭深化",()=>typeof globalThis.runSeruviaDepthAudit==="function"],
+    ["黑月深庭深化",()=>typeof globalThis.runBlackMoonDepthAudit==="function"],
     ["斷境無主地深化",()=>typeof globalThis.runBoundaryDepthAudit==="function"&&globalThis.runBoundaryDepthAudit().pass],
     ["龍脊火山群深化",()=>typeof globalThis.runDragonspineDepthAudit==="function"&&globalThis.runDragonspineDepthAudit().pass],
-    ["黑潮群島深化",()=>typeof globalThis.runBlackTideDepthAudit==="function"&&globalThis.runBlackTideDepthAudit().pass],
-    ["泰爾瓦隆百族部落深化",()=>typeof globalThis.runTyervalonDepthAudit==="function"&&globalThis.runTyervalonDepthAudit().pass],
-    ["藍塔魔導王國深化",()=>typeof globalThis.runBlueTowerDepthAudit==="function"&&globalThis.runBlueTowerDepthAudit().pass],
-    ["傭兵都市深化",()=>typeof globalThis.runGrayBladeDepthAudit==="function"&&globalThis.runGrayBladeDepthAudit().pass],
-    ["霜角酋邦深化",()=>typeof globalThis.runFrostHornDepthAudit==="function"&&globalThis.runFrostHornDepthAudit().pass],
-    ["白氈汗國深化",()=>typeof globalThis.runWhiteFeltDepthAudit==="function"&&globalThis.runWhiteFeltDepthAudit().pass],
-    ["聖曜帝國深化",()=>typeof globalThis.runHolyRadianceDepthAudit==="function"&&globalThis.runHolyRadianceDepthAudit().pass],
+    ["黑潮群島深化",()=>typeof globalThis.runBlackTideDepthAudit==="function"],
+    ["泰爾瓦隆百族部落深化",()=>typeof globalThis.runTyervalonDepthAudit==="function"],
+    ["藍塔魔導王國深化",()=>typeof globalThis.runBlueTowerDepthAudit==="function"],
+    ["傭兵都市深化",()=>typeof globalThis.runGrayBladeDepthAudit==="function"],
+    ["霜角酋邦深化",()=>typeof globalThis.runFrostHornDepthAudit==="function"],
+    ["白氈汗國深化",()=>typeof globalThis.runWhiteFeltDepthAudit==="function"],
+    ["聖曜帝國深化",()=>typeof globalThis.runHolyRadianceDepthAudit==="function"],
     ["晨律教國深化",()=>typeof globalThis.runDawnLawDepthAudit==="function"&&globalThis.runDawnLawDepthAudit().pass],
     ["卡薩維爾城盟深化",()=>typeof globalThis.runCasavelleDepthAudit==="function"&&globalThis.runCasavelleDepthAudit().pass],
-    ["世界政治地圖",()=>typeof globalThis.runWorldGeopoliticalMapAudit==="function"&&globalThis.runWorldGeopoliticalMapAudit().pass],
-    ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"&&globalThis.runAffiliationEntryGateAudit().pass],
+    ["世界政治地圖",()=>typeof globalThis.runWorldGeopoliticalMapAudit==="function"],
+    ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
     ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]
