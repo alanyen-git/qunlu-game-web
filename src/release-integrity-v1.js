@@ -79,6 +79,10 @@ function audit(){
   else issues.push("政治階層深化:稽核runtime缺失");
   if(typeof globalThis.runStarterSettlementsAudit==="function")pushResult(issues,"新手村出生分配:",globalThis.runStarterSettlementsAudit());
   else issues.push("新手村出生分配:稽核runtime缺失");
+  if(typeof globalThis.runAnweirDepthAudit==="function")pushResult(issues,"安威爾帝國深化:",globalThis.runAnweirDepthAudit());
+  else issues.push("安威爾帝國深化:稽核runtime缺失");
+  if(typeof globalThis.runSeruviaDepthAudit==="function")pushResult(issues,"瑟露維亞精靈王庭深化:",globalThis.runSeruviaDepthAudit());
+  else issues.push("瑟露維亞精靈王庭深化:稽核runtime缺失");
   if(typeof globalThis.runBlackTideDepthAudit==="function")pushResult(issues,"黑潮群島深化:",globalThis.runBlackTideDepthAudit());
   else issues.push("黑潮群島深化:稽核runtime缺失");
   if(typeof globalThis.runTyervalonDepthAudit==="function")pushResult(issues,"泰爾瓦隆百族部落深化:",globalThis.runTyervalonDepthAudit());
