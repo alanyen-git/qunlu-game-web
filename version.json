@@ -1,11 +1,14 @@
 {
-  "version": "CURRENT-2.05.0",
-  "previous_version": "CURRENT-2.04.0",
+  "version": "CURRENT-2.05.1",
+  "previous_version": "CURRENT-2.05.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.05.0：完整深化斷境無主地（REG-19／POL-019）與龍脊火山群（REG-20）；新增12區帶、16聚落、28野外、19地下城、48怪物、32素材、36核心NPC、16地方組織與6條活世界事件鏈，兩區均維持非中央主權設計。",
+  "summary": "CURRENT-2.05.1：斷境無主地與龍脊火山群完整深化定稿；修正REG-19非統一主權地圖呈現與跨區道路載入順序，新增12區帶、16聚落、28野外、19地下城、48怪物、32素材、36核心NPC、16地方組織與6條活世界事件鏈。",
   "changelog": [
+    "CURRENT-2.05.1：完成斷境無主地／龍脊火山群深化定稿；修正跨區道路載入順序與REG-19非統一主權地圖呈現，PWA快取升至v113。",
+    "斷境保留POL-019舊存檔索引與「無固定都城」正規值，但不建立中央政府；世界地圖以虛線非統一主權區呈現並進入非國家區域詳情。",
+    "龍脊維持REG-20無政治體設計；北口與泰爾瓦隆、灰路與傭兵都市既有邊境節點已完成雙向接線。",
     "CURRENT-2.05.0：斷境無主地與龍脊火山群完整深化正式接入網站；沿用REG-19與REG-20，不建立重複區域或新王國。",
     "斷境新增6區帶、8地方聚落、14野外、9地下城、24怪物、16素材、18核心NPC與8個互保／渡運／回收／救援／商旅／引路／崖岸／醫療組織。",
     "斷境維持無共同承認首都與中央政府；POL-019僅作既有資料索引，地方規約權力限定於實際服務範圍，安威爾與瑟露維亞均不取得REG-19主權。",
@@ -279,7 +282,7 @@
     "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
     "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
-  "content_revision": "CURRENT-2.05.0",
+  "content_revision": "CURRENT-2.05.1",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -289,7 +292,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.15",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.16",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -315,7 +318,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v112",
+  "pwa_cache_revision": "v113",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -391,7 +394,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.19",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.20",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -665,7 +668,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.17",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.18",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 68,
@@ -688,9 +691,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.05.0新增斷境無主地＋龍脊火山群完整區域深化；68個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-2.05.0",
+    "note": "CURRENT-2.05.1定稿斷境無主地＋龍脊火山群；68個正式src程序維持完整同步，並修正非主權地圖與跨區道路載入順序。",
+    "last_verified_release": "CURRENT-2.05.1",
     "notes": [
+      "CURRENT-2.05.1：斷境／龍脊定稿；REG-19非主權視覺、跨區道路載入與PWA v113同步完成。",
       "CURRENT-2.05.0：新增src/boundary-dragonspine-depth-v1.js；REG-19與REG-20非國家區域完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為68個src程序。",
       "CURRENT-2.04.0：新增src/anweir-seruvia-depth-v1.js；安威爾與瑟露維亞完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為67個src程序。",
       "CURRENT-2.03.0：新增src/dawn-casavelle-depth-v1.js；晨律教國與卡薩維爾自由城盟完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為66個src程序。",
