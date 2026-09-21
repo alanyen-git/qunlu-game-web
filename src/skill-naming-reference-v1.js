@@ -66,7 +66,8 @@ const EFFECT_RULES=Object.freeze([
   {token:"隱形",ok:s=>s?.invisibility===true||Number(s?.stealth||0)>0||/隱形/.test(String(s?.effect_text||s?.desc||""))}
 ]);
 
-function clean(v){return String(v||"").trim()}\nfunction normalizedSkillName(v){return clean(v).replace(/－通用（[^）]+）$/,"").trim()}
+function clean(v){return String(v||"").trim()}
+function normalizedSkillName(v){return clean(v).replace(/－通用（[^）]+）$/,"").trim()}
 function canonicalElement(v){
   if(v==null)return null;
   const t=clean(v);if(!t)return "";
@@ -216,7 +217,8 @@ DB.skill_naming_reference={
   rules:[
     "技能名稱必須對應實際技能資料；破甲、麻痺、中毒、治癒、召喚、汲取、反射、隱形等詞不可只作裝飾。",
     "F/E級優先使用斬、刺、射擊、格檔、火球、冰箭等直觀名稱；高階才逐步使用無雙、裁決、萬法、主宰等稱號。",
-    "同名同階技能新增前先查canonical_skill_id、技能家族與實際效果，避免只改名稱的重複技能。",\n    "查重時會忽略「－通用（物理系／魔法系／魔武雙修）」等資料標記尾碼，避免把同一技能誤判為新名稱。",
+    "同名同階技能新增前先查canonical_skill_id、技能家族與實際效果，避免只改名稱的重複技能。",
+    "查重時會忽略「－通用（物理系／魔法系／魔武雙修）」等資料標記尾碼，避免把同一技能誤判為新名稱。",
     "元素名稱須與CURRENT九元素一致：光明、黑暗、火、風、水、地、雷、生命、死亡；舊資料光／暗會自動正規化為光明／黑暗，冰霜歸水元素。",
     "主動／輔助／被動、物理／魔法／混合／治療／淨化／增益／減益必須由資料欄位決定，不由名稱猜測。",
     "技能等級上限維持10；Lv6與Lv10里程碑由既有技能成長系統管理。",
