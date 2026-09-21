@@ -1,11 +1,19 @@
 {
-  "version": "CURRENT-2.02.0",
-  "previous_version": "CURRENT-2.01.0",
+  "version": "CURRENT-2.03.0",
+  "previous_version": "CURRENT-2.02.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.02.0：完整深化聖曜帝國（POL-003／REG-03）；重構帝冠、諸侯封邑與跨境晨律加冕教權的雙軌合法性，新增8大治理區、11城鎮、16野外、10地下城、26怪物、18素材、24核心NPC，並整合10個既有／新設組織。",
+  "summary": "CURRENT-2.03.0：完整深化晨律教國（POL-004／REG-04）與卡薩維爾自由城盟（POL-007／REG-06+REG-07）；新增兩套政治權力鏈、14大治理／城市帶、20城鎮、28野外、18地下城、48怪物、32素材、42核心NPC與18個組織整合。",
   "changelog": [
+    "CURRENT-2.03.0：晨律教國與卡薩維爾自由城盟完整深化正式接入網站；沿用既有POL-004／REG-04與POL-007／REG-06+REG-07，不建立重複政治體。",
+    "晨律教國深化為「選舉最高牧首＋七席樞機會議＋教廷國務院／教律法院＋大主教教區＋修院與公共官署」；跨境加冕與教權可影響聖曜法統，但不直接取得聖曜稅賦、軍隊與一般世俗行政權。",
+    "晨律教國新增7大教區／治理帶、10城鎮、14野外、9地下城、24種F～B怪物、16素材、22核心NPC與9個組織整合；B級內容集中於初晨地下聖所與誓光封印墓室。",
+    "卡薩維爾自由城盟深化為「共同議會＋成員城市自治＋維爾諸城代表＋商法庭／書記院＋行會席與河港水務聯署」；未經盟約授權的權力保留給成員城市。",
+    "卡薩維爾城盟新增7大城市帶、10城鎮、14野外、9地下城、24種F～C怪物、16素材、20核心NPC與9個共同／地方組織；REG-07偏首府橋路工坊、REG-06偏河海港渠糧運。",
+    "兩地市場與資源均接入有限庫存、配額、輪作、港位／倉位／橋面／水位與安全庫存；所有野外打獵仍須進入戰鬥，怪物掉落採棲地白名單。",
+    "新增16條區域冒險鉤子、16種生活事件與12筆政治／法律／經濟世界誌，並將兩套專屬稽核納入PROGRAM-REGISTRY與RELEASE-INTEGRITY。",
+    "正式src程序由65增至66；PWA快取升為v110，舊存檔schema維持相容。",
     "CURRENT-2.02.0：聖曜帝國完整深化正式接入網站；沿用POL-003／REG-03、聖冠城與既有神聖帝國正史，不建立重複政治體。",
     "政治制度修正為「帝冠世俗主權＋諸侯封邑／盟議＋跨境晨律加冕教權」：最高牧首可影響完整加冕法統，但不直接掌握聖曜稅賦、軍隊或世俗諸侯行政。",
     "新增聖冠直轄領、北鐘邊侯領、曜穗王領、西冠大道領、藍脊西麓侯領、赫薩爾分水領、白鐘修院帶、諸侯城堡帶八大可遊玩區域。",
@@ -252,7 +260,7 @@
     "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
     "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
-  "content_revision": "CURRENT-2.02.0",
+  "content_revision": "CURRENT-2.03.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -262,7 +270,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.11",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.13",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -288,7 +296,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v109",
+  "pwa_cache_revision": "v110",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -364,7 +372,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.15",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.17",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -638,10 +646,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.13",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.15",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 65,
+    "active_src_programs": 66,
     "groups": [
       "core",
       "data",
@@ -661,9 +669,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.02.0新增聖曜帝國完整區域深化；65個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-2.02.0",
+    "note": "CURRENT-2.03.0新增晨律教國＋卡薩維爾自由城盟完整區域深化；66個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
+    "last_verified_release": "CURRENT-2.03.0",
     "notes": [
+      "CURRENT-2.03.0：新增src/dawn-casavelle-depth-v1.js；晨律教國與卡薩維爾自由城盟完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為66個src程序。",
       "CURRENT-2.02.0：新增src/holy-radiance-depth-v1.js；聖曜帝國八大治理區完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為65個src程序。",
       "CURRENT-2.00.0：新增src/frost-horn-depth-v1.js；霜角酋邦六大治理區完整接線，正式程序數增為63。",
       "CURRENT-1.99.1：灰刃世界誌索引、素材來源與組織會員加成補齊；正式程序數維持62。",
@@ -1294,6 +1303,45 @@
     ],
     "governance": "聖冠皇帝＋帝國中央官署＋諸侯封邑／盟議；晨律最高牧首保留跨境加冕與教律權，不等於帝國日常行政隸屬",
     "tier_model": "E～C一般內容＋受控B級皇陵／封印塔基深層",
+    "save_compatible": true
+  },
+  "dawn_casavelle_depth_revision": "DAWN-CASAVELLE-DEPTH-1.0",
+  "dawn_law_depth": {
+    "political_entity_id": "POL-004",
+    "region_id": "REG-04",
+    "world_tier": "B",
+    "zones": 7,
+    "towns": 10,
+    "wilds": 14,
+    "dungeons": 9,
+    "monsters": 24,
+    "materials": 16,
+    "npcs": 22,
+    "organizations": 9,
+    "existing_organizations_integrated": [
+      "ORG-020"
+    ],
+    "governance": "晨律最高牧首＋七席樞機會議＋教廷國務院／教律法院＋大主教教區＋修院與公共官署",
+    "tier_model": "E～C一般內容＋受控B級初晨聖所／誓光封印墓室",
+    "save_compatible": true
+  },
+  "casavelle_depth": {
+    "political_entity_id": "POL-007",
+    "region_ids": [
+      "REG-06",
+      "REG-07"
+    ],
+    "world_tier": "C",
+    "zones": 7,
+    "towns": 10,
+    "wilds": 14,
+    "dungeons": 9,
+    "monsters": 24,
+    "materials": 16,
+    "npcs": 20,
+    "organizations": 9,
+    "governance": "城盟議長＋成員城市議會＋維爾諸城代表＋商法庭／書記院＋行會席與水務港務聯署",
+    "tier_model": "E～D一般內容＋C級商路／港渠／檔案與水務深層",
     "save_compatible": true
   }
 }
