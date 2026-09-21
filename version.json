@@ -1,16 +1,18 @@
 {
-  "version": "CURRENT-1.96.0",
-  "previous_version": "CURRENT-1.95.1",
+  "version": "CURRENT-1.96.1",
+  "previous_version": "CURRENT-1.96.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "黑潮群島完整深化：在既有獨立主權與王庭—幕府雙軌正史上，建立3大島、5小島、7外圍島礁的可遊玩地圖層，補齊城鎮、野外、地下城、怪物、NPC、地方組織、經濟與政治權力落點；潮生村保留並接入島際航線。",
+  "summary": "黑潮群島命名統一：潮皇王庭正式更名為「皓月御國」、幕府正式更名為「黑潮幕府」、征海大將軍正式更名為「征夷大將軍」；既有3大島、5小島、7外圍島礁與所有玩法資料保持不變。",
   "changelog": [
+    "CURRENT-1.96.1：僅調整黑潮群島政治命名與發布快取版本；不改地圖、怪物、NPC數量、戰鬥規則或存檔schema。",
+    "BLACK-TIDE-NAMING-1.0：黑潮群島三項正式名詞統一為「皓月御國／黑潮幕府／征夷大將軍」，同步政治體、組織、NPC、官署、世界地圖、地方敘述與稽核。",
     "BLACK-TIDE-DEPTH-1.0：黑潮群島正式完成3大島（玄潮、赤浦、青岬）＋5小島（白砂、潮見、灰燈、鯨背、霧浦）＋7外圍小型島礁的島內結構。",
     "新增9個主要城鎮／港町、11張野外、8座地下城；既有潮生村保留為外圍小島新手入口，並接入潮見町與黑潮灣島際航路。",
     "新增18種黑潮專屬怪物與10種掉落素材，怪物層級限制於F～C並綁定實際棲地、海岸／山林／地下城生態與掉落白名單。",
-    "新增16名核心NPC與5個地方組織，涵蓋潮皇、征海大將軍、幕府老中、海防奉行、主要島大名、港代、水先人、船匠、公會與地方產業角色。",
-    "政治權力鏈深化：保留潮皇王庭法統與征海大將軍幕府軍政雙軌，新增老中首座、海防／財賦／裁判奉行、島代官、港代等實際地方治理節點。",
+    "新增16名核心NPC與5個地方組織，涵蓋潮皇、征夷大將軍、黑潮幕府老中、海防奉行、主要島大名、港代、水先人、船匠、公會與地方產業角色。",
+    "政治權力鏈深化：保留皓月御國法統與征夷大將軍黑潮幕府軍政雙軌，新增老中首座、海防／財賦／裁判奉行、島代官、港代等實際地方治理節點。",
     "黑潮經濟、地方生活與冒險鉤子接入REG-10：島際市場受船期、風暴、霧季與輸入依賴影響；魚鹽、船材、竹木、石材與藥草為主要本地產出。",
     "新增BLACK-TIDE-DEPTH完整性稽核並接入PROGRAM-REGISTRY與RELEASE-INTEGRITY；PWA快取升級v97，舊存檔schema不變。",
     "DEBUG-SYNC-1.0：57個正式src程序全部完成語法檢查；index、PROGRAM-REGISTRY、Service Worker三份正式程序清單皆為57個且順序一致。",
@@ -66,17 +68,17 @@
     "REG-10黑潮群島三大島幾何放大，仍保留3大島、5小島及外圍小型海島；並修正設計規則中殘留的「黑潮屬金衡」舊敘述。",
     "16個CURRENT政治體全部新增地理側寫：方位、地形、氣候、水系、交通與地緣意義可在政治疆域詳情直接查閱。",
     "世界政治地圖稽核新增地理側寫完整性、西境河谷尺度、斷境橫向尺度檢查；舊存檔schema不變。 ",
-    "POLITY-CONSOLIDATION-1.1：CURRENT政治體由15調整為16；POL-010黑潮群島由legacy區域勢力恢復為獨立主權政治體，RP-010保留為其內部幕府軍政機構。",
+    "POLITY-CONSOLIDATION-1.1：CURRENT政治體由15調整為16；POL-010黑潮群島由legacy區域勢力恢復為獨立主權政治體，RP-010保留為其內部黑潮幕府軍政機構。",
     "POL-013「石冠氏族王國」改名「安威爾帝國」，移至大陸西北方；保留山廳、礦脈、氏族與地下黑月深庭重疊主權設定。",
     "POL-014「赤牙部族聯盟」改名「泰爾瓦隆百族部落」，移至大陸東北方；部落構成擴為多族群百族會盟。",
     "POL-015「風鬃汗國」改名「白氈汗國」，疆域置於POL-016霜角酋邦南方、POL-003聖曜帝國北方；POL-016固定為大陸最北側。",
     "POL-012瑟露維亞精靈王庭移至大陸西南方；POL-019斷境無主地調整到精靈王庭與安威爾帝國之間，形成破碎緩衝帶。",
     "POL-007改名「卡薩維爾自由城盟」；仍由卡薩維爾與維爾河成員城市共同構成，保留成員城市市政自治。",
     "REG-18西境河谷世界地圖面積縮小為洛文周邊河谷、商路與聚落帶，主權仍屬POL-001阿斯戴爾王國。",
-    "REG-10黑潮群島放大並明確建立3大島、5小島與7個周邊小型海島幾何；政體採潮皇王庭提供法統、征海大將軍幕府掌軍政的雙軌結構。",
+    "REG-10黑潮群島放大並明確建立3大島、5小島與7個周邊小型海島幾何；政體採皓月御國提供法統、征夷大將軍黑潮幕府掌軍政的雙軌結構。",
     "REG-08金衡自由都市恢復為單一獨立貿易自由島，不再擁有REG-10；金衡與黑潮改為平等外國關係。",
     "WORLD-MAP-GEOPOLITICS-1.3：依新南北東西關係全面重畫20大區疆域、海岸、山脈、河川、道路、關隘與國境形成邏輯；北方標示保留。",
-    "POLITICAL-HIERARCHY-DEPTH-1.1：新增幕府雙軌島國階層模板，明確分離潮皇王庭、征海大將軍、幕府老中、諸島大名、奉行與武家階層。",
+    "POLITICAL-HIERARCHY-DEPTH-1.1：新增黑潮幕府雙軌島國階層模板，明確分離皓月御國、征夷大將軍、黑潮幕府老中、諸島大名、奉行與武家階層。",
     "舊存檔相容：POL-005→POL-001、POL-006→POL-007、POL-018→POL-001維持；POL-010 legacy alias恢復為CURRENT主權ID，既有RP-010引用不失效。",
     "POLITY-CONSOLIDATION-1.0：CURRENT政治體由18縮減為15；POL-005維薩林與POL-018洛文併入POL-001阿斯戴爾，POL-006維爾河併入POL-007卡薩維爾。",
     "POL-007改為「卡薩維爾－維爾河自由城盟」：卡薩維爾為共同議會所在地，維爾港保留河海商路、橋關與成員城市自治功能。",
@@ -1028,7 +1030,7 @@
     "geography_profiles": 16
   },
   "world_physical_geography_revision": "WORLD-MAP-GEOPOLITICS-1.4",
-  "political_consolidation_revision": "POLITY-CONSOLIDATION-1.1",
+  "political_consolidation_revision": "POLITY-CONSOLIDATION-1.2",
   "world_map_geopolitics_revision": "WORLD-MAP-GEOPOLITICS-1.4",
   "political_consolidation": {
     "active_polities_before": 15,
@@ -1041,7 +1043,7 @@
     "black_tide_sovereignty": "POL-010",
     "black_tide_autonomy": "RP-010",
     "save_compatible": true,
-    "revision": "POLITY-CONSOLIDATION-1.1",
+    "revision": "POLITY-CONSOLIDATION-1.2",
     "goldscale_scope": [
       "REG-08"
     ],
@@ -1070,7 +1072,7 @@
     ],
     "save_schema_changed": false
   },
-  "black_tide_depth_revision": "BLACK-TIDE-DEPTH-1.0",
+  "black_tide_depth_revision": "BLACK-TIDE-DEPTH-1.1",
   "black_tide_depth": {
     "islands": 8,
     "major_islands": 3,
@@ -1085,5 +1087,6 @@
     "new_materials": 10,
     "starter_town_preserved": true,
     "save_schema_changed": false
-  }
+  },
+  "black_tide_naming_revision": "BLACK-TIDE-NAMING-1.0"
 }
