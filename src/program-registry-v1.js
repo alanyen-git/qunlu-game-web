@@ -1,12 +1,12 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-2.06.1
- * PROGRAM-REGISTRY-1.19
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-2.07.1
+ * PROGRAM-REGISTRY-1.20
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.06.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.06.1";
-const REV="PROGRAM-REGISTRY-1.18";
+const RELEASE=CORE?.release?.("CURRENT-2.07.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.07.1";
+const REV="PROGRAM-REGISTRY-1.20";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -41,6 +41,7 @@ const GROUPS=Object.freeze({
   ]
 });
 const EXPECTED=Object.freeze(Object.values(GROUPS).flat());
+const EXPECTED_SET=new Set(EXPECTED);
 
 function cleanSrc(src){
   const raw=String(src||"");
@@ -71,8 +72,9 @@ function audit(){
 
   const loaded=loadedPrograms();
   if(loaded.length){
-    const missing=EXPECTED.filter(x=>!loaded.includes(x));
-    const extra=loaded.filter(x=>!EXPECTED.includes(x));
+    const loadedSet=new Set(loaded);
+    const missing=EXPECTED.filter(x=>!loadedSet.has(x));
+    const extra=loaded.filter(x=>!EXPECTED_SET.has(x));
     if(missing.length)issues.push("入口缺少程序:"+missing.join("、"));
     if(extra.length)issues.push("入口存在未登錄程序:"+[...new Set(extra)].join("、"));
     const duplicates=duplicateValues(loaded);
