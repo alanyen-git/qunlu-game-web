@@ -70,7 +70,7 @@ function buildPolity(C){
   const o=upsert("world_organizations",{...o0,political_entity_id:C.polityId,region_id:C.regionId,scope:o0.tier==="B"?"kingdom":"local_regional",category:o0.kind,
    alignment:o0.kind==="religious"?"light":"neutral",primary_facility:o0.kind==="religious"?"church":"guild",min_join_level:1,join_reputation:0,visibility:"public",legal_status:"legal",
    joinable:o0.joinable!==false,mission_issuer:true,can_be_enemy:true,contact_location_ids:uniq([...(o0.contact_location_ids||[]),o0.base_location_id]),
-   member_bonus:o0.member_bonus||{id:"BONUS-"+o0.id,text:C.name+"職能訓練",effects:o0.kind==="military"?{defense_pct:3}:o0.kind==="craft"?{craftSuccess:3}:{perception:3}},
+   member_bonus:o0.member_bonus||{id:"BONUS-"+o0.id,text:C.name+"職能訓練",effects:o0.kind==="military"?{defense_pct:3}:o0.kind==="craft"?{carryCapacity:6}:{perception:3}},
    history:o0.history||[C.history],history_summary:(o0.history||[C.history]).join(" "),current_state:o0.current_state||C.currentState,
    signature:o0.signature||o0.description,distinctive_features:o0.distinctive_features||[o0.description,C.orgDistinctive]});
   o.associated_polity_ids=uniq([...(o.associated_polity_ids||[]),C.polityId]);
@@ -219,7 +219,7 @@ const ANWEIR={
   {id:"D-IP-TOOLVAULT",name:"封存工具庫",zoneId:"ANW-Z-03",province:"PROV-START-13",smap:"SMAP-START-IRONPINE",tier:"E",template:"D-AQUEDUCT",risk:17,tags:["cave","ruins"],mining:["I-ORE-BRONZE"],preferred:["MON-ANW-004","MON-ANW-006"],description:"既有地下工具庫與失修吊具區。"},
   {id:"D-IP-WATERADIT",name:"排水橫坑",zoneId:"ANW-Z-03",province:"PROV-START-13",smap:"SMAP-START-IRONPINE",tier:"E",template:"D-AQUEDUCT",risk:18,tags:["cave","water"],aquatic:true,mining:["I-ORE-IRON"],preferred:["MON-ANW-003","MON-ANW-005"],description:"既有礦山排水橫坑，需注意積水與坍落。"},
   {id:"D-ANW-DEEPFURNACE",name:"黑脈廢熔爐",zoneId:"ANW-Z-04",province:"PROV-ANW-04",smap:"SMAP-ANW-04",tier:"C",template:"D-AQUEDUCT",risk:45,tags:["cave","ruins"],mining:["ANW-MAT-003"],preferred:["MON-ANW-019","MON-ANW-021"],description:"舊礦層深處停用的熔爐與運礦井，殘熱與機械守衛仍在。"},
-  {id:"D-ANW-CLIFFMINE",name:"海崖斷索礦窟",zoneId:"ANW-Z-05",province:"PROV-ANW-05",smap:"SMAP-ANW-05",tier:"D",template:"D-AQUEDUCT",risk:39,tags:["cave","coast"],mining:["ANW-MAT-004"],preferred:["MON-ANW-015","MON-ANW-016"],description:"一座因主索斷裂而停採的海崖礦窟，潮氣與落石使修復困難。"},
+  {id:"D-ANW-CLIFFMINE",name:"海崖斷索礦窟",zoneId:"ANW-Z-05",province:"PROV-ANW-05",smap:"SMAP-ANW-05",tier:"D",template:"D-AQUEDUCT",risk:39,tags:["cave","coast"],mining:["ANW-MAT-004"],preferred:["MON-ANW-008","MON-ANW-015"],description:"一座因主索斷裂而停採的海崖礦窟，潮氣與落石使修復困難。"},
   {id:"D-ANW-SNOWVAULT",name:"雪砧封雪倉",zoneId:"ANW-Z-06",province:"PROV-ANW-06",smap:"SMAP-ANW-06",tier:"C",template:"D-AQUEDUCT",risk:44,tags:["cave","snow","ruins"],gather:["ANW-MAT-009"],preferred:["MON-ANW-020","MON-ANW-022"],description:"古老高山儲備庫被冰層封住多年，近期因融冰露出新通道。"},
   {id:"D-ANW-BORDERSEAL",name:"深界石契封廊",zoneId:"ANW-Z-07",province:"PROV-ANW-07",smap:"SMAP-ANW-07",tier:"B",template:"D-AQUEDUCT",risk:61,tags:["cave","ruins"],gather:["ANW-MAT-016"],preferred:["MON-ANW-024"],accessRule:"B級前置＋深界測界令；不得越過黑月主權界標",description:"歷代石契與封印構裝共同標示的深層邊界廊，只允許有明確任務的高階隊伍進入。"},
   {id:"D-ANW-LOSTSHAFT",name:"第九失聯豎井",zoneId:"ANW-Z-07",province:"PROV-ANW-07",smap:"SMAP-ANW-07",tier:"C",template:"D-AQUEDUCT",risk:49,tags:["cave","mine"],mining:["ANW-MAT-011"],preferred:["MON-ANW-019","MON-ANW-022"],accessRule:"需深界救援署核准",description:"因地層錯動失聯的舊豎井，探索目標以救援、測量與封閉危險支坑為主。"}
@@ -242,7 +242,7 @@ const ANWEIR={
   {id:"MON-ANW-005",name:"鐵松岩羊",tier:"E",habitat:["L-ANW-GOATPLATEAU","D-IP-OLDMINE","D-IP-WATERADIT"],hp:54,atk:16,def:10,drops:["ANW-MAT-007"],near:true,description:"熟悉陡坡的小型岩羊。"},
   {id:"MON-ANW-006",name:"冠脊石貂",tier:"E",habitat:["L-ANW-CROWNRIDGE","D-IP-TOOLVAULT"],hp:48,atk:15,def:8,description:"岩縫與道路石牆附近活動。"},
   {id:"MON-ANW-007",name:"冷杉灰狼",tier:"D",habitat:["L-ANW-PINERAVINE","L-ANW-FORGEWOOD"],hp:94,atk:27,def:15,drops:["ANW-MAT-008"],description:"受林地獵物量影響的狼群。"},
-  {id:"MON-ANW-008",name:"海崖翼蜥",tier:"D",habitat:["L-ANW-SEACLIFF","L-ANW-TIDECAVE"],hp:88,atk:27,def:14,init:15,description:"沿上升氣流滑翔的海崖爬獸。"},
+  {id:"MON-ANW-008",name:"海崖翼蜥",tier:"D",habitat:["L-ANW-SEACLIFF","L-ANW-TIDECAVE","D-ANW-CLIFFMINE"],hp:88,atk:27,def:14,init:15,description:"沿上升氣流滑翔的海崖爬獸。"},
   {id:"MON-ANW-009",name:"南門碎岩豬",tier:"D",habitat:["L-ANW-SOUTHSLOPE"],hp:108,atk:29,def:19,drops:["ANW-MAT-008"],description:"會翻動碎石尋找根莖的大型野豬。"},
   {id:"MON-ANW-010",name:"冠脊大角羊",tier:"D",habitat:["L-ANW-CROWNRIDGE","L-ANW-SNOWFIELD"],hp:102,atk:28,def:18,drops:["ANW-MAT-007"],description:"高地大型角羊。"},
   {id:"MON-ANW-011",name:"杉谷灰熊",tier:"D",habitat:["L-ANW-PINERAVINE","L-ANW-FORGEWOOD"],hp:126,atk:31,def:19,drops:["ANW-MAT-008"],description:"林谷大型熊獸。"},
@@ -390,7 +390,7 @@ const SERUVIA={
  ],
  fields:[
   {id:"L-SER-CROWNWOOD",name:"林冠外環古林",zoneId:"SER-Z-01",province:"PROV-SER-01",smap:"SMAP-SER-01",tier:"D",template:"L-WOOD",tags:["forest"],risk:22,gather:["SER-MAT-001","SER-MAT-004"],woodcut:["SER-MAT-006"],preferred:["MON-SER-006","MON-SER-009"],description:"王都外環受巡林隊管理的古林，木材以自然倒木與指定修枝為主。"},
-  {id:"L-SER-ARCHIVEGROVE",name:"森書標本林",zoneId:"SER-Z-01",province:"PROV-SER-01",smap:"SMAP-SER-01",tier:"E",template:"L-WOOD",tags:["forest"],risk:14,gather:["SER-MAT-002","SER-MAT-003"],preferred:["MON-SER-001","MON-SER-004"],description:"學庭管理的研究林，只開放低衝擊採樣。"},
+  {id:"L-SER-ARCHIVEGROVE",name:"森書標本林",zoneId:"SER-Z-01",province:"PROV-SER-01",smap:"SMAP-SER-01",tier:"E",template:"L-WOOD",tags:["forest"],risk:14,gather:["SER-MAT-001","SER-MAT-002"],preferred:["MON-SER-001","MON-SER-004"],description:"學庭管理的研究林，只開放低衝擊採樣。"},
   {id:"L-MM-SILVERLEAF",name:"銀葉林緣",zoneId:"SER-Z-02",province:"PROV-START-12",smap:"SMAP-START-MOSSMOON",tier:"F",template:"L-WOOD",tags:["forest"],risk:16,gather:["I-HERB","I-MINT"],preferred:["MON-SER-001","MON-SER-002"],description:"既有新手林地，維持低階藥草與小型獸類。"},
   {id:"L-MM-DEERSPRING",name:"鹿泉溪谷",zoneId:"SER-Z-02",province:"PROV-START-12",smap:"SMAP-START-MOSSMOON",tier:"F",template:"L-RIVER",tags:["forest","water"],aquatic:true,risk:15,gather:["I-BERRY"],fish:["I-RAWFISH"],preferred:["MON-SER-002","MON-SER-003"],description:"既有林間泉谷，水質與採集量受季節控制。"},
   {id:"L-MM-RESINGLADE",name:"琥脂林間地",zoneId:"SER-Z-02",province:"PROV-START-12",smap:"SMAP-START-MOSSMOON",tier:"F",template:"L-WOOD",tags:["forest"],risk:14,gather:["I-HERB","I-MUSHROOM"],woodcut:["I-BRANCH"],preferred:["MON-SER-001","MON-SER-004"],description:"既有新手採集地，樹脂與藥草遵守地方配額。"},
