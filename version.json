@@ -1,11 +1,20 @@
 {
-  "version": "CURRENT-2.03.0",
-  "previous_version": "CURRENT-2.02.0",
+  "version": "CURRENT-2.04.0",
+  "previous_version": "CURRENT-2.03.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.03.0：完整深化晨律教國（POL-004／REG-04）與卡薩維爾自由城盟（POL-007／REG-06+REG-07）；新增兩套政治權力鏈、14大治理／城市帶、20城鎮、28野外、18地下城、48怪物、32素材、42核心NPC與18個組織整合。",
+  "summary": "CURRENT-2.04.0：完整深化安威爾帝國（POL-013／REG-13）與瑟露維亞精靈王庭（POL-012／REG-12）；新增14大治理區、18城鎮、30野外、20地下城、48怪物、32素材、40核心NPC與16個區域組織，並保留REG-19斷境無主地與REG-13深層黑月主權分流。",
   "changelog": [
+    "CURRENT-2.04.0：安威爾帝國與瑟露維亞精靈王庭完整深化正式接入網站；沿用既有POL-013／REG-13與POL-012／REG-12，不建立重複政治體。",
+    "安威爾深化為皇帝＋帝國石冠議會＋大氏族王／山廳＋礦律法院／工坊議席；新增7治理區、9城鎮、15野外、10地下城、24怪物、16素材、20核心NPC與8組織。",
+    "安威爾地表主權與黑月深庭地下主權維持分層；REG-13地表仍屬安威爾，B級內容只集中初代皇爐與深界石契封廊，不把一般礦道高階化。",
+    "瑟露維亞深化為林冠王＋林冠長老議會＋林地侯／樹庭＋森約法院／巡林總署；新增7治理區、9城鎮、15野外、10地下城、24怪物、16素材、20核心NPC與8組織。",
+    "瑟露維亞建立森約、水權、輪採、封養、古樹醫療與聖域前置；B級內容只集中初林根殿與月井內庭，苔月村與普通林地維持F～D。",
+    "既有鐵松村與苔月村兩套1＋3＋3新手區原地納入正式區域網，不新增重複新手點；既有地點ID與存檔相容。",
+    "REG-19斷境無主地持續作為安威爾與瑟露維亞之間的破碎緩衝地；兩國不直接吞併斷境，合法往來依西南林境路與中立商站。",
+    "兩地市場、礦產、木材、藥草、樹脂、漁獲與狩獵全部維持有限容量、恢復週期、配額或封養；野外打獵仍須進入戰鬥，怪物掉落採棲地白名單。",
+    "正式src程序由66增至67；PROGRAM-REGISTRY、RELEASE-INTEGRITY、Service Worker與PWA同步升版，舊存檔schema維持相容。",
     "CURRENT-2.03.0：晨律教國與卡薩維爾自由城盟完整深化正式接入網站；沿用既有POL-004／REG-04與POL-007／REG-06+REG-07，不建立重複政治體。",
     "晨律教國深化為「選舉最高牧首＋七席樞機會議＋教廷國務院／教律法院＋大主教教區＋修院與公共官署」；跨境加冕與教權可影響聖曜法統，但不直接取得聖曜稅賦、軍隊與一般世俗行政權。",
     "晨律教國新增7大教區／治理帶、10城鎮、14野外、9地下城、24種F～B怪物、16素材、22核心NPC與9個組織整合；B級內容集中於初晨地下聖所與誓光封印墓室。",
@@ -260,7 +269,7 @@
     "職業生成器與管理AI新增反同質規則：名稱不同但武器、資源、技能與戰鬥循環相同者，不得再生成為獨立職業。",
     "發布完整性、程序註冊、五回合自檢與PWA快取同步納入COMBAT-CLASS-IDENTITY-DEPTH-1.0。"
   ],
-  "content_revision": "CURRENT-2.03.0",
+  "content_revision": "CURRENT-2.04.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
   "world_autonomy_revision": "WORLD-AUTONOMY-2.1",
   "npc_depth_revision": "NPC-DEPTH-2.0",
@@ -270,7 +279,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.13",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.14",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -296,7 +305,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v110",
+  "pwa_cache_revision": "v111",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -372,7 +381,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.17",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.18",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -646,10 +655,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.15",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.16",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 66,
+    "active_src_programs": 67,
     "groups": [
       "core",
       "data",
@@ -669,9 +678,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.03.0新增晨律教國＋卡薩維爾自由城盟完整區域深化；66個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
-    "last_verified_release": "CURRENT-2.03.0",
+    "note": "CURRENT-2.04.0新增安威爾帝國＋瑟露維亞精靈王庭完整區域深化；67個正式src程序由index、PROGRAM-REGISTRY與Service Worker維持同序同步。",
+    "last_verified_release": "CURRENT-2.04.0",
     "notes": [
+      "CURRENT-2.04.0：新增src/anweir-seruvia-depth-v1.js；安威爾與瑟露維亞完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為67個src程序。",
       "CURRENT-2.03.0：新增src/dawn-casavelle-depth-v1.js；晨律教國與卡薩維爾自由城盟完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為66個src程序。",
       "CURRENT-2.02.0：新增src/holy-radiance-depth-v1.js；聖曜帝國八大治理區完整接線，正式入口、PROGRAM-REGISTRY與PWA同步為65個src程序。",
       "CURRENT-2.00.0：新增src/frost-horn-depth-v1.js；霜角酋邦六大治理區完整接線，正式程序數增為63。",
@@ -1343,5 +1353,38 @@
     "governance": "城盟議長＋成員城市議會＋維爾諸城代表＋商法庭／書記院＋行會席與水務港務聯署",
     "tier_model": "E～D一般內容＋C級商路／港渠／檔案與水務深層",
     "save_compatible": true
+  },
+  "anweir_seruvia_depth_revision": "ANWEIR-SERUVIA-DEPTH-1.0",
+  "anweir_depth": {
+    "political_entity_id": "POL-013",
+    "region_id": "REG-13",
+    "world_tier": "B",
+    "zones": 7,
+    "towns": 9,
+    "wilds": 15,
+    "dungeons": 10,
+    "monsters": 24,
+    "materials": 16,
+    "npcs": 20,
+    "organizations": 8,
+    "governance": "安威爾皇帝＋帝國石冠議會＋大氏族王／山廳＋礦律法院／工坊議席＋關門與坑道官署",
+    "tier_model": "F～C一般內容＋受控B級初代皇爐／深界石契封廊；REG-13地表與黑月深層主權分流",
+    "save_compatible": true
+  },
+  "seruvia_depth": {
+    "political_entity_id": "POL-012",
+    "region_id": "REG-12",
+    "world_tier": "B",
+    "zones": 7,
+    "towns": 9,
+    "wilds": 15,
+    "dungeons": 10,
+    "monsters": 24,
+    "materials": 16,
+    "npcs": 20,
+    "organizations": 8,
+    "governance": "林冠王＋林冠長老議會＋林地侯／樹庭＋森約法院／巡林總署",
+    "tier_model": "F～C一般內容＋受控B級初林根殿／月井內庭；REG-19維持無主緩衝",
+    "save_compatible": true
   }
-}
+}\n
