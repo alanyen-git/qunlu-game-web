@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v116";
+const CACHE_NAME=CACHE_PREFIX+"v117";
 const CORE=[
   "./",
   "./index.html",
@@ -96,28 +96,72 @@ self.addEventListener("activate",event=>{
   );
 });
 
+async function cachePut(request,response){
+  if(!response||!response.ok)return response;
+  const cache=await caches.open(CACHE_NAME);
+  cache.put(request,response.clone()).catch(()=>{});
+  return response;
+}
+
+async function networkFirst(request,{ignoreSearchFallback=false}={}){
+  try{
+    const fresh=await fetch(request,{cache:"no-store"});
+    return await cachePut(request,fresh);
+  }catch(error){
+    const cached=await caches.match(request);
+    if(cached)return cached;
+    if(ignoreSearchFallback){
+      const fallback=await caches.match(request,{ignoreSearch:true});
+      if(fallback)return fallback;
+    }
+    throw error;
+  }
+}
+
+async function cacheFirst(request){
+  const cached=await caches.match(request);
+  if(cached)return cached;
+  try{
+    const fresh=await fetch(request);
+    return await cachePut(request,fresh);
+  }catch(error){
+    const fallback=await caches.match(request,{ignoreSearch:true});
+    if(fallback)return fallback;
+    throw error;
+  }
+}
+
 self.addEventListener("fetch",event=>{
   const request=event.request;
   if(request.method!=="GET")return;
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
-  event.respondWith((async()=>{
-    try{
-      const fresh=await fetch(request,{cache:"no-store"});
-      if(fresh&&fresh.ok){
-        const cache=await caches.open(CACHE_NAME);
-        cache.put(request,fresh.clone()).catch(()=>{});
-      }
-      return fresh;
-    }catch(error){
-      const cached=await caches.match(request,{ignoreSearch:true});
-      if(cached)return cached;
-      if(request.mode==="navigate"){
+  const isNavigation=request.mode==="navigate";
+  const isVersion=url.pathname.endsWith("/version.json");
+  const isStatic=/\.(?:js|css|png|jpg|jpeg|webp|svg|ico|woff2?|webmanifest)$/i.test(url.pathname);
+
+  if(isNavigation){
+    event.respondWith((async()=>{
+      try{return await networkFirst(request)}
+      catch(error){
         const shell=await caches.match("./index.html");
         if(shell)return shell;
+        throw error;
       }
-      throw error;
-    }
-  })());
+    })());
+    return;
+  }
+
+  if(isVersion){
+    event.respondWith(networkFirst(request,{ignoreSearchFallback:true}));
+    return;
+  }
+
+  if(isStatic){
+    event.respondWith(cacheFirst(request));
+    return;
+  }
+
+  event.respondWith(networkFirst(request,{ignoreSearchFallback:true}));
 });
