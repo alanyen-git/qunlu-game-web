@@ -1,0 +1,77 @@
+{
+  "schema": "QUNLU-RELEASE-VALIDATION-1.0",
+  "release": "CURRENT-2.01.0",
+  "feature_revision": "WHITE-FELT-DEPTH-1.0",
+  "validated_commit": "72bdb0d794fe03d4d5bfc1f2481ccd8398024a7f",
+  "included_commits": [
+    "36e81df8d42b7e4c8bf91bde301693043834cff6",
+    "550781e766bdbd00b4566e0bd1565df3f1875411",
+    "e95b56983f60519e87be9519a51e20814303ef20",
+    "e0626724c7bb061bb99d1e1bf05f3c535d964f69",
+    "19d9344bb171d15ed0bcc53d55adace0e0dc7783",
+    "eef78061928e98834e76caefd154de00ac8068cb",
+    "cc1487df8979543aca2e67629cf2e1da7dc91370",
+    "d0980d8f18762fc401fe965e44c5545a19984e35",
+    "72bdb0d794fe03d4d5bfc1f2481ccd8398024a7f"
+  ],
+  "validated_date": "2026-09-21",
+  "status": "pass",
+  "checks": {
+    "javascript_syntax": {
+      "status": "pass",
+      "file_count": 7
+    },
+    "version_json": {
+      "status": "pass",
+      "version": "CURRENT-2.01.0"
+    },
+    "program_lists": {
+      "status": "pass",
+      "index_count": 64,
+      "registry_count": 64,
+      "service_worker_count": 64,
+      "same_order": true,
+      "duplicate_count": 0
+    },
+    "release_integration": {
+      "status": "pass",
+      "white_felt_in_index": true,
+      "white_felt_in_registry": true,
+      "white_felt_in_service_worker": true,
+      "release_integrity_hook": true,
+      "program_registry_critical_hook": true
+    },
+    "white_felt_headless_audit": {
+      "status": "pass",
+      "issues": [],
+      "stats": {
+        "major_banners": 5,
+        "zones": 6,
+        "towns": 8,
+        "wilds": 12,
+        "dungeons": 8,
+        "monsters": 22,
+        "npcs": 20,
+        "organizations": 8,
+        "materials": 14
+      }
+    },
+    "compatibility": {
+      "status": "pass",
+      "permanent_capital": false,
+      "starter_ids_preserved": [
+        "L-START-WINDSPRING",
+        "L-WS-WHITEGRASS",
+        "L-WS-GOOSEFORD",
+        "D-WS-STONERING"
+      ]
+    }
+  },
+  "release_decision": "approved_for_main",
+  "notes": [
+    "白氈汗國沿用POL-015／REG-15與既有風泉村新手叢集，不建立重複政治體。",
+    "白氈大汗庭維持季移制度，政治體capital仍為「無固定都城」。",
+    "正式程序清單以允許額外script attributes的解析方式比對，index／registry／Service Worker均為64支且順序一致。",
+    "白氈模組以最小CURRENT相容fixture執行runWhiteFeltDepthAudit()，結果0 issue。"
+  ]
+}
