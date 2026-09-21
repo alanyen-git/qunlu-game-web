@@ -1,4 +1,4 @@
-/* 群陸旅誌：夥伴物種簽章 CURRENT-1.84.0
+/* 群陸旅誌：夥伴物種簽章 CURRENT-1.95.2
  * COMPANION-SPECIES-IDENTITY-1.0
  * 解決同家族寵物／召喚獸光環與技能過度同質：每個物種再取得固定簽章，
  * 簽章會改變光環效果、條件觸發、技能名稱與實戰附加行為。
@@ -8,8 +8,8 @@
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.companion_species))return;
 
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-1.84.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.84.0";
-const REV="COMPANION-SPECIES-IDENTITY-1.0";
+const RELEASE=CORE?.release?.("CURRENT-1.95.2")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.95.2";
+const REV="COMPANION-SPECIES-IDENTITY-1.1";
 const clip=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const round1=n=>Math.round((Number(n)||0)*10)/10;
 const hashText=text=>{
@@ -21,36 +21,36 @@ const bySpecies=id=>(DB.companion_species||[]).find(x=>x?.id===id)||null;
 const companionRows=DB.companion_species.filter(sp=>["pet","summon","contract"].includes(sp?.companion_kind));
 
 const SIGNATURES=[
- {key:"blood_scent",auraName:"血嗅獵域",skillLead:"血嗅",trigger:"敵人生命低於55%",rule:"敵人負傷後進入追獵，命中與爆擊提高。",static:{accuracy:2,critRate:1},dynamic:{accuracy:2,critRate:2},activeMult:1.18},
- {key:"ambush_shadow",auraName:"伏影獵域",skillLead:"伏影",trigger:"戰鬥前2回合",rule:"開戰時藏入死角，先攻與迴避提高。",static:{evasion:2,initiative:2},dynamic:{evasion:3,initiative:3},activeMult:1.16},
- {key:"nest_guard",auraName:"護巢領域",skillLead:"護巢",trigger:"主人生命低於65%",rule:"主人受傷時轉向護主，防禦、格擋與異常抗性提高。",static:{defense:2,statusResist:1},dynamic:{defense:3,blockRate:3,statusResist:2},guard:true},
- {key:"breaker",auraName:"破勢獵域",skillLead:"破勢",trigger:"敵人生命高於70%",rule:"面對完整防線時尋找薄弱點，提升穿透與命中。",static:{armorPenPct:2,accuracy:1},dynamic:{armorPenPct:3,accuracy:2},activeMult:1.12,breakDefense:true},
- {key:"relentless",auraName:"長驅領域",skillLead:"長驅",trigger:"第4回合起",rule:"久戰後進入穩定節奏，攻勢與抗壓逐步提高。",static:{hpRegen:.05,statusResist:1},dynamic:{attack:2,magicPower:2,statusResist:2},activeMult:1.15},
- {key:"mana_vein",auraName:"靈脈領域",skillLead:"靈脈",trigger:"主人魔力低於50%",rule:"主人魔力吃緊時強化魔力循環與術式壓力。",static:{magicPower:2,manaRegen:.08},dynamic:{magicPower:2,magicPenPct:2,manaRegen:.1},manaHelp:true},
- {key:"clear_heart",auraName:"清心領域",skillLead:"清心",trigger:"主人受到可淨化異常",rule:"主人受精神或行動干擾時提高抗性與治療效率。",static:{statusResist:2,healingPower:2},dynamic:{statusResist:4,healingPower:6},cleanse:true},
- {key:"thunder_step",auraName:"雷動領域",skillLead:"雷動",trigger:"奇數回合",rule:"奇數回合加速突進，先攻、命中與爆擊提高。",static:{initiative:2,critRate:1},dynamic:{initiative:3,accuracy:2,critRate:2},activeAccuracy:4},
- {key:"stone_watch",auraName:"磐守領域",skillLead:"磐守",trigger:"偶數回合",rule:"偶數回合收斂攻勢，轉入防禦與韌性。",static:{defense:2,poise:2},dynamic:{defense:3,magicDefense:2,poise:3},guard:true},
- {key:"status_resonance",auraName:"異響領域",skillLead:"異響",trigger:"敵人已有異常狀態",rule:"敵人一旦失衡便放大異常與穿透效果。",static:{statusAccuracy:2,magicPenPct:2},dynamic:{statusAccuracy:4,magicPenPct:3},activeMult:1.14},
- {key:"adversity",auraName:"逆境領域",skillLead:"逆境",trigger:"主人生命低於40%",rule:"主人陷入危急時爆發攻勢，同時提高爆擊抗性。",static:{critResist:1,statusResist:1},dynamic:{attack:3,magicPower:3,critResist:4},activeMult:1.20},
- {key:"perfect_form",auraName:"完勢領域",skillLead:"完勢",trigger:"主人生命高於85%",rule:"隊伍完整時維持精準攻勢，命中與爆擊提高。",static:{accuracy:1,critRate:2},dynamic:{accuracy:3,critRate:3},activeMult:1.12},
- {key:"life_bite",auraName:"噬生領域",skillLead:"噬生",trigger:"敵人生命低於60%",rule:"從受創目標汲取生命，吸血與爆傷提高。",static:{lifeSteal:1.5,critDamage:3},dynamic:{lifeSteal:2,critDamage:5},drainBoost:8},
- {key:"far_sight",auraName:"遠望領域",skillLead:"遠望",trigger:"敵人尚未受到異常且前3回合",rule:"戰況尚未混亂時維持觀測優勢，先攻與感知提高。",static:{perception:2,initiative:2},dynamic:{accuracy:2,initiative:2},activeAccuracy:3},
- {key:"hamper",auraName:"斷勢領域",skillLead:"斷勢",trigger:"敵人未受到緩速",rule:"優先破壞敵方節奏，命中後更容易造成緩速。",static:{accuracy:1,statusAccuracy:2},dynamic:{statusAccuracy:3,accuracy:2},slowChance:35},
- {key:"renewal",auraName:"回春領域",skillLead:"回春",trigger:"夥伴生命低於55%",rule:"自身受傷後強化治療與再生，適合拉長戰線。",static:{healingPower:3,hpRegen:.06},dynamic:{healingPower:5,statusResist:2},selfHeal:true},
- {key:"bond_guard",auraName:"守契領域",skillLead:"守契",trigger:"夥伴生命低於50%",rule:"夥伴危急時強化主人防護，呈現互相承擔的羈絆。",static:{defense:1,magicDefense:1,statusResist:2},dynamic:{defense:3,magicDefense:3,statusResist:3},guard:true},
- {key:"treasure_sense",auraName:"尋珍領域",skillLead:"尋珍",trigger:"戰鬥第一回合",rule:"保留探索本能，同時在初次交鋒時快速辨識破綻。",static:{lootRate:2,rareEventRate:.1,perception:1},dynamic:{accuracy:2,critRate:1},activeAccuracy:3},
- {key:"ghost_walk",auraName:"幽行領域",skillLead:"幽行",trigger:"戰鬥前2回合",rule:"開戰時以隱匿步調迴避正面壓力，提升閃避與命中。",static:{stealth:2,evasion:2},dynamic:{evasion:3,accuracy:2},activeMult:1.10},
- {key:"royal_breath",auraName:"王息領域",skillLead:"王息",trigger:"攻守回合交替",rule:"奇數回合偏攻、偶數回合偏守，形成固定戰鬥節拍。",static:{attack:1,magicPower:1,defense:1,magicDefense:1},dynamicOdd:{attack:2,magicPower:2,critRate:1},dynamicEven:{defense:2,magicDefense:2,statusResist:2}}
+ {key:"blood_scent",auraName:"獵殺本能",skillLead:"追獵",trigger:"敵人生命低於55%",rule:"敵人負傷後進入追獵，命中與爆擊提高。",static:{accuracy:2,critRate:1},dynamic:{accuracy:2,critRate:2},activeMult:1.18},
+ {key:"ambush_shadow",auraName:"伏擊本能",skillLead:"伏擊",trigger:"戰鬥前2回合",rule:"開戰時藏入死角，先攻與迴避提高。",static:{evasion:2,initiative:2},dynamic:{evasion:3,initiative:3},activeMult:1.16},
+ {key:"nest_guard",auraName:"護主本能",skillLead:"護主",trigger:"主人生命低於65%",rule:"主人受傷時轉向護主，防禦、格擋與異常抗性提高。",static:{defense:2,statusResist:1},dynamic:{defense:3,blockRate:3,statusResist:2},guard:true},
+ {key:"breaker",auraName:"破甲本能",skillLead:"破甲",trigger:"敵人生命高於70%",rule:"面對完整防線時尋找薄弱點，提升穿透與命中。",static:{armorPenPct:2,accuracy:1},dynamic:{armorPenPct:3,accuracy:2},activeMult:1.12,breakDefense:true},
+ {key:"relentless",auraName:"持久戰",skillLead:"持續",trigger:"第4回合起",rule:"久戰後進入穩定節奏，攻勢與抗壓逐步提高。",static:{hpRegen:.05,statusResist:1},dynamic:{attack:2,magicPower:2,statusResist:2},activeMult:1.15},
+ {key:"mana_vein",auraName:"魔力循環",skillLead:"魔力",trigger:"主人魔力低於50%",rule:"主人魔力吃緊時強化魔力循環與術式壓力。",static:{magicPower:2,manaRegen:.08},dynamic:{magicPower:2,magicPenPct:2,manaRegen:.1},manaHelp:true},
+ {key:"clear_heart",auraName:"淨化守護",skillLead:"淨化",trigger:"主人受到可淨化異常",rule:"主人受精神或行動干擾時提高抗性與治療效率。",static:{statusResist:2,healingPower:2},dynamic:{statusResist:4,healingPower:6},cleanse:true},
+ {key:"thunder_step",auraName:"迅捷步伐",skillLead:"迅捷",trigger:"奇數回合",rule:"奇數回合加速突進，先攻、命中與爆擊提高。",static:{initiative:2,critRate:1},dynamic:{initiative:3,accuracy:2,critRate:2},activeAccuracy:4},
+ {key:"stone_watch",auraName:"堅守",skillLead:"防守",trigger:"偶數回合",rule:"偶數回合收斂攻勢，轉入防禦與韌性。",static:{defense:2,poise:2},dynamic:{defense:3,magicDefense:2,poise:3},guard:true},
+ {key:"status_resonance",auraName:"異常增幅",skillLead:"弱點",trigger:"敵人已有異常狀態",rule:"敵人一旦失衡便放大異常與穿透效果。",static:{statusAccuracy:2,magicPenPct:2},dynamic:{statusAccuracy:4,magicPenPct:3},activeMult:1.14},
+ {key:"adversity",auraName:"反擊強化",skillLead:"反擊",trigger:"主人生命低於40%",rule:"主人陷入危急時爆發攻勢，同時提高爆擊抗性。",static:{critResist:1,statusResist:1},dynamic:{attack:3,magicPower:3,critResist:4},activeMult:1.20},
+ {key:"perfect_form",auraName:"精準攻勢",skillLead:"精準",trigger:"主人生命高於85%",rule:"隊伍完整時維持精準攻勢，命中與爆擊提高。",static:{accuracy:1,critRate:2},dynamic:{accuracy:3,critRate:3},activeMult:1.12},
+ {key:"life_bite",auraName:"生命汲取",skillLead:"吸血",trigger:"敵人生命低於60%",rule:"從受創目標汲取生命，吸血與爆傷提高。",static:{lifeSteal:1.5,critDamage:3},dynamic:{lifeSteal:2,critDamage:5},drainBoost:8},
+ {key:"far_sight",auraName:"遠距觀察",skillLead:"瞄準",trigger:"敵人尚未受到異常且前3回合",rule:"戰況尚未混亂時維持觀測優勢，先攻與感知提高。",static:{perception:2,initiative:2},dynamic:{accuracy:2,initiative:2},activeAccuracy:3},
+ {key:"hamper",auraName:"牽制",skillLead:"牽制",trigger:"敵人未受到緩速",rule:"優先破壞敵方節奏，命中後更容易造成緩速。",static:{accuracy:1,statusAccuracy:2},dynamic:{statusAccuracy:3,accuracy:2},slowChance:35},
+ {key:"renewal",auraName:"自然恢復",skillLead:"再生",trigger:"夥伴生命低於55%",rule:"自身受傷後強化治療與再生，適合拉長戰線。",static:{healingPower:3,hpRegen:.06},dynamic:{healingPower:5,statusResist:2},selfHeal:true},
+ {key:"bond_guard",auraName:"契約守護",skillLead:"守護",trigger:"夥伴生命低於50%",rule:"夥伴危急時強化主人防護，呈現互相承擔的羈絆。",static:{defense:1,magicDefense:1,statusResist:2},dynamic:{defense:3,magicDefense:3,statusResist:3},guard:true},
+ {key:"treasure_sense",auraName:"尋寶直覺",skillLead:"尋寶",trigger:"戰鬥第一回合",rule:"保留探索本能，同時在初次交鋒時快速辨識破綻。",static:{lootRate:2,rareEventRate:.1,perception:1},dynamic:{accuracy:2,critRate:1},activeAccuracy:3},
+ {key:"ghost_walk",auraName:"隱匿步伐",skillLead:"偷襲",trigger:"戰鬥前2回合",rule:"開戰時以隱匿步調迴避正面壓力，提升閃避與命中。",static:{stealth:2,evasion:2},dynamic:{evasion:3,accuracy:2},activeMult:1.10},
+ {key:"royal_breath",auraName:"王者氣息",skillLead:"攻守",trigger:"攻守回合交替",rule:"奇數回合偏攻、偶數回合偏守，形成固定戰鬥節拍。",static:{attack:1,magicPower:1,defense:1,magicDefense:1},dynamicOdd:{attack:2,magicPower:2,critRate:1},dynamicEven:{defense:2,magicDefense:2,statusResist:2}}
 ];
 
 const CORE_ACTION={
- pack_hunt:"裂襲",hunt_instinct:"獵心",rally_howl:"群吼",
- dive_break:"俯擊",sky_dance:"翔舞",wing_screen:"翼障",
- root_snare:"纏束",root_cycle:"輪息",life_bloom:"綻生",
- dragon_breath:"龍息",dragon_majesty:"龍威",scale_guard:"鱗障",
- resonance_burst:"共振",element_core:"靈核",element_ward:"元素幕",
- soul_drain:"噬魂",undying_shadow:"冥返",grave_veil:"幽幕",
- judgment:"裁決",oathkeeper:"守誓",sanctuary:"聖域"
+ pack_hunt:"追擊",hunt_instinct:"狩獵本能",rally_howl:"鼓舞嚎叫",
+ dive_break:"俯衝攻擊",sky_dance:"空中機動",wing_screen:"掩護",
+ root_snare:"藤蔓束縛",root_cycle:"自然恢復",life_bloom:"自然治癒",
+ dragon_breath:"龍息",dragon_majesty:"龍威",scale_guard:"龍鱗守護",
+ resonance_burst:"元素衝擊",element_core:"元素核心",element_ward:"元素護盾",
+ soul_drain:"生命汲取",undying_shadow:"不死本能",grave_veil:"暗影護幕",
+ judgment:"聖光攻擊",oathkeeper:"守護誓約",sanctuary:"聖光治癒"
 };
 
 function morphology(sp){
@@ -92,7 +92,7 @@ function signatureIndex(sp,index){
 }
 function makeUniqueName(base,sp,used){
  let name=base;
- if(used.has(name))name=`${base}・${sp.name}`;
+ if(used.has(name))name=`${base}（${sp.name}）`;
  used.add(name);return name;
 }
 const usedAuraNames=new Set(),usedSkillNames=new Set();
@@ -110,7 +110,7 @@ for(let i=0;i<companionRows.length;i++){
    aura.tactical_rules=Array.isArray(aura.tactical_rules)?aura.tactical_rules:[];
    aura.tactical_rules=aura.tactical_rules.filter(x=>x?.axis!=="物種簽章");
    aura.tactical_rules.push({axis:"物種簽章",key:sig.key,name:sig.auraName,rule:`${sig.trigger}：${sig.rule}`});
-   aura.name=makeUniqueName(`${sig.auraName}・${sig.morphology}印`,sp,usedAuraNames);
+   aura.name=makeUniqueName(sig.auraName,sp,usedAuraNames);
    aura.identity_summary=[aura.identity_summary,sig.auraName].filter(Boolean).join("｜");
  }
  const skill=sp.unique_skill;
@@ -118,8 +118,8 @@ for(let i=0;i<companionRows.length;i++){
    const action=CORE_ACTION[skill.mechanic_pattern]||CORE_ACTION[skill.effect?.pattern]||(skill.kind==="主動"?"戰技":skill.kind==="輔助"?"援式":"本能");
    skill.species_identity_revision=REV;
    skill.species_signature=sig.key;
-   skill.name=makeUniqueName(`${sig.skillLead}${sig.morphology}${action}`,sp,usedSkillNames);
-   skill.description=`物種特色：${sig.trigger}時「${sig.skillLead}」發揮，${sig.rule}｜家族核心：${String(skill.description||"").replace(/^特色：/,"")}`;
+   skill.name=makeUniqueName(action,sp,usedSkillNames);
+   skill.description=`物種特色：${sig.trigger}時，${sig.rule}｜家族核心：${String(skill.description||"").replace(/^特色：/,"")}`;
    skill.effect=skill.effect||{};
    skill.effect.species_signature=sig.key;
  }
@@ -319,7 +319,7 @@ DB.companion_species_identity_system={
  rule:"家族決定生態核心，物種簽章決定個體物種的戰術特徵；同家族夥伴不得只換名稱與倍率。",
  signature_types:SIGNATURES.length,
  signatures:SIGNATURES.map(x=>({key:x.key,auraName:x.auraName,trigger:x.trigger,rule:x.rule})),
- naming_rule:"技能名稱由物種簽章＋形態詞＋家族核心動作組成；僅在真的碰撞時才以物種名作消歧，不再以『物種名＋同一後綴』作主要命名法。",
+ naming_rule:"技能與光環改用常見RPG語彙；名稱以功能或行為為主，不再把簽章詞、形態詞與動作詞硬式拼接。若名稱重複，僅以物種名括號註記作消歧。",
  initial_audit:initial
 };
 DB.meta=DB.meta||{};DB.meta.companion_species_identity_revision=REV;
