@@ -59,7 +59,7 @@ function build(C){
  const reg=row("world_regions",C.regionId);if(reg)Object.assign(reg,{...C.regionUpdate,map_status:"playable_current",nonstate:true,sovereignty_status:C.sovereignty});
  if(C.polityId){
   const p=row("political_entities",C.polityId);
-  if(p)Object.assign(p,{name:C.name,government_type:"無穩定中央主權",capital:null,current_title:"無",top_office:"無",ruling_structure:C.rulingStructure,legal_tradition:C.legalTradition,identity:C.identity,gameplay_role:C.gameplayRole,world_tier:C.worldTier,sovereignty_status:"fragmented_nonstate_buffer",secondary_centers:[...C.centers],key_organization_ids:uniq([...(p.key_organization_ids||[]),...C.orgs.map(x=>x.id)]),external_relations:C.externalRelations});
+  if(p)Object.assign(p,{name:C.name,government_type:"無穩定中央主權",capital:"無固定都城",current_title:"無",top_office:"無",ruling_structure:C.rulingStructure,legal_tradition:C.legalTradition,identity:C.identity,gameplay_role:C.gameplayRole,world_tier:C.worldTier,sovereignty_status:"fragmented_nonstate_buffer",secondary_centers:[...C.centers],key_organization_ids:uniq([...(p.key_organization_ids||[]),...C.orgs.map(x=>x.id)]),external_relations:C.externalRelations});
  }
  upsert("regional_content_profiles",{id:C.profileId,region_id:C.regionId,polity_id:C.polityId||null,region_name:C.name,recommended_tier:C.tierBand,identity:C.identity,terrain:C.regionUpdate.terrain,common_exports:C.exports,common_imports:C.imports,food_staples:C.foods,recurring_risks:C.risks,nonstate_region:true});
  upsert("regional_economy_profiles",{id:C.econId,region_id:C.regionId,polity_id:C.polityId||null,exports:C.exports,imports:C.imports,notes:C.economyNotes,market_constraints:C.marketConstraints});
@@ -90,7 +90,7 @@ function audit(C){
  for(const o of C.orgs)if(!row("world_organizations",o.id))issues.push("組織缺失:"+o.id);
  for(const z of C.zones)if(!row("province_region_maps",z.province)||!row("settlement_region_maps",z.smap))issues.push("區域地圖缺失:"+z.id);
  if(!row("regional_state_profiles","STATE-"+C.code))issues.push("活世界狀態檔缺失");
- if(C.regionId==="REG-19"&&row("political_entities","POL-019")?.capital)issues.push("斷境不得建立首都");
+ if(C.regionId==="REG-19"&&!["",null,"無固定都城"].includes(row("political_entities","POL-019")?.capital??null))issues.push("斷境不得建立固定首都");
  if(C.regionId==="REG-20"&&(C.polityId||null)!==null)issues.push("龍脊不得建立政治體");
  return{revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{zones:C.zones.length,settlements:C.towns.length,wilds:C.fields.length,dungeons:C.dungeons.length,monsters:C.monsters.length,npcs:C.npcs.length,organizations:C.orgs.length,materials:C.materials.length}}
 }
