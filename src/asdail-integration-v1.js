@@ -299,7 +299,7 @@
     for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=uniq(s[k]||[]);
   }
   for(const [fid,f] of Object.entries(DB.facilities||{}))for(const id of f.stock||[])if(src[id])src[id].shops=uniq([...src[id].shops,fid]);
-  for(const l of DB.locations||[])for(const id of l.gather||[])if(src[id])src[id].gather_locations=uniq([...src[id].gather_locations,l.id]);
+  for(const l of DB.locations||[])for(const id of [...(l.gather||[]),...(l.mining||[]),...(l.woodcut||[]),...(l.fish||[]),...(l.hunt||[])])if(src[id])src[id].gather_locations=uniq([...src[id].gather_locations,l.id]);
   for(const m of DB.monsters||[])for(const d of m.loot_materials||[])if(src[d.id])src[d.id].monster_drops=uniq([...src[d.id].monster_drops,m.id]);
   for(const r of DB.recipes||[]){
     const recipeId=r.id||`recipe:${r.name||"unnamed"}`;
