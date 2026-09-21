@@ -163,7 +163,7 @@ function mon(x){
   loot_materials:drops.map((id,i)=>({id,chance:Math.max(.16,(x.lootChance??.44)-i*.08),min:1,max:1}))};
 }
 const MONSTERS=[
- {id:"MON-VRK-001",name:"平原灰兔",tier:"F",habitat:["L-VRK-CROWNFIELDS","L-VRK-GOLDPLAIN"],hp:25,atk:8,def:4,acc:68,damage:[2,5],scale:"small",drops:["VRK-MAT-006"],near:true,description:"帝都外環與南部平原常見的小型獵物。"},
+ {id:"MON-VRK-001",name:"平原灰兔",tier:"F",habitat:["L-VRK-CROWNFIELDS","L-VRK-GOLDPLAIN","L-VRK-ABBEYFIELDS"],hp:25,atk:8,def:4,acc:68,damage:[2,5],scale:"small",drops:["VRK-MAT-006"],near:true,description:"帝都外環與南部平原常見的小型獵物。"},
  {id:"MON-VRK-002",name:"田野狐",tier:"F",habitat:["L-VRK-CROWNFIELDS","L-VRK-GOLDPLAIN","L-VRK-SHEPHERDHILLS"],hp:29,atk:9,def:4,acc:72,init:13,damage:[2,6],scale:"small",drops:["VRK-MAT-006"],near:true,description:"以鼠兔和田間小獸為食，通常避開人群。"},
  {id:"MON-VRK-003",name:"河灘蘆蟹",tier:"F",habitat:["L-VRK-RIVERBANK"],hp:27,atk:8,def:6,acc:64,damage:[2,5],scale:"small",tags:["aquatic"],drops:["VRK-MAT-005"],near:true,description:"河灘常見的小型甲殼生物。"},
  {id:"MON-VRK-004",name:"牧丘野犬",tier:"E",habitat:["L-VRK-MILLMEADOW","L-VRK-SHEPHERDHILLS","L-VRK-SOUTHMOOR"],hp:49,atk:16,def:7,acc:74,damage:[5,10],scale:"small",drops:[],near:true,description:"成群活動於牧丘和荒地，對落單牲畜較具威脅。"},
