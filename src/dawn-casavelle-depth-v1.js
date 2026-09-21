@@ -20,15 +20,19 @@ function loc(id){return row("locations",id)}
 function addLink(a,b,h){const x=loc(a);if(!x||!loc(b))return;x.links=Array.isArray(x.links)?x.links:[];const old=x.links.find(e=>e?.to===b);if(old)old.hours=h;else x.links.push({to:b,hours:h})}
 function twoWay(a,b,h){addLink(a,b,h);addLink(b,a,h)}
 function econ(score,label,drivers,constraints,price=1,stock=1,budget=1,liquidity=1){return{prosperity_score:score,prosperity_label:label,market_price_mult:price,stock_mult:stock,market_budget_mult:budget,liquidity_mult:liquidity,drivers:[...drivers],constraints:[...constraints]}}
-function item(x,polity,regions){return{id:x.id,name:x.name,type:"material",category:x.category||"material",tier:x.tier||"E",weight:x.weight??0.2,
- base_price_copper:x.price||12,price_copper:x.price||12,rarity:x.rarity||"common",source_region_ids:[...regions],source_polity_id:polity,
+function item(x,polity,regions,gatherable){return{id:x.id,name:x.name,kind:"material",type:"素材",catalog_group:"素材",stackable:true,category:x.category||"material",tier:x.tier||"E",weight:x.weight??0.2,
+ value:x.price||12,base_price_copper:x.price||12,price_copper:x.price||12,rarity:x.rarity||"common",regional_origin_id:regions[0],regional_origin_ids:[...regions],
+ source_region_ids:[...regions],source_polity_id:polity,wild_gather_eligible:!!gatherable?.has(x.id),
  economy_tags:x.tags||[],description:x.description||x.name+"是該地區受季節、配額與採集承載限制的地方素材。"}}
 function monster(x,polity){
- const drops=x.drops||[];
- return{id:x.id,name:x.name,tier:x.tier,role:x.role||"一般",region:x.region||"",hp:x.hp,atk:x.atk,def:x.def,mdef:x.mdef??Math.max(2,Math.round((x.def||4)*.75)),acc:x.acc||70,init:x.init||10,
-  damage:x.damage||[2,5],element:x.element||null,description:x.description,near_town_eligible:!!x.near,encounter_enabled:true,encounter_weight:x.weight||1,
-  political_entity_id:polity,habitat_location_ids:x.habitat||[],ecology_profile:{body_scale:x.scale||"medium",tags:[...(x.tags||["wildlife"])]},
-  loot_profile:{version:"LOOT-ECOLOGY-1.0",fallback_policy:"none",allowed_material_ids:drops},
+ const drops=[...(x.drops||[])],tags=[...(x.tags||["wildlife"])],damageByTier={F:[2,5],E:[5,10],D:[9,16],C:[14,23],B:[22,34]};
+ const category=tags.includes("undead")?"不死系":tags.includes("construct")?"構裝體":"野獸與一般魔物系";
+ return{id:x.id,name:x.name,tier:x.tier,role:x.role||"一般",lore_role:x.role||"一般",region:x.region||"",category,
+  habitat:[...(x.habitat||[])],habitats:[...(x.habitat||[])],habitat_location_ids:[...(x.habitat||[])],
+  hp:x.hp,attack:x.atk,defense:x.def,magicDefense:x.mdef??Math.max(2,Math.round((x.def||4)*.75)),accuracy:x.acc||70,initiative:x.init||10,
+  damage:[...(x.damage||damageByTier[x.tier]||[2,5])],primary_element:x.element||null,element:x.element||null,xp_reward:({F:10,E:18,D:34,C:58,B:96}[x.tier]||12),
+  description:x.description,near_town_eligible:!!x.near,encounter_enabled:true,encounter_weight:x.weight||1,political_entity_id:polity,
+  ecology_profile:{body_scale:x.scale||"medium",tags},loot_profile:{version:"LOOT-ECOLOGY-1.0",fallback_policy:"none",allowed_material_ids:drops},
   loot_materials:drops.map((id,i)=>({id,chance:Math.max(.16,(x.lootChance??.44)-i*.08),min:1,max:x.maxDrop||1}))};
 }
 function buildPolity(C){
@@ -46,16 +50,19 @@ function buildPolity(C){
   const base=clone(loc(x.id)||{}),ref=loc(x.template)||loc("L-HILL")||loc("L-WOOD")||{};
   const ep=clone(base.encounter_profile||ref.encounter_profile||{});
   Object.assign(ep,{zone:x.zoneClass||"frontier",max_tier:x.tier,strict_habitat:true,no_constraint_relaxation:true,allow_magical_ecology:!!x.allowMagical,
-   allow_demons:false,allow_undead:!!x.allowUndead,allow_aquatic:!!x.aquatic,archetype:x.archetype||"open_wild",space_class:x.space||"standard"});
+   allow_demons:false,allow_undead:!!x.allowUndead,allow_aquatic:!!x.aquatic,archetype:x.archetype||"open_wild",space_class:x.space||"standard",preferred_monster_ids:[...(x.preferred||[])]});
   return Object.assign(base,{id:x.id,name:x.name,kind:x.kind||"wild",tier:x.tier,world_tier:x.tier,size:x.size||"地方區域",region:C.name,description:x.description,
    world_region_id:x.regionId,region_id:x.regionId,political_entity_id:C.polityId,polity_id:C.polityId,culture_id:C.cultureId,province_region_id:x.province,
-   settlement_region_id:x.smap,realm_region_map_id:C.realmId,links:Array.isArray(base.links)?base.links:[],risk:x.risk??22,encounter_profile:ep,
-   gather:uniq([...(x.gather||[]),...(x.mining||[]),...(x.woodcut||[]),...(x.fish||[]),...(x.hunt||[])]),
+   settlement_region_id:x.smap,realm_region_map_id:C.realmId,links:Array.isArray(base.links)?base.links:[],risk:x.risk??22,
+   safety_score:x.safety??Math.max(20,100-(x.risk??22)),safety_label:(x.risk??22)<=15?"安穩":(x.risk??22)<=25?"普通":(x.risk??22)<=35?"警戒":"危險",encounter_profile:ep,
+   tags:uniq([...(base.tags||[]),...(x.tags||[])]),gather:uniq([...(base.gather||[]),...(x.gather||[])]),mining:uniq([...(base.mining||[]),...(x.mining||[])]),
+   woodcut:uniq([...(base.woodcut||[]),...(x.woodcut||[])]),fish:uniq([...(base.fish||[]),...(x.fish||[])]),hunt:uniq([...(base.hunt||[]),...(x.hunt||[])]),explore:x.explore||base.explore||[],
    resource_profile:{gather:x.gather||[],mining:x.mining||[],woodcut:x.woodcut||[],fish:x.fish||[],hunt:x.hunt||[]},
-   preferred_monster_ids:x.preferred||[],resource_capacity:clone(x.resourceCapacity||{forage:16,hunt:8,ore:5,wood:8,water:8}),
+   preferred_monster_ids:x.preferred||[],resource_capacity:clone(x.resourceCapacity||base.resource_capacity||{forage:16,hunt:8,ore:5,wood:8,water:8}),
    resource_regen_hours:x.regen??48,hunt_requires_battle:true,depth_zone_id:x.zoneId});
  };
- for(const x of C.materials)upsert("items",item(x,C.polityId,C.regionIds));
+ const gatherable=new Set([...C.fields,...C.dungeons].flatMap(x=>[...(x.gather||[]),...(x.mining||[]),...(x.woodcut||[]),...(x.fish||[]),...(x.hunt||[])]));
+ for(const x of C.materials)upsert("items",item(x,C.polityId,C.regionIds,gatherable));
  for(const x of C.towns)upsert("locations",town(x));
  for(const x of C.fields)upsert("locations",field({...x,kind:"wild"}));
  for(const x of C.dungeons)upsert("locations",field({...x,kind:"dungeon",zoneClass:"dungeon",allowMagical:true,space:x.space||"standard"}));
