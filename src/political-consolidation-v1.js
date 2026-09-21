@@ -1,5 +1,5 @@
-/* 群陸旅誌：CURRENT政治體整併與疆域正史修訂 CURRENT-1.90.0
- * POLITY-CONSOLIDATION-1.1
+/* 群陸旅誌：CURRENT政治體整併與疆域正史修訂 CURRENT-1.96.1
+ * POLITY-CONSOLIDATION-1.2
  * 保留洛文／維薩南境／維爾河既有整併，同步修訂北方、東北、西南政治布局；
  * 黑潮群島恢復為獨立主權政治體，金衡回復為獨立貿易自由島。
  */
@@ -7,8 +7,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.90.0")||"CURRENT-1.90.0";
-const REV="POLITY-CONSOLIDATION-1.1";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-1.96.1")||"CURRENT-1.96.1";
+const REV="POLITY-CONSOLIDATION-1.2";
 const MERGE=Object.freeze({"POL-005":"POL-001","POL-006":"POL-007","POL-018":"POL-001"});
 const RETIRED=Object.freeze(Object.keys(MERGE));
 const polity=id=>(DB.political_entities||[]).find(x=>x?.id===id)||null;
@@ -88,18 +88,18 @@ if(p19)Object.assign(p19,{identity:"介於西北安威爾帝國與西南瑟露�
 let p10=polity("POL-010");
 if(!p10){
  p10={
-  id:"POL-010",index:10,name:"黑潮群島",government_type:"幕府雙軌島國",core_region_id:"REG-10",capital:"黑潮京",
-  current_title:"潮皇／征海大將軍",founding_year:131,world_tier:"C",
-  ruling_structure:"世襲潮皇與王庭維繫祭祀、法統、冊封與群島共同象徵；征海大將軍與幕府掌握軍政、海防、稅務與諸島治理，諸島大名向幕府效忠並受王庭名義冊封。",
+  id:"POL-010",index:10,name:"黑潮群島",government_type:"皓月御國－黑潮幕府雙軌島國",core_region_id:"REG-10",capital:"黑潮京",
+  current_title:"潮皇／征夷大將軍",founding_year:131,world_tier:"C",
+  ruling_structure:"世襲潮皇與王庭維繫祭祀、法統、冊封與群島共同象徵；征夷大將軍與黑潮幕府掌握軍政、海防、稅務與諸島治理，諸島大名向黑潮幕府效忠並受皓月御國名義冊封。",
   legal_tradition:"王庭敕令、武家法、島領慣例、港灣法與船誓",
   dominant_peoples:"多種族海島社會",recognized_pantheon_ids:["PTH-04","PTH-08"],key_organization_ids:["ORG-044","ORG-045"],culture_id:"CUL-010",
-  identity:"由三大島、五小島與周圍小型海島構成的獨立群島國；王庭提供超越武門更替的法統，幕府負責實際軍政。",
+  identity:"由三大島、五小島與周圍小型海島構成的獨立群島國；皓月御國提供超越武門更替的法統，黑潮幕府負責實際軍政。",
   vassal_of:null,map_status:"world_background",player_center_rule:"政體持續運作且不因玩家出現而自動改朝換代。",
   lore_record_ids:["LORE-C190-P010-01","LORE-C190-P010-02","LORE-C190-P010-03","LORE-C190-P010-04"],
-  gameplay_role:"海島幕府國／海戰、武門政治與群島貿易",
+  gameplay_role:"海島雙軌政體／海戰、武門政治與群島貿易",
   primary_authority_archetype_id:"AUT-013",secondary_authority_archetype_ids:[],
-  succession_method:"潮皇依王統世襲；征海大將軍原則上由主導武門繼承並取得王庭冊命與主要大名承認，兩條繼承線彼此獨立。",
-  regalia:["潮鏡御璽","征海將軍印"],top_office:"潮皇／征海大將軍",authority_profile_id:"POL-010",top_authority_tier:"AUTH-7",
+  succession_method:"潮皇依王統世襲；征夷大將軍原則上由主導武門繼承並取得皓月御國冊命與主要大名承認，兩條繼承線彼此獨立。",
+  regalia:["潮鏡御璽","征海將軍印"],top_office:"潮皇／征夷大將軍",authority_profile_id:"POL-010",top_authority_tier:"AUTH-7",
   continental_status:"recognized_offshore_polity",polity_family:"DUAL_COURT_SHOGUNATE",geographic_position:"大陸東南外海大型群島"
  };
  DB.political_entities.push(p10);
@@ -111,7 +111,7 @@ for(const [rid,patch] of Object.entries({
  "REG-06":{political_entity_id:"POL-007",political_status:"free_city_league_member_region",sovereignty_note:"維爾河諸城為卡薩維爾自由城盟成員區；地方市政自治保留，共同外交與防務由城盟統籌。"},
  "REG-07":{political_entity_id:"POL-007",political_status:"free_city_league_core",sovereignty_note:"卡薩維爾為自由城盟共同議會所在地。"},
  "REG-08":{political_entity_id:"POL-008",political_status:"independent_free_trade_island",sovereignty_note:"金衡為獨立貿易自由島，不隸屬任何大陸王國，也不對黑潮群島主張主權。"},
- "REG-10":{political_entity_id:"POL-010",political_status:"recognized_archipelago_polity",sovereignty_note:"黑潮群島為獲承認的獨立群島政治體；潮皇王庭維繫法統，征海大將軍幕府掌實際軍政。"},
+ "REG-10":{political_entity_id:"POL-010",political_status:"recognized_archipelago_polity",sovereignty_note:"黑潮群島為獲承認的獨立群島政治體；皓月御國維繫法統，征夷大將軍黑潮幕府掌實際軍政。"},
  "REG-18":{political_entity_id:"POL-001",political_status:"asdail_compact_western_region",sovereignty_note:"西境河谷仍由阿斯戴爾直接治理，但世界地圖疆域縮小為洛文周邊河谷、商路與聚落帶。"}
 })){
  const r=region(rid);if(r)Object.assign(r,patch);
@@ -150,15 +150,15 @@ DB.polity_authority_profiles=(DB.polity_authority_profiles||[]).filter(x=>x?.pol
 DB.polity_authority_profiles.push({
  polity_id:"POL-010",hierarchy_version:"AUTHORITY-1.0",top_office_ids:["POL-010-O1","POL-010-O2"],
  office_nodes:[
-  {id:"POL-010-O1",title:"潮皇",authority_tier:"AUTH-7",authority_level:7,scope:"王庭法統、祭祀、冊封與群島共同象徵",appointment:"王統世襲",rights:["AR-001","AR-006","AR-011"],reports_to:null,authority_archetype_id:null,parallel_authority_ids:["POL-010-O2"],notes:"具有最高法統與冊命權，但日常軍政通常由幕府執行。"},
-  {id:"POL-010-O2",title:"征海大將軍",authority_tier:"AUTH-7",authority_level:7,scope:"幕府軍政、海防、稅務與諸島統治",appointment:"主導武門繼承＋王庭冊命＋主要大名承認",rights:["AR-003","AR-004","AR-005","AR-008"],reports_to:null,authority_archetype_id:"AUT-013",parallel_authority_ids:["POL-010-O1"],notes:"實際行政與軍事最高權力中心；不得取代潮皇王統的法統角色。"},
-  {id:"POL-010-O3",title:"諸島大名",authority_tier:"AUTH-5",authority_level:5,scope:"各主要島領與武家領",appointment:"家門繼承／幕府安堵",rights:["AR-003","AR-004","AR-005"],reports_to:"POL-010-O2",authority_archetype_id:null,parallel_authority_ids:[],notes:"領地世襲受幕府確認，名義上亦受王庭冊封。"},
-  {id:"POL-010-O4",title:"奉行／港代",authority_tier:"AUTH-4",authority_level:4,scope:"港務、司法、財政與地方行政",appointment:"幕府或大名任命",rights:["AR-003","AR-005","AR-008"],reports_to:"POL-010-O3",authority_archetype_id:null,parallel_authority_ids:[],notes:"依職掌分為海防、港務、財賦與裁判等奉行。"}
+  {id:"POL-010-O1",title:"潮皇",authority_tier:"AUTH-7",authority_level:7,scope:"皓月御國法統、祭祀、冊封與群島共同象徵",appointment:"王統世襲",rights:["AR-001","AR-006","AR-011"],reports_to:null,authority_archetype_id:null,parallel_authority_ids:["POL-010-O2"],notes:"具有最高法統與冊命權，但日常軍政通常由黑潮幕府執行。"},
+  {id:"POL-010-O2",title:"征夷大將軍",authority_tier:"AUTH-7",authority_level:7,scope:"黑潮幕府軍政、海防、稅務與諸島統治",appointment:"主導武門繼承＋皓月御國冊命＋主要大名承認",rights:["AR-003","AR-004","AR-005","AR-008"],reports_to:null,authority_archetype_id:"AUT-013",parallel_authority_ids:["POL-010-O1"],notes:"實際行政與軍事最高權力中心；不得取代潮皇王統的法統角色。"},
+  {id:"POL-010-O3",title:"諸島大名",authority_tier:"AUTH-5",authority_level:5,scope:"各主要島領與武家領",appointment:"家門繼承／黑潮幕府安堵",rights:["AR-003","AR-004","AR-005"],reports_to:"POL-010-O2",authority_archetype_id:null,parallel_authority_ids:[],notes:"領地世襲受黑潮幕府確認，名義上亦受王庭冊封。"},
+  {id:"POL-010-O4",title:"奉行／港代",authority_tier:"AUTH-4",authority_level:4,scope:"港務、司法、財政與地方行政",appointment:"黑潮幕府或大名任命",rights:["AR-003","AR-005","AR-008"],reports_to:"POL-010-O3",authority_archetype_id:null,parallel_authority_ids:[],notes:"依職掌分為海防、港務、財賦與裁判等奉行。"}
  ],
- rival_power_centers:["潮皇王庭","幕府評定所","諸島大名","大型船團與港商"],
- player_interaction_summary:"玩家通常先接觸港代、武家與島領；高階劇情才會進入幕府評定或王庭冊命層。",
+ rival_power_centers:["皓月御國","黑潮幕府評定所","諸島大名","大型船團與港商"],
+ player_interaction_summary:"玩家通常先接觸港代、武家與島領；高階劇情才會進入黑潮幕府評定或皓月御國冊命層。",
  succession_method:p10.succession_method,regalia:p10.regalia,
- notes:"潮皇與征海大將軍是平行頂層：前者提供世襲法統與儀禮正統，後者掌實際軍政；兩者不可合併成單一君主職。"
+ notes:"潮皇與征夷大將軍是平行頂層：前者提供世襲法統與儀禮正統，後者掌實際軍政；兩者不可合併成單一君主職。"
 });
 
 const rm1=realm("RMAP-POL-001"),rm7=realm("RMAP-POL-007"),rm8=realm("RMAP-POL-008"),rm13=realm("RMAP-POL-013"),rm14=realm("RMAP-POL-014"),rm15=realm("RMAP-POL-015");
@@ -169,35 +169,35 @@ if(rm13){rm13.name="安威爾帝國區域地圖";}
 if(rm14){rm14.name="泰爾瓦隆百族部落區域地圖";rm14.capital="泰爾瓦隆大營";}
 if(rm15){rm15.name="白氈汗國區域地圖";}
 DB.realm_region_maps=(DB.realm_region_maps||[]).filter(x=>x?.id!=="RMAP-POL-010");
-DB.realm_region_maps.push({id:"RMAP-POL-010",layer:"realm_region",name:"黑潮群島區域地圖",political_entity_id:"POL-010",world_tier:"C",capital:"黑潮京",core_region_id:"REG-10",map_status:"macro_background",province_region_ids:[],vassal_polity_ids:[],direct_region_ids:["REG-10"],regional_centers:["黑潮京","黑潮灣幕府"],notes:"三大島、五小島與周圍小型海島構成同一獨立群島國；王庭與幕府為平行頂層權力。"});
+DB.realm_region_maps.push({id:"RMAP-POL-010",layer:"realm_region",name:"黑潮群島區域地圖",political_entity_id:"POL-010",world_tier:"C",capital:"黑潮京",core_region_id:"REG-10",map_status:"macro_background",province_region_ids:[],vassal_polity_ids:[],direct_region_ids:["REG-10"],regional_centers:["黑潮京","黑潮灣"],notes:"三大島、五小島與周圍小型海島構成同一獨立群島國；皓月御國與黑潮幕府為平行頂層權力。"});
 DB.realm_region_maps.sort((a,b)=>String(a?.id||"").localeCompare(String(b?.id||"")));
 
 if(DB.world_map){
  DB.world_map.realm_region_map_ids=(DB.world_map.realm_region_map_ids||[]).filter(x=>!["RMAP-POL-005","RMAP-POL-006","RMAP-POL-018"].includes(x));
  if(!DB.world_map.realm_region_map_ids.includes("RMAP-POL-010"))DB.world_map.realm_region_map_ids.push("RMAP-POL-010");
  DB.world_map.regional_power_region_ids=(DB.world_map.regional_power_region_ids||[]).filter(x=>x!=="REG-10");
- DB.world_map.notes="CURRENT世界層：阿斯戴爾直轄西境與維薩南境；卡薩維爾自由城盟整合維爾河；金衡為獨立貿易自由島；黑潮群島為王庭－幕府雙軌的獨立海島政治體。";
+ DB.world_map.notes="CURRENT世界層：阿斯戴爾直轄西境與維薩南境；卡薩維爾自由城盟整合維爾河；金衡為獨立貿易自由島；黑潮群島為皓月御國－黑潮幕府雙軌的獨立海島政治體。";
 }
 
 const rp10=(DB.regional_powers||[]).find(x=>x?.id==="RP-010");
 if(rp10)Object.assign(rp10,{
- name:"黑潮幕府評定所",category:"黑潮群島幕府軍政機構",recognized_sovereignty:false,leader_title:"征海大將軍",base:"黑潮灣幕府",
+ name:"黑潮幕府",category:"黑潮群島軍政機構",recognized_sovereignty:false,leader_title:"征夷大將軍",base:"黑潮灣",
  parent_polity_id:"POL-010",restored_polity_id:"POL-010",
- structure:"幕府以征海大將軍、老中評定、海防奉行與諸島大名構成軍政網絡；它是POL-010內部的實權政府，而不是另一個獨立國家。",
- authority_ceiling:"AUTH-7",political_role:"黑潮群島主權政治體內部的幕府軍政權力中心，與潮皇王庭形成法統／實權雙軌。"
+ structure:"黑潮幕府以征夷大將軍、老中評定、海防奉行與諸島大名構成軍政網絡；它是POL-010內部的實權政府，而不是另一個獨立國家。",
+ authority_ceiling:"AUTH-7",political_role:"黑潮群島主權政治體內部的黑潮幕府軍政權力中心，與皓月御國形成法統／實權雙軌。"
 });
 if(rp10)delete rp10.legacy_polity_id;
 const rpa10=(DB.regional_power_authority_profiles||[]).find(x=>x?.regional_power_id==="RP-010");
-if(rpa10)Object.assign(rpa10,{top_office:"征海大將軍",authority_tier:"AUTH-7",sovereign_rights:false,notes:"幕府擁有POL-010授權下的軍政實權；國家主權與法統仍屬POL-010整體，而非RP-010自身。"});
+if(rpa10)Object.assign(rpa10,{top_office:"征夷大將軍",authority_tier:"AUTH-7",sovereign_rights:false,notes:"黑潮幕府擁有POL-010授權下的軍政實權；國家主權與法統仍屬POL-010整體，而非RP-010自身。"});
 const rpr10=(DB.regional_power_relations||[]).find(x=>x?.b==="RP-010"||x?.a==="RP-010");
-if(rpr10)Object.assign(rpr10,{a:"POL-010",b:"RP-010",score:92,state:"dual_government",reason:"潮皇王庭提供群島法統與冊封，幕府評定所掌握日常軍政；兩者是同一主權國家的平行權力層。"});
+if(rpr10)Object.assign(rpr10,{a:"POL-010",b:"RP-010",score:92,state:"dual_government",reason:"皓月御國提供群島法統與冊封，黑潮幕府評定所掌握日常軍政；兩者是同一主權國家的平行權力層。"});
 
 DB.retired_polity_aliases=DB.retired_polity_aliases||{};
 DB.retired_polity_aliases["POL-010"]={status:"restored_as_polity",current_id:"POL-010",legacy_regional_power_id:"RP-010",legacy_name:"黑潮船長同盟"};
 DB.political_merge_map={...(DB.political_merge_map||{}),...MERGE};
 
 if(Array.isArray(DB.political_relations)&&!DB.political_relations.some(x=>[x?.a,x?.b].includes("POL-010")&&[x?.a,x?.b].includes("POL-008"))){
- DB.political_relations.push({a:"POL-008",b:"POL-010",score:12,state:"maritime_trade_rivalry",reason:"金衡依靠自由港金融與商館網絡，黑潮依靠群島航道與幕府海防；雙方既互市也競爭轉口、護航與海上影響力。",start_year:317,historical_basis:"黑潮主權校正後，雙方以平等政治體身分重訂海上商約。",relationship_tags:["外交","商路","競爭"],current_effects:["影響海運關稅、護航、通商與港口委託。"],escalation_triggers:["扣船","關稅衝突","海上私鬥"],deescalation_triggers:["共同護航","商約互惠","海盜仲裁"],verification:"current"});
+ DB.political_relations.push({a:"POL-008",b:"POL-010",score:12,state:"maritime_trade_rivalry",reason:"金衡依靠自由港金融與商館網絡，黑潮依靠群島航道與黑潮幕府海防；雙方既互市也競爭轉口、護航與海上影響力。",start_year:317,historical_basis:"黑潮主權校正後，雙方以平等政治體身分重訂海上商約。",relationship_tags:["外交","商路","競爭"],current_effects:["影響海運關稅、護航、通商與港口委託。"],escalation_triggers:["扣船","關稅衝突","海上私鬥"],deescalation_triggers:["共同護航","商約互惠","海盜仲裁"],verification:"current"});
 }
 
 const upsertLore=row=>{
@@ -205,13 +205,13 @@ const upsertLore=row=>{
  const i=DB.lore_records.findIndex(x=>x?.id===row.id);
  if(i>=0)DB.lore_records[i]=row;else DB.lore_records.push(row);
 };
-upsertLore({id:"LORE-C190-P010-01",scope_type:"polity",scope_id:"POL-010",category:"founding",title:"黑潮群島雙軌政體的形成",text:"黑潮諸島原有王庭法統、武門與船團多層秩序；紀元131年前後的海上法典與武門整合，使征海大將軍幕府成為實際軍政中樞，而潮皇王庭持續維繫祭祀、冊封與群島共同法統。過往外國資料曾把幕府船團誤記為無主權的船長同盟。",verification:"recorded",era_id:"ERA-05",source_refs:["POL-010","RP-010","REG-10"],tags:["政治史","正史修訂"],common_knowledge:false});
-upsertLore({id:"LORE-C190-P010-02",scope_type:"polity",scope_id:"POL-010",category:"governance",title:"黑潮群島的王庭與幕府",text:"潮皇依王統世襲，掌祭祀、冊封與法統；征海大將軍掌海防、稅務、司法與諸島軍政。諸島大名在幕府安堵下治理島領，同時接受王庭名義冊封。兩條權力線互相需要，但不是單一職位。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","RP-010"],tags:["政治文化","權力結構"],common_knowledge:false});
-upsertLore({id:"LORE-C190-P010-03",scope_type:"polity",scope_id:"POL-010",category:"current_context",title:"黑潮群島・紀元317年",text:"黑潮群島目前是獲承認的獨立海島政治體，由三大島、五小島與周圍小型海島構成。王庭維持法統，幕府掌實際軍政；金衡自由都市是平等的外國貿易夥伴與競爭者。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","REG-10","POL-008"],tags:["當代政治"],common_knowledge:false});
-upsertLore({id:"LORE-C190-P010-04",scope_type:"polity",scope_id:"POL-010",category:"authority_structure",title:"黑潮群島的權力層級",text:"最高層由潮皇王庭與征海大將軍幕府並立。潮皇掌法統、祭祀與冊命；大將軍掌軍政。其下為諸島大名、幕府老中與各類奉行，再下接武家、港代與島民社群。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","RP-010"],tags:["政治體","權力層級"],common_knowledge:false});
+upsertLore({id:"LORE-C190-P010-01",scope_type:"polity",scope_id:"POL-010",category:"founding",title:"黑潮群島雙軌政體的形成",text:"黑潮諸島原有皓月御國法統、武門與船團多層秩序；紀元131年前後的海上法典與武門整合，使征夷大將軍黑潮幕府成為實際軍政中樞，而皓月御國持續維繫祭祀、冊封與群島共同法統。過往外國資料曾把黑潮幕府船團誤記為無主權的船長同盟。",verification:"recorded",era_id:"ERA-05",source_refs:["POL-010","RP-010","REG-10"],tags:["政治史","正史修訂"],common_knowledge:false});
+upsertLore({id:"LORE-C190-P010-02",scope_type:"polity",scope_id:"POL-010",category:"governance",title:"黑潮群島的皓月御國與黑潮幕府",text:"潮皇依王統世襲，掌祭祀、冊封與法統；征夷大將軍掌海防、稅務、司法與諸島軍政。諸島大名在黑潮幕府安堵下治理島領，同時接受皓月御國名義冊封。兩條權力線互相需要，但不是單一職位。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","RP-010"],tags:["政治文化","權力結構"],common_knowledge:false});
+upsertLore({id:"LORE-C190-P010-03",scope_type:"polity",scope_id:"POL-010",category:"current_context",title:"黑潮群島・紀元317年",text:"黑潮群島目前是獲承認的獨立海島政治體，由三大島、五小島與周圍小型海島構成。皓月御國維持法統，黑潮幕府掌實際軍政；金衡自由都市是平等的外國貿易夥伴與競爭者。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","REG-10","POL-008"],tags:["當代政治"],common_knowledge:false});
+upsertLore({id:"LORE-C190-P010-04",scope_type:"polity",scope_id:"POL-010",category:"authority_structure",title:"黑潮群島的權力層級",text:"最高層由皓月御國與征夷大將軍黑潮幕府並立。潮皇掌法統、祭祀與冊命；大將軍掌軍政。其下為諸島大名、黑潮幕府老中與各類奉行，再下接武家、港代與島民社群。",verification:"current",era_id:"ERA-05",source_refs:["POL-010","RP-010"],tags:["政治體","權力層級"],common_knowledge:false});
 
 const oldCurrent=(DB.lore_records||[]).find(x=>x?.id==="LORE-0315");
-if(oldCurrent){oldCurrent.category="superseded_external_record";oldCurrent.verification="recorded";oldCurrent.text="舊外國資料曾把黑潮幕府船團誤判為沒有統一主權的『黑潮船長同盟』；CURRENT正史已由POL-010黑潮群島的王庭－幕府雙軌制度取代此判讀。";}
+if(oldCurrent){oldCurrent.category="superseded_external_record";oldCurrent.verification="recorded";oldCurrent.text="舊外國資料曾把黑潮幕府船團誤判為沒有統一主權的『黑潮船長同盟』；CURRENT正史已由POL-010黑潮群島的皓月御國－黑潮幕府雙軌制度取代此判讀。";}
 
 if(DB.continental_political_order){
  const cpo=DB.continental_political_order;
@@ -226,7 +226,7 @@ if(DB.continental_political_order){
  cpo.political_unit_count=governed.length+nonstate.length+rpids.length;
  cpo.political_blocks={...(cpo.political_blocks||{}),maritime_island_polities:["POL-008","POL-010"]};
  cpo.rules=(cpo.rules||[]).filter(x=>!String(x).includes("黑潮群島屬金衡")&&!String(x).includes("卡薩維爾－維爾河")).concat([
-  "黑潮群島（POL-010）是獨立主權政治體；RP-010僅代表其內部幕府軍政機構，不得再次當作外部國家。",
+  "黑潮群島（POL-010）是獨立主權政治體；RP-010僅代表其內部黑潮幕府軍政機構，不得再次當作外部國家。",
   "金衡自由都市（POL-008）是獨立貿易自由島，只控制REG-08，不擁有REG-10黑潮群島。",
   "卡薩維爾與維爾河成員城市共同構成卡薩維爾自由城盟（POL-007）。",
   "洛文與維薩南境屬阿斯戴爾王國直轄；西境河谷在世界地圖的面積已縮小。"
@@ -238,7 +238,7 @@ if(DB.political_system){
  DB.political_system.rules=(DB.political_system.rules||[]).filter(x=>!String(x).includes("黑潮群島已納入金衡")&&!String(x).includes("黑潮船長同盟與鐵旗")&&!String(x).includes("卡薩維爾－維爾河")).concat([
   "洛文邊侯領與維薩林貴族共和國仍退出CURRENT政治名錄，現為阿斯戴爾王國直轄區域。",
   "維爾河城市群與卡薩維爾共同構成卡薩維爾自由城盟。",
-  "黑潮群島恢復為POL-010獨立主權政治體；王庭掌法統、幕府掌軍政。",
+  "黑潮群島恢復為POL-010獨立主權政治體；皓月御國掌法統、黑潮幕府掌軍政。",
   "金衡自由都市為獨立貿易自由島，不再擁有黑潮群島。"
  ]);
 }
@@ -258,9 +258,9 @@ if(!DB.canon_retcons.some(x=>x?.version==="CURRENT-1.90.0"&&String(x?.replacemen
  DB.canon_retcons.push({
   version:"CURRENT-1.90.0",
   retired_assumption:"金衡自由都市對黑潮群島擁有主權；石冠氏族王國、赤牙部族聯盟、風鬃汗國與舊地圖位置仍為CURRENT正史。",
-  replacement:"石冠氏族王國更名安威爾帝國並移至西北；赤牙部族聯盟更名泰爾瓦隆百族部落並移至東北；風鬃汗國更名白氈汗國並位於霜角南、聖曜北；精靈王庭移西南；斷境置於精靈王庭與安威爾之間；卡薩維爾城盟改名；西境河谷縮小；黑潮群島成為王庭－幕府雙軌的獨立主權體，金衡成為獨立貿易自由島。",
+  replacement:"石冠氏族王國更名安威爾帝國並移至西北；赤牙部族聯盟更名泰爾瓦隆百族部落並移至東北；風鬃汗國更名白氈汗國並位於霜角南、聖曜北；精靈王庭移西南；斷境置於精靈王庭與安威爾之間；卡薩維爾城盟改名；西境河谷縮小；黑潮群島成為皓月御國－黑潮幕府雙軌的獨立主權體，金衡成為獨立貿易自由島。",
   reason:"讓政治體數量、相對地理、海島主權與疆域結構符合最新世界設計。",
-  save_compatibility:"保留POL-005→POL-001、POL-006→POL-007、POL-018→POL-001；POL-010由legacy alias恢復為CURRENT政治體，RP-010保留為其幕府軍政內部勢力。"
+  save_compatibility:"保留POL-005→POL-001、POL-006→POL-007、POL-018→POL-001；POL-010由legacy alias恢復為CURRENT政治體，RP-010保留為其黑潮幕府軍政內部勢力。"
  });
 }
 
@@ -314,8 +314,8 @@ function audit(){
  if(polity("POL-015")?.name!=="白氈汗國")issues.push("白氈汗國名稱未更新");
  if(!profile("POL-001")?.office_nodes?.some(x=>x.id==="POL-001-O6"))issues.push("阿斯戴爾西境直轄官署缺失");
  if(!profile("POL-007")?.office_nodes?.some(x=>x.id==="POL-007-O4"))issues.push("維爾城盟官署缺失");
- if(!profile("POL-010")?.office_nodes?.some(x=>x.id==="POL-010-O1")||!profile("POL-010")?.office_nodes?.some(x=>x.id==="POL-010-O2"))issues.push("黑潮王庭／幕府雙軌官署缺失");
- if((DB.regional_powers||[]).find(x=>x.id==="RP-010")?.parent_polity_id!=="POL-010")issues.push("RP-010未降為黑潮內部幕府機構");
+ if(!profile("POL-010")?.office_nodes?.some(x=>x.id==="POL-010-O1")||!profile("POL-010")?.office_nodes?.some(x=>x.id==="POL-010-O2"))issues.push("黑潮王庭／黑潮幕府雙軌官署缺失");
+ if((DB.regional_powers||[]).find(x=>x.id==="RP-010")?.parent_polity_id!=="POL-010")issues.push("RP-010未降為黑潮內部黑潮幕府機構");
  return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],stats:{political_entities:active.size,authority_profiles:(DB.polity_authority_profiles||[]).length,realm_maps:(DB.realm_region_maps||[]).length}};
 }
 DB.political_consolidation_system={version:REV,release:RELEASE,merge_map:{...MERGE},audit:audit(),save_compatible:true};
