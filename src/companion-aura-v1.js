@@ -11,14 +11,14 @@ const REVISION="COMPANION-AURA-1.1";
 const TIER_SCALE={F:.75,E:.9,D:1.05,C:1.2,B:1.4,A:1.65,S:1.9};
 const KIND_SCALE={pet:.9,summon:1,contract:1.05};
 const PROFILE={
-  guardian:{suffix:"守護領域",effects:{defense:1.5,magicDefense:1,blockRate:1.5,poise:2}},
-  assault:{suffix:"猛攻領域",effects:{attack:1.5,critRate:1,critDamage:2}},
-  skirmisher:{suffix:"疾獵領域",effects:{accuracy:1,evasion:1.5,initiative:2,moveSpeed:2}},
-  caster:{suffix:"術式領域",effects:{magicPower:1.5,magicPenPct:1,statusAccuracy:1.5}},
-  support:{suffix:"護生領域",effects:{healingPower:3,statusResist:1.5,manaRegen:.12}},
-  dark:{suffix:"蝕影領域",effects:{attack:1,magicPower:1,lifeSteal:.5,statusAccuracy:1}},
-  legend:{suffix:"王者領域",effects:{attack:1,magicPower:1,defense:1,magicDefense:1,critRate:1,statusResist:1}},
-  balanced:{suffix:"共鳴領域",effects:{accuracy:1,statusResist:1}}
+  guardian:{suffix:"守護光環",effects:{defense:1.5,magicDefense:1,blockRate:1.5,poise:2}},
+  assault:{suffix:"攻擊強化",effects:{attack:1.5,critRate:1,critDamage:2}},
+  skirmisher:{suffix:"迅捷光環",effects:{accuracy:1,evasion:1.5,initiative:2,moveSpeed:2}},
+  caster:{suffix:"魔力增幅",effects:{magicPower:1.5,magicPenPct:1,statusAccuracy:1.5}},
+  support:{suffix:"回復光環",effects:{healingPower:3,statusResist:1.5,manaRegen:.12}},
+  dark:{suffix:"暗影增幅",effects:{attack:1,magicPower:1,lifeSteal:.5,statusAccuracy:1}},
+  legend:{suffix:"王者光環",effects:{attack:1,magicPower:1,defense:1,magicDefense:1,critRate:1,statusResist:1}},
+  balanced:{suffix:"平衡光環",effects:{accuracy:1,statusResist:1}}
 };
 const KIND={
   pet:{label:"伴生",effects:{perception:1.5,hpRegen:.05}},
@@ -26,29 +26,29 @@ const KIND={
   contract:{label:"契約",effects:{attack:.5,magicPower:.5,statusResist:.5}}
 };
 const ELEMENT={
-  光明:{suffix:"聖輝",effects:{healingPower:2,statusResist:1},resist:{光明:3}},
-  黑暗:{suffix:"幽影",effects:{magicPower:1,statusAccuracy:1,critDamage:1},resist:{黑暗:3}},
-  火:{suffix:"熾脈",effects:{attack:1,magicPower:1},resist:{火:3}},
-  風:{suffix:"迅風",effects:{evasion:1,initiative:1.5,moveSpeed:1},resist:{風:3}},
-  水:{suffix:"潮息",effects:{magicDefense:1,healingPower:1.5},resist:{水:3}},
-  地:{suffix:"磐域",effects:{defense:1.5,poise:1.5},resist:{地:3}},
-  雷:{suffix:"雷脈",effects:{critRate:1,initiative:1.5,accuracy:.5},resist:{雷:3}},
-  生命:{suffix:"生息",effects:{hpRegen:.1,healingPower:2,statusResist:.5},resist:{生命:3}},
-  死亡:{suffix:"冥痕",effects:{critDamage:2,statusAccuracy:1,critResist:.5},resist:{死亡:3}}
+  光明:{suffix:"光",effects:{healingPower:2,statusResist:1},resist:{光明:3}},
+  黑暗:{suffix:"暗",effects:{magicPower:1,statusAccuracy:1,critDamage:1},resist:{黑暗:3}},
+  火:{suffix:"火",effects:{attack:1,magicPower:1},resist:{火:3}},
+  風:{suffix:"風",effects:{evasion:1,initiative:1.5,moveSpeed:1},resist:{風:3}},
+  水:{suffix:"水",effects:{magicDefense:1,healingPower:1.5},resist:{水:3}},
+  地:{suffix:"地",effects:{defense:1.5,poise:1.5},resist:{地:3}},
+  雷:{suffix:"雷",effects:{critRate:1,initiative:1.5,accuracy:.5},resist:{雷:3}},
+  生命:{suffix:"生命",effects:{hpRegen:.1,healingPower:2,statusResist:.5},resist:{生命:3}},
+  死亡:{suffix:"死亡",effects:{critDamage:2,statusAccuracy:1,critResist:.5},resist:{死亡:3}}
 };
 const SIGNATURES=[
-  {suffix:"銳感",effects:{accuracy:.5,perception:1}},
-  {suffix:"靈步",effects:{evasion:.5,moveSpeed:1}},
-  {suffix:"堅心",effects:{statusResist:.75,critResist:.5}},
-  {suffix:"獵意",effects:{critRate:.5,accuracy:.5}},
-  {suffix:"秘感",effects:{statusAccuracy:.75,perception:.5}},
-  {suffix:"護念",effects:{magicDefense:.75,healingPower:1}},
+  {suffix:"感知",effects:{accuracy:.5,perception:1}},
+  {suffix:"靈活",effects:{evasion:.5,moveSpeed:1}},
+  {suffix:"抗性",effects:{statusResist:.75,critResist:.5}},
+  {suffix:"狩獵",effects:{critRate:.5,accuracy:.5}},
+  {suffix:"異常感知",effects:{statusAccuracy:.75,perception:.5}},
+  {suffix:"防護",effects:{magicDefense:.75,healingPower:1}},
   {suffix:"戰意",effects:{attack:.75,poise:.75}},
-  {suffix:"靈潮",effects:{magicPower:.75,manaRegen:.04}},
+  {suffix:"魔力",effects:{magicPower:.75,manaRegen:.04}},
   {suffix:"守勢",effects:{defense:.75,blockRate:.5}},
-  {suffix:"先覺",effects:{initiative:1,perception:.5}},
+  {suffix:"先手",effects:{initiative:1,perception:.5}},
   {suffix:"尋珍",effects:{lootRate:1,rareEventRate:.1}},
-  {suffix:"潛行",effects:{stealth:1,evasion:.5}}
+  {suffix:"隱匿",effects:{stealth:1,evasion:.5}}
 ];
 const LABELS={
  attack:"物攻",magicPower:"魔攻",defense:"物防",magicDefense:"魔防",accuracy:"命中",evasion:"閃避",
