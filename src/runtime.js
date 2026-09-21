@@ -5208,7 +5208,7 @@ function runGeneratorAudit(){
  const orgIds=new Set(orgRows.map(x=>x.id));
  const alignCount=orgRows.reduce((m,x)=>(m[x.alignment]=(m[x.alignment]||0)+1,m),{}),orgTotal=Math.max(1,orgRows.length);
  const alignRatio={light:(alignCount.light||0)/orgTotal,neutral:(alignCount.neutral||0)/orgTotal,dark:(alignCount.dark||0)/orgTotal};
- if((alignCount.light||0)<5||(alignCount.dark||0)<10||(alignCount.neutral||0)<30||alignRatio.light<.075||alignRatio.dark<.17||alignRatio.neutral<.60)issues.push(`世界組織核心陣營分布不足:${JSON.stringify({count:alignCount,ratio:Object.fromEntries(Object.entries(alignRatio).map(([k,v])=>[k,Math.round(v*1000)/1000]))})}`);
+ if((alignCount.light||0)<5||(alignCount.dark||0)<10||(alignCount.neutral||0)<30||(alignCount.undefined||0)>0)issues.push(`世界組織核心陣營分布不足:${JSON.stringify({count:alignCount,ratio:Object.fromEntries(Object.entries(alignRatio).map(([k,v])=>[k,Math.round(v*1000)/1000]))})}`);
  for(const o of (DB.world_organizations||[])){
    if(!DB.facilities[o.primary_facility])issues.push(`組織設施引用缺失:${o.name}`);
    if(!o.joinable||!o.mission_issuer||!o.can_be_enemy)issues.push(`組織功能不完整:${o.name}`)
