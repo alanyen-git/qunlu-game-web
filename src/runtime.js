@@ -2668,6 +2668,21 @@ function generatorRuntimeFunctionExists(name){
  if(!name)return false;
  try{return typeof eval(name)==="function"}catch{return false}
 }
+function normalizeRegionalResourceSourceIndex(){
+ DB.content_link_index=DB.content_link_index&&typeof DB.content_link_index==="object"?DB.content_link_index:{};
+ const src=DB.content_link_index.item_sources=DB.content_link_index.item_sources&&typeof DB.content_link_index.item_sources==="object"?DB.content_link_index.item_sources:{};
+ for(const d of DB.items||[]){
+  const s=src[d.id]=src[d.id]||{};
+  for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=Array.isArray(s[k])?[...new Set(s[k])]:[];
+ }
+ for(const l of DB.locations||[]){
+  const ids=[...(l.gather||[]),...(l.mining||[]),...(l.woodcut||[]),...(l.fish||[]),...(l.hunt||[])];
+  for(const id of ids){const s=src[id];if(s&&!s.gather_locations.includes(l.id))s.gather_locations.push(l.id)}
+ }
+ for(const m of DB.monsters||[])for(const d of m.loot_materials||[]){const s=src[d.id];if(s&&!s.monster_drops.includes(m.id))s.monster_drops.push(m.id)}
+ return src
+}
+normalizeRegionalResourceSourceIndex();
 function integrationLinks(){
  return DB.content_link_index||{item_sources:{},facility_content:{},location_content:{}}
 }
