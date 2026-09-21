@@ -1,9 +1,9 @@
 (()=>{
   "use strict";
-  const REVISION="RELEASE-VERSION-SYNC-1.10";
+  const REVISION="RELEASE-VERSION-SYNC-1.11";
   const scriptVersion=typeof document!=="undefined"?String(document.currentScript?.dataset?.release||"").trim():"";
   const titleVersion=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
-  const RELEASE_VERSION=scriptVersion||titleVersion||globalThis.DB?.meta?.current_version||"CURRENT-2.00.0";
+  const RELEASE_VERSION=scriptVersion||titleVersion||globalThis.DB?.meta?.current_version||"CURRENT-2.01.0";
 
   if(globalThis.DB?.meta){
     DB.meta.current_version=RELEASE_VERSION;
