@@ -724,7 +724,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.22",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 70,
+    "active_src_programs": 72,
     "groups": [
       "core",
       "data",
@@ -744,9 +744,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.08.0新增冒險團隊友深化模組；70個正式src程序與index／Service Worker／PROGRAM-REGISTRY同步。",
-    "last_verified_release": "CURRENT-2.08.0",
+    "note": "CURRENT-2.09.0新增拍賣行／黑市雙交易模組；72個正式src程序與index／Service Worker／PROGRAM-REGISTRY同步。",
+    "last_verified_release": "CURRENT-2.09.0",
     "notes": [
+      "CURRENT-2.09.0：新增src/trade-venues-data-v1.js與src/trade-venues-runtime-v1.js；拍賣行／黑市接入現行引擎，PWA v122；正式程序增為72個。",
       "CURRENT-2.08.0：新增src/adventure-party-teammate-depth-v1.js；冒險團與招募候選可查看完整隊友資料，PWA v121；正式程序增為70個。",
       "CURRENT-2.07.3：共用runtime索引、單次資料庫ID稽核、NPC／劇情模板索引與採集背包快照；PWA v119；69程序清單與依賴順序不變。",
       "CURRENT-2.07.2：完整稽核改為啟動／手動開啟執行；分頁恢復／60秒排程僅做狀態修復；PWA v118；69程序清單與依賴順序不變。",
