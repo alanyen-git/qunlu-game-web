@@ -33,7 +33,7 @@ const GROUPS=Object.freeze({
     "src/equipment-naming-reference-v1.js","src/name-generator-v2.js"
   ],
   survival:[
-    "src/water-source-v1.js","src/companion-aura-v1.js","src/companion-unique-skill-v1.js","src/companion-identity-depth-v1.js","src/companion-species-identity-v1.js,"src/adventure-party-teammate-depth-v1.js"
+    "src/water-source-v1.js","src/companion-aura-v1.js","src/companion-unique-skill-v1.js","src/companion-identity-depth-v1.js","src/companion-species-identity-v1.js","src/adventure-party-teammate-depth-v1.js"
   ],
   finalization:[
     "src/recipe-finalization-v1.js","src/release-integrity-v1.js","src/release-version-sync-v1.js",
