@@ -69,7 +69,7 @@ ctx.unsealCurrentClass();assert.equal(c.combatGrade,"B");assert.equal(c.classSea
 assert.equal(c.xp,114,"normal character XP unchanged");
 assert.equal(c.classHistory.length,4,"four grade-by-grade history entries");
 assert.equal(c.classPromotionExam,null,"completed exam is cleared");
-c.classId=war.id;c.classSealed=false;c.combatGrade="C";c.classMastery=100;c.unlockedClassRoutes=[];c.classPromotionExam=null;
+c.classId=war.id;c.classSealed=false;c.combatGrade="C";c.classMastery=100;c.unlockedClassRoutes=[];c.classExamHistory=[];c.classPromotionExam=null;
 ctx.advanceCombatClass(holy.id);assert.equal(c.classId,war.id,"normal B class needs qualification");
 ctx.requestCombatClassExam(holy.id);assert.equal(c.classPromotionExam.targetId,holy.id);
 for(let i=0;i<3;i++)ctx.awardBattleProgress({tier:"C"});
