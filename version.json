@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-2.12.3",
-  "previous_version": "CURRENT-2.12.2",
+  "version": "CURRENT-2.12.4",
+  "previous_version": "CURRENT-2.12.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.3：裝備與技能學習的未達條件按鈕可以點擊，彈出缺少條件與需求／目前值對照，保留原先學習、裝備前置限制。",
+  "summary": "CURRENT-2.12.4：修復聖劍士等高階封印職業F→原始階級逐階升階流程，新增B/A/S公會考核、聖職誓言限制與可點擊條件明細；舊存檔相容。",
   "changelog": [
+    "CURRENT-2.12.4／COMBAT-CLASS-PROGRESSION-1.0：聖劍士等初始封印高階職業，改為依F→E→D→C→原始階級逐級解除封印；每階檢查角色等級、熟練度與所在地公會層級，升階歷程保留存檔。",
+    "B、A、S級新增有進度紀錄的職業考核：按目標階級要求完成指定次數實戰與同階前一級以上公會委託；聖職另須在教會選主神並立相容誓言，通過後取得原有unlockedClassRoutes資格。",
+    "公會職業進階頁改為可點擊查看未達條件與考核進度；保留一般職業原始轉職路線；新增舊存檔、逐階解封、誓言、考核及回報持久化回歸測試。",
+    "新考核欄位為選填，沿用原combatGrade/classSealed/classMastery/classHistory與unlockedClassRoutes，不重置角色、技能、XP或物品；PWA快取v135。",
     "CURRENT-2.12.3／REQUIREMENT-DETAIL-1.0：背包主手、副手及各裝備槽的未達條件按鈕改為可點擊，顯示全部不符條件及角色目前值、差額，不會誤觸裝備。",
     "本職與跨職技能學習未達條件按鈕改為可點擊；條件彈窗顯示缺少的職業階級、角色等級、基礎屬性、學費、技能空位、公會學習地點及職業招牌限制，並可返回原列表。",
     "裝備與技能執行函式持續檢核原始前置限制；檢視條件不消耗金錢、物品或回合，舊存檔相容。",
@@ -424,7 +428,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v134",
+  "pwa_cache_revision": "v135",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -774,10 +778,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.26",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.27",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 73,
+    "active_src_programs": 74,
     "groups": [
       "core",
       "data",
@@ -797,9 +801,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.10.0新增RPG參考綜合模組；73個正式src程序與index／Service Worker／PROGRAM-REGISTRY同步。",
+    "note": "CURRENT-2.12.4新增戰鬥職業逐階升階程序；74個src正式程序與入口、Service Worker、PROGRAM-REGISTRY同步。",
     "last_verified_release": "CURRENT-2.10.0",
     "notes": [
+      "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",
       "CURRENT-2.09.0：新增src/trade-venues-data-v1.js與src/trade-venues-runtime-v1.js；拍賣行／黑市接入現行引擎，PWA v122；正式程序增為72個。",
       "CURRENT-2.08.0：新增src/adventure-party-teammate-depth-v1.js；冒險團與招募候選可查看完整隊友資料，PWA v121；正式程序增為70個。",
       "CURRENT-2.07.3：共用runtime索引、單次資料庫ID稽核、NPC／劇情模板索引與採集背包快照；PWA v119；69程序清單與依賴順序不變。",
@@ -1687,5 +1692,6 @@
     "save_compatible": true
   },
   "battle_skill_popup_revision": "BATTLE-SKILL-POPUP-2.0",
-  "requirement_detail_revision": "REQUIREMENT-DETAIL-1.0"
+  "requirement_detail_revision": "REQUIREMENT-DETAIL-1.0",
+  "combat_class_progression_revision": "COMBAT-CLASS-PROGRESSION-1.0"
 }

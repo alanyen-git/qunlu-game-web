@@ -1,12 +1,12 @@
 /* 群陸旅誌：現行程序清單與載入完整性 CURRENT-2.12.0
- * PROGRAM-REGISTRY-1.26
+ * PROGRAM-REGISTRY-1.27
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.12.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.0";
-const REV="PROGRAM-REGISTRY-1.26";
+const REV="PROGRAM-REGISTRY-1.27";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -24,7 +24,7 @@ const GROUPS=Object.freeze({
     "src/npc-depth-v1.js","src/npc-depth-v2.js","src/dungeon-depth-v2.js"
   ],
   progression:[
-    "src/class-skill-optimization-v1.js","src/class-skill-passive-compat-v1.js","src/class-naming-reference-v1.js",
+    "src/combat-class-progression-v1.js","src/class-skill-optimization-v1.js","src/class-skill-passive-compat-v1.js","src/class-naming-reference-v1.js",
     "src/skill-naming-reference-v1.js","src/skill-mechanics-depth-v1.js","src/system-integrity-v2.js","src/affiliation-integrity-v1.js",
     "src/player-experience-guidance-v1.js"
   ],
