@@ -1,11 +1,13 @@
 {
-  "version": "CURRENT-2.07.2",
-  "previous_version": "CURRENT-2.07.1",
+  "version": "CURRENT-2.07.3",
+  "previous_version": "CURRENT-2.07.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.07.2：完成系統完整性排程收斂；啟動與手動開啟保留完整稽核，回到分頁與60秒定時排程改為僅做狀態修復；保留每5回合完整自檢與既有自動存檔，不改遊戲規則、世界資料與存檔schema。",
+  "summary": "CURRENT-2.07.3：完成共用 runtime 查找與稽核熱點優化；資料索引、NPC／劇情模板查找與採集後背包掃描改為可重用索引或單次快照；保留每5回合完整自檢、自動存檔、遊戲規則、世界資料與存檔schema。",
   "changelog": [
+    "CURRENT-2.07.3：共用 runtime 建立靜態資料索引，存檔遷移與資料庫完整稽核減少重複線性掃描；NPC、阿斯戴爾活世界與採集資源循環採索引／單次背包快照，行為與存檔格式不變。",
+    "本版效能重構只針對查找、稽核與快照配置；不改canonical世界內容、戰鬥／經濟規則、每5回合完整自檢或自動存檔。",
     "CURRENT-2.07.2：SYSTEM-INTEGRITY-2.3將完整稽核限制在啟動與手動開啟；分頁恢復與60秒排程僅做事件、NPC、版本與組織狀態修復，移除重複大型資料稽核，保留每5回合完整自檢與自動存檔。",
     "CURRENT-2.07.1：69個正式src程式全部改為defer保序載入，維持PROGRAM-REGISTRY依賴順序，同時解除parser-blocking載入鏈。",
     "Service Worker快取升至v117：導航與version.json採network-first，JS／CSS／圖示等靜態資源採cache-first；版本化URL未命中時仍抓取最新檔，離線時可回退既有預快取。",
@@ -349,7 +351,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v118",
+  "pwa_cache_revision": "v119",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -722,9 +724,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.07.2完成SYSTEM-INTEGRITY排程收斂與v118快取同步；69個正式src程序清單與依賴順序不變。",
-    "last_verified_release": "CURRENT-2.07.2",
+    "note": "CURRENT-2.07.3完成共用查找、稽核與世界循環效能重構；69個正式src程序清單與依賴順序不變。",
+    "last_verified_release": "CURRENT-2.07.3",
     "notes": [
+      "CURRENT-2.07.3：共用runtime索引、單次資料庫ID稽核、NPC／劇情模板索引與採集背包快照；PWA v119；69程序清單與依賴順序不變。",
       "CURRENT-2.07.2：完整稽核改為啟動／手動開啟執行；分頁恢復／60秒排程僅做狀態修復；PWA v118；69程序清單與依賴順序不變。",
       "CURRENT-2.07.1：69程式defer保序載入、PWA v117、RUNTIME-OPT-1.5、PROGRAM-REGISTRY-1.20。",
       "CURRENT-2.07.0：POLITY-WORLD-TIER-1.0接入既有world-map程序，不增加src程序數；16政治體宏觀承載分級與地方危險度正式分離。",
@@ -777,14 +780,14 @@
     "deployment_gate": true,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.07.2"
+    "last_verified_release": "CURRENT-2.07.3"
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
     "audited_src_programs": 69,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; static cache-first",
-    "pwa_cache": "v118",
+    "pwa_cache": "v119",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -806,7 +809,12 @@
         "60秒定時排程"
       ],
       "save_schema_changed": false
-    }
+    },
+    "static_runtime_indexes": true,
+    "single_pass_database_audit": true,
+    "npc_story_template_indexes": true,
+    "gather_inventory_snapshot": true,
+    "refactor_scope": "共用查找、完整稽核與高頻世界循環"
   },
   "asdail_narrative_depth_revision": "ASDAIL-NARRATIVE-DEPTH-1.0",
   "asdail_narrative_runtime_revision": "ASDAIL-NARRATIVE-RUNTIME-2.0",

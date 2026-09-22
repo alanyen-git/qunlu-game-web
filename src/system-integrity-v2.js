@@ -1,4 +1,4 @@
-/* 群陸旅誌：系統完整性修正（動態發布版） CURRENT-2.07.2
+/* 群陸旅誌：系統完整性修正（動態發布版） CURRENT-2.07.3
  * SYSTEM-INTEGRITY-2.0
  * 版本同步／舊存檔遷移閘門／跨模組稽核／職業技能整合／狀態修復
  */
@@ -6,7 +6,7 @@
   if(typeof DB!=="object"||!DB)return;
 
   const titleRelease=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
-  const RELEASE=globalThis.QUNLU_RELEASE_VERSION||titleRelease||DB.meta?.current_version||"CURRENT-2.07.2";
+  const RELEASE=globalThis.QUNLU_RELEASE_VERSION||titleRelease||DB.meta?.current_version||"CURRENT-2.07.3";
   const REVISION="SYSTEM-INTEGRITY-2.3";
   const LEGACY_RUNTIME_VERSION="CURRENT-1.57.0";
   const CFG={event_limit:80,seen_limit:220,repair_interval_ms:60000,audit_interval_ms:60000,persist_after_repair:true};

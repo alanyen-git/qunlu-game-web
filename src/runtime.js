@@ -45,7 +45,7 @@ function setUIHTML(el,html){
 }
 function setUIText(el,text){if(!el)return false;const value=String(text??"");if(el.textContent===value)return false;el.textContent=value;return true}
 const IDX={
- item:new Map(DB.items.map(x=>[x.id,x])),loc:new Map(DB.locations.map(x=>[x.id,x])),cls:new Map(DB.combat_classes.map(x=>[x.id,x])),
+ item:new Map(DB.items.map(x=>[x.id,x])),race:new Map(DB.races.map(x=>[x.id,x])),loc:new Map(DB.locations.map(x=>[x.id,x])),cls:new Map(DB.combat_classes.map(x=>[x.id,x])),
  origin:new Map(DB.origins.map(x=>[x.id,x])),sub:new Map(DB.subjobs.map(x=>[x.id,x])),talent:new Map((DB.talents||[]).map(x=>[x.id,x])),
  monster:new Map((DB.monsters||[]).map(x=>[x.id,x])),quest:new Map([...(DB.quest_templates||[]),...(DB.shop_quests||[])].map(x=>[x.id,x])),recipe:new Map((DB.recipes||[]).map(x=>[x.id,x])),
  companion:new Map((DB.companion_species||[]).map(x=>[x.id,x])),partyTemplate:new Map((DB.party_member_templates||[]).map(x=>[x.id,x])),
@@ -63,6 +63,18 @@ const IDX={
  regionalPower:new Map((DB.regional_powers||[]).map(x=>[x.id,x])),materialPack:new Map((DB.generator_material_packs||[]).map(x=>[x.region_id,x])),
  historicalRelation:new Map((DB.historical_relationship_records||[]).map(x=>[x.id,x]))
 };
+const STATIC_ARRAY_INDEXES=new Map();
+function refreshStaticArrayIndexBindings(){
+ STATIC_ARRAY_INDEXES.clear();
+ for(const [rows,index] of [
+  [DB.races,IDX.race],[DB.items,IDX.item],[DB.locations,IDX.loc],[DB.combat_classes,IDX.cls],
+  [DB.origins,IDX.origin],[DB.subjobs,IDX.sub],[DB.talents,IDX.talent],[DB.monsters,IDX.monster],
+  [DB.recipes,IDX.recipe],[DB.companion_species,IDX.companion],[DB.party_member_templates,IDX.partyTemplate],
+  [DB.faith_entities,IDX.faith],[DB.world_organizations,IDX.worldOrg],[DB.political_entities,IDX.polity],
+  [DB.world_regions,IDX.worldRegion]
+ ])if(Array.isArray(rows))STATIC_ARRAY_INDEXES.set(rows,index);
+}
+refreshStaticArrayIndexBindings();
 let TRAVEL_CACHE=null;
 function ensureTravelCache(){if(TRAVEL_CACHE)return TRAVEL_CACHE;const ids=DB.locations.map(x=>x.id),ix=new Map(ids.map((id,i)=>[id,i])),n=ids.length,d=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Infinity));for(const l of DB.locations){const i=ix.get(l.id);for(const e of (l.links||[])){const j=ix.get(e.to);if(j!=null&&Number.isFinite(e.hours))d[i][j]=Math.min(d[i][j],e.hours)}}for(let k=0;k<n;k++)for(let i=0;i<n;i++){if(!Number.isFinite(d[i][k]))continue;for(let j=0;j<n;j++){const nd=d[i][k]+d[k][j];if(nd<d[i][j])d[i][j]=nd}}TRAVEL_CACHE={ix,d};return TRAVEL_CACHE}
 const ENCOUNTER_CACHE=new Map();
@@ -75,6 +87,7 @@ function replaceRuntimeIndex(map,rows,keyFn=x=>x?.id){
 }
 function syncRuntimeIndexesAndMetadata(){
  replaceRuntimeIndex(IDX.item,DB.items);
+ replaceRuntimeIndex(IDX.race,DB.races);
  replaceRuntimeIndex(IDX.loc,DB.locations);
  replaceRuntimeIndex(IDX.cls,DB.combat_classes);
  replaceRuntimeIndex(IDX.origin,DB.origins);
@@ -110,6 +123,7 @@ function syncRuntimeIndexesAndMetadata(){
  replaceRuntimeIndex(IDX.regionalPower,DB.regional_powers);
  replaceRuntimeIndex(IDX.materialPack,DB.generator_material_packs,x=>x?.region_id);
  replaceRuntimeIndex(IDX.historicalRelation,DB.historical_relationship_records);
+ refreshStaticArrayIndexBindings();
 
  TRAVEL_CACHE=null;ENCOUNTER_CACHE.clear();CRAFT_INDEX.clear();
  try{if(typeof globalThis.syncContentLinkItemSources==="function")globalThis.syncContentLinkItemSources()}catch(e){console.warn("item source resync",e)}
@@ -190,13 +204,18 @@ function databaseGrowthAudit(){
  syncRuntimeIndexesAndMetadata();
  for(const [key,value] of Object.entries(DB)){
    if(!Array.isArray(value)||!value.length)continue;
-   const objects=value.filter(x=>x&&typeof x==="object"&&!Array.isArray(x));
-   if(!objects.length)continue;
-   const identified=objects.filter(x=>x.id!=null);
-   if(identified.length<Math.ceil(objects.length*.8))continue;
-   const seen=new Set(),dups=[];
-   for(const x of identified){const id=String(x.id);if(seen.has(id))dups.push(id);else seen.add(id)}
-   if(dups.length)issues.push(`資料庫ID重複:${key}/${[...new Set(dups)].slice(0,6).join("、")}`);
+   let objectCount=0,identifiedCount=0;
+   const seen=new Set(),duplicates=new Set();
+   for(const row of value){
+     if(!row||typeof row!=="object"||Array.isArray(row))continue;
+     objectCount++;
+     if(row.id==null)continue;
+     identifiedCount++;
+     const id=String(row.id);
+     if(seen.has(id))duplicates.add(id);else seen.add(id);
+   }
+   if(!objectCount||identifiedCount<Math.ceil(objectCount*.8)||!duplicates.size)continue;
+   issues.push(`資料庫ID重複:${key}/${[...duplicates].slice(0,6).join("、")}`);
  }
  return issues
 }
@@ -215,7 +234,8 @@ function currentFacilityAllowsCrafting(fid){
  return !!fid&&G?.character?.currentFacility===fid&&!!l&&(l.facilities||[]).includes(fid)
 }
 function craftingItemsFor(fid,tier){const k=`${fid}|${tier}`;if(!CRAFT_INDEX.has(k))CRAFT_INDEX.set(k,(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&d.tier===tier));return CRAFT_INDEX.get(k)}
-const by=(arr,id)=>arr.find(x=>x.id===id),item=id=>IDX.item.get(id),loc=id=>IDX.loc.get(id),cls=id=>IDX.cls.get(id),org=id=>IDX.origin.get(id),sub=id=>IDX.sub.get(id),monster=id=>IDX.monster.get(id);
+function by(arr,id){const index=STATIC_ARRAY_INDEXES.get(arr);return index?.get(id)??arr.find(x=>x.id===id)}
+const item=id=>IDX.item.get(id),loc=id=>IDX.loc.get(id),cls=id=>IDX.cls.get(id),org=id=>IDX.origin.get(id),sub=id=>IDX.sub.get(id),monster=id=>IDX.monster.get(id);
 function nowId(p){return p+"-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,6).toUpperCase()}
 function rollD20(){return 1+rand(20)}
 function weightedPick(pairs){let total=pairs.reduce((s,x)=>s+x[1],0),r=Math.random()*total;for(const x of pairs){r-=x[1];if(r<=0)return x[0]}return pairs.at(-1)[0]}
@@ -278,7 +298,7 @@ function migrateSave(){
  const talentMerge=DB.talent_merge_map||{};
  const remapTalentId=id=>talentMerge[id]||id;
  if(Array.isArray(G?.character?.talents)){
-   const valid=new Set((DB.talents||[]).map(t=>t.id));
+   const valid=IDX.talent;
    G.character.talents=[...new Set(G.character.talents.map(remapTalentId).filter(id=>valid.has(id)))];
  }
 

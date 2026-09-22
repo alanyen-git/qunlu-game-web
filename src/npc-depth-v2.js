@@ -96,13 +96,16 @@
     compatible_with:["NPC-DEPTH-1.0","WORLD-AUTONOMY-2.0","MARKET-PRICE-SYNC-2.0"]
   };
 
+  const PROFILE_INDEX=new Map((DB.npc_personality_profiles||[]).map(x=>[x.npc_id,x]));
+  const NPC_ROW_INDEX=new Map((DB.regional_npc_archetypes||[]).map(x=>[x.id,x]));
+
   function game(){return typeof G!=="undefined"?G:null}
   function nowHour(){return typeof totalHours==="function"?Number(totalHours()||0):0}
   function clampN(v,a,b){return typeof clamp==="function"?clamp(v,a,b):Math.max(a,Math.min(b,Number(v||0)))}
   function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;")}
   function profiles(){return Array.isArray(DB.npc_personality_profiles)?DB.npc_personality_profiles:[]}
-  function profile(id){return profiles().find(x=>x.npc_id===id)||null}
-  function npcRow(id){return (DB.regional_npc_archetypes||[]).find(x=>x.id===id)||null}
+  function profile(id){return PROFILE_INDEX.get(id)||profiles().find(x=>x.npc_id===id)||null}
+  function npcRow(id){return NPC_ROW_INDEX.get(id)||(DB.regional_npc_archetypes||[]).find(x=>x.id===id)||null}
   function npcName(id){return npcRow(id)?.name||id}
   function locationRow(id){return typeof loc==="function"?loc(id):(DB.locations||[]).find(x=>x.id===id)}
   function locationName(id){return locationRow(id)?.name||id||"未知地點"}

@@ -252,11 +252,18 @@
   function processWeatherFronts(force=false){const s=phase2State();if(!s)return false;ensureWeatherFronts();const current=nowHour(),elapsed=Math.max(0,current-Number(s.lastWeatherFrontHour||current));if(!force&&elapsed<CFG.weather_front_tick_hours){syncLocalWeather();return false}const steps=Math.max(1,Math.min(16,Math.floor(elapsed/CFG.weather_front_tick_hours)||1));for(let step=0;step<steps;step++)for(const front of s.weatherFronts){front.index=(front.index+front.direction+ASD_PROVINCE_RING.length)%ASD_PROVINCE_RING.length;front.lastMoveHour=current}rebuildRegionalWeather(current);syncLocalWeather();s.lastWeatherFrontHour=current;return true}
   function worldRegionalWeather(provinceId){processWeatherFronts(false);return phase2State()?.regionalWeather?.[provinceId]||null}
 
-  function inventoryQtyLocal(id){return (G?.character?.inventory||[]).filter(x=>x.id===id).reduce((n,x)=>n+Number(x.qty||1),0)}
+  function inventoryQtySnapshot(ids){
+    const wanted=new Set(ids),out=new Map();
+    for(const row of (G?.character?.inventory||[])){
+      if(!wanted.has(row?.id))continue;
+      out.set(row.id,Number(out.get(row.id)||0)+Number(row.qty||1));
+    }
+    return out
+  }
   function patchGatherRuntime(){
     if(globalThis.__WORLD_AUTONOMY2_GATHER_PATCHED)return;
     if(typeof globalThis.gatherEligiblePool==="function"){const originalPool=globalThis.gatherEligiblePool;globalThis.gatherEligiblePool=function(l){syncResourceNodes(false);return originalPool.apply(this,arguments).filter(id=>resourceAvailable(l?.id,id))}}
-    if(typeof globalThis.actGather==="function"){const originalActGather=globalThis.actGather;globalThis.actGather=function(){const l=getLoc(G?.character?.locationId),ids=Array.isArray(l?.gather)?l.gather.slice():[],before=new Map(ids.map(id=>[id,inventoryQtyLocal(id)]));const result=originalActGather.apply(this,arguments);if(l)for(const id of ids){const gained=Math.max(0,inventoryQtyLocal(id)-Number(before.get(id)||0));if(gained>0)consumeResource(l.id,id,gained)}return result}}
+    if(typeof globalThis.actGather==="function"){const originalActGather=globalThis.actGather;globalThis.actGather=function(){const l=getLoc(G?.character?.locationId),ids=Array.isArray(l?.gather)?l.gather.slice():[],before=inventoryQtySnapshot(ids);const result=originalActGather.apply(this,arguments);if(l){const after=inventoryQtySnapshot(ids);for(const id of ids){const gained=Math.max(0,Number(after.get(id)||0)-Number(before.get(id)||0));if(gained>0)consumeResource(l.id,id,gained)}}return result}}
     globalThis.__WORLD_AUTONOMY2_GATHER_PATCHED=true;
   }
   function patchDungeonKillRuntime(){if(globalThis.__WORLD_AUTONOMY2_KILL_PATCHED)return;if(typeof globalThis.updateQuestProgress==="function"){const original=globalThis.updateQuestProgress;globalThis.updateQuestProgress=function(kind,data={}){const result=original.apply(this,arguments);if(kind==="kill"){const l=getLoc(G?.character?.locationId);if(l?.kind==="dungeon")markDungeonKill(l.id,Number(data?.qty||1))}return result}}globalThis.__WORLD_AUTONOMY2_KILL_PATCHED=true}

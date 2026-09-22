@@ -42,9 +42,12 @@ const nowHour=()=>{try{return typeof totalHours==="function"?Number(totalHours()
 const esc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const locationBy=id=>{try{return typeof loc==="function"?loc(id):(DB.locations||[]).find(x=>x?.id===id)||null}catch(error){return (DB.locations||[]).find(x=>x?.id===id)||null}};
 const itemBy=id=>{try{return typeof item==="function"?item(id):(DB.items||[]).find(x=>x?.id===id)||null}catch(error){return (DB.items||[]).find(x=>x?.id===id)||null}};
-const questBy=id=>(DB.quest_templates||[]).find(x=>x?.id===id)||null;
-const eventBy=id=>(DB.adventure_event_templates||[]).find(x=>x?.id===id)||null;
-const monsterBy=id=>(DB.monsters||[]).find(x=>x?.id===id)||null;
+const QUEST_INDEX=new Map(arr(DB.quest_templates).filter(Boolean).map(x=>[x.id,x]));
+const EVENT_INDEX=new Map(arr(DB.adventure_event_templates).filter(Boolean).map(x=>[x.id,x]));
+const MONSTER_INDEX=new Map(arr(DB.monsters).filter(Boolean).map(x=>[x.id,x]));
+const questBy=id=>QUEST_INDEX.get(id)||arr(DB.quest_templates).find(x=>x?.id===id)||null;
+const eventBy=id=>EVENT_INDEX.get(id)||arr(DB.adventure_event_templates).find(x=>x?.id===id)||null;
+const monsterBy=id=>MONSTER_INDEX.get(id)||arr(DB.monsters).find(x=>x?.id===id)||null;
 const townKinds=new Set(["town","city","village","capital","port","settlement"]);
 function game(){try{return typeof G!=="undefined"?G:null}catch(error){return null}}
 function state(){
