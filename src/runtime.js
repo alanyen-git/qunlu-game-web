@@ -380,23 +380,35 @@ async function migrateLegacySaveBackups(){
  }catch(e){}
 }
 async function init(){
- let raw=null,source="";
+ let legacyRaw=null;
+ try{legacyRaw=window.localStorage?localStorage.getItem(SAVE_MAIN_KEY):null}catch(e){}
+ if(legacyRaw){
+   try{
+     G=JSON.parse(legacyRaw);
+     lastPersistSerialized="";
+     migrateSave();
+     enterGame(true)
+   }catch(e){console.warn(e);return}
+   try{
+     await requestExpandedSaveStorage();
+     await migrateLegacySaveBackups();
+     persist();
+     await flushPersistWrites()
+   }catch(e){console.warn("legacy save migration failed",e)}
+   return
+ }
+ let raw=null;
  try{
    await requestExpandedSaveStorage();
    await migrateLegacySaveBackups();
-   raw=await saveDbGet(SAVE_MAIN_KEY);
-   if(raw)source="indexeddb"
+   raw=await saveDbGet(SAVE_MAIN_KEY)
  }catch(e){console.warn("large save storage init failed",e)}
- if(!raw){
-   try{raw=window.localStorage?localStorage.getItem(SAVE_MAIN_KEY):null;if(raw)source="localStorage"}catch(e){}
- }
  if(raw){
    try{
      G=JSON.parse(raw);
-     lastPersistSerialized=source==="indexeddb"?raw:"";
+     lastPersistSerialized=raw;
      migrateSave();
-     enterGame(true);
-     if(source==="localStorage"){persist();await flushPersistWrites()}
+     enterGame(true)
    }catch(e){console.warn(e)}
  }
 }
