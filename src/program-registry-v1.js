@@ -1,22 +1,22 @@
-/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-2.08.0
- * PROGRAM-REGISTRY-1.22
+/* 群陸旅誌：現行程序清單與載入完整性 CURRENT-2.09.0
+ * PROGRAM-REGISTRY-1.23
  * 單一來源記錄正式入口所需的所有 src 程序，並把載入順序納入五回合自檢。
  */
 (()=>{
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.08.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.08.0";
-const REV="PROGRAM-REGISTRY-1.22";
+const RELEASE=CORE?.release?.("CURRENT-2.09.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.0";
+const REV="PROGRAM-REGISTRY-1.23";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
   data:[
     "src/game-data.js","src/data-patches.js","src/origin-depth-v1.js","src/combat-class-identity-depth-v1.js","src/talent-identity-depth-v1.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/affiliation-identity-depth-v1.js","src/political-consolidation-v1.js","src/political-hierarchy-depth-v1.js","src/starter-settlements-v1.js","src/anweir-seruvia-depth-v1.js","src/black-moon-depth-v1.js","src/black-tide-depth-v1.js","src/tyervalon-depth-v1.js","src/blue-tower-depth-v1.js","src/vanrek-depth-v1.js","src/gray-blade-depth-v1.js","src/frost-horn-depth-v1.js","src/white-felt-depth-v1.js","src/holy-radiance-depth-v1.js","src/dawn-casavelle-depth-v1.js","src/boundary-dragonspine-depth-v1.js",
     "src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js",
-    "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js"
+    "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js","src/trade-venues-data-v1.js"
   ],
   runtime:[
-    "src/runtime.js","src/asdail-narrative-runtime-v1.js","src/companion-growth-v1.js","src/crafting-success-v2.js","src/market-economy-v2.js",
+    "src/runtime.js","src/asdail-narrative-runtime-v1.js","src/companion-growth-v1.js","src/crafting-success-v2.js","src/market-economy-v2.js","src/trade-venues-runtime-v1.js",
     "src/world-autonomy-v1.js","src/runtime-patches.js"
   ],
   world:[
@@ -103,6 +103,8 @@ function audit(){
     ["夥伴特色深化",()=>typeof globalThis.runCompanionIdentityDepthAudit==="function"],
     ["夥伴物種簽章",()=>typeof globalThis.runCompanionSpeciesIdentityAudit==="function"],
     ["冒險團隊友深化",()=>typeof globalThis.runAdventurePartyTeammateDepthAudit==="function"],
+    ["交易場靜態資料",()=>typeof globalThis.runTradeVenueDataAudit==="function"],
+    ["拍賣行／黑市",()=>typeof globalThis.runAuctionBlackMarketAudit==="function"],
     ["組織流派深化",()=>typeof globalThis.runAffiliationIdentityDepthAudit==="function"],
     ["政治體整併",()=>typeof globalThis.runPoliticalConsolidationAudit==="function"],
     ["政治階層深化",()=>typeof globalThis.runPoliticalHierarchyDepthAudit==="function"],

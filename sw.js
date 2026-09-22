@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v121";
+const CACHE_NAME=CACHE_PREFIX+"v122";
 const CORE=[
   "./",
   "./index.html",
@@ -37,11 +37,13 @@ const CORE=[
   "./src/crafting-recipe-semantic-v2.js",
   "./src/equipment-recipe-balance-v1.js",
   "./src/recipe-economy-balance-v1.js",
+  "./src/trade-venues-data-v1.js",
   "./src/runtime.js",
   "./src/asdail-narrative-runtime-v1.js",
   "./src/companion-growth-v1.js",
   "./src/crafting-success-v2.js",
   "./src/market-economy-v2.js",
+  "./src/trade-venues-runtime-v1.js",
   "./src/world-autonomy-v1.js",
   "./src/runtime-patches.js",
   "./src/affiliation-contribution-v1.js",

@@ -1,12 +1,12 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-2.08.0
- * RELEASE-INTEGRITY-2.22
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-2.09.0
+ * RELEASE-INTEGRITY-2.23
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.08.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.08.0";
-const REV="RELEASE-INTEGRITY-2.22";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.09.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.0";
+const REV="RELEASE-INTEGRITY-2.23";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -71,6 +71,10 @@ function audit(){
   else issues.push("夥伴物種簽章:稽核runtime缺失");
   if(typeof globalThis.runAdventurePartyTeammateDepthAudit==="function")pushResult(issues,"冒險團隊友深化:",globalThis.runAdventurePartyTeammateDepthAudit());
   else issues.push("冒險團隊友深化:稽核runtime缺失");
+  if(typeof globalThis.runTradeVenueDataAudit==="function")pushResult(issues,"交易場靜態資料:",globalThis.runTradeVenueDataAudit());
+  else issues.push("交易場靜態資料:稽核runtime缺失");
+  if(typeof globalThis.runAuctionBlackMarketAudit==="function")pushResult(issues,"拍賣行／黑市:",globalThis.runAuctionBlackMarketAudit());
+  else issues.push("拍賣行／黑市:稽核runtime缺失");
   if(typeof globalThis.runOriginDepthAudit==="function")pushResult(issues,"角色出身:",globalThis.runOriginDepthAudit());
   else issues.push("角色出身:稽核runtime缺失");
   if(typeof globalThis.runAffiliationIdentityDepthAudit==="function")pushResult(issues,"組織流派深化:",globalThis.runAffiliationIdentityDepthAudit());
@@ -123,7 +127,7 @@ if(typeof base==="function"&&!base.__releaseIntegrityPatched){
 }
 DB.meta=DB.meta||{};
 DB.meta.release_integrity_revision=REV;
-DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","配方素材量／成本／成品價值平衡","鍛造／裁縫／附魔裝備物量、成對結構與材質語意","配方最終載入鎖定","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","戰鬥職業同質合併／戰術特色／實際職業修正／舊ID映射","天賦同質合併／特色軸／代價／武器條件／副職業差異／舊ID映射","技能命名／階級／元素／語義效果","技能機制／條件／連段／反擊／陷阱／群體支援runtime","角色出身合併／特色／側寫／舊存檔映射","組織／流派同質合併／世界4王國3地區2上限／歷史現況特色","16政治體修訂後完整政治階層／禮序與AUTH權能分離／榮譽稱號無自動統治權","6新手村／5個非阿斯戴爾政治體／種族出身職業加權出生／周邊F-E級區域","安威爾帝國7治理區／9城鎮／15野外／10地下城／24怪物／20核心NPC／礦權石律與深層主權分流","瑟露維亞精靈王庭7治理區／9城鎮／15野外／10地下城／24怪物／20核心NPC／森約、水權與聖域分流","黑月深庭7治理區／9地下聚落／15地下野外／10地下城／24怪物／16素材／20核心NPC／七大家門＋誓井議庭＋活世界事件鏈／地表與深層主權分流","斷境無主地6區帶／8聚落／14野外／9地下城／24怪物／18核心NPC／8地方組織／無中央主權互保治理","龍脊火山群6區帶／8聚落／14野外／10地下城／24怪物／18核心NPC／8地方組織／非主權火山承載治理","黑潮群島3大島＋5小島／城鎮野外地下城／18怪物／16核心NPC／王庭幕府地方權力鏈","泰爾瓦隆十二大圖騰席＋六大地帶／8城鎮／12野外／8地下城／20怪物／18核心NPC／百族分權治理","藍塔六大區域帶／8城鎮／12野外／8地下城／21怪物／18核心NPC／塔主議會與術式安全治理／一般區E-C與受控B級深層分流","凡雷克七大區域／10城鎮／14野外／10地下城／24怪物／22核心NPC／帝冠與舊王法雙層治理／一般區F-C與受控B級深層分流","灰刃六大區域／8城鎮／12野外／8地下城／22怪物／18核心NPC／武契議會與市議堂雙議軌／契約仲裁與受控C級南境深層","霜角六大火席／6治理區／8城鎮／12野外／8地下城／22怪物／18核心NPC／越冬與山口承載治理","白氈五大旗帳／6季牧區／8聚落／12野外／8地下城／22怪物／20核心NPC／季移汗庭、水泉與牧路治理","聖曜帝國8大封邑／11城鎮／16野外／10地下城／26怪物／24核心NPC／10組織／帝冠、諸侯盟議與跨境加冕教權雙軌治理","晨律教國7大教區／10城鎮／14野外／9地下城／24怪物／22核心NPC／選舉牧首、樞機、教律與跨境加冕權邊界","卡薩維爾城盟7大城市帶／10城鎮／14野外／9地下城／24怪物／20核心NPC／REG-06+REG-07成員城自治與共同議會","20大區政治疆域／海岸山河湖泊／氣候帶／主要道路／國境關隘／國境地理成因／首都座標／地下重疊主權地圖","高階組織／流派劇情性接觸／入門考核／舊存檔相容","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接","夥伴光環條件觸發／21種專屬技能核心／復起救援／元素調律","20種物種簽章／光環效果差異／技能名稱唯一／物種附加行為","程序載入清單與順序由PROGRAM-REGISTRY獨立稽核"],save_compatible:true,initial_audit:audit()};
+DB.release_integrity_system={version:REV,release:RELEASE,scope:["ID唯一性","物品重量","製作素材引用","配方V1/V2","配方素材量／成本／成品價值平衡","鍛造／裁縫／附魔裝備物量、成對結構與材質語意","配方最終載入鎖定","取水資料","裝備命名參考與外部專名避讓","職業命名／系別／進階來源","戰鬥職業同質合併／戰術特色／實際職業修正／舊ID映射","天賦同質合併／特色軸／代價／武器條件／副職業差異／舊ID映射","技能命名／階級／元素／語義效果","技能機制／條件／連段／反擊／陷阱／群體支援runtime","角色出身合併／特色／側寫／舊存檔映射","組織／流派同質合併／世界4王國3地區2上限／歷史現況特色","16政治體修訂後完整政治階層／禮序與AUTH權能分離／榮譽稱號無自動統治權","6新手村／5個非阿斯戴爾政治體／種族出身職業加權出生／周邊F-E級區域","安威爾帝國7治理區／9城鎮／15野外／10地下城／24怪物／20核心NPC／礦權石律與深層主權分流","瑟露維亞精靈王庭7治理區／9城鎮／15野外／10地下城／24怪物／20核心NPC／森約、水權與聖域分流","黑月深庭7治理區／9地下聚落／15地下野外／10地下城／24怪物／16素材／20核心NPC／七大家門＋誓井議庭＋活世界事件鏈／地表與深層主權分流","斷境無主地6區帶／8聚落／14野外／9地下城／24怪物／18核心NPC／8地方組織／無中央主權互保治理","龍脊火山群6區帶／8聚落／14野外／10地下城／24怪物／18核心NPC／8地方組織／非主權火山承載治理","黑潮群島3大島＋5小島／城鎮野外地下城／18怪物／16核心NPC／王庭幕府地方權力鏈","泰爾瓦隆十二大圖騰席＋六大地帶／8城鎮／12野外／8地下城／20怪物／18核心NPC／百族分權治理","藍塔六大區域帶／8城鎮／12野外／8地下城／21怪物／18核心NPC／塔主議會與術式安全治理／一般區E-C與受控B級深層分流","凡雷克七大區域／10城鎮／14野外／10地下城／24怪物／22核心NPC／帝冠與舊王法雙層治理／一般區F-C與受控B級深層分流","灰刃六大區域／8城鎮／12野外／8地下城／22怪物／18核心NPC／武契議會與市議堂雙議軌／契約仲裁與受控C級南境深層","霜角六大火席／6治理區／8城鎮／12野外／8地下城／22怪物／18核心NPC／越冬與山口承載治理","白氈五大旗帳／6季牧區／8聚落／12野外／8地下城／22怪物／20核心NPC／季移汗庭、水泉與牧路治理","聖曜帝國8大封邑／11城鎮／16野外／10地下城／26怪物／24核心NPC／10組織／帝冠、諸侯盟議與跨境加冕教權雙軌治理","晨律教國7大教區／10城鎮／14野外／9地下城／24怪物／22核心NPC／選舉牧首、樞機、教律與跨境加冕權邊界","卡薩維爾城盟7大城市帶／10城鎮／14野外／9地下城／24怪物／20核心NPC／REG-06+REG-07成員城自治與共同議會","20大區政治疆域／海岸山河湖泊／氣候帶／主要道路／國境關隘／國境地理成因／首都座標／地下重疊主權地圖","高階組織／流派劇情性接觸／入門考核／舊存檔相容","統一名稱生成／正規化查重／固定fallback防護","五回合自檢橋接","夥伴光環條件觸發／21種專屬技能核心／復起救援／元素調律","20種物種簽章／光環效果差異／技能名稱唯一／物種附加行為","省級城市拍賣行／不定期黑市／資格前置／憑證／名聲／供需與有限庫存","程序載入清單與順序由PROGRAM-REGISTRY獨立稽核"],save_compatible:true,initial_audit:audit()};
 globalThis.runReleaseIntegrityAudit=audit;
 globalThis.QUNLU_CORE?.registerModule?.("src/release-integrity-v1.js",{domain:"finalization",revision:REV,release:RELEASE});
 })();
