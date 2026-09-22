@@ -4,7 +4,7 @@
  */
 (()=>{
 "use strict";
-if(typeof DB!=="object"||!DB||!globalThis.G)return;
+if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.09.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.0";
 const REV="TRADE-VENUES-RUNTIME-1.0";
