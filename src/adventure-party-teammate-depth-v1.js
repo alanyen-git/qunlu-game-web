@@ -1,5 +1,5 @@
-/* 群陸旅誌：冒險團隊友資料深化 CURRENT-2.08.0
- * ADVENTURE-PARTY-TEAMMATE-DEPTH-1.0
+/* 群陸旅誌：冒險團隊友資料深化 CURRENT-2.10.1
+ * ADVENTURE-PARTY-TEAMMATE-DEPTH-1.1
  * 深化既有冒險團隊友，提供穩定人物側寫與可查看的完整資料頁；不改存檔 schema。
  */
 (()=>{
@@ -7,8 +7,8 @@
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.party_member_templates))return;
 
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.08.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.08.0";
-const REV="ADVENTURE-PARTY-TEAMMATE-DEPTH-1.0";
+const RELEASE=CORE?.release?.("CURRENT-2.10.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.10.1";
+const REV="ADVENTURE-PARTY-TEAMMATE-DEPTH-1.1";
 const ROLE=Object.freeze({
  frontline:["前排主攻","單手劍、長劍、斧鎚等近戰武器","中甲／重甲","護送、正面突破、近距離警戒","維持正面壓力並持續輸出","高防禦或遠距牽制會降低效率"],
  tank:["前排承傷","盾牌、單手武器、重型兵器","重甲","護衛、守點、危險區域前探","隊伍生命偏低時優先護衛並吸引威脅","直接輸出較低，依賴隊友收尾"],
@@ -74,6 +74,7 @@ function openPartyMemberProfile(uid){
  const classes=d.classes.length?d.classes.join("、"):"依職能配置",subjobs=d.subjobs.length?d.subjobs.join("、"):"無固定副職傾向";
  const turns=Math.max(0,Number(G?.turn||0)-Number(m.joinedTurn||0));
  const bonus=(clamp(m.bond||0,0,100)/7).toFixed(1);
+ const carry=typeof teammateCarryProfile==="function"?teammateCarryProfile(t,m):{bonus:0,trait:"未載入"};
  const html=[
   '<div class="profile-card"><div class="profile-name">'+esc(t.name)+'</div>',
   '<div class="profile-row"><span class="profile-key">種族／背景</span><span class="profile-value">'+esc(t.race)+'｜'+esc(t.background)+'</span></div>',
@@ -84,8 +85,8 @@ function openPartyMemberProfile(uid){
   '<div class="card"><b>人物側寫</b><br><span class="small">個性｜'+esc(d.personality)+'<br>重視｜'+esc(d.value)+'<br>相處方式｜'+esc(d.social)+'<br>個人目標｜'+esc(d.goal)+'<br>旅途習慣｜'+esc(d.habit)+'</span></div>',
   '<div class="card"><b>職業與專長</b><br><span class="small">職業傾向｜'+esc(classes)+'<br>副職傾向｜'+esc(subjobs)+'<br>偏好武器｜'+esc(d.weapon)+'<br>偏好護甲｜'+esc(d.armor)+'<br>野外專長｜'+esc(d.field)+'</span></div>',
   '<div class="card"><b>AI戰術資料</b><br><span class="small">行動邏輯｜'+esc(ai(t))+'<br>優先行為｜'+esc(d.priority)+'<br>戰術弱點｜'+esc(d.risk)+'</span></div>',
-  '<div class="grid3"><div class="card"><b>HP</b><br>'+Math.round(m.hp)+'/'+Math.round(s.maxHp)+'</div><div class="card"><b>物攻</b><br>'+Math.round(s.attack)+'</div><div class="card"><b>魔攻</b><br>'+Math.round(s.magic)+'</div><div class="card"><b>防禦</b><br>'+Math.round(s.defense)+'</div><div class="card"><b>命中</b><br>'+Math.round(s.accuracy)+'%</div><div class="card"><b>閃避</b><br>'+Math.round(s.evasion)+'%</div><div class="card"><b>速度</b><br>'+Math.round(s.speed)+'</div><div class="card"><b>XP</b><br>'+esc(xp)+'</div><div class="card"><b>羈絆</b><br>'+Number(m.bond||0).toFixed(1)+'%</div></div>',
-  '<div class="card"><b>關係｜'+esc(bs[0])+'</b><br><span class="small">'+esc(bs[1])+'<br>現行羈絆公式約提供 +'+bonus+'% 的生命、攻擊、魔法與防禦成長倍率；隊友等級不高於主人。</span></div>'
+  '<div class="grid3"><div class="card"><b>HP</b><br>'+Math.round(m.hp)+'/'+Math.round(s.maxHp)+'</div><div class="card"><b>物攻</b><br>'+Math.round(s.attack)+'</div><div class="card"><b>魔攻</b><br>'+Math.round(s.magic)+'</div><div class="card"><b>防禦</b><br>'+Math.round(s.defense)+'</div><div class="card"><b>命中</b><br>'+Math.round(s.accuracy)+'%</div><div class="card"><b>閃避</b><br>'+Math.round(s.evasion)+'%</div><div class="card"><b>速度</b><br>'+Math.round(s.speed)+'</div><div class="card"><b>XP</b><br>'+esc(xp)+'</div><div class="card"><b>羈絆</b><br>'+Number(m.bond||0).toFixed(1)+'%</div><div class="card"><b>負重支援</b><br>+'+Number(carry.bonus||0).toFixed(1)+'kg</div></div>',
+  '<div class="card"><b>關係｜'+esc(bs[0])+'</b><br><span class="small">'+esc(bs[1])+'<br>現行羈絆公式約提供 +'+bonus+'% 的生命、攻擊、魔法與防禦成長倍率；隊友等級不高於主人。<br>負重特色｜'+esc(carry.trait)+'；目前提供共享負重 +'+Number(carry.bonus||0).toFixed(1)+'kg。</span></div>'
  ];
  const prev=list[(i-1+list.length)%list.length],next=list[(i+1)%list.length];
  html.push('<div class="actions"><button onclick="openAdventureParty()">返回冒險團</button>'+(list.length>1?'<button onclick="openPartyMemberProfile(\''+esc(prev.uid)+'\')">上一位</button><button onclick="openPartyMemberProfile(\''+esc(next.uid)+'\')">下一位</button>':'')+'</div>');
@@ -95,7 +96,9 @@ function openPartyMemberProfile(uid){
 function openPartyCandidateProfile(id,place){
  const t=template(id);if(!t)return;
  const d=profile(t),b=t.base_stats||{},classes=d.classes.length?d.classes.join("、"):"依職能配置",subjobs=d.subjobs.length?d.subjobs.join("、"):"無固定副職傾向";
- const html='<div class="profile-card"><div class="profile-name">'+esc(t.name)+'</div><div class="profile-row"><span class="profile-key">種族／背景</span><span class="profile-value">'+esc(t.race)+'｜'+esc(t.background)+'</span></div><div class="profile-row"><span class="profile-key">階級／定位</span><span class="profile-value"><span class="tier">'+esc(t.tier)+'</span>｜'+esc(t.role_label)+'</span></div><div class="profile-row"><span class="profile-key">最低等級</span><span class="profile-value">Lv'+Number(t.min_player_level||1)+'</span></div></div><div class="card"><b>人物側寫</b><br><span class="small">'+esc(d.personality)+'｜重視'+esc(d.value)+'<br>'+esc(d.social)+'<br>目標｜'+esc(d.goal)+'</span></div><div class="card"><b>職業與戰術</b><br><span class="small">職業傾向｜'+esc(classes)+'<br>副職傾向｜'+esc(subjobs)+'<br>武器｜'+esc(d.weapon)+'<br>護甲｜'+esc(d.armor)+'<br>野外專長｜'+esc(d.field)+'<br>AI｜'+esc(ai(t))+'<br>優先行為｜'+esc(d.priority)+'<br>弱點｜'+esc(d.risk)+'</span></div><div class="grid3"><div class="card"><b>基礎HP</b><br>'+Math.round(b.hp||0)+'</div><div class="card"><b>基礎物攻</b><br>'+Math.round(b.attack||0)+'</div><div class="card"><b>基礎魔攻</b><br>'+Math.round(b.magic||0)+'</div><div class="card"><b>基礎防禦</b><br>'+Math.round(b.defense||0)+'</div><div class="card"><b>基礎命中</b><br>'+Math.round(b.accuracy||0)+'%</div><div class="card"><b>基礎閃避</b><br>'+Math.round(b.evasion||0)+'%</div></div><div class="actions"><button onclick="openRecruitTeammates(\''+esc(place||"guild")+'\')">返回招募</button></div>';
+ const preview={level:Math.max(Number(t.min_player_level||1),Number(G?.character?.level||1)),bond:0};
+ const carry=typeof teammateCarryProfile==="function"?teammateCarryProfile(t,preview):{bonus:0,trait:"未載入"};
+ const html='<div class="profile-card"><div class="profile-name">'+esc(t.name)+'</div><div class="profile-row"><span class="profile-key">種族／背景</span><span class="profile-value">'+esc(t.race)+'｜'+esc(t.background)+'</span></div><div class="profile-row"><span class="profile-key">階級／定位</span><span class="profile-value"><span class="tier">'+esc(t.tier)+'</span>｜'+esc(t.role_label)+'</span></div><div class="profile-row"><span class="profile-key">最低等級</span><span class="profile-value">Lv'+Number(t.min_player_level||1)+'</span></div></div><div class="card"><b>人物側寫</b><br><span class="small">'+esc(d.personality)+'｜重視'+esc(d.value)+'<br>'+esc(d.social)+'<br>目標｜'+esc(d.goal)+'</span></div><div class="card"><b>職業與戰術</b><br><span class="small">職業傾向｜'+esc(classes)+'<br>副職傾向｜'+esc(subjobs)+'<br>武器｜'+esc(d.weapon)+'<br>護甲｜'+esc(d.armor)+'<br>野外專長｜'+esc(d.field)+'<br>AI｜'+esc(ai(t))+'<br>優先行為｜'+esc(d.priority)+'<br>弱點｜'+esc(d.risk)+'</span></div><div class="grid3"><div class="card"><b>基礎HP</b><br>'+Math.round(b.hp||0)+'</div><div class="card"><b>基礎物攻</b><br>'+Math.round(b.attack||0)+'</div><div class="card"><b>基礎魔攻</b><br>'+Math.round(b.magic||0)+'</div><div class="card"><b>基礎防禦</b><br>'+Math.round(b.defense||0)+'</div><div class="card"><b>基礎命中</b><br>'+Math.round(b.accuracy||0)+'%</div><div class="card"><b>基礎閃避</b><br>'+Math.round(b.evasion||0)+'%</div><div class="card"><b>預估負重支援</b><br>+'+Number(carry.bonus||0).toFixed(1)+'kg</div></div><div class="card small">負重特色｜'+esc(carry.trait)+'；實際加入後會再依等級與羈絆調整。</div><div class="actions"><button onclick="openRecruitTeammates(\''+esc(place||"guild")+'\')">返回招募</button></div>';
  showModal("招募資料・"+t.name,html)
 }
 
@@ -105,9 +108,13 @@ if(baseParty){
   try{
    const p=adventureParty();
    if(!p)return showModal("冒險團",'<div class="card"><b>目前沒有正式冒險團</b><br><span class="small">前往冒險者公會或酒館招募至少1名隊友。招募候選可先查看完整資料。</span></div>');
-   const rows=members().map(m=>{const t=template(m.templateId),d=profile(t),bs=bond(m.bond),leader=p.leader===m.uid?" <span class=\'tier\'>領隊</span>":"";return '<div class="card"><b>'+esc(t.name)+'</b> <span class="tier">'+esc(t.tier)+'</span>［'+esc(t.race)+'／'+esc(t.role_label)+'］'+leader+'<br><span class="small">Lv'+m.level+'｜HP '+Math.round(m.hp)+'/'+Math.round(m.maxHp)+'｜羈絆 '+Number(m.bond||0).toFixed(1)+'%・'+esc(bs[0])+'<br>'+esc(d.personality)+'｜'+esc(d.position)+'｜'+esc(d.field)+'</span><div class="actions"><button class="good" onclick="openPartyMemberProfile(\''+esc(m.uid)+'\')">查看資料</button>'+(p.mode==="self-led"?'<button class="bad" onclick="dismissPartyMember(\''+esc(m.uid)+'\')">請其離隊</button>':'')+'</div></div>'}).join("");
+   const rows=members().map(m=>{
+     const t=template(m.templateId),d=profile(t),bs=bond(m.bond),leader=p.leader===m.uid?" <span class=\'tier\'>領隊</span>":"",carry=typeof teammateCarryProfile==="function"?teammateCarryProfile(t,m):{bonus:0,trait:"未載入"};
+     return '<div class="card"><b>'+esc(t.name)+'</b> <span class="tier">'+esc(t.tier)+'</span>［'+esc(t.race)+'／'+esc(t.role_label)+'］'+leader+'<br><span class="small">Lv'+m.level+'｜HP '+Math.round(m.hp)+'/'+Math.round(m.maxHp)+'｜羈絆 '+Number(m.bond||0).toFixed(1)+'%・'+esc(bs[0])+'<br>'+esc(d.personality)+'｜'+esc(d.position)+'｜'+esc(d.field)+'<br>負重支援 +'+Number(carry.bonus||0).toFixed(1)+'kg｜'+esc(carry.trait)+'</span><div class="actions"><button class="good" onclick="openPartyMemberProfile(\''+esc(m.uid)+'\')">查看資料</button>'+(p.mode==="self-led"?'<button class="bad" onclick="dismissPartyMember(\''+esc(m.uid)+'\')">請其離隊</button>':'')+'</div></div>'
+   }).join("");
    const leader=p.mode==="self-led"?"你是領隊":"領隊："+partyLeaderName();
-   showModal("冒險團",'<div class="card"><b>'+esc(p.name)+'</b><br>'+esc(leader)+'｜編制 '+(1+members().length)+'/5<br><span class="small">每名NPC隊友都有獨立等級、XP、HP、羈絆與AI。點「查看資料」可看人物側寫、專長、戰術邏輯與即時數值。</span></div>'+rows+'<div class="actions"><button class="bad" onclick="leaveAdventureParty()">離開／解散冒險團</button></div>');
+   const carryTotal=typeof teammateCarryCapacityBonus==="function"?teammateCarryCapacityBonus().total:0;
+   showModal("冒險團",'<div class="card"><b>'+esc(p.name)+'</b><br>'+esc(leader)+'｜編制 '+(1+members().length)+'/5｜隊友負重支援 +'+Number(carryTotal||0).toFixed(1)+'kg<br><span class="small">每名NPC隊友都有獨立等級、XP、HP、羈絆與AI；負重支援依定位、種族體格、階級、等級與羈絆計算。點「查看資料」可看人物側寫、專長、戰術邏輯與即時數值。</span></div>'+rows+'<div class="actions"><button class="bad" onclick="leaveAdventureParty()">離開／解散冒險團</button></div>');
   }catch(error){console.warn("adventure party teammate depth fallback",error);return baseParty.apply(this,arguments)}
  };
  globalThis.openAdventureParty=openAdventureParty
@@ -130,15 +137,27 @@ if(baseRecruit){
 
 function audit(){
  const issues=[],valid=new Set(Object.keys(ROLE));
- for(const t of DB.party_member_templates){const p=profile(t);if(!t?.id||!t?.name)issues.push("隊友模板識別缺失");if(!valid.has(t?.role))issues.push("隊友角色定位未覆蓋:"+(t?.name||t?.id)+"/"+t?.role);if(!p?.personality||!p?.goal||!p?.priority||!p?.field)issues.push("隊友深化資料不完整:"+(t?.name||t?.id))}
- try{for(const m of members()){if(!template(m?.templateId))issues.push("現行冒險團隊友模板遺失:"+m?.templateId);if(!m?.uid)issues.push("現行冒險團隊友UID缺失")}}catch(error){issues.push("冒險團現況稽核失敗")}
- return {version:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],template_count:DB.party_member_templates.length,profile_view:true,save_schema_changed:false}
+ for(const t of DB.party_member_templates){
+   const p=profile(t);
+   if(!t?.id||!t?.name)issues.push("隊友模板識別缺失");
+   if(!valid.has(t?.role))issues.push("隊友角色定位未覆蓋:"+(t?.name||t?.id)+"/"+t?.role);
+   if(!p?.personality||!p?.goal||!p?.priority||!p?.field)issues.push("隊友深化資料不完整:"+(t?.name||t?.id));
+   if(typeof teammateCarryProfile!=="function"||!(teammateCarryProfile(t,{level:Math.max(1,t.min_player_level||1),bond:0})?.bonus>0))issues.push("隊友負重設定異常:"+(t?.name||t?.id))
+ }
+ try{
+   for(const m of members()){
+     if(!template(m?.templateId))issues.push("現行冒險團隊友模板遺失:"+m?.templateId);
+     if(!m?.uid)issues.push("現行冒險團隊友UID缺失");
+     if(typeof teammateCarryProfile!=="function"||!(teammateCarryProfile(template(m?.templateId),m)?.bonus>0))issues.push("現行隊友負重支援異常:"+m?.templateId)
+   }
+ }catch(error){issues.push("冒險團現況稽核失敗")}
+ return {version:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],template_count:DB.party_member_templates.length,profile_view:true,carry_support:true,save_schema_changed:false}
 }
 
-DB.adventure_party_teammate_depth_system={version:REV,release:RELEASE,template_count:DB.party_member_templates.length,profile_sections:["基本資料","人物側寫","職業與專長","AI戰術資料","即時戰鬥數值","羈絆與成長"],save_schema_changed:false};
+DB.adventure_party_teammate_depth_system={version:REV,release:RELEASE,template_count:DB.party_member_templates.length,profile_sections:["基本資料","人物側寫","職業與專長","AI戰術資料","即時戰鬥數值","羈絆與成長","負重支援"],save_schema_changed:false};
 DB.meta=DB.meta||{};
 DB.meta.adventure_party_teammate_depth_revision=REV;
-if(DB.integration_registry?.optimization_notes)DB.integration_registry.optimization_notes.push("CURRENT-2.08.0／ADVENTURE-PARTY-TEAMMATE-DEPTH-1.0：冒險團隊友新增穩定人物側寫、職業／副職傾向、偏好裝備、野外專長、AI戰術與完整資料頁；已入隊與招募候選都能查看資料，不改存檔schema。");
+if(DB.integration_registry?.optimization_notes)DB.integration_registry.optimization_notes.push("CURRENT-2.10.1／ADVENTURE-PARTY-TEAMMATE-DEPTH-1.1：冒險團隊友資料頁與招募候選新增負重支援；定位、種族體格、階級、等級與羈絆會影響共享負重，直接接入現行負重主鏈且不改存檔schema。");
 globalThis.openPartyMemberProfile=openPartyMemberProfile;
 globalThis.openPartyCandidateProfile=openPartyCandidateProfile;
 globalThis.runAdventurePartyTeammateDepthAudit=audit;
