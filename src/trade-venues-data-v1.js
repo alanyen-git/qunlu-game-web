@@ -1,13 +1,13 @@
-/* 群陸旅誌：拍賣行／黑市靜態資料 CURRENT-2.09.1
- * TRADE-VENUES-DATA-1.0
+/* 群陸旅誌：拍賣行／黑市靜態資料 CURRENT-2.10.0
+ * TRADE-VENUES-DATA-1.1
  * 拍賣行只配置於省級行政中心與國都；黑市憑證納入正式物品資料，供runtime資格檢核。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.09.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.1";
-const REV="TRADE-VENUES-DATA-1.0";
+const RELEASE=CORE?.release?.("CURRENT-2.10.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.10.0";
+const REV="TRADE-VENUES-DATA-1.1";
 const AUCTION_ID="auction";
 const BADGE_ID="IT-BM-GRAY-SIGIL";
 const PASS_ID="IT-BM-NIGHT-PASS";
@@ -79,12 +79,15 @@ DB.trade_venue_system=Object.assign({},DB.trade_venue_system||{}, {
  auction:{
   facility_id:AUCTION_ID,refresh_hours:24,listing_hours:48,listing_fee_rate:.02,commission_rate:.08,
   bid_increment_rate:.06,npc_listing_min:6,npc_listing_max:10,
-  placement_rule:"只在province_region_maps.capital_location_id、國都或同級明確行政中心設置；不得僅以世界F-S層級推測。"
+  min_general_value:40,min_general_tier:"D",
+  placement_rule:"只在province_region_maps.capital_location_id、國都或同級明確行政中心設置；不得僅以世界F-S層級推測。",
+  acceptance_rule:"一般低價值物品不列入拍賣候選，也不能由玩家寄售；D級以上或具特殊交易價值的物品可例外進場。"
  },
  black_market:{
   cycle_hours:96,min_window_hours:8,max_window_hours:14,fame_threshold:12,heat_limit:100,
+  min_general_value:30,min_general_tier:"D",
   access_kinds:["story","quest","encounter","intel","badge","pass","fame"],credential_item_ids:[BADGE_ID,PASS_ID],
-  principle:"黑市不是固定設施；各聚落開市時段不同，且必須先取得劇情、委託、奇遇、地下情報、徽章／入場券或足夠名聲之一的接觸資格。"
+  principle:"黑市不是固定設施；各聚落開市時段不同，且必須先取得劇情、委託、奇遇、地下情報、徽章／入場券或足夠名聲之一的接觸資格。一般低價值貨物不進地下收購與貨源池，避免黑市退化成雜貨店。"
  },
  save_compatible:true,auction_city_count:auctionCityCount
 });
@@ -92,6 +95,8 @@ DB.trade_venue_system=Object.assign({},DB.trade_venue_system||{}, {
 function audit(){
  const issues=[],caps=capitalIdSet();
  if(!DB.facilities?.[AUCTION_ID])issues.push("拍賣行設施資料缺失");
+ if(!(Number(DB.trade_venue_system?.auction?.min_general_value)>0))issues.push("拍賣行低價值門檻缺失");
+ if(!(Number(DB.trade_venue_system?.black_market?.min_general_value)>0))issues.push("黑市低價值門檻缺失");
  for(const id of [BADGE_ID,PASS_ID]){
   if(!rows("items").some(x=>x?.id===id))issues.push("黑市憑證缺失:"+id);
   if(!(DB.content_link_index?.item_sources?.[id]?.special_sources||[]).length)issues.push("黑市憑證特殊來源缺失:"+id);
