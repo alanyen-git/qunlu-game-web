@@ -1546,3 +1546,11 @@ hr{border-top-color:#394238;margin:16px 0}
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
+
+/* CURRENT-2.12.3: 可點擊的前置條件與需求／目前值對照 */
+.prereq-action{border:1px solid #a77b48!important;background:#352a1d!important;color:#f1d19b!important;cursor:pointer;white-space:normal;line-height:1.3}
+.prereq-action:hover,.prereq-action:focus-visible{background:#59452b!important;outline:2px solid #cda467;outline-offset:1px}
+.prereq-row{padding:10px 12px;margin:8px 0;border-radius:9px;line-height:1.55;overflow-wrap:anywhere}
+.prereq-unmet{border:1px solid #9d5151;background:#301d20;color:#f5c5c1}
+.prereq-met{border:1px solid #547d57;background:#1b2b21;color:#cbe4c0}
+details.card>summary{cursor:pointer;padding:6px 0}
