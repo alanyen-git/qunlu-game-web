@@ -1,5 +1,5 @@
 /* 群陸旅誌：拍賣行／黑市runtime CURRENT-2.10.0
- * TRADE-VENUES-RUNTIME-1.1
+ * TRADE-VENUES-RUNTIME-1.2
  * 公開拍賣競價、玩家寄售、地下市場不定期窗口、前置資格與市場供需串接。
  */
 (()=>{
@@ -7,7 +7,7 @@
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.10.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.10.0";
-const REV="TRADE-VENUES-RUNTIME-1.1";
+const REV="TRADE-VENUES-RUNTIME-1.2";
 const DATA=globalThis.QUNLU_TRADE_VENUE_DATA||{};
 const SYS=DB.trade_venue_system||{};
 const AUC=SYS.auction||{};
@@ -34,7 +34,7 @@ function itemData(id){return (DB.items||[]).find(x=>x?.id===id)||null}
 function locationData(id=G?.character?.locationId){return (DB.locations||[]).find(x=>x?.id===id)||null}
 function totalGameHours(){const t=G?.worldTime||{};return (Number(t.day||1)-1)*24+Number(t.hour||0)+Number(t.minute||0)/60}
 function invQty(id){return (G?.character?.inventory||[]).reduce((n,x)=>n+(x?.id===id?Number(x.qty||1):0),0)}
-function grantItem(id,qty=1){for(let i=0;i<qty;i++)if(typeof globalThis.addItem==="function")globalThis.addItem(id)}
+function grantItem(id,qty=1,extra=null){for(let i=0;i<qty;i++)if(typeof globalThis.addItem==="function")globalThis.addItem(id,1,extra||{})}
 function removeOne(id,index=null){return typeof globalThis.removeItem==="function"?globalThis.removeItem(id,1,index):false}
 function save(){try{globalThis.persist?.()}catch(e){}}
 function journal(tag,msg,cl=""){try{globalThis.log?.(tag,msg,cl)}catch(e){}}
@@ -82,6 +82,88 @@ function auctionState(lid=G.character.locationId){
  r.auctions[lid]=r.auctions[lid]&&typeof r.auctions[lid]==="object"?r.auctions[lid]:{refreshAt:0,listings:[],consignments:[],history:[]};
  const s=r.auctions[lid];s.listings=Array.isArray(s.listings)?s.listings:[];s.consignments=Array.isArray(s.consignments)?s.consignments:[];s.history=Array.isArray(s.history)?s.history.slice(0,30):[];return s
 }
+/* 正式拍賣獨立於商鋪買賣價：高階裝備採階級底價、部位、特性及地區供需共同估值。 */
+const DEFAULT_GEAR_FLOORS=Object.freeze({F:80,E:240,D:650,C:1800,B:5400,A:16200,S:48000});
+const DEFAULT_SLOT_MULT=Object.freeze({主武器:1,盔甲:.88,頭盔:.65,手套:.55,鞋子:.58,披風:.6,飾品:.7,盾牌:.78});
+function isEquipment(d){
+ return !!d&&(d.catalog_group==="武器"||d.catalog_group==="防具"||d.catalog_group==="飾品"||
+  ["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(d.type)||d.catalog_subcategory==="盾牌");
+}
+function auctionEquipmentSlot(d){
+ return d.catalog_subcategory==="盾牌"?"盾牌":d.type==="主武器"?"主武器":
+  ["盔甲","頭盔","手套","鞋子","披風","飾品"].includes(d.type)?d.type:"主武器";
+}
+function equipmentQuality(d){
+ let quality=1;
+ const rarity=String(d.rarity||"");
+ if(/神話|傳說|神器/.test(rarity))quality+=.28;
+ else if(/史詩|珍稀|極稀/.test(rarity))quality+=.2;
+ else if(/稀有|精良/.test(rarity))quality+=.1;
+ else if(/優良/.test(rarity))quality+=.04;
+ if(d.enchanted||d.magic_item||d.artifact||d.unique)quality+=.14;
+ if(d.set_id)quality+=.08;
+ if((d.feature_tags||[]).length||Object.values(d.advanced_combat||{}).some(x=>Number(x)>0))quality+=.05;
+ if((d.craft_recipe?.monster_components||[]).length)quality+=.05;
+ return clamp(quality,1,1.5);
+}
+function auctionMarketIndex(d){
+ let regional=1,local=1;
+ try{if(typeof globalThis.regionalItemMarketFactor==="function")regional=Number(globalThis.regionalItemMarketFactor(d))||1}catch(e){}
+ try{if(typeof globalThis.itemTradeFlowFactor==="function")local=Number(globalThis.itemTradeFlowFactor(d))||1}catch(e){}
+ return clamp(regional*local,.7,1.35);
+}
+function durabilityFactor(d,entry){
+ if(!isEquipment(d)||!entry||!Number.isFinite(Number(entry.durability)))return 1;
+ const max=Math.max(1,Number(entry.maxDurability??d.durability)||1);
+ return clamp(.7+.3*clamp(Number(entry.durability)/max,0,1),.7,1);
+}
+function auctionGearMinimum(d,entry=null){
+ if(!isEquipment(d))return 0;
+ const floors=AUC.equipment_price_floors_silver||DEFAULT_GEAR_FLOORS;
+ const parts=AUC.equipment_slot_multipliers||DEFAULT_SLOT_MULT;
+ const floor=Number(floors[d.tier]??DEFAULT_GEAR_FLOORS[d.tier]??80);
+ const part=Number(parts[auctionEquipmentSlot(d)]??1);
+ return Math.max(1,Math.ceil(floor*part*equipmentQuality(d)*auctionMarketIndex(d)*durabilityFactor(d,entry)));
+}
+function auctionUnitReference(d,entry=null){
+ if(!d)return 1;
+ const regular=marketBuy(d);
+ if(!isEquipment(d))return regular;
+ return Math.max(auctionGearMinimum(d,entry),
+  Math.ceil(regular*Number(AUC.equipment_market_premium??1.28)*equipmentQuality(d)*durabilityFactor(d,entry)));
+}
+function auctionQuote(d,qty=1,seed=0){
+ const count=isEquipment(d)?1:Math.max(1,Math.floor(Number(qty)||1));
+ const ref=auctionUnitReference(d)*count,minimum=auctionGearMinimum(d)*count,gear=isEquipment(d);
+ const start=Math.max(1,minimum,Math.ceil(ref*(gear?.95+(seed%11)/100:.78+(seed%13)/100)));
+ const increment=Math.max(1,Math.ceil(start*(AUC.bid_increment_rate??.06)));
+ const buyout=Math.max(start+increment,Math.ceil(ref*(gear?1.35+((seed>>>8)%21)/100:1.06+((seed>>>8)%18)/100)));
+ return {start,increment,buyout,reference:ref,minimum};
+}
+/* 既有玩家已出價的寄託保證金不可重訂價格；沒有玩家保證金的舊 NPC 拍品更新到新底價。 */
+function repriceLegacyAuction(s){
+ if(AUC.equipment_legacy_repricing===false)return false;
+ let updated=false;
+ for(const a of s.listings){
+  if(a.priceModel===REV)continue;
+  const d=itemData(a.itemId);
+  if(!d){a.priceModel=REV;continue}
+  if(a.highest==="player"&&Number(a.playerEscrow)>0){a.priceModel="legacy-player-protected";continue}
+  const qty=isEquipment(d)?1:Math.max(1,Number(a.qty)||1);
+  const quote=auctionQuote(d,qty,hash(a.id+"|repricing"));
+  if(isEquipment(d)||qty>1){
+   a.startBid=Math.max(Number(a.startBid)||0,quote.start);
+   a.currentBid=Math.max(Number(a.currentBid)||0,a.startBid);
+   a.minIncrement=Math.max(Number(a.minIncrement)||0,quote.increment);
+   a.buyout=Math.max(Number(a.buyout)||0,quote.buyout,a.currentBid+a.minIncrement);
+   updated=true;
+  }
+  a.priceModel=REV;
+ }
+ if(updated)save();
+ return updated;
+}
+
 function auctionCandidates(l){
  const cap=Math.min(6,Math.max(2,rank(l?.tier||"F")+1));
  return (DB.items||[]).filter(d=>tradeVenueEligible(d,"auction","listing")&&rank(d.tier)<=cap)
@@ -105,19 +187,20 @@ function settleAuction(s=auctionState()){
   if(Number(a.expiresAt)>now){consign.push(a);continue}
   changed=true;const d=itemData(a.itemId),sold=(hash(a.id+"|settle")%100)<Number(a.saleChance||0);
   if(sold){const net=Math.max(1,Math.floor(a.ask*(1-(AUC.commission_rate??.08))));G.character.moneySilver+=net;recordTrade(d,1,"auction_consignment");s.history.unshift({time:now,text:`寄售成交 ${d?.name||a.itemId}，實收${net}銀。`});journal("拍賣行",`寄售成交 ${d?.name||a.itemId}，扣除佣金後實收${net}銀。`,"ok")}
-  else{grantItem(a.itemId,1);s.history.unshift({time:now,text:`寄售流標 ${d?.name||a.itemId}，物品已退回。`});journal("拍賣行",`寄售 ${d?.name||a.itemId} 流標，物品已退回。`)}
+  else{grantItem(a.itemId,1,a.durability==null?null:{durability:a.durability});s.history.unshift({time:now,text:`寄售流標 ${d?.name||a.itemId}，物品已退回。`});journal("拍賣行",`寄售 ${d?.name||a.itemId} 流標，物品已退回。`)}
  }
  s.consignments=consign;if(s.history.length>30)s.history.length=30;if(changed)save();return changed
 }
 function refreshAuction(s=auctionState(),l=locationData()){
  settleAuction(s);const now=totalGameHours();
+ repriceLegacyAuction(s);
  if(s.refreshAt>now&&s.listings.length)return;
  const min=AUC.npc_listing_min??6,max=AUC.npc_listing_max??10,target=min+(hash(`${l.id}|${Math.floor(now/24)}`)%Math.max(1,max-min+1));
  const need=Math.max(0,target-s.listings.length),pool=auctionCandidates(l).filter(d=>!s.listings.some(x=>x.itemId===d.id));
  for(const [i,d] of seededUnique(pool,need,`${l.id}|auction|${Math.floor(now/24)}`).entries()){
-  const base=marketBuy(d),seed=hash(`${l.id}|${d.id}|${Math.floor(now/24)}|${i}`),qty=d.stackable?1+(seed%3):1;
-  const start=Math.max(1,Math.ceil(base*(.78+(seed%13)/100))),increment=Math.max(1,Math.ceil(start*(AUC.bid_increment_rate??.06))),buyout=Math.max(start+increment,Math.ceil(base*(1.06+((seed>>>8)%18)/100)));
-  s.listings.push({id:`AUC-${l.id}-${Math.floor(now)}-${seed.toString(36)}`,itemId:d.id,qty,startBid:start,currentBid:start,minIncrement:increment,buyout,highest:"npc",playerEscrow:0,competition:28+((seed>>>12)%34),expiresAt:now+18+((seed>>>18)%31)})
+  const seed=hash(`${l.id}|${d.id}|${Math.floor(now/24)}|${i}`),qty=!isEquipment(d)&&d.stackable?1+(seed%3):1;
+  const quote=auctionQuote(d,qty,seed),{start,increment,buyout}=quote;
+  s.listings.push({id:`AUC-${l.id}-${Math.floor(now)}-${seed.toString(36)}`,itemId:d.id,qty,startBid:start,currentBid:start,minIncrement:increment,buyout,highest:"npc",playerEscrow:0,competition:28+((seed>>>12)%34),priceModel:REV,expiresAt:now+18+((seed>>>18)%31)})
  }
  s.refreshAt=now+(AUC.refresh_hours??24);save()
 }
@@ -128,9 +211,9 @@ function openAuctionHouse(){
  const listings=s.listings.slice().sort((a,b)=>rank(itemData(a.itemId)?.tier)-rank(itemData(b.itemId)?.tier)||a.currentBid-b.currentBid);
  const rows=listings.map(a=>{const d=itemData(a.itemId),player=a.highest==="player",bid=a.currentBid+a.minIncrement,buyDue=a.buyout-(player?a.playerEscrow:0);return `<div class="itemrow"><span><b>${esc(d?.name||a.itemId)}</b> <span class="tier">${esc(d?.tier||"F")}</span> ×${a.qty||1}<br><span class="small">目前${a.currentBid}銀｜直購${a.buyout}銀｜剩餘${auctionTimeLeft(a)}${player?"｜你目前最高價":""}</span></span><span>${player?`<button disabled>最高價 ${a.currentBid}</button>`:`<button ${G.character.moneySilver>=bid?"":"disabled"} onclick="auctionBid('${esc(a.id)}')">出價${bid}</button>`}<button ${G.character.moneySilver>=buyDue?"":"disabled"} onclick="auctionBuyout('${esc(a.id)}')">直購</button></span></div>`}).join("")||"<div class='card small'>目前沒有公開拍品。</div>";
  const inv=(G.character.inventory||[]).map((x,i)=>[x,i,itemData(x.id)]).filter(([, ,d])=>tradeVenueEligible(d,"auction","consign")).slice(0,30);
- const consign=inv.map(([x,i,d])=>{const base=marketBuy(d);return `<div class="itemrow"><span>${esc(d.name)} <span class="tier">${esc(d.tier)}</span> ×${x.qty||1}<br><span class="small">參考公開零售 ${base}銀；刊登費2%，成交再收8%佣金。</span></span><span><button onclick="auctionConsign(${i},0.9)">快售</button><button onclick="auctionConsign(${i},1.1)">標準</button><button onclick="auctionConsign(${i},1.35)">高價</button></span></div>`}).join("")||"<div class='card small'>背包沒有可寄售物品。</div>";
+ const consign=inv.map(([x,i,d])=>{const base=auctionUnitReference(d,x),min=auctionGearMinimum(d,x);return `<div class="itemrow"><span>${esc(d.name)} <span class="tier">${esc(d.tier)}</span> ×${x.qty||1}<br><span class="small">拍賣參考 ${base}銀${isEquipment(d)?`｜裝備保底 ${min}銀（含階級／品質／地區與耐久）`:""}；刊登費2%，成交再收8%佣金。</span></span><span><button onclick="auctionConsign(${i},0.9)">快售</button><button onclick="auctionConsign(${i},1.1)">標準</button><button onclick="auctionConsign(${i},1.35)">高價</button></span></div>`}).join("")||"<div class='card small'>背包沒有可寄售物品。</div>";
  const pending=s.consignments.map(a=>`<div class="small">• ${esc(itemData(a.itemId)?.name||a.itemId)}｜開價${a.ask}銀｜約${auctionTimeLeft(a)}後結算</div>`).join("")||"<div class='small'>目前沒有進行中的寄售。</div>";
- globalThis.showModal?.("拍賣行",`<div class="card"><b>${esc(l.name)}・${auctionLevelLabel(l)}</b><br><span class="small">正式拍賣行只存在於省級城市及以上。NPC拍品每24小時補充；競價資金採保證金制，得標後物品自動入庫。一般低價值物品不接受寄售，也不會進入公開拍品池。</span></div><h3>公開拍品</h3>${rows}<h3>我的寄售</h3><div class="card">${pending}</div>${consign}<div class="actions"><button onclick="openFacilities()">離開拍賣行</button></div>`,`openAuctionHouse()`)
+ globalThis.showModal?.("拍賣行",`<div class="card"><b>${esc(l.name)}・${auctionLevelLabel(l)}</b><br><span class="small">正式拍賣行只存在於省級城市及以上。NPC拍品每24小時補充；裝備依階級、部位、稀有特性及本地行情定價，批量拍品按件計價。競價資金採保證金制，得標後物品自動入庫；不收一般低價值物品。</span></div><h3>公開拍品</h3>${rows}<h3>我的寄售</h3><div class="card">${pending}</div>${consign}<div class="actions"><button onclick="openFacilities()">離開拍賣行</button></div>`,`openAuctionHouse()`)
 }
 function findAuctionListing(id){const s=auctionState();settleAuction(s);return [s,s.listings.find(x=>x.id===id)]}
 function auctionBid(id){
@@ -148,9 +231,9 @@ function auctionBuyout(id){
 }
 function auctionConsign(index,mult=1.1){
  if(G.character.currentFacility!==AUCTION_ID||!auctionEligible())return;const x=G.character.inventory?.[index],d=x&&itemData(x.id);if(!tradeVenueEligible(d,"auction","consign")){alert("拍賣行不接受一般低價值物品寄售。");return}
- const s=auctionState(),base=marketBuy(d),ask=Math.max(1,Math.ceil(base*clamp(mult,.8,1.5))),fee=Math.max(1,Math.ceil(ask*(AUC.listing_fee_rate??.02)));if(G.character.moneySilver<fee)return;if(!begin("拍賣寄售"))return;
+ const s=auctionState(),base=auctionUnitReference(d,x),floor=auctionGearMinimum(d,x),ask=Math.max(1,floor,Math.ceil(base*clamp(mult,.8,1.5))),fee=Math.max(1,Math.ceil(ask*(AUC.listing_fee_rate??.02)));if(G.character.moneySilver<fee)return;if(!begin("拍賣寄售"))return;
  if(!removeOne(d.id,index)){finish(0);return}G.character.moneySilver-=fee;const chance=mult<=.95?84:mult<=1.15?62:34,now=totalGameHours(),seed=hash(`${G.meta?.characterId}|${d.id}|${G.turn}|${index}`);
- s.consignments.push({id:`CON-${G.turn}-${seed.toString(36)}`,itemId:d.id,ask,fee,saleChance:chance,createdAt:now,expiresAt:now+(AUC.listing_hours??48)});journal("拍賣行",`寄售 ${d.name}，開價${ask}銀，刊登費${fee}銀。`,"ok");finish(.2);openAuctionHouse()
+ s.consignments.push({id:`CON-${G.turn}-${seed.toString(36)}`,itemId:d.id,ask,fee,saleChance:chance,priceModel:REV,durability:isEquipment(d)?x.durability??d.durability:null,createdAt:now,expiresAt:now+(AUC.listing_hours??48)});journal("拍賣行",`寄售 ${d.name}，開價${ask}銀，刊登費${fee}銀。`,"ok");finish(.2);openAuctionHouse()
 }
 
 function noteEvidence(kind,key,label,silent=false){
@@ -264,13 +347,18 @@ function audit(){
  if(tradeVenueEligible({id:"AUDIT-LOW",value:1,tier:"F",type:"素材"},"auction","consign"))issues.push("拍賣行仍接受一般低價值測試物品");
  if(tradeVenueEligible({id:"AUDIT-LOW",value:1,tier:"F",type:"素材"},"black_market","sell"))issues.push("黑市仍收一般低價值測試物品");
  if(!tradeVenueEligible({id:"AUDIT-D",value:1,tier:"D",type:"素材"},"auction","consign"))issues.push("拍賣行D級價值例外失效");
+ const testGear=(tier,value)=>({id:"AUDIT-EQ-"+tier,name:"稽核長劍",type:"主武器",catalog_group:"武器",tier,value});
+ const e=auctionUnitReference(testGear("E",72)),d=auctionUnitReference(testGear("D",185)),c=auctionUnitReference(testGear("C",380));
+ if(!(e>=100&&d>e&&c>d))issues.push("裝備拍賣階級價格曲線異常");
+ if(auctionQuote({id:"AUDIT-STACK",name:"稽核素材",type:"素材",tier:"D",value:60},3,2).start<=auctionQuote({id:"AUDIT-STACK",name:"稽核素材",type:"素材",tier:"D",value:60},1,2).start)issues.push("批量拍品未依數量計價");
+ if(auctionQuote(testGear("D",185),1,2).start<auctionGearMinimum(testGear("D",185)))issues.push("高階裝備起標價低於基準底價");
  return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],auction_city_count:(DB.locations||[]).filter(x=>(x.facilities||[]).includes(AUCTION_ID)).length,black_market_access_kinds:BM.access_kinds||[],low_value_policy:{auction_min:Number(AUC.min_general_value)||40,black_market_min:Number(BM.min_general_value)||30,tier_override:AUC.min_general_tier||"D"},save_compatible:true}
 }
 
 globalThis.openAuctionHouse=openAuctionHouse;globalThis.auctionBid=auctionBid;globalThis.auctionBuyout=auctionBuyout;globalThis.auctionConsign=auctionConsign;
 globalThis.openBlackMarket=openBlackMarket;globalThis.openBlackMarketContact=openBlackMarketContact;globalThis.blackMarketBuy=blackMarketBuy;globalThis.blackMarketSell=blackMarketSell;
 globalThis.grantBlackMarketCredential=grantCredential;globalThis.noteBlackMarketEvidence=noteEvidence;globalThis.runAuctionBlackMarketAudit=audit;
-globalThis.QUNLU_TRADE_VENUES={version:REV,release:RELEASE,audit,auctionEligible,blackWindow,blackGate,fameScore,noteEvidence,grantCredential,tradeVenueEligible};
+globalThis.QUNLU_TRADE_VENUES={version:REV,release:RELEASE,audit,auctionEligible,blackWindow,blackGate,fameScore,noteEvidence,grantCredential,tradeVenueEligible,pricing:{isEquipment,auctionEquipmentSlot,auctionMarketIndex,equipmentQuality,auctionGearMinimum,auctionUnitReference,auctionQuote,repriceLegacyAuction}};
 DB.meta=DB.meta||{};DB.meta.trade_venues_runtime_revision=REV;
 CORE?.registerModule?.("src/trade-venues-runtime-v1.js",{domain:"runtime",revision:REV,release:RELEASE});
 })();

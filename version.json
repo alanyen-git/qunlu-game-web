@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.12.6",
-  "previous_version": "CURRENT-2.12.5",
+  "version": "CURRENT-2.12.7",
+  "previous_version": "CURRENT-2.12.6",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.6：裝備移除角色等級硬鎖，改依能力值、職業專長、熟練度與特殊資格判定。",
+  "summary": "CURRENT-2.12.7：拍賣裝備依階級／部位／稀有特性／本地供需設定價格底線，修復批量拍品未乘數量與既有NPC拍品過低問題。",
   "changelog": [
+    "拍賣行裝備報價改階級／部位／品質與地區供需綜合估算；NPC起標保底、玩家寄售新底價、批量拍品乘數量。舊NPC在架拍品自動重新估價，但已領先玩家的保證金競價、既有寄售原價均不更動。流標寄售退回時保留原始耐久。",
     "裝備等級改為建議值；裝備類型／階級產生能力基準，職業專長與熟練度降低推定門檻，但固定需求、特殊資格與封印仍需滿足。",
     "CURRENT-2.12.5／COMBAT-CLASS-PROGRESSION-1.1：每個高階解封階級以職業ID＋目標階級獨立紀錄考核通過；中途B級考核不會提前授予原始A/S級最終資格；新增封印A級跨階防護回歸測試。",
     "修正向前相容：既有已完成最終階級unlockedClassRoutes繼續有效；舊存檔未有classExamHistory可正常開始當前階級考核；PWA快取v136。",
@@ -431,7 +432,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v137",
+  "pwa_cache_revision": "v138",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1711,6 +1712,28 @@
     ],
     "explicit_requirements_never_discounted": true,
     "high_tier_seals_preserved": true,
+    "save_compatible": true
+  },
+  "trade_venues_data_revision": "TRADE-VENUES-DATA-1.2",
+  "trade_venues_runtime_revision": "TRADE-VENUES-RUNTIME-1.2",
+  "auction_equipment_pricing_revision": "AUCTION-GEAR-PRICE-1.0",
+  "auction_equipment_pricing": {
+    "tier_floor_silver": {
+      "F": 80,
+      "E": 240,
+      "D": 650,
+      "C": 1800,
+      "B": 5400,
+      "A": 16200,
+      "S": 48000
+    },
+    "slot_quality_market_multipliers": true,
+    "consignment_uses_auction_reference": true,
+    "damaged_gear_discount": true,
+    "preserve_unsold_durability": true,
+    "batch_lot_pricing": true,
+    "legacy_npc_repricing": true,
+    "player_escrow_price_protection": true,
     "save_compatible": true
   }
 }

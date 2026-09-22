@@ -1,5 +1,5 @@
 /* 群陸旅誌：拍賣行／黑市靜態資料 CURRENT-2.10.0
- * TRADE-VENUES-DATA-1.1
+ * TRADE-VENUES-DATA-1.2
  * 拍賣行只配置於省級行政中心與國都；黑市憑證納入正式物品資料，供runtime資格檢核。
  */
 (()=>{
@@ -7,7 +7,7 @@
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.10.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.10.0";
-const REV="TRADE-VENUES-DATA-1.1";
+const REV="TRADE-VENUES-DATA-1.2";
 const AUCTION_ID="auction";
 const BADGE_ID="IT-BM-GRAY-SIGIL";
 const PASS_ID="IT-BM-NIGHT-PASS";
@@ -79,6 +79,9 @@ DB.trade_venue_system=Object.assign({},DB.trade_venue_system||{}, {
  auction:{
   facility_id:AUCTION_ID,refresh_hours:24,listing_hours:48,listing_fee_rate:.02,commission_rate:.08,
   bid_increment_rate:.06,npc_listing_min:6,npc_listing_max:10,
+  equipment_price_floors_silver:{F:80,E:240,D:650,C:1800,B:5400,A:16200,S:48000},
+  equipment_slot_multipliers:{主武器:1,盔甲:.88,頭盔:.65,手套:.55,鞋子:.58,披風:.6,飾品:.7,盾牌:.78},
+  equipment_market_premium:1.28,equipment_legacy_repricing:true,
   min_general_value:40,min_general_tier:"D",
   placement_rule:"只在province_region_maps.capital_location_id、國都或同級明確行政中心設置；不得僅以世界F-S層級推測。",
   acceptance_rule:"一般低價值物品不列入拍賣候選，也不能由玩家寄售；D級以上或具特殊交易價值的物品可例外進場。"
@@ -96,6 +99,7 @@ function audit(){
  const issues=[],caps=capitalIdSet();
  if(!DB.facilities?.[AUCTION_ID])issues.push("拍賣行設施資料缺失");
  if(!(Number(DB.trade_venue_system?.auction?.min_general_value)>0))issues.push("拍賣行低價值門檻缺失");
+ for(const tier of ["F","E","D","C","B","A","S"])if(!(Number(DB.trade_venue_system?.auction?.equipment_price_floors_silver?.[tier])>0))issues.push("拍賣裝備階級價格下限缺失:"+tier);
  if(!(Number(DB.trade_venue_system?.black_market?.min_general_value)>0))issues.push("黑市低價值門檻缺失");
  for(const id of [BADGE_ID,PASS_ID]){
   if(!rows("items").some(x=>x?.id===id))issues.push("黑市憑證缺失:"+id);
