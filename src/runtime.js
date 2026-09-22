@@ -534,6 +534,13 @@ function persist(){
  try{
    const serialized=JSON.stringify(G);
    if(serialized===lastPersistSerialized||serialized===pendingPersistSerialized)return true;
+   if(!globalThis.indexedDB){
+     if(!window.localStorage)throw new Error("瀏覽器未提供本機儲存空間。");
+     localStorage.setItem(SAVE_MAIN_KEY,serialized);
+     lastPersistSerialized=serialized;
+     if(lastPersistError){lastPersistError=null;renderSaveHealth(null)}
+     return true
+   }
    pendingPersistSerialized=serialized;
    if(!persistDrainPromise)persistDrainPromise=drainPersistQueue();
    return true
