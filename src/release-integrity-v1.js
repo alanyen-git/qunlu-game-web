@@ -1,12 +1,12 @@
-/* 群陸旅誌：正式發布完整性橋接 CURRENT-2.07.3
- * RELEASE-INTEGRITY-2.21
+/* 群陸旅誌：正式發布完整性橋接 CURRENT-2.08.0
+ * RELEASE-INTEGRITY-2.22
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.07.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.07.3";
-const REV="RELEASE-INTEGRITY-2.20";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.08.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.08.0";
+const REV="RELEASE-INTEGRITY-2.22";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -69,6 +69,8 @@ function audit(){
   else issues.push("夥伴特色深化:稽核runtime缺失");
   if(typeof globalThis.runCompanionSpeciesIdentityAudit==="function")pushResult(issues,"夥伴物種簽章:",globalThis.runCompanionSpeciesIdentityAudit());
   else issues.push("夥伴物種簽章:稽核runtime缺失");
+  if(typeof globalThis.runAdventurePartyTeammateDepthAudit==="function")pushResult(issues,"冒險團隊友深化:",globalThis.runAdventurePartyTeammateDepthAudit());
+  else issues.push("冒險團隊友深化:稽核runtime缺失");
   if(typeof globalThis.runOriginDepthAudit==="function")pushResult(issues,"角色出身:",globalThis.runOriginDepthAudit());
   else issues.push("角色出身:稽核runtime缺失");
   if(typeof globalThis.runAffiliationIdentityDepthAudit==="function")pushResult(issues,"組織流派深化:",globalThis.runAffiliationIdentityDepthAudit());
