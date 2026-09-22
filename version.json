@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-2.10.1",
-  "previous_version": "CURRENT-2.10.0",
+  "version": "CURRENT-2.11.0",
+  "previous_version": "CURRENT-2.10.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.10.1：新增同行共享負重系統；NPC隊友與寵物／契約獸依定位、體格、階級、等級與羈絆提供不同負重支援，純召喚獸不提供常駐行李空間；舊存檔原地相容。",
+  "summary": "CURRENT-2.11.0：副職業新增角色介面手動升級功能；副職業列直接顯示目前XP／下一階所需XP，達成XP與角色等級條件後可升級，累積XP保留；舊存檔原地相容。",
   "changelog": [
+    "CURRENT-2.11.0／SUBJOB-PROGRESSION-2.0：副職業由隱藏自動晉階改為累積XP＋角色介面手動升級；製作與料理仍依原規則取得副職業XP。",
+    "角色介面「副職業」欄現在逐項顯示階級、目前XP／下一階所需XP；達成XP門檻與角色等級條件後顯示可操作的「升級［下一階］」按鍵。",
+    "副職業升級不消耗累積XP，沿用既有累積門檻；S級顯示XP/MAX。既有角色的副職業階級與XP不重置，舊存檔載入時會正規化非法／缺失值。",
+    "五回合自檢新增副職業階級、XP與升級runtime檢查；PWA快取升至v130。",
     "CURRENT-2.10.1／TEAM-CARRY-1.0：NPC隊友加入後依定位、種族體格、階級、等級與羈絆提供共享負重，直接接入 resourceCaps → combatStats 主鏈。",
     "寵物／契約獸依物種體型特徵、階級、等級與羈絆提供共享負重；純召喚獸不提供非戰鬥常駐行李空間，避免以臨時召喚繞過負重限制。",
     "背包、寵物／契約獸與冒險團資料頁新增負重來源與個別加成顯示；招募候選可預覽加入後的負重支援。",
@@ -375,7 +379,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.21",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.22",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -401,7 +405,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v129",
+  "pwa_cache_revision": "v130",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -477,7 +481,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.25",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.26",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -751,7 +755,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.24",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.25",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 73,
@@ -1636,5 +1640,13 @@
       "companion_panel"
     ],
     "save_schema_changed": false
+  },
+  "subjob_progression_revision": "SUBJOB-PROGRESSION-2.0",
+  "subjob_progression": {
+    "promotion_mode": "manual",
+    "xp_mode": "cumulative",
+    "character_ui_progress": true,
+    "upgrade_button": true,
+    "save_compatible": true
   }
 }

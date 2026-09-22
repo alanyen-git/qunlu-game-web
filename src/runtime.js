@@ -1,5 +1,5 @@
 
-const CURRENT_VERSION=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.78.0";
+const CURRENT_VERSION=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.11.0";
 const AUDIT_INTERVAL_TURNS=5;
 DB.meta.current_version=CURRENT_VERSION;
 DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
@@ -12,6 +12,15 @@ DB.meta.political_standing_repair_revision="POLITICAL-STANDING-REPAIR-1.0";
 DB.meta.battle_formation_revision="BATTLE-FORMATION-2.0";
 DB.meta.gather_runtime_revision="GATHER-RUNTIME-1.1";
 DB.meta.team_carry_revision="TEAM-CARRY-1.0";
+DB.meta.subjob_progression_revision="SUBJOB-PROGRESSION-2.0";
+DB.subjob_progression_system={
+ version:"SUBJOB-PROGRESSION-2.0",
+ grades:["F","E","D","C","B","A","S"],
+ promotion_mode:"manual",
+ xp_mode:"cumulative",
+ rules:["副職業經驗由對應製作／料理行動取得。","達到下一階XP門檻且角色等級符合要求後，由角色介面手動升級。","升級不消耗累積XP，門檻採累積制；S級為上限。"],
+ save_schema_changed:false
+};
 DB.team_carry_system={version:"TEAM-CARRY-1.0",save_schema_changed:false,counts:["實際同行NPC隊友","寵物／契約獸"],excludes:["純召喚獸"],factors:{teammate:["定位","種族體格","階級","等級","羈絆"],companion:["物種體型特徵","階級","等級","羈絆"]},rule:"以共享行李額度增加角色即時負重上限；不改物品重量，不把同行者完整個人負重全部轉給玩家。"};
 DB.runtime_optimization_system.version="RUNTIME-OPT-1.5";
 DB.status_system.version="STATUS-1.11";
@@ -36,6 +45,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／POLITICAL-STAN
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／BATTLE-FORMATION-2.0：戰鬥介面改為敵方置頂；自己、隊友與出戰寵物／召喚獸共用盟友並排網格。戰鬥卡不再顯示寵物／召喚獸光環與專屬技能明細，保留AI與HP資訊。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／GATHER-RUNTIME-1.1：採集正式讀取gather／mining／woodcut三類地圖資源池；工具需求統一以tool_effect判定，缺工具時顯示實際缺少的工具並提示雜貨鋪。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.1／TEAM-CARRY-1.0：實際同行隊友與寵物／契約獸依定位、體格、階級、等級與羈絆提供共享負重；純召喚獸不提供常駐行李空間。負重直接接入resourceCaps→combatStats主鏈、超重懲罰、HUD與背包。");
+DB.integration_registry.optimization_notes.push("CURRENT-2.11.0／SUBJOB-PROGRESSION-2.0：副職業改為累積XP＋角色介面手動升級；角色頁直接顯示目前XP／下一階所需XP與升級按鍵，保留既有XP與舊存檔相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
@@ -510,7 +520,7 @@ function migrateSave(){
      q.patrolVisited=(q.patrolVisited||fresh.objective.checkpoints.slice(0,oldProgress)).slice(0,oldProgress);
      q.progress=oldProgress
    }
- }for(const q of G.quests){if(q.status==="ready"&&!q.reportDeadlineHour)q.reportDeadlineHour=Math.max(q.deadlineHour||totalHours(),totalHours()+(DB.quest_system.report_grace_hours||24));}c.classMastery=c.classMastery??0;c.classHistory=c.classHistory||[];c.unlockedClassRoutes=c.unlockedClassRoutes||[];c.knownRecipes=c.knownRecipes||[];c.weaponSet=c.weaponSet||{offhand:null};for(const sj of (c.subjobs||[]))sj.xp=sj.xp??0;
+ }for(const q of G.quests){if(q.status==="ready"&&!q.reportDeadlineHour)q.reportDeadlineHour=Math.max(q.deadlineHour||totalHours(),totalHours()+(DB.quest_system.report_grace_hours||24));}c.classMastery=c.classMastery??0;c.classHistory=c.classHistory||[];c.unlockedClassRoutes=c.unlockedClassRoutes||[];c.knownRecipes=c.knownRecipes||[];c.weaponSet=c.weaponSet||{offhand:null};for(const sj of (c.subjobs||[])){sj.xp=Math.max(0,Number(sj.xp)||0);if(!["F","E","D","C","B","A","S"].includes(sj.grade))sj.grade="F";}
  const mainD=item(equipId(c.equipment?.主武器));if(mainD&&isShieldItem(mainD)){if(!c.weaponSet.offhand)c.weaponSet.offhand=c.equipment.主武器;c.equipment.主武器=makeEquip("EQ-IRON-SWORD")}
  if(mainIsTwoHanded()&&c.weaponSet.offhand)unequipOffhand(true);
  const offD=c.weaponSet.offhand&&item(equipId(c.weaponSet.offhand));if(offD&&!offhandEligible(offD))unequipOffhand(true);
@@ -1937,16 +1947,41 @@ function consumeIngredient(id,qty){
  }
  return left<=0
 }
+const SUBJOB_GRADES=["F","E","D","C","B","A","S"];
 function subjobThreshold(grade){return DB.crafting_system.subjob_xp_thresholds[grade]??Infinity}
+function formatSubjobXp(value){
+ const n=Math.max(0,Number(value)||0),rounded=Math.round(n*100)/100;
+ return Number.isInteger(rounded)?String(rounded):rounded.toFixed(2).replace(/0+$/,"").replace(/\.$/,"")
+}
+function subjobUpgradeState(j){
+ const grade=SUBJOB_GRADES.includes(j?.grade)?j.grade:"F",idx=SUBJOB_GRADES.indexOf(grade),xp=Math.max(0,Number(j?.xp)||0);
+ if(idx>=SUBJOB_GRADES.length-1)return {grade,next:null,xp,need:null,levelNeed:null,xpReady:true,levelReady:true,canUpgrade:false,max:true};
+ const next=SUBJOB_GRADES[idx+1],need=Number(subjobThreshold(next)),levelNeed=Number(DB.class_design_system.unlock_levels[next]||99);
+ const xpReady=Number.isFinite(need)&&xp>=need,levelReady=G.character.level>=levelNeed;
+ return {grade,next,xp,need,levelNeed,xpReady,levelReady,canUpgrade:xpReady&&levelReady,max:false}
+}
+function subjobProgressHtml(j){
+ const d=sub(j.id),state=subjobUpgradeState(j),name=d?.name||j.id,xp=formatSubjobXp(state.xp);
+ if(state.max)return `<div class="subjob-progress-entry"><div class="subjob-progress-main"><b>${name}［${state.grade}］</b><br><span class="small">XP ${xp}/MAX｜已達最高階</span></div></div>`;
+ const need=Number.isFinite(state.need)?formatSubjobXp(state.need):"—",levelHint=state.levelReady?"":`｜需角色Lv${state.levelNeed}`;
+ return `<div class="subjob-progress-entry"><div class="subjob-progress-main"><b>${name}［${state.grade}］</b><br><span class="small">XP ${xp}/${need}${levelHint}</span></div><button type="button" class="${state.canUpgrade?"good":""}" ${state.canUpgrade?"":"disabled"} onclick="upgradeSubjob('${j.id}')">升級［${state.next}］</button></div>`
+}
 function gainSubjobXp(sid,amount){
- const j=G.character.subjobs.find(x=>x.id===sid);if(!j)return;
+ const j=G.character.subjobs.find(x=>x.id===sid);if(!j)return null;
  const rate=talentSubjobBonus(sid,"xpRate");
  amount=Math.max(0,Math.round(amount*(1+rate)*100)/100);
- j.xp=(j.xp||0)+amount;
- const idx=tierOrder(j.grade||"F");
- if(idx>=6)return;
- const next=["F","E","D","C","B","A","S"][idx+1],need=subjobThreshold(next),lv=DB.class_design_system.unlock_levels[next]||99;
- if(j.xp>=need&&G.character.level>=lv){j.grade=next;log("副職業",`${sub(sid).name}熟練提升為［${next}］。`,"ok")}
+ j.xp=Math.max(0,Number(j.xp)||0)+amount;
+ return subjobUpgradeState(j)
+}
+function upgradeSubjob(sid){
+ const j=G.character.subjobs.find(x=>x.id===sid);if(!j)return;
+ const state=subjobUpgradeState(j),name=sub(sid)?.name||sid;
+ if(!state.next){alert(`${name}已達最高階。`);return}
+ if(!state.xpReady){alert(`${name}副職業經驗不足：XP ${formatSubjobXp(state.xp)}/${formatSubjobXp(state.need)}。`);return}
+ if(!state.levelReady){alert(`${name}升級至［${state.next}］需要角色Lv${state.levelNeed}；目前Lv${G.character.level}。`);return}
+ j.grade=state.next;
+ log("副職業",`${name}升級為［${state.next}］；累積XP保留。`,"ok");
+ persist();openCharacter()
 }
 function craftSuccessChance(d,j){
  const prof=d.craft_recipe.profession,primary=prof==="鍛造"?"力量":prof==="裁縫"?"敏捷":"智力";
@@ -5172,7 +5207,7 @@ function openCharacter(){
  const c=G.character,cc=cls(c.classId),cs=combatStats(),eres=elementalResistances();
  const origin=org(c.originId),originFacet=(origin?.facets||[]).find(x=>x.id===c.originFacetId)||null;
  const roleText=cc.combat_role||"—",trackText=cc.combat_track_label||combatTrackText(cc);
- const subjobText=c.subjobs.length?c.subjobs.map(x=>`${sub(x.id).name}［${x.grade}］`).join("、"):"無";
+ const subjobText=c.subjobs.length?c.subjobs.map(subjobProgressHtml).join(""):"無";
  const attrs=[["STR 力量","力量"],["DEX 敏捷","敏捷"],["CON 體質","體力"],["INT 智力","智力"],["WIS 精神","意志"],["CHA 魅力","魅力"],["LUK 幸運","幸運"]].map(([label,key])=>`<div class="card"><b>${label}</b><br>${c.stats[key]}${effectiveStat(key)!==c.stats[key]?` → ${effectiveStat(key)}`:""}${c.abilityPoints>0?` <button class="stat-up good" onclick="spendAbilityPoint('${key}')">＋1</button>`:""}</div>`).join("");
  const core=`<div class="grid3"><div class="card"><b>物理攻擊</b><br>${cs.attack}</div><div class="card"><b>魔法攻擊</b><br>${cs.magicPower}</div><div class="card"><b>物理防禦</b><br>${cs.defense}</div><div class="card"><b>魔法防禦</b><br>${cs.magicDefense}</div><div class="card"><b>命中率</b><br>${cs.accuracy}%</div><div class="card"><b>閃避率</b><br>${cs.evasion}%</div><div class="card"><b>爆擊率</b><br>${cs.critRate}%</div><div class="card"><b>爆擊傷害</b><br>${cs.critDamage}%</div><div class="card"><b>速度／先攻</b><br>${cs.initiative}</div></div>`;
  const advanced=`<div class="grid3"><div class="card"><b>移動速度</b><br>${cs.moveSpeed}</div><div class="card"><b>攻擊速度</b><br>${cs.attackSpeed.toFixed(2)}×</div><div class="card"><b>詠唱速度</b><br>${cs.castSpeed.toFixed(2)}×</div><div class="card"><b>射程</b><br>${cs.range}m</div><div class="card"><b>破甲／魔穿</b><br>${cs.armorPenPct}% / ${cs.magicPenPct}%</div><div class="card"><b>格擋</b><br>${cs.blockRate}% / 減傷${cs.blockValue}%</div><div class="card"><b>韌性</b><br>${cs.poise}</div><div class="card"><b>異常命中</b><br>${cs.statusAccuracy}%</div><div class="card"><b>異常抗性</b><br>${cs.statusResist}%</div><div class="card"><b>生命偷取</b><br>${cs.lifeSteal}%</div><div class="card"><b>治療效果</b><br>${cs.healingPower}%</div><div class="card"><b>MP回復</b><br>${cs.manaRegen}/時</div><div class="card"><b>HP回復</b><br>${cs.hpRegen}/時</div><div class="card"><b>爆擊抗性</b><br>${cs.critResist}%</div><div class="card"><b>威脅值</b><br>${cs.threat}</div><div class="card"><b>潛行</b><br>${cs.stealth}</div><div class="card"><b>感知</b><br>${cs.perception}</div><div class="card"><b>負重上限</b><br>${cs.carryCapacity}kg</div></div>`;
@@ -5187,7 +5222,7 @@ function openCharacter(){
    <div class="profile-row"><span class="profile-key">等級／經驗</span><span class="profile-value">Lv${c.level}｜XP ${c.xp||0}/${c.level>=99?"MAX":xpToNext(c.level)}</span></div>
    <div class="profile-row"><span class="profile-key">職業熟練</span><span class="profile-value">${(c.classMastery||0).toFixed(1)}%</span></div>
    <div class="profile-row"><span class="profile-key">元素親和</span><span class="profile-value">${c.element}</span></div>
-   <div class="profile-row"><span class="profile-key">副職業</span><span class="profile-value">${subjobText}</span></div>
+   <div class="profile-row"><span class="profile-key">副職業</span><span class="profile-value subjob-profile-value">${subjobText}</span></div>
  </div>
  <div class="card origin-depth-card"><b>出身特色｜${origin?.signature||"—"}</b><br><span class="small">代價｜${origin?.burden||"—"}<br>行動動機｜${origin?.drive||"—"}<br>人脈／接觸｜${origin?.social_access||"—"}${originFacet?`<br>背景側寫｜${originFacet.note}`:""}${origin?.hooks?.length?`<br>故事鉤子｜${origin.hooks.join("／")}`:""}</span></div>
  ${cc.combat_identity?`<div class="card class-identity-card"><b>職業核心｜${cc.combat_identity.signature}</b><br><span class="small">戰鬥循環｜${cc.combat_identity.battle_loop}<br>強項｜${cc.combat_identity.strengths.join("／")}<br>代價｜${cc.combat_identity.tradeoffs.join("／")}<br>武器特色｜${cc.combat_identity.weapon_identity}｜機制：${cc.combat_identity.mechanic_tags.join("／")}</span></div>`:""}
@@ -6072,6 +6107,9 @@ function runAudit(){
  if((c.talents||[]).length>2)issues.push("天賦超過2");
  if(c.level<1||c.level>99)issues.push("角色等級超出1–99");
  if((c.classMastery||0)<0||(c.classMastery||0)>100)issues.push("職業熟練異常");
+ if(DB.subjob_progression_system?.version!=="SUBJOB-PROGRESSION-2.0")issues.push("SUBJOB-PROGRESSION-2.0缺失");
+ if(typeof subjobUpgradeState!=="function"||typeof upgradeSubjob!=="function")issues.push("副職業升級runtime缺失");
+ for(const j of (c.subjobs||[])){if(!SUBJOB_GRADES.includes(j.grade))issues.push(`副職業階級異常:${j.id}/${j.grade}`);if(!Number.isFinite(Number(j.xp))||Number(j.xp)<0)issues.push(`副職業XP異常:${j.id}/${j.xp}`)}
  if(mainIsTwoHanded()&&offhandEquip())issues.push("雙手武器與副手裝備衝突");
  const auditOff=offhandEquip()&&item(equipId(offhandEquip()));if(auditOff&&!offhandEligible(auditOff))issues.push(`副手裝備不合法:${auditOff.name}`);
  for(const {eq} of equippedEntries())if(eq&&(eq.durability<0||eq.durability>eq.maxDurability))issues.push("裝備耐久異常");

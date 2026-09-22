@@ -55,7 +55,7 @@
   window.addEventListener("load",()=>{
     if(!("serviceWorker" in navigator))return;
     if(!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=CURRENT-2.10.1-TEAM-CARRY-HF1",{scope:"./"})
+    navigator.serviceWorker.register("sw.js?v=CURRENT-2.11.0-SUBJOB-HF1",{scope:"./"})
       .then(registration=>registration.update().catch(()=>null))
       .catch(error=>console.warn("Service worker registration failed",error));
   },{once:true});

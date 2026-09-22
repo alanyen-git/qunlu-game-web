@@ -892,6 +892,12 @@ body{background:#071014;color:var(--ui-text)}
 .profile-row:last-child,.resource-list-row:last-child{border-bottom:0}
 .profile-key,.resource-list-key{color:#b7c2c4}
 .profile-value{font-size:17px;font-weight:750;color:#f0eee6}
+.subjob-profile-value{display:grid;gap:8px}
+.subjob-progress-entry{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.subjob-progress-entry+.subjob-progress-entry{padding-top:8px;border-top:1px dotted #3a4b50}
+.subjob-progress-main{min-width:0;flex:1 1 150px}
+.subjob-progress-main .small{font-weight:600;color:#b7c2c4}
+.subjob-progress-entry button{min-height:34px;padding:5px 10px;white-space:nowrap}
 .money-title{font-size:17px;font-weight:800;margin-bottom:6px}
 .money-display{font-size:20px;font-weight:850;color:#f1cf7b;white-space:nowrap}
 .resource-list-row{grid-template-columns:minmax(0,1fr) auto}
