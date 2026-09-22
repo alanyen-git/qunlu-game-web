@@ -1,6 +1,7 @@
 "use strict";
 const fs=require("node:fs"),assert=require("node:assert/strict"),vm=require("node:vm");
 const code=fs.readFileSync("src/runtime.js","utf8");
+const equipmentRules=fs.readFileSync("src/equipment-eligibility-v2.js","utf8");
 const extract=(from,to)=>{const a=code.indexOf(from),b=code.indexOf(to,a);assert.ok(a>=0&&b>a,"missing "+from);return code.slice(a,b)};
 const equipCode=extract("function requirementEsc(v)","function equipOffhandFromInventory(");
 const skillCode=extract("function skillPrereqCompareLine(","DB.meta.skill_learning_prereq_compare_revision");
@@ -17,20 +18,40 @@ let modal=null;const ctx=vm.createContext({G,DB,console,showModal:(title,body)=>
  isOneHandedWeapon:d=>d.type==="主武器"&&d.weapon_profile?.hands===1,
  offhandEligible:d=>d.catalog_subcategory==="盾牌"||(d.type==="主武器"&&d.weapon_profile?.hands===1),
  mainIsTwoHanded:()=>true,findPoolSkillByKey:(cid,key)=>(DB.skill_pools[cid]||[]).find(x=>x.id===key),
- cls:cid=>cid==="TEST-CLASS"?{id:cid,primary:"力量"}:null,sharedSkill:id=>null,
+ cls:cid=>cid==="TEST-CLASS"?{id:cid,primary:"力量",name:"劍士",weapon_group:"長劍"}:null,sharedSkill:id=>null,
  tierOrder:t=>({F:0,E:1,D:2,C:3,B:4,A:5,S:6})[t]||0});
+vm.runInContext(equipmentRules,ctx);
 vm.runInContext(equipCode+skillCode+skillModalCode,ctx);
 const eq=vm.runInContext("equipmentRequirementState",ctx)(gear,true);
-assert.deepEqual(Array.from(eq.missing),["角色等級","力量","裝備解封","主手配置"]);
-assert.match(eq.reason,/Lv8/);
+assert.deepEqual(Array.from(eq.missing),["力量","裝備解封","主手配置"]);
+assert.equal(eq.checks.find(x=>x.label==="建議等級（非限制）")?.ok,true);
+assert.match(eq.reason,/力量/);
 vm.runInContext("showEquipmentRequirements(0,true)",ctx);
 assert.match(modal.title,/封印長劍/);
-assert.match(modal.body,/尚未符合 4 項條件/);
-assert.match(modal.body,/需求：Lv8｜目前：Lv4/);
+assert.match(modal.body,/尚未符合 3 項條件/);
+assert.match(modal.body,/建議等級（非限制）/);
 assert.match(modal.body,/先卸下雙手主武器/);
 const locked=vm.runInContext("equipmentActionButton",ctx)(eq,"equipFromInventory(0)",0,true,"裝備副手");
 assert.match(locked,/showEquipmentRequirements\(0,true\)/);
 assert.doesNotMatch(locked,/disabled/);
+const high={...gear,id:"HIGH-TEST",tier:"B",sealed:false,required_level:45,required_stats:{"力量":16}};
+G.character.stats.力量=18;
+const highGate=vm.runInContext("equipmentRequirementState",ctx)(high);
+assert.equal(highGate.ok,true,"low-level high-stat player can use unsealed B gear");
+assert.equal(highGate.checks.find(x=>x.label==="建議等級（非限制）")?.ok,true);
+assert.ok(vm.runInContext("equipmentRequirementState",ctx)(gear).missing.includes("裝備解封"),"sealed relic still requires unsealing");
+G.character.stats.力量=10;G.character.classMastery=0;
+const trained={...gear,id:"TRAIN-TEST",tier:"D",sealed:false,required_level:30,required_stats:{}};
+assert.equal(vm.runInContext("equipmentRequirementState",ctx)(trained).ok,false,"undertrained sword user");
+G.character.classMastery=50;
+assert.equal(vm.runInContext("equipmentRequirementState",ctx)(trained).ok,true,"mastery reduces derived ability threshold");
+G.character.classId="TEST-OTHER";
+assert.equal(vm.runInContext("equipmentRequirementState",ctx)(trained).ok,false,"cross-class user cannot claim sword affinity");
+G.character.classId="TEST-CLASS";G.character.stats.力量=18;G.character.classMastery=0;
+const restricted={...high,id:"RESTRICTED",tier:"F",required_class_ids:["C-PRIEST"],required_stats:{}};
+assert.ok(vm.runInContext("equipmentRequirementState",ctx)(restricted).missing.includes("指定職業"),"explicit class requirements are not discounted");
+G.character.stats.力量=9;
+
 const skillGate=vm.runInContext("skillLearningPrereqState",ctx)(skill,{mode:"class",fee:35,requireGuild:true});
 assert.deepEqual(Array.from(skillGate.missing),["戰鬥職業階級","角色等級","力量（基礎屬性）","學費","學習地點"]);
 vm.runInContext("showSkillLearningRequirements('class','TEST-SKILL')",ctx);
@@ -51,6 +72,7 @@ const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 const html=fs.readFileSync("index.html","utf8");
 const sw=fs.readFileSync("sw.js","utf8");
 assert.equal(version.requirement_detail_revision,"REQUIREMENT-DETAIL-1.0");
+assert.equal(version.equipment_eligibility_revision,"EQUIPMENT-ELIGIBILITY-2.0");
 assert.match(html,new RegExp("src/runtime\\.js\\?v="+version.version.replaceAll(".","\\.")));
 assert.ok(sw.includes('CACHE_PREFIX+"'+version.pwa_cache_revision+'"'));
-console.log("requirement detail regression OK: all equipment/skill unmet checks, readable buttons, modal, save-safe");
+console.log("requirement detail regression OK: comprehensive equipment gate, advisory level, special seals, skill checks, save-safe");

@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.12.5",
-  "previous_version": "CURRENT-2.12.4",
+  "version": "CURRENT-2.12.6",
+  "previous_version": "CURRENT-2.12.5",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.5：封印原始A/S級職業的B/A/S各階考核資格獨立驗證，避免通過B級考核後跳過後續高階考核。",
+  "summary": "CURRENT-2.12.6：裝備移除角色等級硬鎖，改依能力值、職業專長、熟練度與特殊資格判定。",
   "changelog": [
+    "裝備等級改為建議值；裝備類型／階級產生能力基準，職業專長與熟練度降低推定門檻，但固定需求、特殊資格與封印仍需滿足。",
     "CURRENT-2.12.5／COMBAT-CLASS-PROGRESSION-1.1：每個高階解封階級以職業ID＋目標階級獨立紀錄考核通過；中途B級考核不會提前授予原始A/S級最終資格；新增封印A級跨階防護回歸測試。",
     "修正向前相容：既有已完成最終階級unlockedClassRoutes繼續有效；舊存檔未有classExamHistory可正常開始當前階級考核；PWA快取v136。",
     "CURRENT-2.12.4／COMBAT-CLASS-PROGRESSION-1.0：聖劍士等初始封印高階職業，改為依F→E→D→C→原始階級逐級解除封印；每階檢查角色等級、熟練度與所在地公會層級，升階歷程保留存檔。",
@@ -430,7 +431,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v136",
+  "pwa_cache_revision": "v137",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -783,7 +784,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.27",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 74,
+    "active_src_programs": 75,
     "groups": [
       "core",
       "data",
@@ -803,9 +804,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.12.4新增戰鬥職業逐階升階程序；74個src正式程序與入口、Service Worker、PROGRAM-REGISTRY同步。",
+    "note": "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
     "last_verified_release": "CURRENT-2.10.0",
     "notes": [
+      "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
       "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",
       "CURRENT-2.09.0：新增src/trade-venues-data-v1.js與src/trade-venues-runtime-v1.js；拍賣行／黑市接入現行引擎，PWA v122；正式程序增為72個。",
       "CURRENT-2.08.0：新增src/adventure-party-teammate-depth-v1.js；冒險團與招募候選可查看完整隊友資料，PWA v121；正式程序增為70個。",
@@ -1695,5 +1697,20 @@
   },
   "battle_skill_popup_revision": "BATTLE-SKILL-POPUP-2.0",
   "requirement_detail_revision": "REQUIREMENT-DETAIL-1.0",
-  "combat_class_progression_revision": "COMBAT-CLASS-PROGRESSION-1.1"
+  "combat_class_progression_revision": "COMBAT-CLASS-PROGRESSION-1.1",
+  "equipment_eligibility_revision": "EQUIPMENT-ELIGIBILITY-2.0",
+  "equipment_eligibility": {
+    "level_gate": "advisory_only",
+    "factors": [
+      "effective_stats",
+      "weapon_or_armor_profile",
+      "class_weapon_affinity",
+      "class_mastery",
+      "combat_grade",
+      "explicit_item_qualifications"
+    ],
+    "explicit_requirements_never_discounted": true,
+    "high_tier_seals_preserved": true,
+    "save_compatible": true
+  }
 }

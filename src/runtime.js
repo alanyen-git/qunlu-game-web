@@ -4101,6 +4101,7 @@ function itemStatsText(d,compareTo=null){
  if(d.consumable_group)a.push(d.consumable_group);if(d.material_group)a.push(d.material_group);if(d.tool_effect)a.push(`工具：${d.tool_effect}`);if(d.knowledge_tag)a.push(`知識：${d.knowledge_tag}`);if(d.monster_drop_group)a.push(d.monster_drop_group);
  if(d.material)a.push(d.material);
  if(d.required_level)a.push(`建議Lv${d.required_level}+`);
+  if(globalThis.QUNLU_EQUIPMENT_RULES&&["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(d.type)){const summary=globalThis.QUNLU_EQUIPMENT_RULES.summary(d);if(summary)a.push(summary)}
  if(d.rarity)a.push(d.rarity);
  if(d.sealed)a.push("封印中：高階加成受限");
  if(d.combat||compareTo){
@@ -5321,18 +5322,23 @@ function showBlockedRequirements(title,checks,returnAction){
  showModal(title,`<div class="card small"><b>${missing.length?"尚未符合 "+missing.length+" 項條件":"目前已符合全部條件"}</b><br>紅色為未達成，綠色為已達成；查看不消耗遊戲時間或物品。</div>${missing.map(row).join("")}${passed.length?`<details class="card"><summary>查看已達成條件（${passed.length}）</summary>${passed.map(row).join("")}</details>`:""}<div class="actions"><button type="button" onclick="${returnAction}">返回原列表</button></div>`);
 }
 function equipmentRequirementState(d,offhand=false){
- const checks=[],add=(label,need,current,ok,shortfall="")=>checks.push({label,need,current,ok:!!ok,shortfall});
- if(!d)return {ok:false,reason:"裝備資料不存在",checks:[{label:"物品",need:"有效裝備資料",current:"資料不存在",ok:false,shortfall:"請重新開啟背包"}],missing:["物品"]};
- const c=G.character;
- if(d.required_level){const need=Number(d.required_level),cur=Number(c.level)||1;add("角色等級",`Lv${need}`,`Lv${cur}`,cur>=need,cur>=need?"":`Lv${need-cur}`)}
- for(const [stat,value] of Object.entries(d.required_stats||{})){const need=Number(value)||0,cur=Number(effectiveStat(stat))||0;add(stat==="體力"?"體質":stat,need,cur,cur>=need,cur>=need?"":need-cur)}
- if(["B","A","S"].includes(d.tier)&&d.sealed)add("裝備解封","完成對應資格／解封條件","尚未解封",false,"完成解封");
+ const c=G.character,rule=globalThis.QUNLU_EQUIPMENT_RULES;
+ const result=rule?.evaluate(d,{character:c,classRow:cls(c?.classId),statValue:n=>effectiveStat(n)});
+ const checks=result?.checks?[...result.checks]:[];
+ const add=(label,need,current,ok,shortfall="")=>checks.push({label,need,current,ok:!!ok,shortfall});
+ if(!result){
+  if(!d)return {ok:false,reason:"裝備資料不存在",checks:[{label:"物品",need:"有效裝備",current:"不存在",ok:false,shortfall:"重新開啟背包"}],missing:["物品"]};
+  for(const [s,v] of Object.entries(d.required_stats||{})){
+   const cur=Number(effectiveStat(s))||0;add(s==="體力"?"體質":s,v,cur,cur>=v,cur>=v?"":v-cur);
+  }
+  if(d.sealed&&["B","A","S"].includes(d.tier))add("裝備解封","完成專屬解封","尚未解封",false,"完成裝備解封");
+ }
  if(offhand){
-  add("副手類型","盾牌或單手武器",isShieldItem(d)?"盾牌":isOneHandedWeapon(d)?"單手武器":d.type||"不適用",offhandEligible(d),offhandEligible(d)?"":"不可放入副手");
-  const blocked=mainIsTwoHanded();add("主手配置","沒有裝備雙手武器",blocked?"目前使用雙手武器":"可配置副手",!blocked,blocked?"先卸下雙手主武器":"")
+  add("副手類型","盾牌或單手武器",isShieldItem(d)?"盾牌":isOneHandedWeapon(d)?"單手武器":d?.type||"不適用",offhandEligible(d),offhandEligible(d)?"":"不可放入副手");
+  const blocked=mainIsTwoHanded();add("主手配置","沒有裝備雙手武器",blocked?"目前使用雙手武器":"可配置副手",!blocked,blocked?"先卸下雙手主武器":"");
  }
  const missing=checks.filter(x=>!x.ok);
- return {ok:!missing.length,reason:missing.length?`需要${missing[0].label}：${missing[0].need}（目前${missing[0].current}）`:"",checks,missing:missing.map(x=>x.label)}
+ return {ok:!missing.length,reason:missing.length?"需要"+missing[0].label+"："+missing[0].need+"（目前"+missing[0].current+"）":"",checks,missing:missing.map(x=>x.label)}
 }
 function canEquipItem(d){return equipmentRequirementState(d,false)}
 function showEquipmentRequirements(index,offhand=false){
