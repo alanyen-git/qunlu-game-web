@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-2.12.2",
-  "previous_version": "CURRENT-2.12.1",
+  "version": "CURRENT-2.12.3",
+  "previous_version": "CURRENT-2.12.2",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.2：修復地下城等戰鬥的技能選擇彈窗殘留治癒術目標頁問題；每次按技能均先顯示技能列表，治療／淨化目標頁可返回，選擇確認後才消耗資源與回合。",
+  "summary": "CURRENT-2.12.3：裝備與技能學習的未達條件按鈕可以點擊，彈出缺少條件與需求／目前值對照，保留原先學習、裝備前置限制。",
   "changelog": [
+    "CURRENT-2.12.3／REQUIREMENT-DETAIL-1.0：背包主手、副手及各裝備槽的未達條件按鈕改為可點擊，顯示全部不符條件及角色目前值、差額，不會誤觸裝備。",
+    "本職與跨職技能學習未達條件按鈕改為可點擊；條件彈窗顯示缺少的職業階級、角色等級、基礎屬性、學費、技能空位、公會學習地點及職業招牌限制，並可返回原列表。",
+    "裝備與技能執行函式持續檢核原始前置限制；檢視條件不消耗金錢、物品或回合，舊存檔相容。",
+    "PWA快取升至v134，新增條件視窗的UI樣式與回歸測試。",
     "CURRENT-2.12.2／BATTLE-SKILL-POPUP-2.0：修復關閉治療／淨化目標頁後，重新按技能時彈窗標題殘留、無返回操作，以及重複點擊可能混淆選擇階段的問題。",
     "技能按鈕每次開啟重設至技能列表；治療及淨化改為先選技能再進入目標頁，目標頁提供返回技能列表，未確認前不施放、不扣MP／SP、不推進戰鬥回合。",
     "戰鬥切換時清理舊彈窗狀態，確認目標時校驗當前技能、出戰目標與資源，阻止過時按鍵連續施放；地下城與野外共用同一修復。",
@@ -420,7 +424,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v133",
+  "pwa_cache_revision": "v134",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1682,5 +1686,6 @@
     "guild_penalty": false,
     "save_compatible": true
   },
-  "battle_skill_popup_revision": "BATTLE-SKILL-POPUP-2.0"
+  "battle_skill_popup_revision": "BATTLE-SKILL-POPUP-2.0",
+  "requirement_detail_revision": "REQUIREMENT-DETAIL-1.0"
 }
