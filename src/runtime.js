@@ -4177,7 +4177,9 @@ function beginPlayerBattleAction(){
  return true
 }
 let battleLastFocus=null,battleSkillLastFocus=null;
+let battleSkillPopupStage="closed",battleSelectedSkillIndex=null;
 function startBattle(monster,context){
+ closeBattleSkillPopup();
  battleLastFocus=document.activeElement;
  const enemy={...monster,maxHp:monster.hp,hp:monster.hp},cs=combatStats();
  const playerInit=cs.initiative+Math.min(6,cs.range/8),enemyInit=(enemy.initiative||10)+Math.min(4,(enemy.range||1)/8);
@@ -4248,12 +4250,25 @@ function battleGeneralAttack(){
  if(e.hp<=0){finishBattle("勝利");return}
  enemyBattleTurn()
 }
-function closeBattleSkillPopup(){const p=$("#battleSkillPopup"),wasOpen=p&&!p.classList.contains("hide");if(p)p.classList.add("hide");if(wasOpen&&battleSkillLastFocus?.isConnected)battleSkillLastFocus.focus({preventScroll:true});battleSkillLastFocus=null}
+function closeBattleSkillPopup(){
+ const p=$("#battleSkillPopup"),wasOpen=p&&!p.classList.contains("hide");
+ if(p)p.classList.add("hide");
+ battleSkillPopupStage="closed";
+ battleSelectedSkillIndex=null;
+ if($("#battleSkillPopupTitle"))$("#battleSkillPopupTitle").textContent="選擇技能";
+ if(wasOpen&&battleSkillLastFocus?.isConnected)battleSkillLastFocus.focus({preventScroll:true});
+ battleSkillLastFocus=null;
+}
 function battleSkillPopupBackClose(e){if(e.target?.id==="battleSkillPopup")closeBattleSkillPopup()}
 function battleSkillMenu(){
  if(!G.battle?.active)return;
  const usable=G.character.skills.map((s,i)=>[s,i]).filter(([s])=>s.kind!=="被動"&&s.manual_battle_use!==false),body=$("#battleSkillPopupBody");
- battleSkillLastFocus=document.activeElement;
+ if(!body)return;
+ const alreadyOpen=!$("#battleSkillPopup").classList.contains("hide");
+ if(!alreadyOpen)battleSkillLastFocus=document.activeElement;
+ battleSkillPopupStage="list";
+ battleSelectedSkillIndex=null;
+ $("#battleSkillPopupTitle").textContent="選擇技能";
  setUIHTML(body,usable.map(([s,i])=>{
    normalizeSkillXp(s);const mana=skillUsesMana(s),cost=skillResourceCost(s),res=mana?G.character.mana:G.character.stamina;
    const meta=[`類型：${skillUseTypeLabel(s)}`,s.school||"戰技",s.element||null].filter(Boolean).join("／");
@@ -4273,7 +4288,8 @@ function applyElementDamage(raw,e,element){
  return Math.max(1,Math.round(raw*(1-resist/100)))
 }
 function battleUseSkill(index,targetKey="self"){
- if(!G.battle?.active)return;closeBattleSkillPopup();
+ if(!G.battle?.active||battleSkillPopupStage!=="committing")return;
+ closeBattleSkillPopup();
  const s=G.character.skills[index];if(!s||s.kind==="被動")return;
  const mana=skillUsesMana(s),cost=skillResourceCost(s),resource=mana?"MP":"體力";
  if((mana?G.character.mana:G.character.stamina)<cost){battleLog(`${resource}不足。`);return}
@@ -4632,7 +4648,37 @@ function mutateBattleSupportTarget(key,fn){
  if(String(key).startsWith("party:")){const i=Number(String(key).split(":")[1]),x=G.battle?.party?.[i];if(x)return fn(x)}
  return null
 }
-function battleChooseSkill(index){const s=G.character.skills[index];if(!s)return;if(["heal","cleanse"].includes(s.damage_type)&&battleSupportTargets().length>1){$("#battleSkillPopupTitle").textContent=s.damage_type==="heal"?"選擇治療目標":"選擇淨化目標";$("#battleSkillPopupBody").innerHTML=battleSupportTargets().map(t=>`<div class="itemrow"><span><b>${t.name}</b><br><span class="small">HP ${Math.round(t.hp)}/${Math.round(t.maxHp)}</span></span><button onclick="battleUseSkill(${index},'${t.key}')">選擇</button></div>`).join("");return}battleUseSkill(index,"self")}
+function battleChooseSkill(index){
+ if(!G.battle?.active||battleSkillPopupStage!=="list"||$("#battleSkillPopup")?.classList.contains("hide"))return;
+ const s=G.character.skills[index];
+ if(!s||s.kind==="被動"||s.manual_battle_use===false)return;
+ const mana=skillUsesMana(s),cost=skillResourceCost(s);
+ if((mana?G.character.mana:G.character.stamina)<cost)return;
+ if(["heal","cleanse"].includes(s.damage_type)){
+   const targets=battleSupportTargets();
+   if(targets.length>1){
+     battleSkillPopupStage="targets";
+     battleSelectedSkillIndex=index;
+     $("#battleSkillPopupTitle").textContent=`使用${s.name}：選擇${s.damage_type==="heal"?"治療":"淨化"}目標`;
+     setUIHTML($("#battleSkillPopupBody"),`<div class="battle-skill-return"><button type="button" onclick="battleSkillMenu()">← 返回技能列表</button></div>`+
+       targets.map(t=>`<div class="itemrow"><span><b>${t.name}</b><br><span class="small">HP ${Math.round(t.hp)}/${Math.round(t.maxHp)}</span></span><button type="button" onclick="battleConfirmSkillTarget(${index},'${t.key}')">選擇</button></div>`).join(""));
+     $("#battleSkillPopupBody").scrollTop=0;
+     return;
+   }
+ }
+ battleSkillPopupStage="committing";
+ battleUseSkill(index,"self");
+}
+function battleConfirmSkillTarget(index,targetKey){
+ if(!G.battle?.active||battleSkillPopupStage!=="targets"||battleSelectedSkillIndex!==index)return;
+ if($("#battleSkillPopup")?.classList.contains("hide"))return;
+ const s=G.character.skills[index];
+ if(!s||!["heal","cleanse"].includes(s.damage_type))return;
+ if(!battleSupportTargets().some(t=>t.key===targetKey))return;
+ if((skillUsesMana(s)?G.character.mana:G.character.stamina)<skillResourceCost(s))return;
+ battleSkillPopupStage="committing";
+ battleUseSkill(index,targetKey);
+}
 
 function skillMasteryMultiplier(s){return 1+clamp(s?.mastery||0,0,100)/500}
 function classMasteryNeed(tier){return DB.progression_system.class_mastery_required[tier]||100}

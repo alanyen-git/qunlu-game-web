@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-2.12.1",
-  "previous_version": "CURRENT-2.12.0",
+  "version": "CURRENT-2.12.2",
+  "previous_version": "CURRENT-2.12.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.1：戰鬥盟友固定兩欄等寬；玩家與出戰寵物／召喚獸優先並排，單一隊友維持半欄，寵物戰術核心在精簡戰鬥卡隱藏。",
+  "summary": "CURRENT-2.12.2：修復地下城等戰鬥的技能選擇彈窗殘留治癒術目標頁問題；每次按技能均先顯示技能列表，治療／淨化目標頁可返回，選擇確認後才消耗資源與回合。",
   "changelog": [
+    "CURRENT-2.12.2／BATTLE-SKILL-POPUP-2.0：修復關閉治療／淨化目標頁後，重新按技能時彈窗標題殘留、無返回操作，以及重複點擊可能混淆選擇階段的問題。",
+    "技能按鈕每次開啟重設至技能列表；治療及淨化改為先選技能再進入目標頁，目標頁提供返回技能列表，未確認前不施放、不扣MP／SP、不推進戰鬥回合。",
+    "戰鬥切換時清理舊彈窗狀態，確認目標時校驗當前技能、出戰目標與資源，阻止過時按鍵連續施放；地下城與野外共用同一修復。",
+    "不變更存檔結構；PWA快取v133與技能引擎cache-bust，補入自動回歸測試。",
     "CURRENT-2.12.1／BATTLE-FORMATION-LAYOUT-3.0：敵方固定置於最上方完整橫列；玩家與出戰寵物／召喚獸優先並排，隊友每排最多兩個等寬欄位。",
     "未帶寵物或隊友數量為奇數時，最後一張盟友卡片亦固定保持半欄，不因auto-fit延展為整排；手機窄螢幕亦維持雙欄。",
     "寵物／召喚獸在戰鬥卡隱藏「戰術核心／觸發」文字，沿用既有光環／專屬技能說明隱藏規則；被動效果及夥伴詳細資料不受影響。",
@@ -416,7 +420,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v132",
+  "pwa_cache_revision": "v133",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1677,5 +1681,6 @@
     "retry_on_failure": true,
     "guild_penalty": false,
     "save_compatible": true
-  }
+  },
+  "battle_skill_popup_revision": "BATTLE-SKILL-POPUP-2.0"
 }
