@@ -9,6 +9,7 @@ DB.meta.ui_runtime_revision="UI-RUNTIME-1.0";
 DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
 DB.meta.political_standing_repair_revision="POLITICAL-STANDING-REPAIR-1.0";
+DB.meta.battle_formation_revision="BATTLE-FORMATION-2.0";
 DB.runtime_optimization_system.version="RUNTIME-OPT-1.5";
 DB.status_system.version="STATUS-1.11";
 Object.assign(DB.status_system.definitions,{
@@ -29,6 +30,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-1.54.0／RUNTIME-OPT-1.
 DB.integration_registry.optimization_notes.push("CURRENT-2.07.1／RUNTIME-OPT-1.5：相同狀態存檔略過重複localStorage寫入、主畫面共用負重結果，降低大型存檔與背包反覆序列化／掃描成本；不改canonical世界內容與存檔schema。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.07.4／SAVE-STORAGE-2.0：主存檔與更新備份由localStorage遷移至IndexedDB大容量儲存，保留localStorage失敗回退與舊存檔自動搬移；以舊5 MB級localStorage為基準提供10倍50 MB設計目標。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／POLITICAL-STANDING-REPAIR-1.0：政治聲望整併改為每次載入、聲望讀寫與五回合自檢前皆正規化；POL-005→POL-001、POL-006→POL-007、POL-018→POL-001，不再因CURRENT版本短路或舊政務回報重新產生退役政治體聲望。");
+DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／BATTLE-FORMATION-2.0：戰鬥介面改為敵方置頂；自己、隊友與出戰寵物／召喚獸共用盟友並排網格。戰鬥卡不再顯示寵物／召喚獸光環與專屬技能明細，保留AI與HP資訊。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
@@ -4060,16 +4062,17 @@ function companionBattleAbilityHTML(companion){
 function renderBattle(sharedCombatStats=null){
  const back=$("#battleBack");if(!G.battle?.active){back.classList.add("hide");document.body.classList.remove("battle-open");return}
  const opening=back.classList.contains("hide"),b=G.battle,e=b.enemy,c=G.character,cs=sharedCombatStats||combatStats(),php=clamp(c.hp/c.maxHp*100,0,100),ehp=clamp(e.hp/e.maxHp*100,0,100);
- setUIHTML($("#battleBody"),`<div class="battlehead">
- <div class="battleunit"><b>${c.name}</b><div class="small">Lv${c.level}｜${cls(c.classId).name}</div>
- <div>HP ${Math.round(c.hp)}/${c.maxHp}　SP ${Math.round(c.stamina)}/${c.maxStamina}　MP ${Math.round(c.mana)}/${c.maxMana}</div>
- <div class="small">先攻${cs.initiative}｜移速${cs.moveSpeed}｜射程${cs.range}m｜格擋${cs.blockRate}%/${cs.blockValue}%${b.playerStaggered?"｜硬直":""}</div>
- <div class="hpbar"><i style="width:${php}%"></i></div></div>
- ${b.party?.length?`<div class="party-battle-strip">${b.party.map(m=>`<div class="party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><span>${m.roleLabel}｜AI</span><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")}</div>`:""}
- ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div>${companionBattleAbilityHTML(b.companion)}<div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
- <div class="battleversus">VS</div>
- <div class="battleunit enemy"><b>${e.name} <span class="tier">${e.tier}</span></b><div class="small">${e.category||"敵人"}｜戰鬥回合 ${b.round}</div>
- <div>HP ${Math.max(0,Math.round(e.hp))}/${e.maxHp}</div><div class="small">先攻${Math.round(e.initiative||0)}｜移速${Math.round(e.moveSpeed||100)}｜韌性${Math.round(e.poise||0)}</div><div class="hpbar"><i style="width:${ehp}%"></i></div></div></div>
+ setUIHTML($("#battleBody"),`<div class="battlehead battle-formation-v2">
+ <div class="battleunit enemy battle-enemy-row"><b>${e.name} <span class="tier">${e.tier}</span></b><div class="small">${e.category||"敵人"}｜戰鬥回合 ${b.round}</div>
+ <div>HP ${Math.max(0,Math.round(e.hp))}/${e.maxHp}</div><div class="small">先攻${Math.round(e.initiative||0)}｜移速${Math.round(e.moveSpeed||100)}｜韌性${Math.round(e.poise||0)}</div><div class="hpbar"><i style="width:${ehp}%"></i></div></div>
+ <div class="battle-allies">
+   <div class="battleunit player"><b>${c.name}</b><div class="small">Lv${c.level}｜${cls(c.classId).name}</div>
+   <div>HP ${Math.round(c.hp)}/${c.maxHp}　SP ${Math.round(c.stamina)}/${c.maxStamina}　MP ${Math.round(c.mana)}/${c.maxMana}</div>
+   <div class="small battle-unit-stats">先攻${cs.initiative}｜移速${cs.moveSpeed}｜射程${cs.range}m｜格擋${cs.blockRate}%/${cs.blockValue}%${b.playerStaggered?"｜硬直":""}</div>
+   <div class="hpbar"><i style="width:${php}%"></i></div></div>
+   ${b.party?.map(m=>`<div class="battleunit party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><div class="small">${m.roleLabel}｜AI</div><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")||""}
+   ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div><div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
+ </div></div>
  <div class="battlelog" role="log" aria-live="polite" aria-relevant="additions text">${b.log.map(x=>`<div>・${x}</div>`).join("")}</div>
  <div class="battleactions">
  <button class="good" onclick="battleGeneralAttack()">一般攻擊</button>
