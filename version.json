@@ -1,11 +1,18 @@
 {
-  "version": "CURRENT-2.11.0",
-  "previous_version": "CURRENT-2.10.1",
+  "version": "CURRENT-2.12.0",
+  "previous_version": "CURRENT-2.11.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.11.0：副職業新增角色介面手動升級功能；副職業列直接顯示目前XP／下一階所需XP，達成XP與角色等級條件後可升級，累積XP保留；舊存檔原地相容。",
+  "summary": "CURRENT-2.12.0：副職業D級以上新增動態前置考核任務；考題依種族、戰鬥職業、天賦、政治體與所在地加權隨機推演，通過對應階級考核後才可按下升級。",
   "changelog": [
+    "CURRENT-2.12.0／SUBJOB-EXAM-1.0：E→D、D→C、C→B、B→A、A→S 全部新增前置晉階考核；F→E仍維持基礎熟練升級，不強制考核。",
+    "考題直接從現行可完成委託目標池動態抽取並依目標階級縮放；副職業類型、種族／亞種、戰鬥職業定位、天賦、目前政治體／文化圈、所在地與隨機權重共同影響考題類型。",
+    "角色介面在XP與角色等級達標後顯示「申請［下一階］考核」；考核進行中可直接查看委託，通過後才替換為「升級［下一階］」。",
+    "考核保存生成時的背景因子、考核重點、基礎考題與考官設施；移動到其他政治體不會重抽現有考題。",
+    "考核失敗、逾期或放棄只使本次考核作廢，可重新生成新考題；不扣冒險者公會信用、不罰款。",
+    "通過紀錄依「副職業＋目標階級」保存；舊存檔自動補齊空白考核紀錄，五回合自檢納入考核引用、目標與通過紀錄完整性。",
+    "PWA快取升至v131。",
     "CURRENT-2.11.0／SUBJOB-PROGRESSION-2.0：副職業由隱藏自動晉階改為累積XP＋角色介面手動升級；製作與料理仍依原規則取得副職業XP。",
     "角色介面「副職業」欄現在逐項顯示階級、目前XP／下一階所需XP；達成XP門檻與角色等級條件後顯示可操作的「升級［下一階］」按鍵。",
     "副職業升級不消耗累積XP，沿用既有累積門檻；S級顯示XP/MAX。既有角色的副職業階級與XP不重置，舊存檔載入時會正規化非法／缺失值。",
@@ -379,7 +386,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.22",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.23",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -405,7 +412,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v130",
+  "pwa_cache_revision": "v131",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -481,7 +488,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.26",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.27",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -755,7 +762,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.25",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.26",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 73,
@@ -1647,6 +1654,24 @@
     "xp_mode": "cumulative",
     "character_ui_progress": true,
     "upgrade_button": true,
+    "save_compatible": true
+  },
+  "subjob_exam_revision": "SUBJOB-EXAM-1.0",
+  "subjob_exam": {
+    "required_from_grade": "D",
+    "dynamic_generation": true,
+    "factors": [
+      "race",
+      "combat_class",
+      "talents",
+      "polity",
+      "culture",
+      "location",
+      "subjob",
+      "random_weight"
+    ],
+    "retry_on_failure": true,
+    "guild_penalty": false,
     "save_compatible": true
   }
 }

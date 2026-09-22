@@ -405,4 +405,214 @@
   window.addEventListener("load",()=>{
     ensureCreationLoadButton();
   },{once:true});
+
+  /* CURRENT-2.12.0｜SUBJOB-EXAM-1.0：D級以上副職業動態晉階考核 */
+  const SUBJOB_EXAM_REVISION="SUBJOB-EXAM-1.0";
+  DB.meta.subjob_exam_revision=SUBJOB_EXAM_REVISION;
+  DB.subjob_exam_system={
+    version:SUBJOB_EXAM_REVISION,
+    required_from_grade:"D",
+    generation_factors:["副職業","種族／亞種","戰鬥職業／定位","天賦","政治體／文化圈","目前所在地","隨機權重"],
+    objective_kinds:["gather","item","kill","hunt","patrol","action"],
+    rules:[
+      "晉升D級及以上前必須通過對應階級考核。",
+      "副職業XP與角色等級達標後才可申請考核。",
+      "考題從現行可完成委託目標池動態抽取，並依晉階級別調整工作量。",
+      "考核失敗、逾期或放棄只使本次考核作廢，不扣公會信用或罰款。",
+      "考核通過紀錄綁定副職業與目標階級；通過後才開放升級按鍵。"
+    ],
+    save_schema_changed:"additive"
+  };
+  if(DB.integration_registry?.optimization_notes&&!DB.integration_registry.optimization_notes.some(x=>String(x).includes(SUBJOB_EXAM_REVISION))){
+    DB.integration_registry.optimization_notes.push("CURRENT-2.12.0／SUBJOB-EXAM-1.0：副職業晉升D～S級新增動態前置考核；考題依種族、戰鬥職業、天賦、政治體與所在地加權隨機推演，通過後才解鎖角色介面的升級按鍵。");
+  }
+
+  function ensureSubjobExamState(){
+    const c=(typeof G!=="undefined"&&G)?.character;if(!c)return null;
+    c.subjobExamPasses=c.subjobExamPasses&&typeof c.subjobExamPasses==="object"&&!Array.isArray(c.subjobExamPasses)?c.subjobExamPasses:{};
+    c.subjobExamHistory=Array.isArray(c.subjobExamHistory)?c.subjobExamHistory:[];
+    return c
+  }
+  function subjobExamKey(sid,targetGrade){return `${sid}:${targetGrade}`}
+  function subjobExamRequired(targetGrade){return !!targetGrade&&tierOrder(targetGrade)>=tierOrder("D")}
+  function subjobExamPassRecord(sid,targetGrade){const c=ensureSubjobExamState();return c?.subjobExamPasses?.[subjobExamKey(sid,targetGrade)]||null}
+  function subjobExamPassed(sid,targetGrade){return !!subjobExamPassRecord(sid,targetGrade)}
+  function subjobExamActive(sid,targetGrade){
+    return ((typeof G!=="undefined"&&G)?.quests||[]).find(q=>q.sourceType==="subjob_exam"&&q.subjobExam?.sid===sid&&q.subjobExam?.targetGrade===targetGrade&&["active","ready"].includes(q.status))||null
+  }
+  function subjobExamHash(text){let h=2166136261>>>0;for(const ch of String(text||"")){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h>>>0}
+  function subjobExamVenue(sid){
+    const c=ensureSubjobExamState(),sj=sub(sid),preferred=(sj?.facilities||[]).filter(fid=>DB.facilities[fid]),currentPolity=loc(c.locationId)?.political_entity_id,candidates=[];
+    for(const l of DB.locations||[]){
+      if(l.kind!=="town")continue;
+      const travel=shortestTravelHours(c.locationId,l.id);if(!Number.isFinite(travel))continue;
+      for(const fid of (l.facilities||[])){
+        if(!preferred.includes(fid)&&fid!=="guild")continue;
+        candidates.push({locationId:l.id,facilityId:fid,score:travel+(l.political_entity_id===currentPolity?0:72)+(preferred.includes(fid)?0:36)})
+      }
+    }
+    candidates.sort((a,b)=>a.score-b.score);
+    return candidates[0]||{locationId:c.locationId,facilityId:preferred[0]||"guild",score:999}
+  }
+  function subjobExamContext(sid,targetGrade,venue){
+    const c=ensureSubjobExamState(),sj=sub(sid),cc=cls(c.classId),pc=politicalContextForLocation(venue?.locationId||c.locationId),talents=(c.talents||[]).map(talentById).filter(Boolean);
+    const raceName=displayRace(),talentNames=talents.map(t=>t.name),polityName=pc.polity?.name||"無主地",cultureName=pc.culture?.name||"地方文化",regionName=pc.region?.name||pc.location?.name||"未知地區",currentLocationName=loc(c.locationId)?.name||c.locationId;
+    const seedBase=[sid,targetGrade,raceName,cc?.id,talentNames.join("|"),pc.polity?.id,pc.culture?.id,currentLocationName,G.turn].join(":");
+    const salt=(subjobExamHash(seedBase)^Math.floor(Math.random()*0xffffffff))>>>0;
+    const focusPool=["現地應變與材料判讀","限時產出與品質控制","資源節約與風險處理","跨職協同與現場決策","地方規範與供應鏈應對","突發狀況下的專業判斷"];
+    return {sid,targetGrade,subjobName:sj?.name||sid,raceName,className:cc?.name||c.classId,classRole:cc?.combat_role||"未定",talentNames,polityId:pc.polity?.id||null,polityName,cultureName,regionName,currentLocationName,focus:focusPool[salt%focusPool.length],salt}
+  }
+  function subjobExamKindWeights(ctx){
+    const name=String(sub(ctx.sid)?.name||""),role=String(ctx.classRole||""),talentText=(ctx.talentNames||[]).join(""),w={gather:1.2,item:1.2,kill:1,hunt:1,patrol:1,action:1};
+    if(/藥|煉金|草|醫|治療/.test(name)){w.gather+=2.4;w.item+=1.4;w.action+=.8}
+    if(/料理|烹|廚|釀/.test(name)){w.gather+=1.4;w.item+=2;w.hunt+=.7}
+    if(/鍛|冶|鐵|工匠|木工/.test(name)){w.item+=2;w.gather+=1.5;w.action+=.7}
+    if(/裁縫|皮革|製皮|紡織/.test(name)){w.hunt+=1.2;w.item+=1.8;w.gather+=1}
+    if(/附魔|魔導|符文|刻印/.test(name)){w.action+=2;w.item+=1.6;w.gather+=.7}
+    if(/斥候|偵察|遠程|弓/.test(role)){w.patrol+=1.5;w.hunt+=1.2}
+    if(/坦|前排|近戰|鬥士|守護/.test(role)){w.kill+=1.6;w.hunt+=1}
+    if(/治療|支援|施法|法師/.test(role)){w.gather+=.8;w.item+=.8;w.action+=1.1}
+    if(/採集|野外|幸運|敏銳|探索/.test(talentText)){w.gather+=.8;w.patrol+=.6}
+    const keys=Object.keys(w);w[keys[ctx.salt%keys.length]]+=1.4;
+    return w
+  }
+  function subjobExamTask(ctx){
+    const weights=subjobExamKindWeights(ctx),targetIdx=tierOrder(ctx.targetGrade),seen=new Set(),candidates=[];
+    for(const t of [...(DB.quest_templates||[]),...(DB.shop_quests||[])]){
+      if(!t?.id||seen.has(t.id)||!weights[t.objective?.kind])continue;seen.add(t.id);
+      const viable=questViableLocations(t).filter(id=>Number.isFinite(shortestTravelHours(G.character.locationId,id)));if(!viable.length)continue;
+      const gap=Math.abs(targetIdx-tierOrder(t.tier||"F")),tierFit=Math.max(.35,3.6-gap*.7),contextNoise=(subjobExamHash(`${ctx.salt}:${t.id}`)%1000)/1000;
+      candidates.push({base:t,viable,score:tierFit*(weights[t.objective.kind]||1)*(.72+contextNoise*.35+Math.random()*.55)})
+    }
+    candidates.sort((a,b)=>b.score-a.score);const pick=candidates[0];if(!pick)return null;
+    const objective=JSON.parse(JSON.stringify(pick.base.objective||{})),mult={D:1,C:1.25,B:1.5,A:1.8,S:2.2}[ctx.targetGrade]||1;
+    if(Number.isFinite(Number(objective.target))){
+      const scaled=Math.max(1,Math.ceil(Number(objective.target||1)*mult));
+      objective.target=objective.kind==="patrol"?Math.min((objective.checkpoints||[]).length||scaled,scaled):scaled
+    }
+    return {base:pick.base,objective,viable:pick.viable}
+  }
+
+  const originalMigrateSave=globalThis.migrateSave;
+  if(typeof originalMigrateSave==="function"){
+    globalThis.migrateSave=function(){const result=originalMigrateSave.apply(this,arguments);ensureSubjobExamState();return result};
+  }
+
+  const originalSubjobUpgradeState=globalThis.subjobUpgradeState;
+  function examAwareSubjobUpgradeState(j){
+    const base=typeof originalSubjobUpgradeState==="function"?originalSubjobUpgradeState(j):null;
+    if(!base||base.max||!base.next)return base;
+    const examRequired=subjobExamRequired(base.next),examPassed=!examRequired||subjobExamPassed(j.id,base.next),activeExam=examRequired?subjobExamActive(j.id,base.next):null;
+    return {...base,examRequired,examPassed,activeExam,canUpgrade:base.xpReady&&base.levelReady&&examPassed}
+  }
+  globalThis.subjobUpgradeState=examAwareSubjobUpgradeState;
+
+  globalThis.subjobProgressHtml=function(j){
+    const d=sub(j.id),state=examAwareSubjobUpgradeState(j),name=d?.name||j.id,xp=formatSubjobXp(state.xp);
+    if(state.max)return `<div class="subjob-progress-entry"><div class="subjob-progress-main"><b>${name}［${state.grade}］</b><br><span class="small">XP ${xp}/MAX｜已達最高階</span></div></div>`;
+    const need=Number.isFinite(state.need)?formatSubjobXp(state.need):"—",levelHint=state.levelReady?"":`｜需角色Lv${state.levelNeed}`,examHint=state.examRequired?(state.examPassed?"｜考核已通過":state.activeExam?"｜考核進行中":"｜需通過晉階考核"):"";
+    let action="";
+    if(state.canUpgrade)action=`<button type="button" class="good" onclick="upgradeSubjob('${j.id}')">升級［${state.next}］</button>`;
+    else if(state.examRequired&&state.xpReady&&state.levelReady&&!state.examPassed)action=state.activeExam?`<button type="button" onclick="openQuestLog()">查看［${state.next}］考核</button>`:`<button type="button" class="good" onclick="startSubjobExam('${j.id}')">申請［${state.next}］考核</button>`;
+    else action=`<button type="button" disabled>${state.examRequired?"考核未開放":`升級［${state.next}］`}</button>`;
+    return `<div class="subjob-progress-entry"><div class="subjob-progress-main"><b>${name}［${state.grade}］</b><br><span class="small">XP ${xp}/${need}${levelHint}${examHint}</span></div>${action}</div>`
+  };
+
+  function startSubjobExam(sid){
+    const c=ensureSubjobExamState(),j=c?.subjobs?.find(x=>x.id===sid);if(!j)return;
+    const state=examAwareSubjobUpgradeState(j),name=sub(sid)?.name||sid;
+    if(!state?.next||!state.examRequired){globalThis.upgradeSubjob?.(sid);return}
+    if(state.examPassed){alert(`${name}［${state.next}］考核已通過，可以直接升級。`);return}
+    if(state.activeExam){openQuestLog();return}
+    if(!state.xpReady){alert(`${name}副職業經驗不足：XP ${formatSubjobXp(state.xp)}/${formatSubjobXp(state.need)}。`);return}
+    if(!state.levelReady){alert(`${name}申請［${state.next}］考核需要角色Lv${state.levelNeed}；目前Lv${G.character.level}。`);return}
+    const venue=subjobExamVenue(sid),ctx=subjobExamContext(sid,state.next,venue),task=subjobExamTask(ctx);if(!task){alert("目前可達路網沒有可生成的副職業考題；移動到其他城鎮後再申請。");return}
+    const baseHours=questTimeAllowance(task.base),timeLimit=Math.max(96,Math.min(480,Number.isFinite(baseHours)?Math.ceil(baseHours*(1+tierOrder(state.next)*.12)):168));
+    const issuerPolity=politicalEntity(loc(venue.locationId)?.political_entity_id)||politicalContextForLocation().polity,facilityName=DB.facilities[venue.facilityId]?.name||"地方考核處",talentText=ctx.talentNames.length?ctx.talentNames.join("／"):"無特殊天賦";
+    const q={id:`SJEX-${sid}-${state.next}-${Date.now().toString(36).slice(-6)}`,templateId:task.base.id,name:`${name}・［${state.next}］晉階考核`,tier:state.next,type:"副職業考核",
+      description:`${issuerPolity?.name||ctx.polityName}的${facilityName}依角色背景臨時抽定「${task.base.name}」為考題。考核重點：${ctx.focus}。推演因子：種族 ${ctx.raceName}｜戰鬥職業 ${ctx.className}（${ctx.classRole}）｜天賦 ${talentText}｜政治體 ${ctx.polityName}｜文化 ${ctx.cultureName}｜申請地 ${ctx.currentLocationName}。`,
+      objective:task.objective,progress:0,status:"active",acceptedHour:totalHours(),deadlineHour:totalHours()+timeLimit,timeLimitHours:timeLimit,rewardSilver:0,xp_reward:0,target_spawn_boost:task.base.target_spawn_boost||0,
+      completionGraceHours:Math.max(24,DB.quest_system.report_grace_hours||24),viableLocationIds:task.viable,turninFacility:venue.facilityId,sourceType:"subjob_exam",sourceId:sid,
+      subjobExam:{sid,fromGrade:state.grade,targetGrade:state.next,focus:ctx.focus,factors:{race:ctx.raceName,className:ctx.className,classRole:ctx.classRole,talents:[...ctx.talentNames],polityId:ctx.polityId,polityName:ctx.polityName,cultureName:ctx.cultureName,regionName:ctx.regionName,currentLocationName:ctx.currentLocationName},baseTemplateId:task.base.id,baseTemplateName:task.base.name,examinerLocationId:venue.locationId,examinerFacilityId:venue.facilityId,generatedTurn:G.turn}};
+    closeModal();if(!beginTurn("申請副職業考核"))return;G.quests=G.quests||[];G.quests.push(q);syncQuestInventoryProgressOne(q,false);
+    log("副職業考核",`已申請 ${name}［${state.next}］考核；考題「${task.base.name}」，完成後至${loc(venue.locationId)?.name||"指定城鎮"}・${facilityName}回報。`,"ok");endTurn(.2);openQuestLog()
+  }
+  globalThis.startSubjobExam=startSubjobExam;
+
+  function turnInSubjobExam(q){
+    ensureSubjobExamState();syncQuestInventoryProgressOne(q,true);const meta=q.subjobExam||{};
+    if(q.status!=="ready"||G.character.currentFacility!==(q.turninFacility||"guild"))return;
+    if(!questDeliveryReady(q)){alert(`回報考核需要保留 ${item(q.objective.item_id)?.name||q.objective.item_id} ×${q.objective.target}。`);return}
+    const j=G.character.subjobs.find(x=>x.id===meta.sid);if(!j){alert("副職業資料不存在，無法完成考核。");return}
+    if(!beginTurn("回報副職業考核"))return;if(questObjectiveConsumesItems(q))consumeIngredient(q.objective.item_id,q.objective.target||1);
+    const record={id:q.id,sid:meta.sid,fromGrade:meta.fromGrade,targetGrade:meta.targetGrade,status:"通過",time:timeText(),turn:G.turn,focus:meta.focus,factors:meta.factors,baseTemplateId:meta.baseTemplateId};
+    G.character.subjobExamPasses[subjobExamKey(meta.sid,meta.targetGrade)]=record;G.character.subjobExamHistory.unshift(record);if(G.character.subjobExamHistory.length>30)G.character.subjobExamHistory.length=30;
+    G.questHistory=G.questHistory||[];G.questHistory.unshift({id:q.id,name:q.name,tier:q.tier,status:"考核通過",time:timeText(),sourceType:"subjob_exam",sourceId:meta.sid});if(G.questHistory.length>30)G.questHistory.length=30;
+    G.quests=G.quests.filter(x=>x.id!==q.id);log("副職業考核",`${sub(meta.sid)?.name||meta.sid}［${meta.targetGrade}］考核通過；角色介面已解鎖晉階按鍵。`,"ok");endTurn(.2);openCharacter()
+  }
+  globalThis.turnInSubjobExam=turnInSubjobExam;
+
+  const originalTurnInQuest=globalThis.turnInQuest;
+  if(typeof originalTurnInQuest==="function"){
+    globalThis.turnInQuest=function(id,returnView=null,returnArg=null){
+      const q=(typeof G!=="undefined"&&G)?.quests?.find(x=>x.id===id);
+      if(q?.sourceType==="subjob_exam")return turnInSubjobExam(q,returnView,returnArg);
+      return originalTurnInQuest.call(this,id,returnView,returnArg)
+    };
+  }
+
+  const originalQuestPenaltyText=globalThis.questPenaltyText;
+  if(typeof originalQuestPenaltyText==="function"){
+    globalThis.questPenaltyText=function(q){return q?.sourceType==="subjob_exam"?"本次考核作廢，可重新申請；不扣公會信用、不罰款":originalQuestPenaltyText(q)};
+  }
+  const originalApplyQuestPenalty=globalThis.applyQuestPenalty;
+  if(typeof originalApplyQuestPenalty==="function"){
+    globalThis.applyQuestPenalty=function(q,reason="解除"){
+      if(q?.sourceType!=="subjob_exam")return originalApplyQuestPenalty(q,reason);
+      ensureSubjobExamState();G.questHistory=G.questHistory||[];
+      const meta=q.subjobExam||{},status=reason==="逾期失敗"?"考核逾期":"考核放棄",record={id:q.id,sid:meta.sid,targetGrade:meta.targetGrade,status,time:timeText(),turn:G.turn,summary:q.name};
+      G.character.subjobExamHistory.unshift(record);if(G.character.subjobExamHistory.length>30)G.character.subjobExamHistory.length=30;
+      G.questHistory.unshift({id:q.id,name:q.name,tier:q.tier,status,time:timeText(),sourceType:"subjob_exam",sourceId:meta.sid});if(G.questHistory.length>30)G.questHistory.length=30;
+      log("副職業考核",`${q.name}${reason==="逾期失敗"?"逾期失敗":"已放棄"}；本次考核作廢，可重新申請，不影響公會信用。`,"warnText")
+    };
+  }
+  const originalAbandonQuest=globalThis.abandonQuest;
+  if(typeof originalAbandonQuest==="function"){
+    globalThis.abandonQuest=function(id){
+      const q=(typeof G!=="undefined"&&G)?.quests?.find(x=>x.id===id);if(q?.sourceType!=="subjob_exam")return originalAbandonQuest(id);
+      if(!confirm(`確定放棄「${q.name}」？\n結果：${globalThis.questPenaltyText(q)}`))return;
+      closeModal();if(!beginTurn("放棄副職業考核"))return;globalThis.applyQuestPenalty(q,"解除");G.quests=G.quests.filter(x=>x.id!==id);endTurn(.1);openQuestLog()
+    };
+  }
+
+  globalThis.upgradeSubjob=function(sid){
+    const j=ensureSubjobExamState()?.subjobs?.find(x=>x.id===sid);if(!j)return;
+    const state=examAwareSubjobUpgradeState(j),name=sub(sid)?.name||sid;
+    if(!state?.next){alert(`${name}已達最高階。`);return}
+    if(!state.xpReady){alert(`${name}副職業經驗不足：XP ${formatSubjobXp(state.xp)}/${formatSubjobXp(state.need)}。`);return}
+    if(!state.levelReady){alert(`${name}升級至［${state.next}］需要角色Lv${state.levelNeed}；目前Lv${G.character.level}。`);return}
+    if(state.examRequired&&!state.examPassed){alert(`${name}升級至［${state.next}］前必須先通過晉階考核。`);return}
+    j.grade=state.next;log("副職業",`${name}升級為［${state.next}］；累積XP保留。`,"ok");persist();openCharacter()
+  };
+
+  function subjobExamAudit(){
+    const c=ensureSubjobExamState(),issues=[];if(!c)return issues;
+    if(DB.subjob_exam_system?.version!==SUBJOB_EXAM_REVISION)issues.push("SUBJOB-EXAM-1.0缺失");
+    for(const q of (G.quests||[]).filter(x=>x.sourceType==="subjob_exam")){
+      const meta=q.subjobExam||{};
+      if(!sub(meta.sid)||!subjobExamRequired(meta.targetGrade))issues.push(`副職業考核引用異常:${q.id}`);
+      if(!DB.facilities[q.turninFacility])issues.push(`副職業考核回報設施缺失:${q.id}`);
+      if(!["gather","item","kill","hunt","patrol","action"].includes(q.objective?.kind))issues.push(`副職業考核目標類型異常:${q.id}`);
+      if(!(q.viableLocationIds||[]).length)issues.push(`副職業考核無可達地點:${q.id}`)
+    }
+    for(const [key,rec] of Object.entries(c.subjobExamPasses||{})){
+      if(!sub(rec?.sid)||!subjobExamRequired(rec?.targetGrade)||key!==subjobExamKey(rec.sid,rec.targetGrade))issues.push(`副職業考核通過紀錄異常:${key}`)
+    }
+    return issues
+  }
+  const originalRunGeneratorAudit=globalThis.runGeneratorAudit;
+  if(typeof originalRunGeneratorAudit==="function"){
+    globalThis.runGeneratorAudit=function(){const issues=originalRunGeneratorAudit.apply(this,arguments)||[];return [...issues,...subjobExamAudit()]};
+  }
+
 })();
