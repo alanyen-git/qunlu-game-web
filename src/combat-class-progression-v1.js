@@ -4,7 +4,7 @@
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.combat_classes)||typeof globalThis.openClassAdvancement!=="function")return;
-const REV="COMBAT-CLASS-PROGRESSION-1.0";
+const REV="COMBAT-CLASS-PROGRESSION-1.1";
 const GRADES=["F","E","D","C","B","A","S"],RANK=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
 const MIN_GUILD=Object.freeze({F:"F",E:"F",D:"E",C:"D",B:"C",A:"B",S:"B"});
 const EXAMS=Object.freeze({B:{wins:3,reports:1},A:{wins:5,reports:2},S:{wins:7,reports:3}});
@@ -25,7 +25,7 @@ DB.combat_class_progression_system={
     "逐階滿足角色等級及目前職業熟練度，晉階消耗本階熟練度而不扣角色經驗。",
     "B級及以上取得對應職業考核資格；考核包含同階前一級以上實戰及委託回報。",
     "聖劍士等聖職高階路線另需先選擇主神並立下有效誓言。",
-    "考核資格存於原有unlockedClassRoutes，新考核進度採選填欄位，既有存檔無需重置。"
+    "B/A/S考核資格逐階獨立；原始職業正式階級仍存於unlockedClassRoutes，舊存檔不重置。"
   ],save_schema_changed:"additive",revision_notes:"開放公會考核及職業逐階解封；不改動高階職業的原始ID與技能資料。"
 };
 function character(){try{return typeof G!=="undefined"?G?.character:null}catch(error){return null}}
@@ -56,7 +56,13 @@ function goalFor(targetId){
   const grade=target.tier||"F";
   return {target,mode:"advance",grade,levelNeed:Number(target.unlock_level||1),masteryNeed:Number(classMasteryNeed(grade)),minGuild:MIN_GUILD[grade]};
 }
-function qualified(target){return (character()?.unlockedClassRoutes||[]).includes(target.id)}
+function qualified(target,grade){
+  const c=character();
+  if(!c||!target)return false;
+  const passed=(c.classExamHistory||[]).some(x=>x.targetId===target.id&&x.targetGrade===grade);
+  if(rank(grade)<rank(target.tier))return passed;
+  return passed||(c.unlockedClassRoutes||[]).includes(target.id)
+}
 function examFor(targetId){const exam=character()?.classPromotionExam;return exam?.active&&exam.targetId===targetId?exam:null}
 function checksFor(goal,withQualification=true){
   if(!goal)return [];
@@ -67,7 +73,7 @@ function checksFor(goal,withQualification=true){
   add("公會接待","在冒險者公會辦理",currentGuild()?"已進入公會":"不在公會",currentGuild(),"前往城鎮冒險者公會");
   add("城鎮規模",goal.minGuild+"級或以上公會",townTier+"級",rank(townTier)>=rank(goal.minGuild),"前往更高階城鎮");
   if(withQualification&&rank(goal.grade)>=rank("B")){
-    add("高階職業考核","通過"+goal.target.name+"［"+goal.grade+"］考核",qualified(goal.target)?"已通過":"未取得資格",qualified(goal.target),"先申請並完成對應考核");
+    add("高階職業考核","通過"+goal.target.name+"［"+goal.grade+"］考核",qualified(goal.target,goal.grade)?"已通過":"未取得資格",qualified(goal.target,goal.grade),"先申請並完成對應考核");
     if(isHoly(goal.target))add("聖職誓言","先選主神，並立下相容誓言",faithReady(goal.target)?"已完成":"未完成",faithReady(goal.target),"前往教會選主神並立誓");
   }
   return checks
@@ -85,7 +91,7 @@ function showClassPromotionRequirements(targetId){
 function requestCombatClassExam(targetId){
   const goal=goalFor(targetId),c=character();
   if(!goal||!EXAMS[goal.grade]||!basicReady(goal)){showClassPromotionRequirements(targetId);return}
-  if(qualified(goal.target)){openClassAdvancement();return}
+  if(qualified(goal.target,goal.grade)){openClassAdvancement();return}
   if(c.classPromotionExam?.active){alert("已有進行中的職業考核；請先完成或取消原考核。");return}
   if(!beginTurn("申請職業考核"))return;
   const cfg=EXAMS[goal.grade],previous=GRADES[Math.max(0,rank(goal.grade)-1)];
@@ -119,7 +125,7 @@ function finishCombatClassExam(targetId){
   }
   if(!beginTurn("職業考核回報"))return;
   c.unlockedClassRoutes=Array.isArray(c.unlockedClassRoutes)?c.unlockedClassRoutes:[];
-  if(!c.unlockedClassRoutes.includes(targetId))c.unlockedClassRoutes.push(targetId);
+  if(goal.mode==="advance"||goal.grade===goal.target.tier){if(!c.unlockedClassRoutes.includes(targetId))c.unlockedClassRoutes.push(targetId)}
   c.classExamHistory=Array.isArray(c.classExamHistory)?c.classExamHistory:[];
   c.classExamHistory.push({targetId,targetGrade:goal.grade,wins:state.exam.wins,reports:state.exam.reports,time:timeText()});
   c.classPromotionExam.active=false;
@@ -154,7 +160,7 @@ function gradeProgression(targetId){
   endTurn(4);openClassAdvancement()
 }
 function renderGoal(goal){
-  const c=character(),ready=checksFor(goal).every(row=>row.ok),needExam=rank(goal.grade)>=rank("B")&&!qualified(goal.target),exam=examState(goal);
+  const c=character(),ready=checksFor(goal).every(row=>row.ok),needExam=rank(goal.grade)>=rank("B")&&!qualified(goal.target,goal.grade),exam=examState(goal);
   const label=goal.mode==="sealed"?(goal.grade===goal.target.tier?"正式解封":"解封下一階"):"轉職";
   let html='<div class="card"><b>'+escapeHtml(goal.target.name)+'</b>［'+escapeHtml(goal.grade)+'］'+(goal.mode==="sealed"?'｜封印逐階解封':'｜職業進階')+
     '<br><span class="small">需要 Lv'+goal.levelNeed+'、職業熟練'+goal.masteryNeed+'%｜'+goal.minGuild+'級以上城鎮公會'+(needExam?'｜需高階考核':'')+
@@ -231,5 +237,5 @@ if(typeof originals.audit==="function")globalThis.runAudit=function(){
   }
   return result
 };
-globalThis.QUNLU_CORE?.registerModule?.("src/combat-class-progression-v1.js",{domain:"progression",revision:REV,release:globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.4"});
+globalThis.QUNLU_CORE?.registerModule?.("src/combat-class-progression-v1.js",{domain:"progression",revision:REV,release:globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.5"});
 })();

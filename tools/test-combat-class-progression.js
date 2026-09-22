@@ -38,7 +38,7 @@ const ctx={
   QUNLU_CORE:{registerModule(){}}
 };
 vm.createContext(ctx);vm.runInContext(src,ctx,{filename:"src/combat-class-progression-v1.js"});
-assert.equal(ctx.DB.meta.combat_class_progression_revision,"COMBAT-CLASS-PROGRESSION-1.0");
+assert.equal(ctx.DB.meta.combat_class_progression_revision,"COMBAT-CLASS-PROGRESSION-1.1");
 assert.equal(c.classPromotionExam,undefined,"legacy save has no exam state");
 ctx.openClassAdvancement();
 assert.match(events.modals.at(-1).html,/封印逐階解封/);
@@ -76,4 +76,25 @@ for(let i=0;i<3;i++)ctx.awardBattleProgress({tier:"C"});
 G.quests=[{id:"Q2",tier:"C",turninFacility:"guild"}];ctx.turnInQuest("Q2");
 ctx.finishCombatClassExam(holy.id);
 ctx.advanceCombatClass(holy.id);assert.equal(c.classId,holy.id,"normal B class unlocks after qualification");
+
+/* Higher-tier origin: passing B examination must never waive A examination. */
+const arch={id:"C-HOLY-A",name:"聖劍士宗師",tier:"A",unlock_level:57};
+ctx.DB.combat_classes.push(arch);
+c.classId=arch.id;c.combatGrade="C";c.classSealed=true;c.classMastery=100;
+c.unlockedClassRoutes=[];c.classExamHistory=[];c.classPromotionExam=null;
+ctx.requestCombatClassExam(arch.id);assert.equal(c.classPromotionExam.targetGrade,"B");
+for(let i=0;i<3;i++)ctx.awardBattleProgress({tier:"C"});
+G.quests=[{id:"Q3",tier:"C",turninFacility:"guild"}];ctx.turnInQuest("Q3");
+ctx.finishCombatClassExam(arch.id);
+assert.equal(c.unlockedClassRoutes.length,0,"intermediate B must not grant final A qualification");
+assert.ok(c.classExamHistory.some(x=>x.targetGrade==="B"));
+ctx.unsealCurrentClass();assert.equal(c.combatGrade,"B");
+c.classMastery=100;
+ctx.unsealCurrentClass();assert.equal(c.combatGrade,"B","A still needs its own exam");
+ctx.requestCombatClassExam(arch.id);assert.equal(c.classPromotionExam.targetGrade,"A");
+for(let i=0;i<5;i++)ctx.awardBattleProgress({tier:"B"});
+for(let i=0;i<2;i++){const id="AQ"+i;G.quests=[{id,tier:"B",turninFacility:"guild"}];ctx.turnInQuest(id)}
+ctx.finishCombatClassExam(arch.id);
+assert.ok(c.unlockedClassRoutes.includes(arch.id),"A qualification issued on passing A exam");
+ctx.unsealCurrentClass();assert.equal(c.combatGrade,"A");assert.equal(c.classSealed,false);
 console.log("PASS combat class progression: sealed F→E→D→C→B, guild tiers, mastery, high-rank exam, holy oath, quest persistence, normal B class, legacy save");

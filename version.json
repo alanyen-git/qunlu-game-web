@@ -1,11 +1,13 @@
 {
-  "version": "CURRENT-2.12.4",
-  "previous_version": "CURRENT-2.12.3",
+  "version": "CURRENT-2.12.5",
+  "previous_version": "CURRENT-2.12.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.4：修復聖劍士等高階封印職業F→原始階級逐階升階流程，新增B/A/S公會考核、聖職誓言限制與可點擊條件明細；舊存檔相容。",
+  "summary": "CURRENT-2.12.5：封印原始A/S級職業的B/A/S各階考核資格獨立驗證，避免通過B級考核後跳過後續高階考核。",
   "changelog": [
+    "CURRENT-2.12.5／COMBAT-CLASS-PROGRESSION-1.1：每個高階解封階級以職業ID＋目標階級獨立紀錄考核通過；中途B級考核不會提前授予原始A/S級最終資格；新增封印A級跨階防護回歸測試。",
+    "修正向前相容：既有已完成最終階級unlockedClassRoutes繼續有效；舊存檔未有classExamHistory可正常開始當前階級考核；PWA快取v136。",
     "CURRENT-2.12.4／COMBAT-CLASS-PROGRESSION-1.0：聖劍士等初始封印高階職業，改為依F→E→D→C→原始階級逐級解除封印；每階檢查角色等級、熟練度與所在地公會層級，升階歷程保留存檔。",
     "B、A、S級新增有進度紀錄的職業考核：按目標階級要求完成指定次數實戰與同階前一級以上公會委託；聖職另須在教會選主神並立相容誓言，通過後取得原有unlockedClassRoutes資格。",
     "公會職業進階頁改為可點擊查看未達條件與考核進度；保留一般職業原始轉職路線；新增舊存檔、逐階解封、誓言、考核及回報持久化回歸測試。",
@@ -428,7 +430,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v135",
+  "pwa_cache_revision": "v136",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1693,5 +1695,5 @@
   },
   "battle_skill_popup_revision": "BATTLE-SKILL-POPUP-2.0",
   "requirement_detail_revision": "REQUIREMENT-DETAIL-1.0",
-  "combat_class_progression_revision": "COMBAT-CLASS-PROGRESSION-1.0"
+  "combat_class_progression_revision": "COMBAT-CLASS-PROGRESSION-1.1"
 }
