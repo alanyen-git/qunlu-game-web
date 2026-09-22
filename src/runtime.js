@@ -864,12 +864,7 @@ function survivalPenalty(){let p=0;[G.character.hunger,G.character.fatigue,G.cha
 function isShieldItem(d){return !!d&&d.catalog_subcategory==="盾牌"}
 function isOneHandedWeapon(d){return !!d&&d.type==="主武器"&&!isShieldItem(d)&&(d.weapon_profile?.hands||1)===1}
 function offhandEligible(d){return isShieldItem(d)||isOneHandedWeapon(d)}
-function canEquipOffhandItem(d){
- const gate=canEquipItem(d);if(!gate.ok)return gate;
- if(!offhandEligible(d))return {ok:false,reason:"副手只能裝備盾牌或單手武器"};
- if(mainIsTwoHanded())return {ok:false,reason:"目前主手為雙手武器，不能同時使用副手"};
- return {ok:true,reason:""}
-}
+function canEquipOffhandItem(d){return equipmentRequirementState(d,true)}
 function offhandEquip(){return G.character.weaponSet?.offhand||null}
 function equippedEntries(){
  const arr=Object.entries(G.character.equipment||{}).map(([slot,eq])=>({slot,eq})).filter(x=>x.eq);
@@ -5303,14 +5298,34 @@ function openEquipment(){
 }
 function unequip(slot){const eq=G.character.equipment[slot];if(!eq)return;addItem(eq.id,1,{durability:eq.durability});G.character.equipment[slot]=null;persist();renderAll();openEquipment()}
 function slotForItem(d){if(d.type==="飾品")return G.character.equipment.飾品1?"飾品2":"飾品1";return d.type}
-function canEquipItem(d){
- if(!d)return {ok:false,reason:"裝備資料不存在"};
- if(d.required_level&&G.character.level<d.required_level)return {ok:false,reason:`需要角色Lv${d.required_level}以上（目前Lv${G.character.level}）`};
- for(const [stat,need] of Object.entries(d.required_stats||{})){
-   if(effectiveStat(stat)<need)return {ok:false,reason:`需要${stat==="體力"?"體質":stat} ${need}以上（目前${effectiveStat(stat)}）`}
+function requirementEsc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+function showBlockedRequirements(title,checks,returnAction){
+ const missing=checks.filter(x=>!x.ok);
+ const row=x=>`<div class="prereq-row ${x.ok?"prereq-met":"prereq-unmet"}"><b>${requirementEsc(x.label)}</b><br><span class="small">需求：${requirementEsc(x.need)}｜目前：${requirementEsc(x.current)}${x.shortfall?`<br>尚差：${requirementEsc(x.shortfall)}`:""}</span></div>`;
+ const passed=checks.filter(x=>x.ok);
+ showModal(title,`<div class="card small"><b>${missing.length?"尚未符合 "+missing.length+" 項條件":"目前已符合全部條件"}</b><br>紅色為未達成，綠色為已達成；查看不消耗遊戲時間或物品。</div>${missing.map(row).join("")}${passed.length?`<details class="card"><summary>查看已達成條件（${passed.length}）</summary>${passed.map(row).join("")}</details>`:""}<div class="actions"><button type="button" onclick="${returnAction}">返回原列表</button></div>`);
+}
+function equipmentRequirementState(d,offhand=false){
+ const checks=[],add=(label,need,current,ok,shortfall="")=>checks.push({label,need,current,ok:!!ok,shortfall});
+ if(!d)return {ok:false,reason:"裝備資料不存在",checks:[{label:"物品",need:"有效裝備資料",current:"資料不存在",ok:false,shortfall:"請重新開啟背包"}],missing:["物品"]};
+ const c=G.character;
+ if(d.required_level){const need=Number(d.required_level),cur=Number(c.level)||1;add("角色等級",`Lv${need}`,`Lv${cur}`,cur>=need,cur>=need?"":`Lv${need-cur}`)}
+ for(const [stat,value] of Object.entries(d.required_stats||{})){const need=Number(value)||0,cur=Number(effectiveStat(stat))||0;add(stat==="體力"?"體質":stat,need,cur,cur>=need?"":need-cur)}
+ if(["B","A","S"].includes(d.tier)&&d.sealed)add("裝備解封","完成對應資格／解封條件","尚未解封",false,"完成解封");
+ if(offhand){
+  add("副手類型","盾牌或單手武器",isShieldItem(d)?"盾牌":isOneHandedWeapon(d)?"單手武器":d.type||"不適用",offhandEligible(d),offhandEligible(d)?"":"不可放入副手");
+  const blocked=mainIsTwoHanded();add("主手配置","沒有裝備雙手武器",blocked?"目前使用雙手武器":"可配置副手",!blocked,blocked?"先卸下雙手主武器":"")
  }
- if(["B","A","S"].includes(d.tier)&&d.sealed)return {ok:false,reason:`${d.tier}級裝備仍處於封印狀態，需完成對應資格／解封條件`};
- return {ok:true,reason:""}
+ const missing=checks.filter(x=>!x.ok);
+ return {ok:!missing.length,reason:missing.length?`需要${missing[0].label}：${missing[0].need}（目前${missing[0].current}）`:"",checks,missing:missing.map(x=>x.label)}
+}
+function canEquipItem(d){return equipmentRequirementState(d,false)}
+function showEquipmentRequirements(index,offhand=false){
+ const entry=G?.character?.inventory?.[index],d=entry&&item(entry.id);if(!d)return;
+ showBlockedRequirements(`裝備條件・${d.name}${offhand?"（副手）":""}`,equipmentRequirementState(d,offhand).checks,"openInventory()");
+}
+function equipmentActionButton(gate,action,index,offhand,label){
+ return `<button type="button" class="${gate.ok?"good":"prereq-action"}" onclick="${gate.ok?action:`showEquipmentRequirements(${index},${offhand})`}">${gate.ok?label:"未達條件・查看"}</button>`
 }
 function equipOffhandFromInventory(index){
  const x=G.character.inventory[index],d=x&&item(x.id);if(!d)return;
@@ -5369,12 +5384,14 @@ function openInventory(){
    if(isEq){
      const g=canEquipItem(d);
      if(isShieldItem(d)){
-       const og=canEquipOffhandItem(d);equipButtons=`<button ${og.ok?"":"disabled"} onclick="equipOffhandFromInventory(${i})">${og.ok?"裝備副手":"副手不可用"}</button>`
+       const og=canEquipOffhandItem(d);
+       equipButtons=equipmentActionButton(og,`equipOffhandFromInventory(${i})`,i,true,"裝備副手");
      }else if(isOneHandedWeapon(d)){
-       const og=canEquipOffhandItem(d);equipButtons=`<button ${g.ok?"":"disabled"} onclick="equipFromInventory(${i})">${g.ok?"裝備主手":"未達條件"}</button><button ${og.ok?"":"disabled"} onclick="equipOffhandFromInventory(${i})">${og.ok?"裝備副手":"副手不可用"}</button>`
-     }else if(d.type==="主武器"){
-       equipButtons=`<button ${g.ok?"":"disabled"} onclick="equipFromInventory(${i})">${g.ok?"裝備":"未達條件"}</button>`
-     }else equipButtons=`<button ${g.ok?"":"disabled"} onclick="equipFromInventory(${i})">${g.ok?"裝備":"未達條件"}</button>`
+       const og=canEquipOffhandItem(d);
+       equipButtons=equipmentActionButton(g,`equipFromInventory(${i})`,i,false,"裝備主手")+equipmentActionButton(og,`equipOffhandFromInventory(${i})`,i,true,"裝備副手");
+     }else{
+       equipButtons=equipmentActionButton(g,`equipFromInventory(${i})`,i,false,"裝備");
+     }
    }
    const actions=[equipButtons,usable?`<button onclick="useItem(${i})">使用</button>`:"",`<button class="bad" onclick="dropItem(${i})">丟棄</button>`].filter(Boolean).join("");
    const actionCount=(actions.match(/<button/g)||[]).length;
