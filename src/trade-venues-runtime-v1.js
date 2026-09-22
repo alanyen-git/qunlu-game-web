@@ -1,13 +1,13 @@
-/* 群陸旅誌：拍賣行／黑市runtime CURRENT-2.09.1
- * TRADE-VENUES-RUNTIME-1.0
+/* 群陸旅誌：拍賣行／黑市runtime CURRENT-2.10.0
+ * TRADE-VENUES-RUNTIME-1.1
  * 公開拍賣競價、玩家寄售、地下市場不定期窗口、前置資格與市場供需串接。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.09.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.1";
-const REV="TRADE-VENUES-RUNTIME-1.0";
+const RELEASE=CORE?.release?.("CURRENT-2.10.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.10.0";
+const REV="TRADE-VENUES-RUNTIME-1.1";
 const DATA=globalThis.QUNLU_TRADE_VENUE_DATA||{};
 const SYS=DB.trade_venue_system||{};
 const AUC=SYS.auction||{};
@@ -17,6 +17,7 @@ const BADGE_ID=DATA.badgeItemId||BM.credential_item_ids?.[0]||"IT-BM-GRAY-SIGIL"
 const PASS_ID=DATA.passItemId||BM.credential_item_ids?.[1]||"IT-BM-NIGHT-PASS";
 const TIER={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const UNDERGROUND_RE=/黑市|地下交易|暗市|走私|密運|掮客|暗號|灰市|無燈|灰印|私貨|禁售|地下商/i;
+const SPECIAL_VALUE_RE=/稀有|珍稀|古物|寶物|魔法|附魔|收藏|違禁|禁售|走私|特殊|唯一|史詩|傳說/i;
 const RAW={
  renderFacility:typeof globalThis.renderFacility==="function"?globalThis.renderFacility:null,
  turnInQuest:typeof globalThis.turnInQuest==="function"?globalThis.turnInQuest:null,
@@ -63,6 +64,19 @@ function auctionLevelLabel(l=locationData()){
  if((DB.realm_region_maps||[]).some(p=>[p?.capital,p?.capital_location_id].includes(l?.id)))return "國都／大區首府";
  return "省級城市"
 }
+function specialTradeValue(d){
+ if(!d)return false;
+ if(d.unique||d.quest_item||d.artifact||d.collectible||d.contraband||d.illegal||d.enchanted||d.magic_item||d.trade_luxury)return true;
+ const txt=[d.rarity,d.trade_category,d.category,d.kind,d.type,Array.isArray(d.tags)?d.tags.join(" "):d.tags].filter(Boolean).join(" ");
+ return SPECIAL_VALUE_RE.test(txt)
+}
+function tradeVenueEligible(d,venue="auction",mode="listing"){
+ if(!d?.id||!(Number(d.value)>0)||d.trade_credential||d.type==="憑證")return false;
+ if(venue==="auction"&&d.not_auctionable)return false;
+ if(venue==="black_market"&&mode==="sell"&&d.not_sellable)return false;
+ const cfg=venue==="black_market"?BM:AUC,min=Math.max(1,Number(cfg.min_general_value)||(venue==="auction"?40:30)),tierFloor=rank(cfg.min_general_tier||"D");
+ return Number(d.value)>=min||rank(d.tier)>=tierFloor||specialTradeValue(d)
+}
 function auctionState(lid=G.character.locationId){
  const r=root();
  r.auctions[lid]=r.auctions[lid]&&typeof r.auctions[lid]==="object"?r.auctions[lid]:{refreshAt:0,listings:[],consignments:[],history:[]};
@@ -70,7 +84,7 @@ function auctionState(lid=G.character.locationId){
 }
 function auctionCandidates(l){
  const cap=Math.min(6,Math.max(2,rank(l?.tier||"F")+1));
- return (DB.items||[]).filter(d=>d?.id&&Number(d.value)>0&&!d.not_auctionable&&!d.trade_credential&&rank(d.tier)<=cap&&!["憑證"].includes(d.type))
+ return (DB.items||[]).filter(d=>tradeVenueEligible(d,"auction","listing")&&rank(d.tier)<=cap)
 }
 function seededUnique(pool,count,seed){
  const work=[...pool],out=[];let x=hash(seed);
@@ -113,10 +127,10 @@ function openAuctionHouse(){
  const s=auctionState();refreshAuction(s,l);settleAuction(s);
  const listings=s.listings.slice().sort((a,b)=>rank(itemData(a.itemId)?.tier)-rank(itemData(b.itemId)?.tier)||a.currentBid-b.currentBid);
  const rows=listings.map(a=>{const d=itemData(a.itemId),player=a.highest==="player",bid=a.currentBid+a.minIncrement,buyDue=a.buyout-(player?a.playerEscrow:0);return `<div class="itemrow"><span><b>${esc(d?.name||a.itemId)}</b> <span class="tier">${esc(d?.tier||"F")}</span> ×${a.qty||1}<br><span class="small">目前${a.currentBid}銀｜直購${a.buyout}銀｜剩餘${auctionTimeLeft(a)}${player?"｜你目前最高價":""}</span></span><span>${player?`<button disabled>最高價 ${a.currentBid}</button>`:`<button ${G.character.moneySilver>=bid?"":"disabled"} onclick="auctionBid('${esc(a.id)}')">出價${bid}</button>`}<button ${G.character.moneySilver>=buyDue?"":"disabled"} onclick="auctionBuyout('${esc(a.id)}')">直購</button></span></div>`}).join("")||"<div class='card small'>目前沒有公開拍品。</div>";
- const inv=(G.character.inventory||[]).map((x,i)=>[x,i,itemData(x.id)]).filter(([, ,d])=>d&&Number(d.value)>0&&!d.not_auctionable&&!d.trade_credential).slice(0,30);
+ const inv=(G.character.inventory||[]).map((x,i)=>[x,i,itemData(x.id)]).filter(([, ,d])=>tradeVenueEligible(d,"auction","consign")).slice(0,30);
  const consign=inv.map(([x,i,d])=>{const base=marketBuy(d);return `<div class="itemrow"><span>${esc(d.name)} <span class="tier">${esc(d.tier)}</span> ×${x.qty||1}<br><span class="small">參考公開零售 ${base}銀；刊登費2%，成交再收8%佣金。</span></span><span><button onclick="auctionConsign(${i},0.9)">快售</button><button onclick="auctionConsign(${i},1.1)">標準</button><button onclick="auctionConsign(${i},1.35)">高價</button></span></div>`}).join("")||"<div class='card small'>背包沒有可寄售物品。</div>";
  const pending=s.consignments.map(a=>`<div class="small">• ${esc(itemData(a.itemId)?.name||a.itemId)}｜開價${a.ask}銀｜約${auctionTimeLeft(a)}後結算</div>`).join("")||"<div class='small'>目前沒有進行中的寄售。</div>";
- globalThis.showModal?.("拍賣行",`<div class="card"><b>${esc(l.name)}・${auctionLevelLabel(l)}</b><br><span class="small">正式拍賣行只存在於省級城市及以上。NPC拍品每24小時補充；競價資金採保證金制，得標後物品自動入庫。</span></div><h3>公開拍品</h3>${rows}<h3>我的寄售</h3><div class="card">${pending}</div>${consign}<div class="actions"><button onclick="openFacilities()">離開拍賣行</button></div>`,`openAuctionHouse()`)
+ globalThis.showModal?.("拍賣行",`<div class="card"><b>${esc(l.name)}・${auctionLevelLabel(l)}</b><br><span class="small">正式拍賣行只存在於省級城市及以上。NPC拍品每24小時補充；競價資金採保證金制，得標後物品自動入庫。一般低價值物品不接受寄售，也不會進入公開拍品池。</span></div><h3>公開拍品</h3>${rows}<h3>我的寄售</h3><div class="card">${pending}</div>${consign}<div class="actions"><button onclick="openFacilities()">離開拍賣行</button></div>`,`openAuctionHouse()`)
 }
 function findAuctionListing(id){const s=auctionState();settleAuction(s);return [s,s.listings.find(x=>x.id===id)]}
 function auctionBid(id){
@@ -133,7 +147,7 @@ function auctionBuyout(id){
  G.character.moneySilver-=due;grantItem(a.itemId,a.qty||1);recordTrade(itemData(a.itemId),-(a.qty||1),"auction_buyout");s.listings=s.listings.filter(x=>x.id!==a.id);s.history.unshift({time:totalGameHours(),text:`直購 ${itemData(a.itemId)?.name||a.itemId} ×${a.qty||1}，成交${a.buyout}銀。`});journal("拍賣行",`直購 ${itemData(a.itemId)?.name||a.itemId} ×${a.qty||1}，成交${a.buyout}銀。`,"ok");finish(.15);openAuctionHouse()
 }
 function auctionConsign(index,mult=1.1){
- if(G.character.currentFacility!==AUCTION_ID||!auctionEligible())return;const x=G.character.inventory?.[index],d=x&&itemData(x.id);if(!d||d.not_auctionable||d.trade_credential)return;
+ if(G.character.currentFacility!==AUCTION_ID||!auctionEligible())return;const x=G.character.inventory?.[index],d=x&&itemData(x.id);if(!tradeVenueEligible(d,"auction","consign")){alert("拍賣行不接受一般低價值物品寄售。");return}
  const s=auctionState(),base=marketBuy(d),ask=Math.max(1,Math.ceil(base*clamp(mult,.8,1.5))),fee=Math.max(1,Math.ceil(ask*(AUC.listing_fee_rate??.02)));if(G.character.moneySilver<fee)return;if(!begin("拍賣寄售"))return;
  if(!removeOne(d.id,index)){finish(0);return}G.character.moneySilver-=fee;const chance=mult<=.95?84:mult<=1.15?62:34,now=totalGameHours(),seed=hash(`${G.meta?.characterId}|${d.id}|${G.turn}|${index}`);
  s.consignments.push({id:`CON-${G.turn}-${seed.toString(36)}`,itemId:d.id,ask,fee,saleChance:chance,createdAt:now,expiresAt:now+(AUC.listing_hours??48)});journal("拍賣行",`寄售 ${d.name}，開價${ask}銀，刊登費${fee}銀。`,"ok");finish(.2);openAuctionHouse()
@@ -189,7 +203,7 @@ function grantCredential(kind,source="地下線索"){
 }
 function blackCandidates(l){
  const playerRank=Math.max(rank(G.character.adventureRank||"F"),rank(G.character.combatGrade||"F")),cap=Math.min(6,Math.max(rank(l?.tier||"F")+2,playerRank+1));
- return (DB.items||[]).filter(d=>d?.id&&Number(d.value)>0&&!d.trade_credential&&!d.not_auctionable&&rank(d.tier)<=cap&&d.type!=="憑證")
+ return (DB.items||[]).filter(d=>tradeVenueEligible(d,"black_market","stock")&&!d.not_auctionable&&rank(d.tier)<=cap)
 }
 function generateBlackStock(win=blackWindow(),s=blackState(win)){
  if(s.generated)return s;const l=locationData(),pool=blackCandidates(l),count=5+(hash(win.key)%4),picks=seededUnique(pool,count,win.key+"|stock");
@@ -205,15 +219,15 @@ function openBlackMarketContact(){
 function openBlackMarket(){
  const l=locationData(),win=blackWindow(),s=blackState(win),gate=blackGate(win);if(!blackKnown()||!gate.ok||!win.open||s.burned){openBlackMarketContact();return}if(!consumeWindowPass(win,gate)){openBlackMarketContact();return}generateBlackStock(win,s);
  const rows=Object.entries(s.stock).filter(([,q])=>q>0).map(([id,q])=>{const d=itemData(id),p=s.prices[id];return `<div class="itemrow"><span><b>${esc(d?.name||id)}</b> <span class="tier">${esc(d?.tier||"F")}</span> ×${q}<br><span class="small">地下溢價｜本次庫存有限</span></span><span>${p}銀 <button ${G.character.moneySilver>=p?"":"disabled"} onclick="blackMarketBuy('${esc(id)}')">購買</button></span></div>`}).join("")||"<div class='card small'>本次貨源已清空。</div>";
- const sell=(G.character.inventory||[]).map((x,i)=>[x,i,itemData(x.id)]).filter(([, ,d])=>d&&Number(d.value)>0&&!d.trade_credential&&!d.not_sellable).slice(0,24).map(([x,i,d])=>{const p=blackMarketSellPrice(d),ok=s.budget>=p;return `<div class="itemrow"><span>${esc(d.name)} ×${x.qty||1}</span><span>${p}銀 <button ${ok?"":"disabled"} onclick="blackMarketSell(${i})">出售1</button></span></div>`}).join("")||"<div class='card small'>沒有適合交給地下掮客的物品。</div>";
- globalThis.showModal?.("黑市",`<div class="card"><b>${esc(l.name)}・不定期地下交易</b><br><span class="small">資格：${esc(blackGate(win).paths.join("、"))}｜風險熱度 ${Math.round(s.heat)}/${BM.heat_limit??100}｜掮客剩餘資金 ${Math.round(s.budget)}銀。交易越多，本次接頭越可能提前結束。</span></div><h3>地下貨源</h3>${rows}<h3>地下收購</h3>${sell}<div class="actions"><button onclick="openBlackMarketContact()">離開黑市</button></div>`,`openBlackMarket()`)
+ const sell=(G.character.inventory||[]).map((x,i)=>[x,i,itemData(x.id)]).filter(([, ,d])=>tradeVenueEligible(d,"black_market","sell")).slice(0,24).map(([x,i,d])=>{const p=blackMarketSellPrice(d),ok=s.budget>=p;return `<div class="itemrow"><span>${esc(d.name)} ×${x.qty||1}</span><span>${p}銀 <button ${ok?"":"disabled"} onclick="blackMarketSell(${i})">出售1</button></span></div>`}).join("")||"<div class='card small'>沒有適合交給地下掮客的物品。</div>";
+ globalThis.showModal?.("黑市",`<div class="card"><b>${esc(l.name)}・不定期地下交易</b><br><span class="small">資格：${esc(blackGate(win).paths.join("、"))}｜風險熱度 ${Math.round(s.heat)}/${BM.heat_limit??100}｜掮客剩餘資金 ${Math.round(s.budget)}銀。交易越多，本次接頭越可能提前結束。地下掮客不收一般低價值貨物，只處理具足夠價值、層級或特殊交易性的物品。</span></div><h3>地下貨源</h3>${rows}<h3>地下收購</h3>${sell}<div class="actions"><button onclick="openBlackMarketContact()">離開黑市</button></div>`,`openBlackMarket()`)
 }
 function blackMarketBuy(id){
  const win=blackWindow(),s=blackState(win),gate=blackGate(win),d=itemData(id),qty=Number(s.stock?.[id]||0),p=Number(s.prices?.[id]||0);if(!win.open||s.burned||!gate.ok||qty<1||!d||G.character.moneySilver<p)return;if(!begin("黑市購買"))return;
  G.character.moneySilver-=p;s.stock[id]=qty-1;grantItem(id,1);recordTrade(d,-.45,"black_market_buy");s.heat=clamp(Number(s.heat||0)+8+rank(d.tier)*4,0,140);if(s.heat>=(BM.heat_limit??100)){s.burned=true;journal("黑市","交易動靜過大，掮客提前切斷本次接頭。","warnText")}else journal("黑市",`以${p}銀取得 ${d.name}。`,"ok");finish(.15);s.burned?openBlackMarketContact():openBlackMarket()
 }
 function blackMarketSell(index){
- const win=blackWindow(),s=blackState(win),gate=blackGate(win),x=G.character.inventory?.[index],d=x&&itemData(x.id);if(!win.open||s.burned||!gate.ok||!d||d.trade_credential||d.not_sellable)return;const p=blackMarketSellPrice(d);if(s.budget<p)return;if(!begin("黑市出售"))return;
+ const win=blackWindow(),s=blackState(win),gate=blackGate(win),x=G.character.inventory?.[index],d=x&&itemData(x.id);if(!win.open||s.burned||!gate.ok)return;if(!tradeVenueEligible(d,"black_market","sell")){alert("黑市不收一般低價值物品。");return}const p=blackMarketSellPrice(d);if(s.budget<p)return;if(!begin("黑市出售"))return;
  if(!removeOne(d.id,index)){finish(0);return}s.budget-=p;G.character.moneySilver+=p;recordTrade(d,.5,"black_market_sell");s.heat=clamp(Number(s.heat||0)+5+rank(d.tier)*2,0,140);if(s.heat>=(BM.heat_limit??100)){s.burned=true;journal("黑市","收貨後風聲變緊，本次接頭立即散場。","warnText")}else journal("黑市",`出售 ${d.name}，取得${p}銀。`,"ok");finish(.12);s.burned?openBlackMarketContact():openBlackMarket()
 }
 function decorateBlackMarketButton(fid){
@@ -247,13 +261,16 @@ function audit(){
  if(typeof globalThis.openBlackMarket!=="function")issues.push("黑市入口未註冊");
  if(!Number.isFinite(Number(BM.fame_threshold)))issues.push("黑市名聲門檻缺失");
  if((BM.min_window_hours??0)<1||(BM.cycle_hours??0)<(BM.max_window_hours??0))issues.push("黑市開市週期設定異常");
- return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],auction_city_count:(DB.locations||[]).filter(x=>(x.facilities||[]).includes(AUCTION_ID)).length,black_market_access_kinds:BM.access_kinds||[],save_compatible:true}
+ if(tradeVenueEligible({id:"AUDIT-LOW",value:1,tier:"F",type:"素材"},"auction","consign"))issues.push("拍賣行仍接受一般低價值測試物品");
+ if(tradeVenueEligible({id:"AUDIT-LOW",value:1,tier:"F",type:"素材"},"black_market","sell"))issues.push("黑市仍收一般低價值測試物品");
+ if(!tradeVenueEligible({id:"AUDIT-D",value:1,tier:"D",type:"素材"},"auction","consign"))issues.push("拍賣行D級價值例外失效");
+ return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],auction_city_count:(DB.locations||[]).filter(x=>(x.facilities||[]).includes(AUCTION_ID)).length,black_market_access_kinds:BM.access_kinds||[],low_value_policy:{auction_min:Number(AUC.min_general_value)||40,black_market_min:Number(BM.min_general_value)||30,tier_override:AUC.min_general_tier||"D"},save_compatible:true}
 }
 
 globalThis.openAuctionHouse=openAuctionHouse;globalThis.auctionBid=auctionBid;globalThis.auctionBuyout=auctionBuyout;globalThis.auctionConsign=auctionConsign;
 globalThis.openBlackMarket=openBlackMarket;globalThis.openBlackMarketContact=openBlackMarketContact;globalThis.blackMarketBuy=blackMarketBuy;globalThis.blackMarketSell=blackMarketSell;
 globalThis.grantBlackMarketCredential=grantCredential;globalThis.noteBlackMarketEvidence=noteEvidence;globalThis.runAuctionBlackMarketAudit=audit;
-globalThis.QUNLU_TRADE_VENUES={version:REV,release:RELEASE,audit,auctionEligible,blackWindow,blackGate,fameScore,noteEvidence,grantCredential};
+globalThis.QUNLU_TRADE_VENUES={version:REV,release:RELEASE,audit,auctionEligible,blackWindow,blackGate,fameScore,noteEvidence,grantCredential,tradeVenueEligible};
 DB.meta=DB.meta||{};DB.meta.trade_venues_runtime_revision=REV;
 CORE?.registerModule?.("src/trade-venues-runtime-v1.js",{domain:"runtime",revision:REV,release:RELEASE});
 })();
