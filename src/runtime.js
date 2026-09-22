@@ -4,6 +4,7 @@ const AUDIT_INTERVAL_TURNS=5;
 DB.meta.current_version=CURRENT_VERSION;
 DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
 DB.meta.runtime_optimization_revision="RUNTIME-OPT-1.5";
+DB.meta.save_storage_revision="SAVE-STORAGE-2.0";
 DB.meta.ui_runtime_revision="UI-RUNTIME-1.0";
 DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
@@ -25,6 +26,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-1.52.0／QUALITY-AUDIT-
 DB.integration_registry.optimization_notes.push("CURRENT-1.53.0／UI-RUNTIME-1.0：快取靜態DOM、略過相同介面重寫、批次同步背包型委託、共用戰鬥數值，並補齊彈窗鍵盤焦點；不改canonical世界內容與存檔結構。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.54.0／RUNTIME-OPT-1.4：補齊能力點與技能XP舊存檔正規化、三次教會復活、商店每日庫存及每日收購資金；不改canonical世界內容與既有角色資料。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.07.1／RUNTIME-OPT-1.5：相同狀態存檔略過重複localStorage寫入、主畫面共用負重結果，降低大型存檔與背包反覆序列化／掃描成本；不改canonical世界內容與存檔schema。");
+DB.integration_registry.optimization_notes.push("CURRENT-2.07.4／SAVE-STORAGE-2.0：主存檔與更新備份由localStorage遷移至IndexedDB大容量儲存，保留localStorage失敗回退與舊存檔自動搬移；以舊5 MB級localStorage為基準提供10倍50 MB設計目標。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
@@ -274,7 +276,130 @@ function tierGroupedItemRows(items,rowFn,emptyText="目前沒有商品。"){
 }
 function equipId(v){return v&&typeof v==="object"?v.id:v}
 function makeEquip(id,dur=null){const d=item(id);return {id,durability:dur??d.durability,maxDurability:d.durability}}
-function init(){let raw=null;try{raw=window.localStorage?localStorage.getItem("chronicle_save"):null}catch(e){}if(raw){try{G=JSON.parse(raw);migrateSave();enterGame(true)}catch(e){console.warn(e)}}}
+const SAVE_DB_NAME="qunlu-chronicle-storage";
+const SAVE_DB_VERSION=1;
+const SAVE_DB_STORE="kv";
+const SAVE_MAIN_KEY="chronicle_save";
+const SAVE_BACKUP_INDEX_KEY="chronicle_update_backups";
+const SAVE_STORAGE_BASELINE_BYTES=5*1024*1024;
+const SAVE_STORAGE_TARGET_BYTES=SAVE_STORAGE_BASELINE_BYTES*10;
+let saveDbPromise=null;
+let saveStorageInfo={quota:null,usage:null,persisted:null,targetBytes:SAVE_STORAGE_TARGET_BYTES};
+
+function openSaveDatabase(){
+ if(saveDbPromise)return saveDbPromise;
+ saveDbPromise=new Promise((resolve,reject)=>{
+   if(!globalThis.indexedDB){reject(new Error("瀏覽器未提供 IndexedDB 大容量儲存。"));return}
+   const req=indexedDB.open(SAVE_DB_NAME,SAVE_DB_VERSION);
+   req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(SAVE_DB_STORE))db.createObjectStore(SAVE_DB_STORE)};
+   req.onsuccess=()=>resolve(req.result);
+   req.onerror=()=>reject(req.error||new Error("IndexedDB 開啟失敗。"));
+   req.onblocked=()=>console.warn("save database upgrade blocked")
+ });
+ return saveDbPromise
+}
+async function saveDbGet(key){
+ const db=await openSaveDatabase();
+ return new Promise((resolve,reject)=>{
+   const tx=db.transaction(SAVE_DB_STORE,"readonly"),req=tx.objectStore(SAVE_DB_STORE).get(key);
+   req.onsuccess=()=>resolve(req.result??null);
+   req.onerror=()=>reject(req.error||tx.error||new Error("IndexedDB 讀取失敗。"))
+ })
+}
+async function saveDbPut(key,value){
+ const db=await openSaveDatabase();
+ return new Promise((resolve,reject)=>{
+   const tx=db.transaction(SAVE_DB_STORE,"readwrite");
+   tx.objectStore(SAVE_DB_STORE).put(value,key);
+   tx.oncomplete=()=>resolve(true);
+   tx.onerror=()=>reject(tx.error||new Error("IndexedDB 寫入失敗。"));
+   tx.onabort=()=>reject(tx.error||new Error("IndexedDB 寫入已中止。"))
+ })
+}
+async function saveDbDelete(key){
+ const db=await openSaveDatabase();
+ return new Promise((resolve,reject)=>{
+   const tx=db.transaction(SAVE_DB_STORE,"readwrite");
+   tx.objectStore(SAVE_DB_STORE).delete(key);
+   tx.oncomplete=()=>resolve(true);
+   tx.onerror=()=>reject(tx.error||new Error("IndexedDB 刪除失敗。"));
+   tx.onabort=()=>reject(tx.error||new Error("IndexedDB 刪除已中止。"))
+ })
+}
+async function saveDbClear(){
+ const db=await openSaveDatabase();
+ return new Promise((resolve,reject)=>{
+   const tx=db.transaction(SAVE_DB_STORE,"readwrite");
+   tx.objectStore(SAVE_DB_STORE).clear();
+   tx.oncomplete=()=>resolve(true);
+   tx.onerror=()=>reject(tx.error||new Error("IndexedDB 清除失敗。"));
+   tx.onabort=()=>reject(tx.error||new Error("IndexedDB 清除已中止。"))
+ })
+}
+async function refreshSaveStorageInfo(){
+ try{
+   if(navigator.storage?.persisted)saveStorageInfo.persisted=await navigator.storage.persisted();
+   if(navigator.storage?.estimate){
+     const est=await navigator.storage.estimate();
+     saveStorageInfo.quota=Number(est.quota||0)||null;
+     saveStorageInfo.usage=Number(est.usage||0)||0
+   }
+ }catch(e){console.warn("storage estimate failed",e)}
+ return saveStorageInfo
+}
+async function requestExpandedSaveStorage(){
+ try{
+   if(navigator.storage?.persist){
+     const granted=await navigator.storage.persist();
+     if(typeof granted==="boolean")saveStorageInfo.persisted=granted
+   }
+ }catch(e){console.warn("persistent storage request failed",e)}
+ await refreshSaveStorageInfo();
+ return saveStorageInfo
+}
+async function migrateLegacySaveBackups(){
+ if(!window.localStorage)return;
+ let legacyIndex=[];
+ try{legacyIndex=JSON.parse(localStorage.getItem(SAVE_BACKUP_INDEX_KEY)||"[]");if(!Array.isArray(legacyIndex))legacyIndex=[]}catch(e){legacyIndex=[]}
+ const keys=[];
+ try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith("chronicle_save_backup_"))keys.push(key)}}catch(e){}
+ if(!keys.length&&!legacyIndex.length)return;
+ const known=new Map(legacyIndex.filter(x=>x?.key).map(x=>[x.key,x]));
+ const moved=[];
+ for(const key of keys){
+   let raw=null;try{raw=localStorage.getItem(key)}catch(e){}
+   if(!raw)continue;
+   await saveDbPut(key,raw);
+   moved.push(known.get(key)||{key,from:"legacy",to:"migrated",time:new Date().toISOString()})
+ }
+ const merged=[...moved,...legacyIndex.filter(x=>x?.key&&!keys.includes(x.key))].slice(0,5);
+ if(merged.length)await saveDbPut(SAVE_BACKUP_INDEX_KEY,merged);
+ try{
+   for(const key of keys)localStorage.removeItem(key);
+   localStorage.removeItem(SAVE_BACKUP_INDEX_KEY)
+ }catch(e){}
+}
+async function init(){
+ let raw=null,source="";
+ try{
+   await requestExpandedSaveStorage();
+   await migrateLegacySaveBackups();
+   raw=await saveDbGet(SAVE_MAIN_KEY);
+   if(raw)source="indexeddb"
+ }catch(e){console.warn("large save storage init failed",e)}
+ if(!raw){
+   try{raw=window.localStorage?localStorage.getItem(SAVE_MAIN_KEY):null;if(raw)source="localStorage"}catch(e){}
+ }
+ if(raw){
+   try{
+     G=JSON.parse(raw);
+     lastPersistSerialized=source==="indexeddb"?raw:"";
+     migrateSave();
+     enterGame(true);
+     if(source==="localStorage"){persist();await flushPersistWrites()}
+   }catch(e){console.warn(e)}
+ }
+}
 function migrateSave(){
  const legacyOriginMap=DB.origin_system?.legacy_origin_map||{};
  const legacyRaceSubtypeMap={"獅":"獅人","虎":"虎人","狼":"狼人","狐":"狐人","貓":"貓人","牛":"獅人"};
@@ -351,26 +476,64 @@ c.currentFacility=null;c.battle=null;
  normalizeAbilityPoints();normalizeRevivalState();for(const s of (c.skills||[]))normalizeSkillXp(s);G.worldState.questMarketLedger=Array.isArray(G.worldState.questMarketLedger)?G.worldState.questMarketLedger:[];for(const q of (G.quests||[])){const o=q.objective||{};if(["item","gather"].includes(o.kind)&&o.item_id)o.consume_on_turnin=true;const cap=DB.progression_system.quest_xp_by_tier[q.tier]||12;q.xp_reward=Math.min(Number(q.xp_reward||cap),cap)}syncAllQuestInventoryProgress(true);
  normalizeAffiliationMemberships();syncResourceCaps(true);persist()
 }
-let lastPersistError=null,lastPersistSerialized="";
+let lastPersistError=null,lastPersistSerialized="",pendingPersistSerialized=null,persistDrainPromise=null;
 function renderSaveHealth(error=null){
  const el=$("#saveWarning");if(!el)return;
  if(error){el.classList.remove("hide");const msg=el.querySelector("span");if(msg)msg.textContent=`${error} 請先匯出存檔備份。`}
  else el.classList.add("hide")
 }
+function persistErrorMessage(e){
+ return e?.name==="QuotaExceededError"?"本機大容量儲存空間已滿。":"目前無法寫入本機存檔。"
+}
+async function writeSerializedSave(serialized){
+ try{
+   await saveDbPut(SAVE_MAIN_KEY,serialized);
+   try{localStorage.removeItem(SAVE_MAIN_KEY)}catch(e){}
+   return true
+ }catch(indexedDbError){
+   try{
+     if(!window.localStorage)throw indexedDbError;
+     localStorage.setItem(SAVE_MAIN_KEY,serialized);
+     return true
+   }catch(localError){
+     throw localError?.name==="QuotaExceededError"?localError:indexedDbError
+   }
+ }
+}
+async function drainPersistQueue(){
+ try{
+   while(pendingPersistSerialized!==null){
+     const serialized=pendingPersistSerialized;
+     pendingPersistSerialized=null;
+     try{
+       await writeSerializedSave(serialized);
+       lastPersistSerialized=serialized;
+       if(lastPersistError){lastPersistError=null;renderSaveHealth(null)}
+     }catch(e){
+       const message=persistErrorMessage(e);
+       if(lastPersistError!==message)console.error("local save failed",e);
+       lastPersistError=message;renderSaveHealth(message)
+     }
+   }
+   return !lastPersistError
+ }finally{persistDrainPromise=null}
+}
 function persist(){
  try{
-   if(!window.localStorage)throw new Error("瀏覽器未提供本機儲存空間。");
    const serialized=JSON.stringify(G);
-   if(serialized===lastPersistSerialized)return true;
-   localStorage.setItem("chronicle_save",serialized);
-   lastPersistSerialized=serialized;
-   if(lastPersistError){lastPersistError=null;renderSaveHealth(null)}
+   if(serialized===lastPersistSerialized||serialized===pendingPersistSerialized)return true;
+   pendingPersistSerialized=serialized;
+   if(!persistDrainPromise)persistDrainPromise=drainPersistQueue();
    return true
  }catch(e){
-   const message=e?.name==="QuotaExceededError"?"本機儲存空間已滿。":"目前無法寫入本機存檔。";
+   const message=persistErrorMessage(e);
    if(lastPersistError!==message)console.error("local save failed",e);
    lastPersistError=message;renderSaveHealth(message);return false
  }
+}
+async function flushPersistWrites(){
+ if(persistDrainPromise)await persistDrainPromise;
+ return !lastPersistError
 }
 
 function talentById(id){const cid=DB.talent_merge_map?.[id]||id;return IDX.talent.get(cid)||null}
@@ -5144,12 +5307,12 @@ function currentSaveEntry(){
 function saveInfoHtml(){
  const s=currentSaveEntry();
  if(!G)return `<div class="card"><b>目前存檔</b><br><span class="small">尚未開始遊戲。</span></div>`;
- return `<div class="card"><b>目前存檔</b><br>${s?`${s.id}<br><span class="small">${s.time||timeText()}｜T${s.turn??G.turn}｜${s.type||"AUTO"}${s.reason?`｜${s.reason}`:""}</span>`:`<span class="small">尚無存檔紀錄</span>`}<br><span class="small">存檔筆數：${G.meta.saveIndex.length}/180</span></div>`
+ const quota=saveStorageInfo.quota?`${Math.round(saveStorageInfo.quota/1048576)} MB`:"瀏覽器動態配額";return `<div class="card"><b>目前存檔</b><br>${s?`${s.id}<br><span class="small">${s.time||timeText()}｜T${s.turn??G.turn}｜${s.type||"AUTO"}${s.reason?`｜${s.reason}`:""}</span>`:`<span class="small">尚無存檔紀錄</span>`}<br><span class="small">存檔筆數：${G.meta.saveIndex.length}/180｜大容量存檔：IndexedDB｜10×設計目標：${Math.round(SAVE_STORAGE_TARGET_BYTES/1048576)} MB｜目前配額：${quota}</span></div>`
 }
 function openSettings(){showModal("設定",`${saveInfoHtml()}<h3>世界與權柄</h3><div class="actions"><button onclick="openWorldLore()">世界誌 ${knownLore().length}/${DB.lore_system.record_count}</button><button onclick="openPoliticalAuthorityCatalog()">權柄20原型</button></div><hr><div class="actions"><button onclick="manualSave()">手動存檔</button><button onclick="checkForGameUpdate(true)">檢查遊戲更新</button><button onclick="exportSave()">匯出存檔</button><button class="bad" onclick="resetGame()">重開新檔</button></div><hr><h3>世界資料庫</h3><div class="rulebox">版本：${DB.meta.current_version}<br>職業：${DB.combat_classes.length}<br>戰士／騎士系：${DB.profession_tree.categories["戰士／騎士系"].length}<br>遊俠／盜賊／吟遊系：${DB.profession_tree.categories["遊俠／盜賊／吟遊系"].length}<br>法師／術士系：${DB.profession_tree.categories["法師／術士系"].length}<br>神職／自然系：${DB.profession_tree.categories["神職／自然系"].length}<br>混合／上位／傳說系：${DB.profession_tree.categories["混合／上位／傳說系"].length}<br>技能定義：${Object.values(DB.skill_pools).reduce((s,a)=>s+a.length,0)}<br>技能進階家族：${DB.skill_families.length}<br>裝備：${DB.items.filter(x=>["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(x.type)).length}<br>武器核心：${DB.equipment_system.catalog_counts["武器"]}<br>防具核心：${DB.equipment_system.catalog_counts["防具"]}<br>飾品核心：${DB.equipment_system.catalog_counts["飾品"]}<br>藥劑／戰鬥消耗品核心：${DB.items.filter(x=>x.type==="藥劑").length}<br>技能紀錄：${DB.skill_design_system.skill_records}<br>技能家族：${DB.skill_design_system.family_count}<br>戰鬥職業：${DB.class_design_system.count}<br>裝備核心：${DB.item_material_design_system.equipment_core_count}<br>藥劑：${DB.item_material_design_system.potion_count}<br>退出新生成的舊怪物素材：${DB.item_material_design_system.legacy_monster_materials_retired_from_generation}<br>公會跨職規則：${DB.guild_training.cross_track_rule}<br>同時委託上限：${DB.quest_system.max_active}<br>生成器：${DB.generators.length}（共同邏輯管線）<br>管理AI：${DB.management_ai.length}（輸入／驗證／回退規則）<br>網站模式：${location.protocol==="https:"?"公開HTTPS":"本機／預覽"}｜網域：${location.host||"local"}<br>戰鬥數值核心：${DB.combat_stat_system.count}項<br>CON/SP分離：啟用｜先攻/破甲/韌性/狀態命中：啟用<br>角色成長：Lv1–${DB.progression_system.max_level}｜職業熟練／轉職啟用<br>製作閉環：${DB.items.filter(x=>x.craft_recipe).length}筆配方資料｜鍛造／裁縫／藥劑／附魔介面啟用<br>武器組：8頂層欄＋內部副手（單手武器／盾牌）｜狀態系統：${Object.keys(DB.status_system.definitions).length}種<br>天賦核心：${DB.talent_system.core_count}<br>角色天賦上限：${DB.talent_system.character_limit}<br>體質／生存：${DB.talent_system.category_counts["體質與生存"]}<br>戰鬥專精：${DB.talent_system.category_counts["戰鬥專精"]}<br>魔法／血脈：${DB.talent_system.category_counts["魔法與血脈"]}<br>技巧／生活／命運：${DB.talent_system.category_counts["技巧生活與命運"]}<br>核心種族：${DB.race_system.core_count}<br>常見種族：${DB.race_system.groups["常見種族"].length}<br>精靈分支：${DB.race_system.groups["精靈族"].length}<br>混血種族：${DB.race_system.groups["混血種族"].length}<br>特殊種族：${DB.race_system.groups["特殊種族"].length}<br>角色出身核心：${DB.origin_system.core_count}<br>平民與鄉野：${DB.origin_system.category_counts["平民與鄉野"]}<br>貴族與騎士：${DB.origin_system.category_counts["貴族與騎士"]}<br>軍事與傭兵：${DB.origin_system.category_counts["軍事與傭兵"]}<br>信仰與魔法：${DB.origin_system.category_counts["信仰與魔法"]}<br>詛咒與命運：${DB.origin_system.category_counts["詛咒與命運"]}<br>怪物圖鑑核心：${DB.monster_catalog.core_count}<br>野獸動物：${DB.monster_catalog.category_counts["野獸動物系"]}<br>哥布林／獸人／巨人：${DB.monster_catalog.category_counts["哥布林獸人巨人系"]}<br>龍／亞龍／爬蟲：${DB.monster_catalog.category_counts["龍與亞龍爬蟲系"]}<br>不死：${DB.monster_catalog.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_catalog.category_counts["惡魔與深淵地獄系"]}<br>元素／植物／魔法生物：${DB.monster_catalog.category_counts["元素植物魔法生物系"]}<br>蟲／水生／軟泥：${DB.monster_catalog.category_counts["蟲水生軟泥系"]}<br>怪物掉落核心：${DB.monster_drop_system.core_count}<br>軟泥／魔像：${DB.monster_drop_system.category_counts["軟泥與魔像系"]}<br>哥布林／獸人／巨人：${DB.monster_drop_system.category_counts["哥布林獸人巨人系"]}<br>野獸：${DB.monster_drop_system.category_counts["野獸系"]}<br>龍與爬蟲：${DB.monster_drop_system.category_counts["龍與爬蟲系"]}<br>不死：${DB.monster_drop_system.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_drop_system.category_counts["惡魔與深淵系"]}<br>元素／植物／魔法生物：${DB.monster_drop_system.category_counts["元素植物魔法生物系"]}<br>蟲與水生：${DB.monster_drop_system.category_counts["蟲與水生系"]}<br>素材／通用道具核心：${DB.material_system.core_count}<br>草藥植物：${DB.material_system.category_counts["草藥與植物素材"]}<br>礦石金屬：${DB.material_system.category_counts["礦石與金屬素材"]}<br>怪物素材：${DB.material_system.category_counts["怪物素材"]}<br>食材食物：${DB.material_system.category_counts["食材與食物"]}<br>木材布料皮革：${DB.material_system.category_counts["木材布料皮革"]}<br>寶石結晶：${DB.material_system.category_counts["寶石與魔法結晶"]}<br>卷軸符文書籍：${DB.material_system.category_counts["卷軸符文書籍"]}<br>鑰匙工具寶藏：${DB.material_system.category_counts["鑰匙工具寶藏任務"]}<br>生命回復：${DB.consumable_system.category_counts["生命回復"]}<br>魔力與精力：${DB.consumable_system.category_counts["魔力與精力"]}<br>屬性強化：${DB.consumable_system.category_counts["屬性強化"]}<br>抗性防禦：${DB.consumable_system.category_counts["抗性防禦"]}<br>解除淨化：${DB.consumable_system.category_counts["解除淨化"]}<br>攻擊投擲／塗油：${DB.consumable_system.category_counts["攻擊投擲／塗油"]}<br>特殊煎藥／傳奇：${DB.consumable_system.category_counts["特殊煎藥／傳奇"]}<br>料理：${DB.items.filter(x=>x.type==="料理").length}<br>料理配方：${DB.recipes.length}<br>敵人：${DB.monsters.length}<br>敵方專用素材：${DB.items.filter(x=>x.type==="魔物素材").length}<br>野外地圖：${DB.locations.filter(x=>x.kind==="wild").length}<br>地下城：${DB.locations.filter(x=>x.kind==="dungeon").length}<br>城鎮：${DB.locations.filter(x=>x.kind==="town").length}<br>副職業：${DB.subjobs.length}</div><h3>核心規則</h3><div class="rulebox">設施對話與情報遵守知識來源限制。<br>副職業只能在指定設施且符合能力前置與學費後學習。<br>裝備耐久影響戰鬥加成，鐵匠鋪可修復。<br>戰鬥數值集中於角色卡；包含攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋與狀態抗性。<br>遭遇戰鬥改為彈出式回合制介面，可選一般攻擊、技能、防禦、使用道具與逃跑。<br>B級以上內容仍受前置資格與封印規則限制。<br>掉落規則：只有人型敵人可能掉落金錢與裝備；非人型敵人只能掉落素材。<br>戰鬥職業池為100種。<br>核心裝備200件、藥劑200種、通用素材200種；本版新增200種怪物掉落核心，並建立200裝備升級連結與200藥劑鍊金連結。<br>技能命名採傳統RPG結構：動詞＋名詞／元素＋效果；東方系採原創自然意象＋動作。<br>命名AI：以用途可讀性、區域詞根、怪物家族與世界層級生成名稱，並避開專有作品名稱與過度現實訓練術語。</div>`)}
-function manualSave(){const id=`MANUAL-${G.meta.characterId.slice(-6)}-T${String(G.turn).padStart(5,"0")}`;G.meta.saveIndex.push({id,turn:G.turn,time:timeText(),type:"MANUAL"});persist();renderAll();log("存檔",`已建立${id}`,"save")}
+async function manualSave(){const id=`MANUAL-${G.meta.characterId.slice(-6)}-T${String(G.turn).padStart(5,"0")}`;G.meta.saveIndex.push({id,turn:G.turn,time:timeText(),type:"MANUAL"});persist();await flushPersistWrites();await requestExpandedSaveStorage();renderAll();log("存檔",`已建立${id}`,"save")}
 function exportSave(){const b=new Blob([JSON.stringify(G,null,2)],{type:"application/json;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${G.character.name}_${G.meta.characterId}_save.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),400)}
-function resetGame(){if(confirm("確定清除本機存檔？")){try{localStorage.removeItem("chronicle_save")}catch(e){}location.reload()}}
+async function resetGame(){if(confirm("確定清除本機存檔？")){try{pendingPersistSerialized=null;await saveDbClear()}catch(e){}try{for(let i=localStorage.length-1;i>=0;i--){const key=localStorage.key(i);if(key==="chronicle_save"||key==="chronicle_update_backups"||key?.startsWith("chronicle_save_backup_"))localStorage.removeItem(key)}}catch(e){}location.reload()}}
 function runGeneratorAudit(){
  const issues=[];
  issues.push(...databaseGrowthAudit());
@@ -5931,19 +6094,18 @@ function updateBannerHtml(info){
  el.innerHTML=`<b>發現新版本 ${info.version}</b><span>${info.summary||"遊戲已更新"}</span><button type="button" onclick="applyGameUpdate()">更新遊戲</button>`;
  el.classList.remove("hide")
 }
-function saveUpdateBackup(targetVersion){
+async function saveUpdateBackup(targetVersion){
  try{
-   const raw=localStorage.getItem("chronicle_save");
+   const raw=JSON.stringify(G);
    if(!raw)return null;
    const stamp=new Date().toISOString().replace(/[:.]/g,"-");
    const key=`chronicle_save_backup_${localGameVersion()}_to_${targetVersion}_${stamp}`;
-   localStorage.setItem(key,raw);
-   let index=JSON.parse(localStorage.getItem("chronicle_update_backups")||"[]");
+   await saveDbPut(key,raw);
+   let index=await saveDbGet(SAVE_BACKUP_INDEX_KEY);
+   if(!Array.isArray(index))index=[];
    index.unshift({key,from:localGameVersion(),to:targetVersion,time:new Date().toISOString()});
-   while(index.length>5){
-     const old=index.pop();if(old?.key)localStorage.removeItem(old.key)
-   }
-   localStorage.setItem("chronicle_update_backups",JSON.stringify(index));
+   while(index.length>5){const old=index.pop();if(old?.key)await saveDbDelete(old.key)}
+   await saveDbPut(SAVE_BACKUP_INDEX_KEY,index);
    return key
  }catch(e){console.warn("update backup failed",e);return null}
 }
@@ -5969,10 +6131,10 @@ async function checkForGameUpdate(manual=false){
    return null
  }finally{WEB_UPDATE.checking=false}
 }
-function applyGameUpdate(){
+async function applyGameUpdate(){
  const info=WEB_UPDATE.available;if(!info)return;
- saveUpdateBackup(info.version);
- try{persist()}catch(e){}
+ try{persist();await flushPersistWrites()}catch(e){}
+ await saveUpdateBackup(info.version);
  const u=new URL(location.href);
  u.searchParams.set("v",String(info.build||Date.now()));
  location.replace(u.toString())
@@ -5988,4 +6150,4 @@ function initWebUpdate(){
  return WEB_UPDATE.timer
 }
 
-window.addEventListener("load",()=>{init();initWebUpdate()},{once:true});
+window.addEventListener("load",async()=>{await init();initWebUpdate()},{once:true});
