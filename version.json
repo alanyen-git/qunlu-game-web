@@ -758,7 +758,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.10.0新增RPG參考綜合模組；73個正式src程序與index／Service Worker／PROGRAM-REGISTRY同步。",
-    "last_verified_release": "CURRENT-2.09.0",
+    "last_verified_release": "CURRENT-2.10.0",
     "notes": [
       "CURRENT-2.09.0：新增src/trade-venues-data-v1.js與src/trade-venues-runtime-v1.js；拍賣行／黑市接入現行引擎，PWA v122；正式程序增為72個。",
       "CURRENT-2.08.0：新增src/adventure-party-teammate-depth-v1.js；冒險團與招募候選可查看完整隊友資料，PWA v121；正式程序增為70個。",
@@ -788,12 +788,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 69,
-    "programs_loaded": 69,
+    "programs_total": 73,
+    "programs_loaded": 73,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 54,
-    "full_audits_passed": 54,
+    "full_audits_executed": 58,
+    "full_audits_passed": 58,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -815,7 +815,7 @@
     "deployment_gate": true,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.07.3"
+    "last_verified_release": "CURRENT-2.10.0"
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
