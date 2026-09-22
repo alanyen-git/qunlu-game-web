@@ -1,0 +1,263 @@
+{
+  "schema_version": "1.0.0",
+  "updated_at": "2026-09-22",
+  "purpose": "Project-level game design research index. Wikipedia pages are linked, not mirrored. Use abstract patterns only.",
+  "policy": {
+    "summarize_only": true,
+    "copy_proper_nouns_into_game_db": false,
+    "copy_story_or_character_content": false,
+    "project_rules_take_precedence": true,
+    "require_dedup_and_world_consistency_check": true
+  },
+  "sources": [
+    {
+      "id": "dnd",
+      "title_zh": "龍與地下城",
+      "title_en": "Dungeons & Dragons",
+      "urls": [
+        "https://en.wikipedia.org/wiki/Dungeons_%26_Dragons",
+        "https://en.wikipedia.org/wiki/Dungeons_%26_Dragons_gameplay",
+        "https://en.wikipedia.org/wiki/List_of_Dungeons_%26_Dragons_rulebooks"
+      ],
+      "reference_scope": [
+        "character_creation",
+        "d20_checks",
+        "classes",
+        "skills",
+        "feats",
+        "combat",
+        "adventures",
+        "campaign_settings",
+        "magic_items"
+      ],
+      "design_patterns": [
+        "layered_character_sheet",
+        "single_resolution_language",
+        "prerequisite_graph",
+        "gm_world_adjudication",
+        "campaign_setting_modules"
+      ],
+      "project_mapping": [
+        "character_generator",
+        "d20_engine",
+        "class_and_skill_prerequisites",
+        "management_ai",
+        "regional_rules"
+      ]
+    },
+    {
+      "id": "baldurs_gate_3",
+      "title_zh": "柏德之門3",
+      "title_en": "Baldur's Gate 3",
+      "urls": [
+        "https://en.wikipedia.org/wiki/Baldur%27s_Gate_3"
+      ],
+      "reference_scope": [
+        "d20",
+        "advantage_disadvantage",
+        "classes_subclasses",
+        "party",
+        "dialogue",
+        "environmental_interaction",
+        "branching_outcomes"
+      ],
+      "design_patterns": [
+        "condition_check_result_state",
+        "party_member_memory",
+        "multiple_solution_encounters",
+        "clear_class_identity"
+      ],
+      "project_mapping": [
+        "dialogue_engine",
+        "party_system",
+        "quest_branching",
+        "class_selection_ui",
+        "world_state"
+      ]
+    },
+    {
+      "id": "final_fantasy",
+      "title_zh": "太空戰士／Final Fantasy",
+      "title_en": "Final Fantasy",
+      "urls": [
+        "https://en.wikipedia.org/wiki/Final_Fantasy",
+        "https://en.wikipedia.org/wiki/Recurring_elements_in_the_Final_Fantasy_series"
+      ],
+      "reference_scope": [
+        "party_roles",
+        "jobs",
+        "magic",
+        "elements",
+        "status",
+        "summon_pattern",
+        "equipment",
+        "recurring_motifs"
+      ],
+      "design_patterns": [
+        "strong_party_role_identity",
+        "modular_job_system",
+        "recurring_series_motifs",
+        "fantasy_technology_mix"
+      ],
+      "project_mapping": [
+        "combat_roles",
+        "class_flows",
+        "nine_elements",
+        "regional_magic_cultures",
+        "original_world_motifs"
+      ]
+    },
+    {
+      "id": "elder_scrolls",
+      "title_zh": "上古捲軸",
+      "title_en": "The Elder Scrolls",
+      "urls": [
+        "https://en.wikipedia.org/wiki/The_Elder_Scrolls",
+        "https://en.wikipedia.org/wiki/The_Elder_Scrolls_V%3A_Skyrim",
+        "https://en.wikipedia.org/wiki/The_Elder_Scrolls_IV%3A_Oblivion"
+      ],
+      "reference_scope": [
+        "open_world",
+        "regions",
+        "races",
+        "factions",
+        "skill_use_progression",
+        "crafting",
+        "exploration",
+        "npc_quests"
+      ],
+      "design_patterns": [
+        "skills_improve_by_use",
+        "regional_culture_changes_gameplay",
+        "faction_questlines",
+        "knowledge_is_geographically_limited",
+        "nonlinear_exploration"
+      ],
+      "project_mapping": [
+        "skill_xp",
+        "political_entities",
+        "town_scale",
+        "factions",
+        "crafting_economy",
+        "character_knowledge_layer"
+      ]
+    },
+    {
+      "id": "chrono_trigger",
+      "title_zh": "超時空之鑰",
+      "title_en": "Chrono Trigger",
+      "urls": [
+        "https://en.wikipedia.org/wiki/Chrono_Trigger"
+      ],
+      "reference_scope": [
+        "visible_encounters",
+        "atb",
+        "techs",
+        "combo_techs",
+        "time_periods",
+        "world_state",
+        "multiple_endings",
+        "new_game_plus"
+      ],
+      "design_patterns": [
+        "traceable_long_term_consequences",
+        "party_combo_skills",
+        "world_state_versions",
+        "visible_encounter_flow"
+      ],
+      "project_mapping": [
+        "living_world_cycle",
+        "party_synergy",
+        "regional_state_history",
+        "hunting_combat_transition"
+      ]
+    },
+    {
+      "id": "fire_emblem",
+      "title_zh": "聖火降魔錄",
+      "title_en": "Fire Emblem",
+      "urls": [
+        "https://en.wikipedia.org/wiki/Fire_Emblem"
+      ],
+      "reference_scope": [
+        "tactical_roles",
+        "classes",
+        "class_change",
+        "support_relationships",
+        "experience",
+        "weapon_systems",
+        "permadeath"
+      ],
+      "design_patterns": [
+        "relationship_affects_combat",
+        "promotion_requires_conditions",
+        "unit_role_clarity",
+        "meaningful_failure_consequences"
+      ],
+      "project_mapping": [
+        "party_relationships",
+        "class_promotion",
+        "equipment_durability_optional",
+        "death_and_resurrection"
+      ]
+    },
+    {
+      "id": "octopath_traveler",
+      "title_zh": "歧路旅人",
+      "title_en": "Octopath Traveler",
+      "urls": [
+        "https://en.wikipedia.org/wiki/Octopath_Traveler"
+      ],
+      "reference_scope": [
+        "multiple_protagonists",
+        "jobs",
+        "subjobs",
+        "path_actions",
+        "reputation",
+        "weakness",
+        "break",
+        "boost"
+      ],
+      "design_patterns": [
+        "profession_changes_npc_interaction",
+        "risk_based_social_actions",
+        "weakness_then_burst_combat",
+        "parallel_personal_storylines"
+      ],
+      "project_mapping": [
+        "subjobs",
+        "npc_action_buttons",
+        "reputation_black_market",
+        "combat_guard_or_stance",
+        "party_personal_events"
+      ]
+    },
+    {
+      "id": "mana",
+      "title_zh": "聖劍傳說",
+      "title_en": "Mana",
+      "urls": [
+        "https://en.wikipedia.org/wiki/Mana_%28series%29"
+      ],
+      "reference_scope": [
+        "action_rpg",
+        "party",
+        "weapons",
+        "magic",
+        "recurring_world_motifs",
+        "alternate_versions"
+      ],
+      "design_patterns": [
+        "series_identity_through_original_motifs",
+        "regional_variants_share_core_rules",
+        "same_archetype_can_have_local_versions"
+      ],
+      "project_mapping": [
+        "nine_element_world_motifs",
+        "regional_monster_variants",
+        "shared_ids_with_local_ecology",
+        "regional_combat_culture"
+      ]
+    }
+  ]
+}
