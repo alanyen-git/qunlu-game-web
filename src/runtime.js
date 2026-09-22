@@ -3661,6 +3661,7 @@ function skillStatRequirements(s,overrideStat=null,overrideNeed=null){
 function skillLearningPrereqState(s,opt={}){
  const checks=[],mode=opt.mode||"class",fee=Math.max(0,Number(opt.fee)||0);
  const add=(label,need,current,ok,shortfall="")=>checks.push({label,need,current,ok:!!ok,shortfall});
+ if(mode==="cross"&&s?.cross_train_locked)add("職業招牌技能","取得對應職業資格","目前為跨職學習",false,"只能從該職業本職學習");
  if(mode==="class"){
    const need=String(s?.tier||"F"),current=String(G.character.combatGrade||"F"),ok=tierOrder(current)>=tierOrder(need);
    add("戰鬥職業階級",need,current,ok,ok?"":`${tierOrder(need)-tierOrder(current)}階`)
@@ -3688,6 +3689,20 @@ function skillLearningPrereqState(s,opt={}){
  }
  return {ok:checks.every(x=>x.ok),checks,missing:checks.filter(x=>!x.ok).map(x=>x.label),html:checks.map(x=>skillPrereqCompareLine(x.label,x.need,x.current,x.ok,x.shortfall)).join("<br>")}
 }
+function showSkillLearningRequirements(mode,key,cid=""){
+ let s=null,sourceClass=null,options;
+ if(mode==="class"){
+  s=findPoolSkillByKey(G.character.classId,key);
+  options={mode:"class",requireGuild:true};
+ }else{
+  sourceClass=cid?cls(cid):null;
+  s=cid?findPoolSkillByKey(cid,key):sharedSkill(key);
+  options={mode:"cross",statName:sourceClass?.primary||null,fee:DB.guild_training.cross_profession_fee,requireGuild:true};
+ }
+ if(!s)return;
+ const gate=skillLearningPrereqState(s,options);
+ showBlockedRequirements(`技能學習條件・${s.name}`,gate.checks,mode==="class"?"classTraining()":"guildBasicTraining()");
+}
 function skillUseRequirementText(s){
  return s?.weapon_requirements?.length?`<br><span class="small">使用限制：${s.weapon_requirements.join("／")}（不影響學習資格，施展時需符合）</span>`:""
 }
@@ -3704,10 +3719,10 @@ function classTraining(){
  let lastTier="";
  const rows=avail.map(s=>{
    const gate=skillLearningPrereqState(s,{mode:"class",requireGuild:true}),tierHead=s.tier!==lastTier?(lastTier=s.tier,`<div class="inventory-category-title">${s.tier}級技能</div>`):"";
-   const label=gate.ok?"學習":gate.missing.join("＋");
+   const label=gate.ok?"學習":"未達條件・查看";
    return tierHead+`<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span>［${s.kind}／${s.school||"戰技"}］<br>
    <span class="small">${skillDescriptionText(s)}<br>${s.kind!=="被動"?`命中${(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")}｜${s.resource==="mana"?"MP":"體力"}${s.resource_cost??s.stamina_cost??0}`:"常駐生效"}${s.canonical_skill_id?"｜通用技能":""}<br><b>前置條件（角色基礎狀態）</b><br>${gate.html}${skillUseRequirementText(s)}</span></span>
-   <button ${gate.ok?"class='good'":"disabled"} onclick="learnCombatSkill('${skillKey(s)}')">${label}</button></div>`
+   <button type="button" class="${gate.ok?"good":"prereq-action"}" onclick="${gate.ok?`learnCombatSkill('${skillKey(s)}')`:`showSkillLearningRequirements('class','${skillKey(s)}')`}">${label}</button></div>`
  }).join("")||"<div class='small'>目前沒有尚未學會的本職技能。</div>";
  showModal("冒險者公會・本職技能",`<div class="card small">比照副職業學習：每項技能直接對照需求與目前值。紅字代表尚未達成，綠字代表已達成；高階技能保留顯示，方便查看後續成長目標。</div>`+rows+`<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`)
 }
@@ -3753,7 +3768,7 @@ function guildBasicTraining(){
 
  const rowHtml=r=>`<div class="itemrow"><span><b>${r.s.name}</b> <span class="tier">F</span>｜${r.source}<br>
  <span class="small">${skillDescriptionText(r.s)}<br><b>前置條件（角色基礎狀態）</b><br>${r.gate.html}${skillUseRequirementText(r.s)}</span></span>
- <button ${r.ok?"class='good'":"disabled"} onclick="learnGuildBasic('${r.key}'${r.shared?"":`,'${r.cid}'`})">${r.ok?"學習":r.gate.missing.join("＋")}</button></div>`;
+  <button type="button" class="${r.ok?"good":"prereq-action"}" onclick="${r.ok?`learnGuildBasic('${r.key}'${r.shared?"":`,'${r.cid}'`})`:`showSkillLearningRequirements('cross','${r.key}','${r.cid||""}')`}">${r.ok?"學習":"未達條件・查看"}</button></div>`;
 
  const emptyText=track=>{
    const currentTrack=current.combat_track||"physical";
@@ -5310,7 +5325,7 @@ function equipmentRequirementState(d,offhand=false){
  if(!d)return {ok:false,reason:"裝備資料不存在",checks:[{label:"物品",need:"有效裝備資料",current:"資料不存在",ok:false,shortfall:"請重新開啟背包"}],missing:["物品"]};
  const c=G.character;
  if(d.required_level){const need=Number(d.required_level),cur=Number(c.level)||1;add("角色等級",`Lv${need}`,`Lv${cur}`,cur>=need,cur>=need?"":`Lv${need-cur}`)}
- for(const [stat,value] of Object.entries(d.required_stats||{})){const need=Number(value)||0,cur=Number(effectiveStat(stat))||0;add(stat==="體力"?"體質":stat,need,cur,cur>=need?"":need-cur)}
+ for(const [stat,value] of Object.entries(d.required_stats||{})){const need=Number(value)||0,cur=Number(effectiveStat(stat))||0;add(stat==="體力"?"體質":stat,need,cur,cur>=need,cur>=need?"":need-cur)}
  if(["B","A","S"].includes(d.tier)&&d.sealed)add("裝備解封","完成對應資格／解封條件","尚未解封",false,"完成解封");
  if(offhand){
   add("副手類型","盾牌或單手武器",isShieldItem(d)?"盾牌":isOneHandedWeapon(d)?"單手武器":d.type||"不適用",offhandEligible(d),offhandEligible(d)?"":"不可放入副手");
