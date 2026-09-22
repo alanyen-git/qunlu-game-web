@@ -7,7 +7,7 @@
 
   const titleRelease=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
   const RELEASE=globalThis.QUNLU_RELEASE_VERSION||titleRelease||DB.meta?.current_version||"CURRENT-2.07.3";
-  const REVISION="SYSTEM-INTEGRITY-2.3";
+  const REVISION="SYSTEM-INTEGRITY-2.4";
   const LEGACY_RUNTIME_VERSION="CURRENT-1.57.0";
   const CFG={event_limit:80,seen_limit:220,repair_interval_ms:60000,audit_interval_ms:60000,persist_after_repair:true};
 
@@ -17,7 +17,7 @@
   DB.system_integrity_system={
     version:REVISION,
     release_source:"document_title_or_release_sync",
-    scope:["版本同步","存檔遷移","事件去重","NPC狀態完整性","跨模組版本一致性","職業／技能結構","組織／流派全鏈路"],
+    scope:["版本同步","存檔遷移","事件去重","NPC狀態完整性","跨模組版本一致性","職業／技能結構","組織／流派全鏈路","政治聲望退役ID正規化"],
     rules:[
       "CURRENT-1.57.0以前的存檔才執行舊runtime完整遷移；完整性模組不再以舊發布常數反向降版。",
       "每次寫入本機存檔前，G.meta.version必須與DB.meta.current_version同步。",
@@ -51,6 +51,7 @@
     }
     if(typeof globalThis.syncClassSkillOptimizationState==="function")try{if(globalThis.syncClassSkillOptimizationState()){changed=true;repairs.push("既有角色技能欄位同步")}}catch(e){}
     if(typeof globalThis.repairAffiliationIntegrityState==="function")try{const ar=globalThis.repairAffiliationIntegrityState();if(ar?.changed){changed=true;repairs.push(...(ar.repairs||["組織／流派狀態修復"]))}}catch(e){}
+    if(typeof globalThis.repairPoliticalStandingState==="function")try{const pr=globalThis.repairPoliticalStandingState();if(pr?.changed){changed=true;repairs.push(...(pr.repairs||["政治聲望退役ID修復"]))}}catch(e){}
     if(syncGameVersion()){changed=true;repairs.push("存檔版本同步")}
     return {changed,repairs:[...new Set(repairs)]}
   }
