@@ -8,6 +8,7 @@ DB.meta.save_storage_revision="SAVE-STORAGE-2.0";
 DB.meta.ui_runtime_revision="UI-RUNTIME-1.0";
 DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
+DB.meta.political_standing_repair_revision="POLITICAL-STANDING-REPAIR-1.0";
 DB.runtime_optimization_system.version="RUNTIME-OPT-1.5";
 DB.status_system.version="STATUS-1.11";
 Object.assign(DB.status_system.definitions,{
@@ -27,6 +28,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-1.53.0／UI-RUNTIME-1.0
 DB.integration_registry.optimization_notes.push("CURRENT-1.54.0／RUNTIME-OPT-1.4：補齊能力點與技能XP舊存檔正規化、三次教會復活、商店每日庫存及每日收購資金；不改canonical世界內容與既有角色資料。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.07.1／RUNTIME-OPT-1.5：相同狀態存檔略過重複localStorage寫入、主畫面共用負重結果，降低大型存檔與背包反覆序列化／掃描成本；不改canonical世界內容與存檔schema。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.07.4／SAVE-STORAGE-2.0：主存檔與更新備份由localStorage遷移至IndexedDB大容量儲存，保留localStorage失敗回退與舊存檔自動搬移；以舊5 MB級localStorage為基準提供10倍50 MB設計目標。");
+DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／POLITICAL-STANDING-REPAIR-1.0：政治聲望整併改為每次載入、聲望讀寫與五回合自檢前皆正規化；POL-005→POL-001、POL-006→POL-007、POL-018→POL-001，不再因CURRENT版本短路或舊政務回報重新產生退役政治體聲望。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
@@ -40,6 +42,28 @@ const $=s=>{
  return document.querySelector(s)
 };
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=n=>Math.floor(Math.random()*n);
+function canonicalPoliticalStandingId(id){return DB.political_merge_map?.[id]||id}
+function normalizePoliticalStandingState(){
+ const c=G?.character;if(!c)return {changed:false,repairs:[]};
+ c.politicalStanding=c.politicalStanding&&typeof c.politicalStanding==="object"?c.politicalStanding:{};
+ const s=c.politicalStanding,repairs=[];let changed=false;
+ for(const [oldId,newId] of Object.entries(DB.political_merge_map||{"POL-005":"POL-001","POL-006":"POL-007","POL-018":"POL-001"})){
+   if(!Object.prototype.hasOwnProperty.call(s,oldId))continue;
+   const source=clamp(Number(s[oldId])||0,-100,100),target=s[newId];
+   if(target==null||Math.abs(source)>Math.abs(Number(target)||0))s[newId]=source;
+   delete s[oldId];changed=true;repairs.push(`${oldId}→${newId}`)
+ }
+ for(const [pid,v] of Object.entries(s)){
+   const n=Number(v),fixed=Number.isFinite(n)?clamp(n,-100,100):0;
+   if(v!==fixed){s[pid]=fixed;changed=true;repairs.push(`${pid}聲望範圍修正`)}
+ }
+ if(changed){
+   G.worldState=G.worldState||{};
+   G.worldState.lastPoliticalStandingRepair={turn:Number(G.turn||0),time:typeof timeText==="function"?timeText():null,repairs:[...new Set(repairs)]}
+ }
+ return {changed,repairs:[...new Set(repairs)]}
+}
+globalThis.repairPoliticalStandingState=normalizePoliticalStandingState;
 function normalizeUIButtonTypes(html){return String(html??"").replace(/<button\b(?![^>]*\btype\s*=)/gi,'<button type="button"')}
 function setUIHTML(el,html){
  if(!el)return false;const safe=normalizeUIButtonTypes(html);if(UI_HTML_CACHE.get(el)===safe)return false;
@@ -426,6 +450,9 @@ function migrateSave(){
  const defaultOriginFacet=DB.origin_system?.default_facets?.[G?.character?.originId];
  if(defaultOriginFacet&&!G?.character?.originFacetId)G.character.originFacetId=defaultOriginFacet;
 
+ /* 政治聲望整併必須每次載入都執行，不能被CURRENT版本短路；舊地方政務也可能在升版後再次寫回退役政治體ID。 */
+ normalizePoliticalStandingState();
+
  const classMerge=DB.combat_class_merge_map||{};
  const remapClassId=id=>classMerge[id]||id;
  if(G?.character?.classId)G.character.classId=remapClassId(G.character.classId);
@@ -443,8 +470,7 @@ function migrateSave(){
  G.meta.version=CURRENT_VERSION;
  const c=G.character;c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
  for(const [oldId,newId] of Object.entries({"POL-010":"RP-010","POL-017":"RP-017"})){if(c.politicalStanding[oldId]!=null)c.regionalPowerStanding[newId]=c.politicalStanding[oldId];delete c.politicalStanding[oldId]}
- const pm=DB.political_merge_map||{"POL-005":"POL-001","POL-006":"POL-007","POL-018":"POL-001"};
- for(const [oldId,newId] of Object.entries(pm)){if(c.politicalStanding[oldId]!=null){const source=Number(c.politicalStanding[oldId]||0),target=c.politicalStanding[newId];if(target==null||Math.abs(source)>Math.abs(Number(target||0)))c.politicalStanding[newId]=source;delete c.politicalStanding[oldId]}}
+ normalizePoliticalStandingState();
  c.disciplines=c.disciplines||{discovered:[],mastery:{},reputation:{},membershipId:null};
  const dm=DB.discipline_merge_map||{};c.disciplines.discovered=[...new Set((c.disciplines.discovered||[]).map(id=>dm[id]||id))];
  for(const [oldId,newId] of Object.entries(dm)){if(c.disciplines.mastery?.[oldId]!=null)c.disciplines.mastery[newId]=Math.max(Number(c.disciplines.mastery[newId]||0),Number(c.disciplines.mastery[oldId]||0));if(c.disciplines.reputation?.[oldId]!=null)c.disciplines.reputation[newId]=Math.max(Number(c.disciplines.reputation[newId]||-100),Number(c.disciplines.reputation[oldId]||0));delete c.disciplines.mastery?.[oldId];delete c.disciplines.reputation?.[oldId]}
@@ -2000,8 +2026,8 @@ function authorityArchetype(id){return IDX.authority.get(id)||null}
 function authorityProfile(polityId){return IDX.authorityProfile.get(polityId)||null}
 function authorityOffice(polityId,officeId){return authorityProfile(polityId)?.office_nodes?.find(x=>x.id===officeId)||null}
 function authorityTierLevel(id){return Number(String(id||"AUTH-0").split("-")[1]||0)}
-function politicalStanding(polityId){G.character.politicalStanding=G.character.politicalStanding||{};return G.character.politicalStanding[polityId]||0}
-function changePoliticalStanding(polityId,delta){G.character.politicalStanding=G.character.politicalStanding||{};G.character.politicalStanding[polityId]=clamp((G.character.politicalStanding[polityId]||0)+delta,-100,100)}
+function politicalStanding(polityId){normalizePoliticalStandingState();const id=canonicalPoliticalStandingId(polityId);G.character.politicalStanding=G.character.politicalStanding||{};return G.character.politicalStanding[id]||0}
+function changePoliticalStanding(polityId,delta){normalizePoliticalStandingState();const id=canonicalPoliticalStandingId(polityId);G.character.politicalStanding=G.character.politicalStanding||{};G.character.politicalStanding[id]=clamp((G.character.politicalStanding[id]||0)+delta,-100,100)}
 function maxPoliticalAccessTier(polityId){
  const standing=politicalStanding(polityId),level=G.character.level||1;let best="AUTH-0";
  for(const x of (DB.political_access_system?.player_access_levels||[]))if(level>=x.min_level&&standing>=x.min_standing&&authorityTierLevel(x.authority_tier)>=authorityTierLevel(best))best=x.authority_tier;
@@ -5512,6 +5538,7 @@ function runGeneratorAudit(){
    const ap=profileByPolity.get(e.polityId),ids=new Set((ap?.office_nodes||[]).map(x=>x.id));
    if(!ap||!ids.has(e.a)||!ids.has(e.b))issues.push(`權力事件職位引用缺失:${e.polityId}/${e.a}/${e.b}`)
  }
+ normalizePoliticalStandingState();
  for(const [pid,v] of Object.entries(G?.character?.politicalStanding||{}))if(!politicalEntity(pid)||v<-100||v>100)issues.push(`政治聲望異常:${pid}/${v}`);
 
  const dsc=DB.discipline_factions||[],dids=new Set(dsc.map(x=>x.id)),sfs=new Set((DB.skill_families||[]).map(x=>x.id)),cids=new Set(DB.combat_classes.map(x=>x.id));
@@ -5909,6 +5936,7 @@ function runGeneratorAudit(){
  return issues
 }
 function runAudit(){
+ const politicalRepair=normalizePoliticalStandingState();
  const c=G.character,issues=[];
  if(Object.keys(c.equipment).length!==8)issues.push("8裝備欄異常");
  if(c.subjobs.length>2)issues.push("副職業超過2");
@@ -5925,7 +5953,7 @@ function runAudit(){
  if(hydrationItems.length<24)issues.push(`補水食物／飲品總量不足:${hydrationItems.length}`);
  if(everydayHydration.length<10)issues.push(`低階日常補水來源不足:${everydayHydration.length}`);
  issues.push(...runGeneratorAudit());
- G.lastAudit={turn:G.turn,time:timeText(),issues};
+ G.lastAudit={turn:G.turn,time:timeText(),issues,repairs:politicalRepair.repairs||[]};
  log("五回合自檢",issues.length?issues.join("、"):"通過：世界觀、HISTORY-2.0世界史、大陸政治體、海外未知邊界、權力層級、S級戰力名錄、武技／魔法流派、文化、角色、職業技能、裝備製作、地圖生態、夥伴隊伍、信仰組織、對話情報、委託來源、跨庫索引、INTEGRATION-3.0、ORCHESTRATOR-3.0、CURRENT現行引擎、生成器與管理AI一致。",issues.length?"danger":"ok")
 }
 let modalLastFocus=null;
