@@ -52,6 +52,17 @@ upsertItem({
  description:"只在特定地下交易圈流通的短期入場憑證。黑市仍須處於開市時段才可使用。"
 });
 
+/* 黑市憑證不是商店／採集／掉落品；把劇情型取得方式寫入共用來源索引，避免來源稽核誤判。 */
+DB.content_link_index=DB.content_link_index&&typeof DB.content_link_index==="object"?DB.content_link_index:{};
+DB.content_link_index.item_sources=DB.content_link_index.item_sources&&typeof DB.content_link_index.item_sources==="object"?DB.content_link_index.item_sources:{};
+function registerSpecialSource(id,source){
+ const s=DB.content_link_index.item_sources[id]=DB.content_link_index.item_sources[id]||{};
+ for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=uniq(s[k]);
+ if(!s.special_sources.includes(source))s.special_sources.push(source);
+}
+registerSpecialSource(BADGE_ID,"black_market_multi_evidence_reward");
+registerSpecialSource(PASS_ID,"black_market_quest_encounter_referral");
+
 const capitals=capitalIdSet();
 let auctionCityCount=0;
 for(const l of rows("locations")){
@@ -81,7 +92,10 @@ DB.trade_venue_system=Object.assign({},DB.trade_venue_system||{}, {
 function audit(){
  const issues=[],caps=capitalIdSet();
  if(!DB.facilities?.[AUCTION_ID])issues.push("拍賣行設施資料缺失");
- for(const id of [BADGE_ID,PASS_ID])if(!rows("items").some(x=>x?.id===id))issues.push("黑市憑證缺失:"+id);
+ for(const id of [BADGE_ID,PASS_ID]){
+  if(!rows("items").some(x=>x?.id===id))issues.push("黑市憑證缺失:"+id);
+  if(!(DB.content_link_index?.item_sources?.[id]?.special_sources||[]).length)issues.push("黑市憑證特殊來源缺失:"+id);
+ }
  for(const l of rows("locations"))if((l.facilities||[]).includes(AUCTION_ID)&&!isAuctionSettlement(l,caps))issues.push("非省級城市誤設拍賣行:"+(l.name||l.id));
  for(const p of rows("province_region_maps")){
   const l=rows("locations").find(x=>x?.id===p?.capital_location_id);
