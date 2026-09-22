@@ -10,6 +10,7 @@ DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
 DB.meta.political_standing_repair_revision="POLITICAL-STANDING-REPAIR-1.0";
 DB.meta.battle_formation_revision="BATTLE-FORMATION-2.0";
+DB.meta.gather_runtime_revision="GATHER-RUNTIME-1.1";
 DB.runtime_optimization_system.version="RUNTIME-OPT-1.5";
 DB.status_system.version="STATUS-1.11";
 Object.assign(DB.status_system.definitions,{
@@ -31,6 +32,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-2.07.1／RUNTIME-OPT-1.
 DB.integration_registry.optimization_notes.push("CURRENT-2.07.4／SAVE-STORAGE-2.0：主存檔與更新備份由localStorage遷移至IndexedDB大容量儲存，保留localStorage失敗回退與舊存檔自動搬移；以舊5 MB級localStorage為基準提供10倍50 MB設計目標。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／POLITICAL-STANDING-REPAIR-1.0：政治聲望整併改為每次載入、聲望讀寫與五回合自檢前皆正規化；POL-005→POL-001、POL-006→POL-007、POL-018→POL-001，不再因CURRENT版本短路或舊政務回報重新產生退役政治體聲望。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／BATTLE-FORMATION-2.0：戰鬥介面改為敵方置頂；自己、隊友與出戰寵物／召喚獸共用盟友並排網格。戰鬥卡不再顯示寵物／召喚獸光環與專屬技能明細，保留AI與HP資訊。");
+DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／GATHER-RUNTIME-1.1：採集正式讀取gather／mining／woodcut三類地圖資源池；工具需求統一以tool_effect判定，缺工具時顯示實際缺少的工具並提示雜貨鋪。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
@@ -1495,15 +1497,38 @@ function actExplore(){
  if(!battled&&!evented&&!peted&&!socialed)maybeOrganizationEncounter("探索");
  endTurn(l.kind==="town"?.8:1.4)
 }
-function hasTool(effect){return G.character.inventory.some(x=>item(x.id)?.tool_effect===effect)}
+const GATHER_TOOL_LABELS={mining:"鐵鎬",woodcut:"伐木斧",fishing:"釣竿",gather:"採集小刀"};
+function hasTool(effect){return !!effect&&G.character.inventory.some(x=>(x?.qty??1)>0&&item(x.id)?.tool_effect===effect)}
+function gatherToolEffectForItem(d,sourceKind=null){
+ if(!d)return null;
+ if(["mining","woodcut","fishing"].includes(sourceKind))return sourceKind;
+ const raw=String(d.gather_tool||"").trim();
+ const aliases={"採集小刀":"gather","採藥小刀":"gather","採集":"gather","mining":"mining","woodcut":"woodcut","fishing":"fishing","gather":"gather"};
+ if(raw)return aliases[raw]||raw;
+ const src=d.acquisition_sources||[];
+ if(src.includes("mining"))return "mining";
+ if(src.includes("woodcut"))return "woodcut";
+ if(src.includes("fish"))return "fishing";
+ return null
+}
+function gatherLocationEntries(l){
+ const out=[],seen=new Set();
+ for(const [kind,ids] of [["mining",l?.mining||[]],["woodcut",l?.woodcut||[]],["gather",l?.gather||[]]]){
+   for(const id of ids){if(seen.has(id))continue;seen.add(id);out.push({id,kind})}
+ }
+ return out
+}
+function gatherSourceKind(l,id){return gatherLocationEntries(l).find(x=>x.id===id)?.kind||"gather"}
 function gatherEligiblePool(l){
  const out=[];
- for(const id of (l.gather||[])){
-   const d=item(id);if(!d||!d.wild_gather_eligible)continue;
-   const src=d.acquisition_sources||[];
-   if(src.includes("mining")&&!hasTool("mining"))continue;
-   if(src.includes("woodcut")&&!hasTool("woodcut"))continue;
-   out.push(id)
+ for(const row of gatherLocationEntries(l)){
+   const d=item(row.id);if(!d)continue;
+   const explicitToolResource=row.kind==="mining"||row.kind==="woodcut";
+   if(d.wild_gather_eligible===false)continue;
+   if(!explicitToolResource&&!d.wild_gather_eligible)continue;
+   const need=gatherToolEffectForItem(d,row.kind);
+   if(need&&!hasTool(need))continue;
+   out.push(row.id)
  }
  return out
 }
@@ -1523,15 +1548,18 @@ function actGather(){
  if(!beginTurn("採集"))return;
  const l=loc(G.character.locationId),pool=gatherEligiblePool(l);
  if(!pool.length){
-   const hasLocked=(l.gather||[]).some(id=>item(id)?.gather_tool);
-   log("採集",hasLocked?"此處資源需要對應採集工具。":"此處缺乏可直接採集的自然資源。");
+   const missing=[...new Set(gatherLocationEntries(l).map(row=>{
+     const d=item(row.id),need=gatherToolEffectForItem(d,row.kind);
+     return need&&!hasTool(need)?(GATHER_TOOL_LABELS[need]||need):null
+   }).filter(Boolean))];
+   log("採集",missing.length?`此處資源需要對應採集工具：${missing.join("、")}。可在雜貨鋪購買。`:"此處缺乏可直接採集的自然資源。");
    endTurn(.5);return
  }
  const t=checkRoll("意志","採集"),n=t>=16?3:t>=10?2:1,got=[],target=activeGatherTarget(l,pool);
  for(let i=0;i<n;i++){
-   const id=target&&Math.random()<target.chance?target.id:pool[rand(pool.length)],d=item(id);let q=1;
-   if(d?.acquisition_sources?.includes("mining")&&hasTool("mining")&&t>=14)q++;
-   if(d?.acquisition_sources?.includes("woodcut")&&hasTool("woodcut")&&t>=14)q++;
+   const id=target&&Math.random()<target.chance?target.id:pool[rand(pool.length)],d=item(id),kind=gatherSourceKind(l,id);let q=1;
+   if(kind==="mining"&&hasTool("mining")&&t>=14)q++;
+   if(kind==="woodcut"&&hasTool("woodcut")&&t>=14)q++;
    addItem(id,q);updateQuestProgress("gather",{item_id:id,qty:q});got.push(`${d.name}×${q}`)
  }
  log("採集",got.join("、"),"ok");maybeEncounter("採集");endTurn(1)
@@ -5784,6 +5812,13 @@ function runGeneratorAudit(){
  for(const fid of ["general","blacksmith","tailor","alchemy","enchanter","mageguild","church","clinic"]){
    for(const iid of DB.facilities?.[fid]?.stock||[])if(!item(iid))issues.push(`商店庫存引用缺失:${fid}/${iid}`);
  }
+ const gatherToolIds=DB.gather_tool_market_system?.general_store_tool_ids||["MAT-UTIL-08","MAT-UTIL-09","MAT-UTIL-10","I-GATHER-KNIFE"];
+ for(const id of gatherToolIds){
+   const d=item(id);if(!d)issues.push(`採集工具缺失:${id}`);
+   else if(!(DB.facilities?.general?.stock||[]).includes(id))issues.push(`雜貨鋪未販售採集工具:${d.name}`)
+ }
+ for(const effect of ["mining","woodcut","fishing","gather"])if(!(DB.items||[]).some(d=>d?.tool_effect===effect))issues.push(`採集工具效果缺失:${effect}`);
+ if(typeof gatherToolEffectForItem!=="function"||typeof gatherLocationEntries!=="function")issues.push("採集工具runtime缺失");
 
  if(DB.system_audit_registry?.version!=="SYSTEM-AUDIT-3.0")issues.push("SYSTEM-AUDIT-3.0缺失");
  for(const g of DB.generators||[]){
