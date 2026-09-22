@@ -11,6 +11,8 @@ DB.meta.status_runtime_revision="STATUS-1.11";
 DB.meta.political_standing_repair_revision="POLITICAL-STANDING-REPAIR-1.0";
 DB.meta.battle_formation_revision="BATTLE-FORMATION-2.0";
 DB.meta.gather_runtime_revision="GATHER-RUNTIME-1.1";
+DB.meta.team_carry_revision="TEAM-CARRY-1.0";
+DB.team_carry_system={version:"TEAM-CARRY-1.0",save_schema_changed:false,counts:["實際同行NPC隊友","寵物／契約獸"],excludes:["純召喚獸"],factors:{teammate:["定位","種族體格","階級","等級","羈絆"],companion:["物種體型特徵","階級","等級","羈絆"]},rule:"以共享行李額度增加角色即時負重上限；不改物品重量，不把同行者完整個人負重全部轉給玩家。"};
 DB.runtime_optimization_system.version="RUNTIME-OPT-1.5";
 DB.status_system.version="STATUS-1.11";
 Object.assign(DB.status_system.definitions,{
@@ -33,6 +35,7 @@ DB.integration_registry.optimization_notes.push("CURRENT-2.07.4／SAVE-STORAGE-2
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／POLITICAL-STANDING-REPAIR-1.0：政治聲望整併改為每次載入、聲望讀寫與五回合自檢前皆正規化；POL-005→POL-001、POL-006→POL-007、POL-018→POL-001，不再因CURRENT版本短路或舊政務回報重新產生退役政治體聲望。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／BATTLE-FORMATION-2.0：戰鬥介面改為敵方置頂；自己、隊友與出戰寵物／召喚獸共用盟友並排網格。戰鬥卡不再顯示寵物／召喚獸光環與專屬技能明細，保留AI與HP資訊。");
 DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／GATHER-RUNTIME-1.1：採集正式讀取gather／mining／woodcut三類地圖資源池；工具需求統一以tool_effect判定，缺工具時顯示實際缺少的工具並提示雜貨鋪。");
+DB.integration_registry.optimization_notes.push("CURRENT-2.10.1／TEAM-CARRY-1.0：實際同行隊友與寵物／契約獸依定位、體格、階級、等級與羈絆提供共享負重；純召喚獸不提供常駐行李空間。負重直接接入resourceCaps→combatStats主鏈、超重懲罰、HUD與背包。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
@@ -1070,6 +1073,82 @@ function guildBuybackUnitPrice(d){
  const bonus=clamp(talentSpecial("sellBonus"),0,.25),market=Math.max(1,Math.floor((d?.value||1)*.5*(1+bonus)*regionalItemMarketFactor(d)*affiliationPriceMultiplier("sell")));
  return Math.max(1,Math.floor(market*.9))
 }
+const TEAM_CARRY_ROLE_BASE=Object.freeze({frontline:13,tank:16,healer:7,ranged:9,scout:8,caster:6,hybrid:10,support:11,specialist:10});
+const TEAM_CARRY_ROLE_TRAIT=Object.freeze({
+ frontline:"近戰體能與行軍整備",tank:"重裝搬運與前線補給",healer:"醫療包與輕量補給",ranged:"彈藥與野外行囊",scout:"輕裝偵查與分散攜行",
+ caster:"施法媒介與輕量行囊",hybrid:"多用途行軍裝備",support:"補給整備與隊伍後勤",specialist:"專業工具與任務裝備"
+});
+const TEAM_CARRY_TIER_BONUS=Object.freeze([0,1,2,4,6,8,10]);
+function roundCarry(v){return Math.round(Number(v||0)*10)/10}
+function teammateCarryRaceModifier(race){
+ const s=String(race||"");
+ if(/巨人|食人魔|巨魔|泰坦/.test(s))return 10;
+ if(/獸人|半獸人|牛頭|熊人|龍裔|龍人|構裝|魔像/.test(s))return 5;
+ if(/矮人|山民/.test(s))return 4;
+ if(/半身|侏儒|妖精/.test(s))return -3;
+ if(/精靈/.test(s))return -1;
+ return 0
+}
+function teammateCarryProfile(template,member=null){
+ if(!template)return {bonus:0,trait:"無",role:"specialist",level:1,bond:0};
+ const role=TEAM_CARRY_ROLE_BASE[template.role]!=null?template.role:"specialist";
+ const level=Math.max(1,Number(member?.level||template.min_player_level||1));
+ const bond=clamp(Number(member?.bond||0),0,100);
+ const tierBonus=TEAM_CARRY_TIER_BONUS[tierOrder(template.tier)]||0;
+ const base=TEAM_CARRY_ROLE_BASE[role]+teammateCarryRaceModifier(template.race)+tierBonus+Math.min(8,(level-1)*.35);
+ const bonus=roundCarry(Math.max(2,base*(1+bond*.0015)));
+ return {bonus,trait:TEAM_CARRY_ROLE_TRAIT[role],role,level,bond}
+}
+function companionCarryProfile(species,inst=null){
+ if(!species)return {bonus:0,trait:"無",canCarry:false};
+ if(species.companion_kind==="summon")return {bonus:0,trait:"召喚型不提供常駐負重",canCarry:false};
+ const text=[species.name,species.family,species.species_group,species.body_type].filter(Boolean).join(" ");
+ let base=6,trait="一般伴獸攜行";
+ if(/馬|駝|牛|象|犀|熊|巨獸|甲獸|龍|龜/.test(text)){base=16;trait="大型載運／重體型"}
+ else if(/構裝|魔像|傀儡|石像|岩獸|鐵獸/.test(text)){base=14;trait="重型構裝載運"}
+ else if(/狼|犬|鹿|豬|羊|虎|獅|豹|蜥|猿/.test(text)){base=9;trait="中型獸類攜行"}
+ else if(/鳥|鷹|隼|鴉|蝠|貓|狐|兔|蛇|鼠|蟲|蛙|妖精/.test(text)){base=3.5;trait="輕型／敏捷體型"}
+ else if(/靈|幽|元素|幻/.test(text)){base=2.5;trait="半實體輕量攜行"}
+ if(species.companion_kind==="contract"){base+=2;trait+="・契約穩定"}
+ const level=Math.max(1,Number(inst?.level||species.min_owner_level||1));
+ const bond=clamp(Number(inst?.bond||0),0,100);
+ const tierBonus=TEAM_CARRY_TIER_BONUS[tierOrder(species.tier)]||0;
+ const bonus=roundCarry(clamp((base+tierBonus+Math.min(10,(level-1)*.30))*(1+bond*.002),1.5,42));
+ return {bonus,trait,canCarry:true,level,bond}
+}
+function teammateCarryCapacityBonus(){
+ const rows=[];
+ try{
+   const list=typeof partyMembers==="function"?partyMembers():[];
+   for(const m of list){
+     const t=typeof partyTemplate==="function"?partyTemplate(m?.templateId):null;
+     if(!t)continue;
+     const p=teammateCarryProfile(t,m);
+     rows.push({uid:m.uid,templateId:t.id,name:t.name,bonus:p.bonus,trait:p.trait})
+   }
+ }catch(error){}
+ return {total:roundCarry(rows.reduce((s,x)=>s+x.bonus,0)),rows}
+}
+function companionCarryCapacityBonus(){
+ const rows=[];
+ try{
+   const list=typeof companions==="function"?companions():(G?.character?.companions||[]);
+   for(const inst of list){
+     const sp=typeof companionSpecies==="function"?companionSpecies(inst?.speciesId):null;
+     if(!sp)continue;
+     const p=companionCarryProfile(sp,inst);
+     if(!p.canCarry||p.bonus<=0)continue;
+     rows.push({uid:inst.uid,speciesId:sp.id,name:sp.name,bonus:p.bonus,trait:p.trait})
+   }
+ }catch(error){}
+ return {total:roundCarry(rows.reduce((s,x)=>s+x.bonus,0)),rows}
+}
+function sharedCarryCapacityBonus(){
+ const teammates=teammateCarryCapacityBonus(),companionsCarry=companionCarryCapacityBonus();
+ return {teammates,companions:companionsCarry,total:roundCarry(teammates.total+companionsCarry.total)}
+}
+globalThis.QUNLU_TEAM_CARRY={version:"TEAM-CARRY-1.0",teammateProfile:teammateCarryProfile,companionProfile:companionCarryProfile,teammates:teammateCarryCapacityBonus,companions:companionCarryCapacityBonus,total:sharedCarryCapacityBonus};
+
 function resourceCaps(){
  const str=statCode("STR",false),con=statCode("CON",false),intl=statCode("INT",false),wis=statCode("WIS",false),lv=Math.max(1,G.character.level||1);
  const r=raceData(),o=org(G.character.originId);
@@ -1077,7 +1156,7 @@ function resourceCaps(){
    hp:Math.max(1,Math.round(16+con*1.2+(lv-1)*2)),
    stamina:Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8)),
    mana:Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana"))),
-   carry:Math.max(20,Math.round((30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity"))*10)/10)
+   carry:Math.max(20,roundCarry(30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity")+sharedCarryCapacityBonus().total)
  }
 }
 
@@ -4674,8 +4753,8 @@ function battleCompanionSnapshot(){
    accuracy:cs.accuracy,evasion:cs.evasion,speed:cs.speed,statusEffects:[],guarding:false,knockedOut:false}
 }
 function companionRosterSummary(){
- const a=activeCompanionInstance(),sp=a?companionSpecies(a.speciesId):null;
- return `出戰：${sp?sp.name:"無"}｜待機：${Math.max(0,companions().length-(a?1:0))}/${DB.companion_system.standby_limit}｜總數：${companions().length}/${DB.companion_system.roster_limit}`
+ const a=activeCompanionInstance(),sp=a?companionSpecies(a.speciesId):null,carry=companionCarryCapacityBonus();
+ return `出戰：${sp?sp.name:"無"}｜待機：${Math.max(0,companions().length-(a?1:0))}/${DB.companion_system.standby_limit}｜總數：${companions().length}/${DB.companion_system.roster_limit}｜負重支援 +${carry.total}kg`
 }
 function openCharacterSkills(){
  const c=G.character,skills=c.skills.map((s,i)=>{
@@ -4692,13 +4771,13 @@ function openCompanionPanel(filter="pet"){
  const isSummon=filter==="summon",list=companions().filter(c=>{
    const k=companionSpecies(c.speciesId)?.companion_kind;return isSummon?k==="summon":k==="pet"||k==="contract"
  });
- const rows=list.map(c=>{const sp=companionSpecies(c.speciesId),active=G.character.activeCompanionId===c.uid;
+ const rows=list.map(c=>{const sp=companionSpecies(c.speciesId),active=G.character.activeCompanionId===c.uid,carry=companionCarryProfile(sp,c);
    return `<div class="card"><b>${sp.name}</b> <span class="tier">${sp.tier}</span>［${sp.companion_kind_label}／${sp.ai_label}］${active?" <span class='ok'>出戰中</span>":""}<br>
-   <span class="small">Lv${c.level}｜XP ${c.xp||0}/${c.level>=G.character.level?"主人等級上限":companionXpToNext(c.level)}｜羈絆${(c.bond||0).toFixed(1)}%${sp.element?`｜${sp.element}`:""}<br>${DB.companion_system.ai_profiles[sp.ai_profile].behavior}</span>
+   <span class="small">Lv${c.level}｜XP ${c.xp||0}/${c.level>=G.character.level?"主人等級上限":companionXpToNext(c.level)}｜羈絆${(c.bond||0).toFixed(1)}%${sp.element?`｜${sp.element}`:""}<br>${DB.companion_system.ai_profiles[sp.ai_profile].behavior}<br>${carry.canCarry?`負重支援 +${carry.bonus}kg｜${carry.trait}`:"負重支援 0kg｜召喚獸不提供常駐行李空間"}</span>
    <div class="actions">${active?`<button disabled>出戰中</button>`:`<button class="good" onclick="setActiveCompanion('${c.uid}')">設為出戰</button>`}<button class="bad" onclick="releaseCompanion('${c.uid}')">離隊</button></div></div>`
  }).join("")||`<div class="card small">目前沒有${isSummon?"召喚獸":"寵物／契約獸"}。</div>`;
  const hint=isSummon?`召喚獸需在法師公會進行召喚研究；最高研究階級：${highestSummonSkillTier()||"尚無召喚技能"}。`:"寵物可在符合地區與階級的探索機緣中馴養；契約獸需進行契約儀式。";
- showModal(isSummon?"召喚":"寵物／契約",`<div class="card small"><b>${companionRosterSummary()}</b><br>${hint}<br>所有夥伴戰鬥時由AI自動操作。</div>${rows}`)
+ showModal(isSummon?"召喚":"寵物／契約",`<div class="card small"><b>${companionRosterSummary()}</b><br>${hint}<br>所有夥伴戰鬥時由AI自動操作；只有實體寵物／契約獸提供常駐負重。</div>${rows}`)
 }
 function companionResearchCost(sp){return Math.round(12+Math.pow(tierOrder(sp.tier)+1,2)*14)}
 function openSummonResearch(){
@@ -5191,8 +5270,8 @@ function inventorySortCompare(a,b){
 function inventorySummary(){
  const inv=G.character.inventory||[],groups=new Map();let qty=0;
  for(const x of inv){const c=inventoryCategory(item(x.id)),n=x.qty||1,cur=groups.get(c.key)||{order:c.order,qty:0};cur.qty+=n;groups.set(c.key,cur);qty+=n}
- const weight=calcWeight(),cap=combatStats().carryCapacity,pct=cap?Math.round(weight/cap*100):0;
- return {groups:[...groups.entries()].sort((a,b)=>a[1].order-b[1].order),stacks:inv.length,qty,weight,cap,pct}
+ const weight=calcWeight(),cap=combatStats().carryCapacity,pct=cap?Math.round(weight/cap*100):0,sharedCarry=sharedCarryCapacityBonus();
+ return {groups:[...groups.entries()].sort((a,b)=>a[1].order-b[1].order),stacks:inv.length,qty,weight,cap,pct,sharedCarry}
 }
 function organizeInventory(){
  const inv=G.character.inventory;
@@ -5226,7 +5305,7 @@ function openInventory(){
  }).join("")||"<div class='small'>背包為空。</div>";
  const chips=summary.groups.map(([name,v])=>`<span class="inventory-chip">${name} ${v.qty}</span>`).join("");
  const loadClass=summary.pct>=100?"danger":summary.pct>=85?"warnText":"ok";
- showModal("背包",`<div class="inventory-summary"><div class="inventory-summary-top"><span>物品 ${summary.qty} 件｜堆疊 ${summary.stacks}</span><span class="${loadClass}">負重 ${summary.weight}/${summary.cap}kg（${summary.pct}%）</span></div><div class="inventory-chiprow">${chips}</div></div><div class="inventory-sortbar"><button class="good" onclick="organizeInventory()">一鍵整理</button><span class="small">目前已依分類顯示；整理會固定此排序。</span></div>${rows}`,"openInventory()")
+ showModal("背包",`<div class="inventory-summary"><div class="inventory-summary-top"><span>物品 ${summary.qty} 件｜堆疊 ${summary.stacks}</span><span class="${loadClass}">負重 ${summary.weight}/${summary.cap}kg（${summary.pct}%）</span></div><div class="small">同行負重支援：隊友 +${summary.sharedCarry.teammates.total}kg｜寵物／契約獸 +${summary.sharedCarry.companions.total}kg</div><div class="inventory-chiprow">${chips}</div></div><div class="inventory-sortbar"><button class="good" onclick="organizeInventory()">一鍵整理</button><span class="small">目前已依分類顯示；整理會固定此排序。</span></div>${rows}`,"openInventory()")
 }
 function removeStatuses(list){
  if(!list?.length)return;
@@ -5942,6 +6021,17 @@ function runGeneratorAudit(){
  const windSkill=(DB.skill_pools?.["C9-WINDMAGE"]||[]).find(x=>(x.base_name||x.name)==="風之護盾");
  if(!windSkill||supportPercentValue(windSkill,"defense_pct")<10)issues.push("風之護盾防禦百分比效果缺失");
  if((Object.values(DB.skill_pools||{}).flat()).some(s=>s.kind==="輔助"&&["","獲得戰鬥增益"].includes(String(s.effect_text||""))))issues.push("存在無具體效果的輔助技能");
+
+ if(DB.team_carry_system?.version!=="TEAM-CARRY-1.0")issues.push("TEAM-CARRY-1.0缺失");
+ if(typeof teammateCarryProfile!=="function"||typeof companionCarryProfile!=="function"||typeof sharedCarryCapacityBonus!=="function")issues.push("同行負重runtime缺失");
+ else{
+   for(const t of (DB.party_member_templates||[]))if(!(teammateCarryProfile(t,{level:Math.max(1,t.min_player_level||1),bond:0}).bonus>0))issues.push(`隊友負重設定異常:${t.id}`);
+   for(const sp of (DB.companion_species||[])){
+     const p=companionCarryProfile(sp,{level:Math.max(1,sp.min_owner_level||1),bond:0});
+     if(sp.companion_kind==="summon"&&p.bonus!==0)issues.push(`召喚獸錯誤提供常駐負重:${sp.id}`);
+     if(["pet","contract"].includes(sp.companion_kind)&&!(p.bonus>0))issues.push(`寵物負重設定異常:${sp.id}`)
+   }
+ }
 
  if(DB.inventory_organization_system?.version!=="INVENTORY-ORGANIZE-2.0")issues.push("INVENTORY-ORGANIZE-2.0缺失");
  if(DB.modal_scroll_preservation_system?.version!=="MODAL-SCROLL-PRESERVE-1.0")issues.push("MODAL-SCROLL-PRESERVE-1.0缺失");
