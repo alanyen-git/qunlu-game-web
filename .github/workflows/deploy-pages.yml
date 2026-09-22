@@ -167,6 +167,7 @@ jobs:
           node tools/debug-all-programs.js
           node tools/test-battle-formation.js
           node tools/test-battle-skill-popup.js
+          node tools/test-requirement-details.js
 
       - name: Stage production site
         if: github.event_name == 'workflow_dispatch'
