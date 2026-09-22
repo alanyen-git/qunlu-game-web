@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.07.1",
-  "previous_version": "CURRENT-2.07.0",
+  "version": "CURRENT-2.07.2",
+  "previous_version": "CURRENT-2.07.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.07.1：完成現行網頁引擎程序效能最佳化；69個正式程式改為保序defer載入，PWA靜態資源改快取優先並保留版本／頁面網路優先，runtime略過重複存檔寫入與負重重算，不改遊戲規則與存檔schema。",
+  "summary": "CURRENT-2.07.2：完成系統完整性排程收斂；啟動與手動開啟保留完整稽核，回到分頁與60秒定時排程改為僅做狀態修復；保留每5回合完整自檢與既有自動存檔，不改遊戲規則、世界資料與存檔schema。",
   "changelog": [
+    "CURRENT-2.07.2：SYSTEM-INTEGRITY-2.3將完整稽核限制在啟動與手動開啟；分頁恢復與60秒排程僅做事件、NPC、版本與組織狀態修復，移除重複大型資料稽核，保留每5回合完整自檢與自動存檔。",
     "CURRENT-2.07.1：69個正式src程式全部改為defer保序載入，維持PROGRAM-REGISTRY依賴順序，同時解除parser-blocking載入鏈。",
     "Service Worker快取升至v117：導航與version.json採network-first，JS／CSS／圖示等靜態資源採cache-first；版本化URL未命中時仍抓取最新檔，離線時可回退既有預快取。",
     "RUNTIME-OPT-1.5：persist()在序列化結果未變時略過重複localStorage.setItem；仍保留所有狀態變更即時寫回，不改每回合自動存檔規則。",
@@ -318,7 +319,7 @@
   "npc_depth_revision": "NPC-DEPTH-2.0",
   "class_skill_revision": "CLASS-SKILL-OPT-1.0",
   "class_skill_passive_compat_revision": "CLASS-SKILL-PASSIVE-COMPAT-1.0",
-  "system_integrity_revision": "SYSTEM-INTEGRITY-2.2",
+  "system_integrity_revision": "SYSTEM-INTEGRITY-2.3",
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
@@ -348,7 +349,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v117",
+  "pwa_cache_revision": "v118",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -721,9 +722,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.07.1完成載入、PWA快取、runtime存檔與程序稽核查找最佳化；69個正式src程序清單與依賴順序不變。",
-    "last_verified_release": "CURRENT-2.07.1",
+    "note": "CURRENT-2.07.2完成SYSTEM-INTEGRITY排程收斂與v118快取同步；69個正式src程序清單與依賴順序不變。",
+    "last_verified_release": "CURRENT-2.07.2",
     "notes": [
+      "CURRENT-2.07.2：完整稽核改為啟動／手動開啟執行；分頁恢復／60秒排程僅做狀態修復；PWA v118；69程序清單與依賴順序不變。",
       "CURRENT-2.07.1：69程式defer保序載入、PWA v117、RUNTIME-OPT-1.5、PROGRAM-REGISTRY-1.20。",
       "CURRENT-2.07.0：POLITY-WORLD-TIER-1.0接入既有world-map程序，不增加src程序數；16政治體宏觀承載分級與地方危險度正式分離。",
       "CURRENT-2.06.0：新增src/black-moon-depth-v1.js；黑月深庭7治理區、STATE-BM-20活世界與安威爾深界停戰線接線，正式入口、PROGRAM-REGISTRY與PWA同步為69個src程序。",
@@ -748,12 +750,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 61,
-    "programs_loaded": 61,
-    "stateful_tests": 8,
-    "stateful_tests_passed": 8,
-    "full_audits_executed": 42,
-    "full_audits_passed": 42,
+    "programs_total": 69,
+    "programs_loaded": 69,
+    "stateful_tests": 9,
+    "stateful_tests_passed": 9,
+    "full_audits_executed": 54,
+    "full_audits_passed": 54,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -775,14 +777,14 @@
     "deployment_gate": true,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-1.98.0"
+    "last_verified_release": "CURRENT-2.07.2"
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
     "audited_src_programs": 69,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; static cache-first",
-    "pwa_cache": "v117",
+    "pwa_cache": "v118",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -792,7 +794,19 @@
     "save_compatible": true,
     "duplicate_deep_audits_removed": 22,
     "covered_by_release_integrity": true,
-    "uncovered_runtime_audits_preserved": true
+    "uncovered_runtime_audits_preserved": true,
+    "system_integrity_schedule": {
+      "full_audit": [
+        "啟動",
+        "手動開啟系統自檢",
+        "每5回合主runtime完整自檢"
+      ],
+      "state_repair_only": [
+        "回到分頁",
+        "60秒定時排程"
+      ],
+      "save_schema_changed": false
+    }
   },
   "asdail_narrative_depth_revision": "ASDAIL-NARRATIVE-DEPTH-1.0",
   "asdail_narrative_runtime_revision": "ASDAIL-NARRATIVE-RUNTIME-2.0",

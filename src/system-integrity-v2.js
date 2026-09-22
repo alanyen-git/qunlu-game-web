@@ -1,4 +1,4 @@
-/* 群陸旅誌：系統完整性修正（動態發布版） CURRENT-1.66.1
+/* 群陸旅誌：系統完整性修正（動態發布版） CURRENT-2.07.2
  * SYSTEM-INTEGRITY-2.0
  * 版本同步／舊存檔遷移閘門／跨模組稽核／職業技能整合／狀態修復
  */
@@ -6,10 +6,10 @@
   if(typeof DB!=="object"||!DB)return;
 
   const titleRelease=typeof document!=="undefined"?(String(document.title||"").match(/CURRENT-\d+\.\d+\.\d+/)?.[0]||""):"";
-  const RELEASE=globalThis.QUNLU_RELEASE_VERSION||titleRelease||DB.meta?.current_version||"CURRENT-1.66.1";
-  const REVISION="SYSTEM-INTEGRITY-2.2";
+  const RELEASE=globalThis.QUNLU_RELEASE_VERSION||titleRelease||DB.meta?.current_version||"CURRENT-2.07.2";
+  const REVISION="SYSTEM-INTEGRITY-2.3";
   const LEGACY_RUNTIME_VERSION="CURRENT-1.57.0";
-  const CFG={event_limit:80,seen_limit:220,audit_interval_ms:60000,persist_after_repair:true};
+  const CFG={event_limit:80,seen_limit:220,repair_interval_ms:60000,audit_interval_ms:60000,persist_after_repair:true};
 
   DB.meta=DB.meta||{};
   DB.meta.current_version=RELEASE;
@@ -23,7 +23,7 @@
       "每次寫入本機存檔前，G.meta.version必須與DB.meta.current_version同步。",
       "NPC第一、第二階段與自主世界事件依事件ID去重，不修改事件內容與遊戲結果。",
       "職業與技能完整性由CLASS-SKILL-OPT-1.0共同稽核，既有角色技能XP與職業進度不得被重置。",
-      "組織／流派稽核涵蓋會員、貢獻、職位、內部委託、捐贈、規模、寶庫、獨有裝備技能與來源索引。","自檢只修復可確定的結構性問題，不刪除角色進度、不重置人物關係、不繞過資格規則。"
+      "組織／流派稽核涵蓋會員、貢獻、職位、內部委託、捐贈、規模、寶庫、獨有裝備技能與來源索引。","自檢只修復可確定的結構性問題，不刪除角色進度、不重置人物關係、不繞過資格規則。","啟動與手動開啟執行完整稽核；回到分頁與定時排程僅執行狀態修復；每5回合主runtime完整自檢規則保持不變。"
     ],
     save_schema_changed:false,
     destructive_repairs:false
@@ -83,10 +83,21 @@
     const ai=typeof globalThis.runAffiliationIntegrityAudit==="function"?globalThis.runAffiliationIntegrityAudit():null;add("affiliation_integrity_selfcheck",!ai||ai.pass===true,ai?.revision||null,ai?.issues?.slice(0,5).join("；")||"");
 
     const repairResult=repair?repairWorldState():{changed:false,repairs:[]};
-    const result={revision:REVISION,release:RELEASE,pass:checks.every(x=>x.pass),checks,repair:repairResult,time:Date.now(),classSkill:cs,affiliationContribution:ac,affiliationTreasury:at,affiliationIntegrity:ai};
+    const result={revision:REVISION,release:RELEASE,mode:"full-audit",pass:checks.every(x=>x.pass),checks,repair:repairResult,time:Date.now(),classSkill:cs,affiliationContribution:ac,affiliationTreasury:at,affiliationIntegrity:ai};
     const gg=game();if(gg?.worldState)gg.worldState.systemIntegrity=result;
     if(repairResult.changed&&CFG.persist_after_repair&&typeof originalPersist==="function")try{originalPersist()}catch(e){}
     return result
+  }
+
+  function runStateRepair(){
+    const repairResult=repairWorldState();
+    const g=game();
+    if(g?.worldState){
+      const previous=g.worldState.systemIntegrity&&typeof g.worldState.systemIntegrity==="object"?g.worldState.systemIntegrity:{};
+      g.worldState.systemIntegrity={...previous,revision:REVISION,release:RELEASE,mode:"state-repair",repair:repairResult,time:Date.now()};
+    }
+    if(repairResult.changed&&CFG.persist_after_repair&&typeof originalPersist==="function")try{originalPersist()}catch(e){}
+    return repairResult
   }
 
   const originalMigrateSave=typeof globalThis.migrateSave==="function"?globalThis.migrateSave:null;
@@ -99,9 +110,9 @@
   function openSystemIntegrityPanel(){const result=runAudit(true),bad=result.checks.filter(x=>!x.pass),good=result.checks.length-bad.length,esc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");const badHtml=bad.length?bad.map(x=>`<div class="small badText"><b>${esc(x.id)}</b>｜${esc(x.value??"")} ${esc(x.detail||"")}</div>`).join(""):"<div class='small ok'>未發現阻斷級整合錯誤。</div>";const repairs=result.repair.repairs.length?result.repair.repairs.map(x=>`<div class="small">• ${esc(x)}</div>`).join(""):"<div class='small'>本次沒有需要自動修復的狀態。</div>";const cs=result.classSkill?`<div class="small">職業／技能：高優先${result.classSkill.high}｜中優先${result.classSkill.medium}｜觀察${result.classSkill.low}</div>`:"";const ai=result.affiliationIntegrity?`<div class="small">組織／流派：${result.affiliationIntegrity.pass?"通過":"需檢查"}｜組織${result.affiliationIntegrity.stats?.organizations||0}／流派${result.affiliationIntegrity.stats?.disciplines||0}／寶庫物品${result.affiliationIntegrity.stats?.treasury_items||0}／獨有技能${result.affiliationIntegrity.stats?.exclusive_skills||0}</div>`:"";if(typeof showModal==="function")showModal("系統自檢",`<div class="card"><b>${esc(REVISION)}</b><br><span class="small">通過 ${good}/${result.checks.length} 項｜發布版 ${esc(RELEASE)}｜${result.pass?"核心檢查通過":"仍有需處理項目"}</span>${cs}${ai}</div><div class="card"><b>異常項目</b>${badHtml}</div><div class="card"><b>本次修復</b>${repairs}</div>`)}
   function patchMoreMenu(){if(globalThis.__SYSTEM_INTEGRITY2_MENU_PATCHED||typeof globalThis.openMoreMenu!=="function")return;const original=globalThis.openMoreMenu;globalThis.openMoreMenu=function(){const result=original.apply(this,arguments);setTimeout(()=>{const grid=typeof document!=="undefined"?document.querySelector("#modalBody .more-grid"):null;if(grid&&!grid.querySelector("[data-system-integrity]")){const b=document.createElement("button");b.className="more-card";b.dataset.systemIntegrity="1";b.innerHTML='<span class="more-icon">✓</span><span>系統自檢</span>';b.addEventListener("click",openSystemIntegrityPanel);grid.appendChild(b)}},0);return result};globalThis.__SYSTEM_INTEGRITY2_MENU_PATCHED=true}
 
-  globalThis.runSystemIntegrityAudit=runAudit;globalThis.openSystemIntegrityPanel=openSystemIntegrityPanel;globalThis.SYSTEM_INTEGRITY_CONFIG=Object.freeze({...CFG});
+  globalThis.runSystemIntegrityAudit=runAudit;globalThis.runSystemIntegrityStateRepair=runStateRepair;globalThis.openSystemIntegrityPanel=openSystemIntegrityPanel;globalThis.SYSTEM_INTEGRITY_CONFIG=Object.freeze({...CFG});
   patchMoreMenu();syncGameVersion();
   if(typeof window!=="undefined")window.addEventListener("load",()=>setTimeout(()=>runAudit(true),250),{once:true});
-  if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>runAudit(true),180)});
-  setInterval(()=>{if(game()?.character)runAudit(true)},CFG.audit_interval_ms);
+  if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>runStateRepair(),180)});
+  setInterval(()=>{if(game()?.character)runStateRepair()},CFG.repair_interval_ms);
 })();
