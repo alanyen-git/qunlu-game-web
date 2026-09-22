@@ -1,11 +1,16 @@
 {
-  "version": "CURRENT-2.07.3",
-  "previous_version": "CURRENT-2.07.2",
+  "version": "CURRENT-2.07.4",
+  "previous_version": "CURRENT-2.07.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.07.3：完成共用 runtime 查找與稽核熱點優化；資料索引、NPC／劇情模板查找與採集後背包掃描改為可重用索引或單次快照；保留每5回合完整自檢、自動存檔、遊戲規則、世界資料與存檔schema。",
+  "summary": "CURRENT-2.07.4：本機存檔升級為 IndexedDB 大容量模式；舊 localStorage 主存檔與更新備份會自動搬移，並以舊 5 MB 級配額為基準提供 10 倍、50 MB 的設計目標，同時保留舊瀏覽器回退。",
   "changelog": [
+    "CURRENT-2.07.4：SAVE-STORAGE-2.0 將主存檔由 localStorage 遷移至 IndexedDB；首次載入會自動讀取舊存檔、寫入大容量儲存並在成功後清出舊主存檔，解決長期遊玩後 localStorage 配額滿載。",
+    "更新備份同步移至 IndexedDB，啟動時會搬移既有 chronicle_save_backup_* 與備份索引，避免多份大型備份再次塞滿 localStorage。",
+    "以舊 5 MB 級 localStorage 為基準設定 10 倍、50 MB 大容量設計目標，並使用 StorageManager.persist/estimate 取得可用持久化與實際瀏覽器配額；瀏覽器最終配額仍由裝置與瀏覽器決定。",
+    "存檔寫入改為最新狀態佇列：同一狀態不重寫、連續回合只保留待寫入的最新序列化狀態；版本更新會先完成主存檔寫入，再建立 IndexedDB 備份後重新載入。",
+    "設定視窗新增大容量存檔資訊，顯示 IndexedDB、50 MB 設計目標與目前瀏覽器回報配額；清除本機存檔會同步清除 IndexedDB 與舊 localStorage 殘留。",
     "CURRENT-2.07.3：共用 runtime 建立靜態資料索引，存檔遷移與資料庫完整稽核減少重複線性掃描；NPC、阿斯戴爾活世界與採集資源循環採索引／單次背包快照，行為與存檔格式不變。",
     "本版效能重構只針對查找、稽核與快照配置；不改canonical世界內容、戰鬥／經濟規則、每5回合完整自檢或自動存檔。",
     "CURRENT-2.07.2：SYSTEM-INTEGRITY-2.3將完整稽核限制在啟動與手動開啟；分頁恢復與60秒排程僅做事件、NPC、版本與組織狀態修復，移除重複大型資料稽核，保留每5回合完整自檢與自動存檔。",
@@ -351,7 +356,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v119",
+  "pwa_cache_revision": "v120",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1531,5 +1536,11 @@
     "governance": "首席主母＋誓井議庭＋七大家門＋公共水脈／外環商監／礦道監領",
     "tier_model": "E～C一般地下內容＋受控B級最初誓井／停戰封廊／母岩殿；REG-13地表仍屬安威爾帝國",
     "save_compatible": true
-  }
+  },
+  "save_storage_revision": "SAVE-STORAGE-2.0",
+  "save_storage_backend": "IndexedDB",
+  "save_storage_target_mb": 50,
+  "save_storage_target_multiplier": 10,
+  "save_storage_legacy_backend": "localStorage",
+  "save_storage_migration": "automatic"
 }
