@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-2.12.0",
-  "previous_version": "CURRENT-2.11.0",
+  "version": "CURRENT-2.12.1",
+  "previous_version": "CURRENT-2.12.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.0：副職業D級以上新增動態前置考核任務；考題依種族、戰鬥職業、天賦、政治體與所在地加權隨機推演，通過對應階級考核後才可按下升級。",
+  "summary": "CURRENT-2.12.1：戰鬥盟友固定兩欄等寬；玩家與出戰寵物／召喚獸優先並排，單一隊友維持半欄，寵物戰術核心在精簡戰鬥卡隱藏。",
   "changelog": [
+    "CURRENT-2.12.1／BATTLE-FORMATION-LAYOUT-3.0：敵方固定置於最上方完整橫列；玩家與出戰寵物／召喚獸優先並排，隊友每排最多兩個等寬欄位。",
+    "未帶寵物或隊友數量為奇數時，最後一張盟友卡片亦固定保持半欄，不因auto-fit延展為整排；手機窄螢幕亦維持雙欄。",
+    "寵物／召喚獸在戰鬥卡隱藏「戰術核心／觸發」文字，沿用既有光環／專屬技能說明隱藏規則；被動效果及夥伴詳細資料不受影響。",
+    "不更改存檔格式或戰鬥數值；PWA快取升至v132，更新CSS載入版本以避免舊版排版殘留。",
     "CURRENT-2.12.0／SUBJOB-EXAM-1.0：E→D、D→C、C→B、B→A、A→S 全部新增前置晉階考核；F→E仍維持基礎熟練升級，不強制考核。",
     "考題直接從現行可完成委託目標池動態抽取並依目標階級縮放；副職業類型、種族／亞種、戰鬥職業定位、天賦、目前政治體／文化圈、所在地與隨機權重共同影響考題類型。",
     "角色介面在XP與角色等級達標後顯示「申請［下一階］考核」；考核進行中可直接查看委託，通過後才替換為「升級［下一階］」。",
@@ -412,7 +416,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v131",
+  "pwa_cache_revision": "v132",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -431,7 +435,7 @@
     "core_tier_issues": 0,
     "semantic_mismatch_issues": 0
   },
-  "battle_layout_revision": "BATTLE-FORMATION-LAYOUT-1.0",
+  "battle_layout_revision": "BATTLE-FORMATION-LAYOUT-3.0",
   "production_crafting_success_revision": "PRODUCTION-CRAFT-SUCCESS-2.1",
   "production_crafting_success": {
     "scope": [
@@ -1183,7 +1187,7 @@
     "save_compatible": true
   },
   "companion_battle_description_revision": "COMPANION-BATTLE-DESCRIPTION-1.1",
-  "companion_battle_compact_revision": "COMPANION-BATTLE-COMPACT-1.0",
+  "companion_battle_compact_revision": "COMPANION-BATTLE-COMPACT-1.1",
   "adventure_organization_consolidation_revision": "ADVENTURE-ORGANIZATION-CONSOLIDATION-1.0",
   "adventure_organization_baseline": 16,
   "adventure_organization_target": 8,

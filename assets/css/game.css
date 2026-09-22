@@ -1496,66 +1496,50 @@ hr{border-top-color:#394238;margin:16px 0}
 }
 
 
-/* ===== CURRENT-2.10.0 BATTLE FORMATION V2 ===== */
-.battlehead.battle-formation-v2{
-  display:block!important;
-}
-.battle-formation-v2>.battle-enemy-row{
-  width:100%;
-  margin:0 0 9px;
-}
+/* ===== CURRENT-2.12.1 BATTLE FORMATION V3 ===== */
+.battlehead.battle-formation-v2{display:block!important}
+.battle-formation-v2>.battle-enemy-row{width:100%;margin:0 0 9px}
 .battle-formation-v2>.battle-allies{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(118px,1fr));
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
   align-items:stretch;
 }
 .battle-formation-v2>.battle-allies>.battleunit{
-  min-width:0;
-  width:auto;
-  margin:0;
-  text-align:left;
+  min-width:0;max-width:100%;width:auto;margin:0;box-sizing:border-box;
+  overflow-wrap:anywhere;text-align:left;
+}
+/* Player and active pet/summon first; teammates occupy following half-width cells. */
+.battle-formation-v2>.battle-allies>.player{order:0}
+.battle-formation-v2>.battle-allies>.companion{
+  order:1;grid-column:auto!important;grid-row:auto!important;
 }
 .battle-formation-v2>.battle-allies>.party-mini{
-  display:block;
-  padding:9px;
-  border-radius:12px;
-  font-size:inherit;
+  order:2;display:block;padding:9px;border-radius:12px;font-size:inherit;
 }
 .battle-formation-v2>.battle-allies>.party-mini b{
-  display:block;
-  white-space:normal;
-  overflow:visible;
-  text-overflow:clip;
+  display:block;white-space:normal;overflow:visible;text-overflow:clip;
 }
 .battle-formation-v2>.battle-allies>.party-mini .small{
-  display:block;
-  margin:2px 0 4px;
+  display:block;margin:2px 0 4px;
 }
+/* Compact battle view: abilities and tactical core remain in companion detail UI. */
 .battle-formation-v2 .companion-battle-kit,
 .battle-formation-v2 .companion-aura-line,
-.battle-formation-v2 .companion-skill-line{
+.battle-formation-v2 .companion-skill-line,
+.battle-formation-v2 .companion-identity-depth-line{
   display:none!important;
 }
 @media(max-width:620px){
   .battle-formation-v2>.battle-allies{
-    grid-template-columns:repeat(auto-fit,minmax(108px,1fr));
-    gap:7px;
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
   }
   .battle-formation-v2>.battle-allies>.battleunit{
-    padding:8px;
-    font-size:11.5px;
-    line-height:1.48;
+    padding:8px;font-size:11.5px;line-height:1.48;
   }
-  .battle-formation-v2>.battle-allies>.battleunit b{
-    font-size:13.5px;
-  }
-  .battle-formation-v2 .battle-unit-stats{
-    display:none;
-  }
-  .battle-formation-v2>.battle-enemy-row{
-    text-align:left;
-  }
+  .battle-formation-v2>.battle-allies>.battleunit b{font-size:13.5px}
+  .battle-formation-v2 .battle-unit-stats{display:none}
+  .battle-formation-v2>.battle-enemy-row{text-align:left}
 }
 @media(max-width:350px){
   .battle-formation-v2>.battle-allies{
