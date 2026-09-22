@@ -737,7 +737,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.22",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 72,
+    "active_src_programs": 73,
     "groups": [
       "core",
       "data",
@@ -757,7 +757,7 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.09.0新增拍賣行／黑市雙交易模組；72個正式src程序與index／Service Worker／PROGRAM-REGISTRY同步。",
+    "note": "CURRENT-2.10.0新增RPG參考綜合模組；73個正式src程序與index／Service Worker／PROGRAM-REGISTRY同步。",
     "last_verified_release": "CURRENT-2.09.0",
     "notes": [
       "CURRENT-2.09.0：新增src/trade-venues-data-v1.js與src/trade-venues-runtime-v1.js；拍賣行／黑市接入現行引擎，PWA v122；正式程序增為72個。",
