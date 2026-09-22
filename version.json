@@ -1,11 +1,20 @@
 {
-  "version": "CURRENT-2.09.1",
-  "previous_version": "CURRENT-2.09.0",
+  "version": "CURRENT-2.10.0",
+  "previous_version": "CURRENT-2.09.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.09.1：正式收斂拍賣行／黑市 hotfix；修正交易 runtime 與現行 lexical G 載入方式、補齊黑市資格來源，並同步正式發布版本。",
+  "summary": "CURRENT-2.10.0：將新RPG參考庫的抽象設計模式正式接入現行遊戲；深化多解委託、NPC互動、角色知識邊界、技能Lv6/Lv10質變、隊友協同、地區內容可及性與活世界因果記憶，不複製外部IP內容、不改存檔schema。",
   "changelog": [
+    "CURRENT-2.10.0：新增 RPG-REFERENCE-SYNTHESIS-1.0，直接讀取既有戰鬥職業、技能、NPC、委託、地點、隊友與活世界資料，加入跨系統設計語意，不建立第二套資料來源。",
+    "委託新增多解設計資料：探索／調查、戰鬥／護衛、交涉／情報、副職業／製作等路徑依任務內容生成，並加入失敗後以時間、資源、名聲、NPC與世界狀態承擔代價的 fail-forward 原則。",
+    "NPC新增身分／職業式互動路徑與知識邊界：商人、學者、工匠、軍職、統治者、地下人物可提供不同互動；NPC不得無來源全知世界資訊。",
+    "技能新增 Lv6 與 Lv10 熟練設計節點：主動、支援、布置、被動各自以戰術質變為主，避免只堆攻擊力或防禦力百分比；保留既有技能經驗上限10。",
+    "隊友模板新增協同設計：坦克、前排、治療、遠程、斥候、施法、混合、支援、專家角色有不同前置與接續價值；協同要求羈絆、技能與合理戰術條件，不做無條件攻防疊加。",
+    "地點新增內容可及性資料，明確把聚落規模、設施數量、世界層級與可取得服務分開；小聚落不會因所在世界層級較高就自動擁有完整高階服務。",
+    "活世界新增事件因果欄位：原因、觸發、可見徵兆、作用、NPC反應、市場影響、解決、餘波與恢復／惡化，事件結束後保留城鎮、NPC、派系、市場與傳聞痕跡。",
+    "外部參考只保留抽象設計模式；禁止把參考作品的角色、地名、劇情、神器、招式、怪物專名或原文直接寫入正式遊戲資料。",
+    "PROGRAM-REGISTRY升至1.24、RELEASE-INTEGRITY升至2.24、RELEASE-VERSION-SYNC升至1.20；PWA快取升至v124。",
     "CURRENT-2.09.1：正式收斂拍賣行／黑市 hotfix；交易 runtime 相容現行 top-level let G 遊戲狀態，可在角色尚未載入時先完成模組註冊。",
     "黑市資格來源已補齊：D級以上完成委託、成功奇遇／特殊接觸、地下劇情／情報、灰印徽章、無燈市入場券，以及任一主要名聲達門檻。",
     "拍賣行配置規則不變：只設於省級行政中心、國都或同級城市；一般城鎮與新手村不會因F-S世界層級自動取得拍賣行。",
@@ -375,7 +384,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v120",
+  "pwa_cache_revision": "v124",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -813,7 +822,7 @@
     "audited_src_programs": 69,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; static cache-first",
-    "pwa_cache": "v119",
+    "pwa_cache": "v124",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1563,5 +1572,20 @@
   "save_storage_target_mb": 50,
   "save_storage_target_multiplier": 10,
   "save_storage_legacy_backend": "localStorage",
-  "save_storage_migration": "automatic"
-}
+  "save_storage_migration": "automatic",
+  "rpg_reference_synthesis_revision": "RPG-REFERENCE-SYNTHESIS-1.0",
+  "rpg_reference_synthesis": {
+    "source_index": "references/wikipedia-rpg/sources.json",
+    "pillars": [
+      "多解委託",
+      "NPC職業式互動",
+      "知識邊界",
+      "技能Lv6/Lv10質變",
+      "隊友協同",
+      "地區內容可及性",
+      "活世界因果記憶"
+    ],
+    "external_ip_copying": false,
+    "save_schema_changed": false
+  }
+}\n
