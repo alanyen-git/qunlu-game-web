@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-2.10.0",
-  "previous_version": "CURRENT-2.09.1",
+  "version": "CURRENT-2.10.1",
+  "previous_version": "CURRENT-2.10.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.10.0：將新RPG參考庫的抽象設計模式正式接入現行遊戲；深化多解委託、NPC互動、角色知識邊界、技能Lv6/Lv10質變、隊友協同、地區內容可及性與活世界因果記憶，不複製外部IP內容、不改存檔schema。",
+  "summary": "CURRENT-2.10.1：新增同行共享負重系統；NPC隊友與寵物／契約獸依定位、體格、階級、等級與羈絆提供不同負重支援，純召喚獸不提供常駐行李空間；舊存檔原地相容。",
   "changelog": [
+    "CURRENT-2.10.1／TEAM-CARRY-1.0：NPC隊友加入後依定位、種族體格、階級、等級與羈絆提供共享負重，直接接入 resourceCaps → combatStats 主鏈。",
+    "寵物／契約獸依物種體型特徵、階級、等級與羈絆提供共享負重；純召喚獸不提供非戰鬥常駐行李空間，避免以臨時召喚繞過負重限制。",
+    "背包、寵物／契約獸與冒險團資料頁新增負重來源與個別加成顯示；招募候選可預覽加入後的負重支援。",
+    "五回合與發布完整性稽核納入同行負重規則；不新增角色存檔欄位。PWA快取升至v129。",
     "CURRENT-2.10.0 採集工具 hotfix：新增 GATHER-TOOL-MARKET-1.0 與 GATHER-RUNTIME-1.1，修復野外提示需要採集工具但雜貨鋪沒有對應商品的閉環缺口。",
     "雜貨鋪現在販售鐵鎬、伐木斧、釣竿與採集小刀；工具仍受每日庫存、地區價格與店家資金限制，也可由一般商店收購。",
     "採集動作正式合併 gather／mining／woodcut 三種地圖資源池，並依資源實際要求檢查工具；缺工具時會直接顯示缺少的工具名稱並提示前往雜貨鋪。",
@@ -371,7 +375,7 @@
   "player_experience_revision": "PLAYER-EXPERIENCE-1.0",
   "world_naming_revision": "WORLD-NAMING-3.0",
   "naming_protection_revision": "NAMING-PROTECTION-2.0",
-  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.19",
+  "release_version_sync_revision": "RELEASE-VERSION-SYNC-1.21",
   "persona_playtest_turns": 32000,
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
@@ -397,7 +401,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v128",
+  "pwa_cache_revision": "v129",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -473,7 +477,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.20",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.25",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -747,7 +751,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.22",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.24",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 73,
@@ -1599,6 +1603,38 @@
       "活世界因果記憶"
     ],
     "external_ip_copying": false,
+    "save_schema_changed": false
+  },
+  "adventure_party_teammate_depth_revision": "ADVENTURE-PARTY-TEAMMATE-DEPTH-1.1",
+  "team_carry_revision": "TEAM-CARRY-1.0",
+  "team_carry": {
+    "teammate_factors": [
+      "role",
+      "race_body",
+      "tier",
+      "level",
+      "bond"
+    ],
+    "companion_factors": [
+      "species_body",
+      "tier",
+      "level",
+      "bond"
+    ],
+    "persistent_companion_kinds": [
+      "pet",
+      "contract"
+    ],
+    "summon_persistent_carry": false,
+    "integrated_with": [
+      "resourceCaps",
+      "combatStats",
+      "overload_penalty",
+      "HUD",
+      "inventory",
+      "party_profile",
+      "companion_panel"
+    ],
     "save_schema_changed": false
   }
 }
