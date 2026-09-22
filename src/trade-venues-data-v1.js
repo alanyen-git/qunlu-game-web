@@ -1,4 +1,4 @@
-/* 群陸旅誌：拍賣行／黑市靜態資料 CURRENT-2.09.0
+/* 群陸旅誌：拍賣行／黑市靜態資料 CURRENT-2.09.1
  * TRADE-VENUES-DATA-1.0
  * 拍賣行只配置於省級行政中心與國都；黑市憑證納入正式物品資料，供runtime資格檢核。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.09.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.0";
+const RELEASE=CORE?.release?.("CURRENT-2.09.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.1";
 const REV="TRADE-VENUES-DATA-1.0";
 const AUCTION_ID="auction";
 const BADGE_ID="IT-BM-GRAY-SIGIL";

@@ -1,11 +1,15 @@
 {
-  "version": "CURRENT-2.09.0",
-  "previous_version": "CURRENT-2.08.0",
+  "version": "CURRENT-2.09.1",
+  "previous_version": "CURRENT-2.09.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.09.0：新增拍賣行與黑市雙交易系統；拍賣行只設於省級行政中心／國都級城市，黑市採不定期開市與前置資格制，並接入既有市場供需、委託、奇遇、情報與名聲。",
+  "summary": "CURRENT-2.09.1：正式收斂拍賣行／黑市 hotfix；修正交易 runtime 與現行 lexical G 載入方式、補齊黑市資格來源，並同步正式發布版本。",
   "changelog": [
+    "CURRENT-2.09.1：正式收斂拍賣行／黑市 hotfix；交易 runtime 相容現行 top-level let G 遊戲狀態，可在角色尚未載入時先完成模組註冊。",
+    "黑市資格來源已補齊：D級以上完成委託、成功奇遇／特殊接觸、地下劇情／情報、灰印徽章、無燈市入場券，以及任一主要名聲達門檻。",
+    "拍賣行配置規則不變：只設於省級行政中心、國都或同級城市；一般城鎮與新手村不會因F-S世界層級自動取得拍賣行。",
+    "PWA載入查詢版本同步為CURRENT-2.09.1；Service Worker沿用剛完成hotfix的v123快取，確保已安裝版本能更新新交易模組。",
     "CURRENT-2.09.0：新增 TRADE-VENUES-DATA-1.0 與 TRADE-VENUES-RUNTIME-1.0，拍賣行／黑市正式接入現行模組化引擎，不建立第二套經濟資料來源。",
     "拍賣行只配置於 province_region_maps.capital_location_id 所指省級行政中心，以及政治體／大區國都；一般城鎮與新手村不會因F-S世界層級而誤生拍賣行。",
     "拍賣行新增NPC有限拍品、24小時補貨、競價與NPC反價、直購、玩家寄售、刊登費2%、成交佣金8%、保證金與到期自動結算。",

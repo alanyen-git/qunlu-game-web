@@ -1,4 +1,4 @@
-/* 群陸旅誌：拍賣行／黑市runtime CURRENT-2.09.0
+/* 群陸旅誌：拍賣行／黑市runtime CURRENT-2.09.1
  * TRADE-VENUES-RUNTIME-1.0
  * 公開拍賣競價、玩家寄售、地下市場不定期窗口、前置資格與市場供需串接。
  */
@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
-const RELEASE=CORE?.release?.("CURRENT-2.09.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.0";
+const RELEASE=CORE?.release?.("CURRENT-2.09.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.09.1";
 const REV="TRADE-VENUES-RUNTIME-1.0";
 const DATA=globalThis.QUNLU_TRADE_VENUE_DATA||{};
 const SYS=DB.trade_venue_system||{};
