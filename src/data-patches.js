@@ -2084,3 +2084,58 @@
   DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||"CURRENT-1.69.7";
   DB.meta.item_source_index_revision="ITEM-SOURCE-INDEX-1.3";
 })();
+
+
+/* CURRENT-2.10.0｜採集工具商店與需求閉環
+ * GATHER-TOOL-MARKET-1.0
+ * 雜貨鋪固定販售低階採集工具；補齊採集小刀並統一工具來源索引。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+  const REV="GATHER-TOOL-MARKET-1.0";
+  const TOOL_IDS=["MAT-UTIL-08","MAT-UTIL-09","MAT-UTIL-10","I-GATHER-KNIFE"];
+  const byId=id=>(DB.items||[]).find(x=>x?.id===id)||null;
+  const upsertItem=row=>{
+    DB.items=Array.isArray(DB.items)?DB.items:[];
+    const i=DB.items.findIndex(x=>x?.id===row.id);
+    if(i>=0)DB.items[i]=Object.assign({},DB.items[i],row);
+    else DB.items.push(row);
+  };
+  upsertItem({
+    id:"I-GATHER-KNIFE",name:"採集小刀",tier:"F",type:"工具",catalog_group:"其他",
+    stackable:false,value:8,weight:.18,tool_effect:"gather",
+    acquisition_sources:["shop","craft"],wild_gather_eligible:false,gather_tool:null,
+    economic_role:"雜貨鋪／生活製作→草藥與細部採集",
+    description:"短刃採集工具，用於切取草藥、嫩枝與需要精細處理的野外素材。"
+  });
+
+  const general=DB.facilities?.general;
+  if(general){
+    general.stock=Array.isArray(general.stock)?general.stock:[];
+    for(const id of TOOL_IDS)if(byId(id)&&!general.stock.includes(id))general.stock.push(id);
+  }
+
+  /* 舊資料曾用顯示名稱「採集小刀」作為需求值；正規化為runtime工具效果鍵。 */
+  for(const d of DB.items||[])if(d?.gather_tool==="採集小刀")d.gather_tool="gather";
+
+  DB.content_link_index=DB.content_link_index&&typeof DB.content_link_index==="object"?DB.content_link_index:{};
+  DB.content_link_index.item_sources=DB.content_link_index.item_sources&&typeof DB.content_link_index.item_sources==="object"?DB.content_link_index.item_sources:{};
+  for(const id of TOOL_IDS){
+    const d=byId(id);if(!d)continue;
+    const s=DB.content_link_index.item_sources[id]=DB.content_link_index.item_sources[id]||{};
+    for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=Array.isArray(s[k])?[...new Set(s[k])]:[];
+    if(!s.shops.includes("general"))s.shops.push("general");
+    d.acquisition_sources=Array.isArray(d.acquisition_sources)?d.acquisition_sources:[];
+    if(!d.acquisition_sources.includes("shop"))d.acquisition_sources.push("shop");
+  }
+
+  DB.meta=DB.meta||{};
+  DB.meta.gather_tool_market_revision=REV;
+  DB.gather_tool_market_system={
+    version:REV,release:globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version,
+    general_store_tool_ids:TOOL_IDS,
+    effects:{mining:"鐵鎬",woodcut:"伐木斧",fishing:"釣竿",gather:"採集小刀"},
+    rule:"F級基礎採集工具由雜貨鋪穩定販售，仍受每日庫存、地區價格與店家資金限制；玩家可向一般商店出售工具。",
+    save_compatible:true
+  };
+})();
