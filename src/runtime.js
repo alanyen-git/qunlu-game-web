@@ -1156,7 +1156,7 @@ function resourceCaps(){
    hp:Math.max(1,Math.round(16+con*1.2+(lv-1)*2)),
    stamina:Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8)),
    mana:Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana"))),
-   carry:Math.max(20,roundCarry(30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity")+sharedCarryCapacityBonus().total)
+   carry:Math.max(20,roundCarry(30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity")+sharedCarryCapacityBonus().total))
  }
 }
 
