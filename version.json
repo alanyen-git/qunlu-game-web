@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.13.9",
-  "previous_version": "CURRENT-2.13.8",
+  "version": "CURRENT-2.14.0",
+  "previous_version": "CURRENT-2.13.9",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.13.9：鍛造、裁縫、附魔製作新增獨立成品分類按鍵，每次只顯示目前類別的已學配方；學習配方獨立保留。",
+  "summary": "CURRENT-2.14.0：料理採用與煉金、鍛造、裁縫、附魔相同的分類製作及獨立學習配方模式。",
   "changelog": [
+    "料理新增主食／肉類／魚鮮／湯品／蔬果／飲品／甜點／其他八種分類按鍵，一次只列所選類別的已學料理；另設學習配方專頁，顯示未學料理、前置條件及特殊來源；舊存檔自動保留升級前有資格製作的料理，F級基礎料理維持公開可做。",
     "鍛造改為武器／盾牌／防具／飾品／工具等分類，裁縫改為衣甲／頭盔／手套／鞋靴／披風／飾品，附魔改為武器／盾牌／防具／飾品附魔；與煉金一致，每次只列該分類的已學配方，未學配方集中學習頁。",
     "專業製作與學習配方完整分離：煉金、鍛造、裁縫、附魔等專業製作清單僅列已學配方；學習視窗集中未學配方，展示未達條件與特殊來源，學習成功後自動移入製作清單。",
     "REGIONAL-QUEST-ECOLOGY-1.0：各城鎮／設施委託板分別依當地行省、世界大區、實際已建檔可到達地點、20小時鄰近道路、城鎮階級與繁榮程度選取任務；清單每遊戲日穩定變動，不跨地區憑空重複發布。",
@@ -450,7 +451,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v150",
+  "pwa_cache_revision": "v151",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1801,5 +1802,31 @@
     "known_recipes_only": true,
     "learn_menu_separate": true,
     "save_compatible": true
+  },
+  "cooking_category_revision": "COOKING-CATEGORY-LEARNING-1.0",
+  "cooking_category_learning": {
+    "categories": [
+      "主食",
+      "肉類",
+      "魚鮮",
+      "湯品",
+      "蔬果",
+      "飲品",
+      "甜點",
+      "其他"
+    ],
+    "single_category_only": true,
+    "known_recipes_only": true,
+    "public_starter_tier": "F",
+    "higher_tier_learning": "trainer_unless_explicitly_special",
+    "special_source_not_purchasable": true,
+    "learn_menu_separate": true,
+    "existing_save_legacy_access_migration": true,
+    "save_compatible": true,
+    "batch_sizes": [
+      1,
+      5,
+      10
+    ]
   }
 }

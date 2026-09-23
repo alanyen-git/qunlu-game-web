@@ -485,7 +485,7 @@ function migrateSave(){
 
  if(!G||G.meta?.version===CURRENT_VERSION)return;
  G.meta.version=CURRENT_VERSION;
- const c=G.character;c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
+ const c=G.character;if(!Array.isArray(c.knownCookingRecipes))c.knownCookingRecipes=cookingLegacyKnownRecipes(c);c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
  for(const [oldId,newId] of Object.entries({"POL-010":"RP-010","POL-017":"RP-017"})){if(c.politicalStanding[oldId]!=null)c.regionalPowerStanding[newId]=c.politicalStanding[oldId];delete c.politicalStanding[oldId]}
  normalizePoliticalStandingState();
  c.disciplines=c.disciplines||{discovered:[],mastery:{},reputation:{},membershipId:null};
@@ -798,7 +798,7 @@ function createCharacter(){
  character:{id,name:($("#nameInput").value||"旅人").trim(),raceId:r.id,raceSubtype:creation.raceSubtype,originId:o.id,originFacetId:facet?.id||null,originFlags:[...new Set([...(o.flags||[]),...(facet?.flags||[])])],originKnowledge:[...new Set([...(o.knowledge||[]),...(facet?.knowledge||[])])],element:creation.element,classId:cc.id,level:1,xp:0,abilityPoints:0,spentAbilityPoints:0,abilityPointEntitlement:0,adventureRank:"F",combatGrade:"F",classSealed:!!cc.sealed,classGate:cc.gate||null,classMastery:0,classHistory:[],unlockedClassRoutes:[],
  subjobs:originStarterSubjobs.slice(0,1).map(sid=>({id:sid,grade:"F",xp:0,source:"出身"})),stats:{力量:10,敏捷:10,智力:10,意志:10,體力:10,魅力:10,幸運:10},hp:28,maxHp:28,stamina:22,maxStamina:22,mana:24,maxMana:24,toxicity:0,statusEffects:[],hunger:startH.hunger??10,fatigue:startH.fatigue??5,thirst:startH.thirst??10,weightCap:28+(r.weight_mod||0)+(o.weight_mod||0)+Number(facet?.weight_mod||0),moneySilver:Math.max(0,Number(o.silver||30)+Number(facet?.silver_mod||0)),guildReputation:0,guildRestrictionUntilTurn:0,politicalStanding:{},disciplines:{discovered:[],mastery:{},reputation:{},membershipId:null},organizations:{membershipId:null,memberships:[],formerMemberships:[],reputation:{},discovered:[]},locationId:startLocationId,currentFacility:null,alive:true,revival:{base:3,bonus:0,max:3,used:0,remaining:3},buffs:[],
  skills:chosen.map(s=>({...s,type:"戰鬥",mastery:6,skillXp:Math.round(skillXpThresholds()[1]*.55*100)/100})),companions:[],activeCompanionId:null,adventureParty:null,equipment:{主武器:makeEquip(cc.starter_weapon_id||cc.weapon),頭盔:makeEquip("EQ-HELM"),盔甲:makeEquip("EQ-CLOTH"),手套:makeEquip("EQ-GLOVE"),鞋子:makeEquip("EQ-SHOE"),披風:makeEquip("EQ-CLOAK"),飾品1:null,飾品2:null},
- inventory:inv,weaponSet:{offhand:cc.starter_offhand_id?makeEquip(cc.starter_offhand_id):null},knownRecipes:[],knownLoreIds:starterLoreForCharacter(r.id,cc.id),conditions:[],trainingToday:{day:1,combat:0,survival:0,body:0}},history:[],dialogueMemory:[],knownIntel:[],explorationIntel:[],intelBoardCache:{},questBoard:[],quests:[],questHistory:[],battle:null};
+ inventory:inv,weaponSet:{offhand:cc.starter_offhand_id?makeEquip(cc.starter_offhand_id):null},knownRecipes:[],knownCookingRecipes:[],knownLoreIds:starterLoreForCharacter(r.id,cc.id),conditions:[],trainingToday:{day:1,combat:0,survival:0,body:0}},history:[],dialogueMemory:[],knownIntel:[],explorationIntel:[],intelBoardCache:{},questBoard:[],quests:[],questHistory:[],battle:null};
  const tctx=talentContext(r.id,creation.raceSubtype,o.id,cc.id,creation.element,G.character.subjobs);
  const drawnTalents=drawTalents(tctx,DB.talent_system.character_limit);
  G.character.talents=drawnTalents.map(t=>t.id);
@@ -1677,17 +1677,112 @@ function isCookingRecipe(r){
  if(prof&&!["料理","烹飪","cook","cooking","SJ-COOK"].includes(prof))return false;
  return d.type==="料理"||d.inventory_group==="食物"||!!d.food_subtype
 }
-function openCooking(){
- const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),rank=hasCook?G.character.subjobs.find(x=>x.id==="SJ-COOK").grade:null;
- let list=DB.recipes.filter(r=>isCookingRecipe(r)&&(!r.cook_grade||(rank&&tierOrder(rank)>=tierOrder(r.cook_grade))));
- let b=`<div class="small">沒有烹飪副職業也能製作F級基礎料理；E級以上需烹飪資格。料理清單只顯示實際可食用成品；批量製作會按實際次數消耗材料與時間。</div>`+
- list.map(r=>{
-   const result=cookingOutputItem(r);
-   return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${r.tier}</span>
-   <br><span class="small">${craftResultLine(result)}<br>${cookingMaterialText(r,true)}</span></span>
-   <span class="craft-batch"><button onclick="cookBatch('${r.id}',1)">製作1</button><button onclick="cookBatch('${r.id}',5)">×5</button><button onclick="cookBatch('${r.id}',10)">×10</button></span></div>`
- }).join("");
- showModal("料理",b,"openCooking()")
+const COOK_CATEGORY_ORDER=["主食","肉類","魚鮮","湯品","蔬果","飲品","甜點","其他"];
+const COOK_CATEGORY_STATE={selected:null};
+function cookingCategoryLabel(r){
+ const d=cookingOutputItem(r)||{},sub=String(d.food_subtype||d.food_category||r?.food_category||""),name=String(r?.name||d.name||"");
+ const explicit=String(r?.cooking_category||d.cooking_category||"");
+ if(COOK_CATEGORY_ORDER.includes(explicit))return explicit;
+ if(/飲品|飲料|茶飲|飲水/.test(sub)||/茶$|茶飲|飲品|飲料|果汁|涼水|草飲|酸飲|清飲|熱飲|奶昔|豆漿|麥飲|莓露$/.test(name))return "飲品";
+ if(/湯|羹|濃湯|高湯|燉湯/.test(sub+" "+name))return "湯品";
+ if(/甜點|糕點|點心|糖果/.test(sub)||/蛋糕|甜餅|布丁|奶酪|果醬|果派|蜂蜜餅|甜派|糖漬/.test(name))return "甜點";
+ if(/魚|蝦|蟹|海鮮|河鮮|貝類/.test(sub+" "+name))return "魚鮮";
+ if(/肉類|肉食/.test(sub)||/肉|雞|羊|牛|豬|獵物|獸排|火腿|香腸/.test(name))return "肉類";
+ if(/蔬果|蔬菜|沙拉/.test(sub)||/沙拉|野菜|蔬|蘑菇|香菇|根莖|莓果|果盤/.test(name))return "蔬果";
+ if(/主食|麵食|米飯|烘焙/.test(sub)||/米飯|麥粥|麵包|麵餅|饅頭|麵條|乾糧|飯糰|燴飯|麥餅|穀物/.test(name))return "主食";
+ return "其他"
+}
+function cookingRecipeAccess(r){
+ const access=String(r?.recipe_access||r?.cook_recipe_access||"");
+ if(["public","trainer","special"].includes(access))return access;
+ return tierOrder(r?.tier||cookingOutputItem(r)?.tier||"F")===0?"public":"trainer"
+}
+function cookingRecipeKnown(r,c=G?.character){
+ if(!isCookingRecipe(r))return false;
+ return cookingRecipeAccess(r)==="public"||(Array.isArray(c?.knownCookingRecipes)&&c.knownCookingRecipes.includes(r.id))
+}
+function cookingLegacyKnownRecipes(c){
+ const j=(c?.subjobs||[]).find(x=>x.id==="SJ-COOK"),rank=j?.grade||null;
+ return [...new Set((DB.recipes||[]).filter(r=>isCookingRecipe(r)&&(!r.cook_grade||(rank&&tierOrder(rank)>=tierOrder(r.cook_grade)))).map(r=>r.id).filter(Boolean))]
+}
+function cookingRecipeVisible(r,j){
+ if(!isCookingRecipe(r)||!cookingRecipeKnown(r))return false;
+ const tier=tierOrder(r.tier||cookingOutputItem(r)?.tier||"F");
+ if(tier>0&&!j)return false;
+ return !r.cook_grade||(j&&tierOrder(j.grade)>=tierOrder(r.cook_grade))
+}
+function cookingRecipeCanLearn(r){
+ if(!isCookingRecipe(r)||cookingRecipeAccess(r)!=="trainer"||cookingRecipeKnown(r))return false;
+ const j=(G?.character?.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
+ const tier=tierOrder(r.tier||cookingOutputItem(r)?.tier||"F");
+ if(tier>tierOrder(loc(G.character.locationId)?.tier||"F"))return false;
+ if(tier>0&&!j)return false;
+ if(r.cook_grade&&(!j||tierOrder(j.grade)<tierOrder(r.cook_grade)))return false;
+ return G.character.level>=(r.recipe_level||1)
+}
+function cookingRecipeLearnFee(r){
+ const d=cookingOutputItem(r),tier=tierOrder(r.tier||d?.tier||"F");
+ return Math.max(4,Math.ceil(Number(d?.value??d?.price??20)*.08)+(tier+1)*6)
+}
+function cookingLearningCandidates(j=null){
+ if(!G?.character)return [];
+ if(!j)j=(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
+ const local=tierOrder(loc(G.character.locationId)?.tier||"F"),limit=j?tierOrder(j.grade||"F")+2:0;
+ return (DB.recipes||[]).filter(r=>isCookingRecipe(r)&&!cookingRecipeKnown(r)&&tierOrder(r.tier||cookingOutputItem(r)?.tier||"F")<=Math.min(local,limit)).sort((a,b)=>tierOrder(a.tier||"F")-tierOrder(b.tier||"F")||String(a.name||"").localeCompare(String(b.name||""),"zh-Hant"))
+}
+function cookingCategoryPlan(recipes){
+ const found=new Set((recipes||[]).map(cookingCategoryLabel));
+ const options=COOK_CATEGORY_ORDER.filter(x=>found.has(x));
+ const usable=options.length?options:["主食"];
+ return {options:usable,selected:usable.includes(COOK_CATEGORY_STATE.selected)?COOK_CATEGORY_STATE.selected:usable[0]}
+}
+function openCookingRecipeTraining(){
+ const j=(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
+ const list=cookingLearningCandidates(j);
+ const rows=tierGroupedItemRows(list,r=>{
+  const fee=cookingRecipeLearnFee(r),tier=r.tier||"F",canLearn=cookingRecipeCanLearn(r);
+  const missing=[],access=cookingRecipeAccess(r),d=cookingOutputItem(r);
+  if(access==="trainer"){
+   if(tierOrder(tier)>0&&!j)missing.push("需要取得烹飪副職業");
+   if(r.cook_grade&&(!j||tierOrder(j.grade)<tierOrder(r.cook_grade)))missing.push(`需要烹飪${r.cook_grade}級`);
+   if(G.character.level<(r.recipe_level||1))missing.push(`需要角色Lv${r.recipe_level||1}`);
+   if(G.character.moneySilver<fee)missing.push(`學習費${fee}銀（持有${G.character.moneySilver}銀）`)
+  }
+  const desc=access==="special"?"特殊來源：需由世界事件、委託或探索取得":access==="trainer"?(missing.join("｜")||"符合學習條件"):"從對應來源取得配方";
+  const action=access==="trainer"?`<button ${canLearn&&G.character.moneySilver>=fee?"":"disabled"} onclick="learnCookingRecipe('${r.id}')">學習 ${fee}銀</button>`:`<span class="small">尚未取得</span>`;
+  return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${tier}</span><br><span class="small">${craftResultLine(d)}<br>${desc}</span></span>${action}</div>`
+ },"目前沒有可見的未學料理配方。");
+ const status=j?`烹飪［${j.grade}］｜熟練XP ${j.xp||0}`:"尚未取得烹飪副職業";
+ showModal("料理・學習配方",`<div class="card small">${status}<br>此處只列未學會的配方；副職階級、地區與特殊取得途徑仍生效。</div>${rows}<div class="actions"><button onclick="openCooking()">返回料理</button></div>`,"openCookingRecipeTraining()")
+}
+function learnCookingRecipe(rid){
+ const r=IDX.recipe.get(rid);
+ if(!r||cookingRecipeKnown(r)||!cookingRecipeCanLearn(r))return;
+ const fee=cookingRecipeLearnFee(r);
+ if(G.character.moneySilver<fee){alert(`需要 ${fee} 銀。`);return}
+ closeModal();if(!beginTurn("學習料理配方"))return;
+ G.character.moneySilver-=fee;
+ G.character.knownCookingRecipes=Array.isArray(G.character.knownCookingRecipes)?G.character.knownCookingRecipes:[];
+ if(!G.character.knownCookingRecipes.includes(r.id))G.character.knownCookingRecipes.push(r.id);
+ COOK_CATEGORY_STATE.selected=cookingCategoryLabel(r);
+ log("料理",`學會 ${r.name}［${r.tier||"F"}］配方，支付${fee}銀。`,"ok");
+ endTurn(2);openCooking()
+}
+function openCooking(category=null){
+ const j=(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
+ const available=(DB.recipes||[]).filter(r=>cookingRecipeVisible(r,j));
+ const plan=cookingCategoryPlan(available);
+ if(category&&plan.options.includes(category))COOK_CATEGORY_STATE.selected=category;
+ const selected=plan.options.includes(COOK_CATEGORY_STATE.selected)?COOK_CATEGORY_STATE.selected:plan.selected;
+ COOK_CATEGORY_STATE.selected=selected;
+ const tabs=plan.options.map(cat=>`<button type="button" ${cat===selected?'class="primary"':""} aria-pressed="${cat===selected}" onclick="openCooking('${cat}')">${cat} ${available.filter(r=>cookingCategoryLabel(r)===cat).length}</button>`).join("");
+ const list=available.filter(r=>cookingCategoryLabel(r)===selected);
+ const rows=tierGroupedItemRows(list,r=>{
+  const result=cookingOutputItem(r);
+  return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${r.tier||"F"}</span><br><span class="small">${craftResultLine(result)}<br>${cookingMaterialText(r,true)}</span></span><span class="craft-batch"><button onclick="cookBatch('${r.id}',1)">製作1</button><button onclick="cookBatch('${r.id}',5)">×5</button><button onclick="cookBatch('${r.id}',10)">×10</button></span></div>`
+ },"此分類目前沒有已學會的配方。");
+ const trainable=cookingLearningCandidates(j);
+ showModal("料理",`<div class="card small">僅顯示已掌握的料理配方，每次只顯示所選分類；未學配方請至「學習配方」。</div><h3>料理類別</h3><div class="actions craft-category-tabs" role="group" aria-label="料理類別">${tabs}</div>${rows}<div class="actions"><button onclick="openCookingRecipeTraining()">學習配方 ${trainable.length}</button></div>`,"openCooking()")
 }
 function getMissingMaterials(r){
  const miss=[];
@@ -1713,7 +1808,7 @@ function cookingMissingBatch(r,count){const miss=[];for(const [id,q] of Object.e
 function consumeAnyFood(qty){let n=qty;for(let i=G.character.inventory.length-1;i>=0&&n>0;i--){const x=G.character.inventory[i];if(item(x.id)?.type!=="食材")continue;const take=Math.min(n,x.qty||1);removeItem(x.id,take,i);n-=take}return n<=0}
 function cookBatch(rid,count=1){
  count=Math.max(1,Math.min(10,Number(count)||1));const r=IDX.recipe.get(rid);if(!r)return;
- if(!isCookingRecipe(r)){alert("此配方不是料理配方，無法從料理介面製作。");return}
+ if(!isCookingRecipe(r)){alert("此配方不是料理配方，無法從料理介面製作。");return}if(!cookingRecipeVisible(r,(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null)){alert("尚未學會此料理配方，或烹飪資格不足。");return}
  const miss=cookingMissingBatch(r,count);if(miss.length){alert("批量材料不足："+miss.map(x=>`${x.id==="ANY_FOOD"?"任意食材":item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}closeModal();if(!beginTurn(`批量料理：${r.name}×${count}`))return;const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),chance=clamp(42+effectiveStat("敏捷")*2+effectiveStat("幸運")*2+(hasCook?18:0)-tierOrder(r.tier)*8+talentSubjobBonus("SJ-COOK","success"),25,95);let success=0,fail=0;for(let n=0;n<count;n++){if(r.requires)for(const [id,q] of Object.entries(r.requires))consumeIngredient(id,q);if(r.requires_any_food)consumeAnyFood(r.requires_any_food);if(1+rand(100)<=chance){addItem(r.result);success++}else fail++;if(hasCook)gainSubjobXp("SJ-COOK",(tierOrder(r.tier)+1)*6)}log("料理",`${r.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");const red=clamp(talentSubjobBonus("SJ-COOK","timeReduction"),0,.35);endTurn(Math.max(.25,Math.round(count*(1-red)*100)/100));openCooking()
 }
 function cook(rid){return cookBatch(rid,1)}

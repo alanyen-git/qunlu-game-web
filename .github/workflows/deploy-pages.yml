@@ -173,6 +173,7 @@ jobs:
           node tools/test-alchemy-craft-categories.js
           node tools/test-crafting-recipe-separation.js
           node tools/test-profession-craft-tabs.js
+          node tools/test-cooking-category-learning.js
           node tools/test-region-map-graphics.js
           node tools/test-world-mosaic.js
 

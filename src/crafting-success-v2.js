@@ -1,4 +1,4 @@
-/* 群陸旅誌：全生產製作成功率與煉金用途分類 CURRENT-2.13.5
+/* 群陸旅誌：全生產製作成功率與專業／料理分類 CURRENT-2.14.0
  * PRODUCTION-CRAFT-SUCCESS-2.0
  * 鍛造／裁縫／藥劑／附魔／料理統一由能力、天賦、副職業階級與熟練等級、配方難度共同決定成功率。
  */
@@ -149,6 +149,8 @@ cookBatch=function(rid,count=1){
   count=Math.max(1,Math.min(10,Number(count)||1));
   const r=IDX.recipe.get(rid);if(!r)return;
   if(!isCookingRecipe(r)){alert("此配方不是料理配方，無法從料理介面製作。");return}
+  if(!cookingRecipeVisible(r,j)){alert("尚未學會此料理配方，或烹飪資格不足。");return}
+  if(G.character.level<(r.recipe_level||1)){alert(`需要角色Lv${r.recipe_level}。`);return}
   const j=G.character.subjobs.find(x=>x.id==="SJ-COOK")||null;
   if(tierOrder(r.tier||"F")>0&&!j){alert("E級以上料理需要烹飪副職業。");return}
   if(r.cook_grade&&(!j||tierOrder(j.grade)<tierOrder(r.cook_grade))){alert(`烹飪副職業階級不足，需要${r.cook_grade}級。`);return}
@@ -174,20 +176,23 @@ cookBatch=function(rid,count=1){
   openCooking()
 };
 
-openCooking=function(){
-  const j=G.character.subjobs.find(x=>x.id==="SJ-COOK")||null,rank=j?.grade||null;
-  let list=DB.recipes.filter(r=>isCookingRecipe(r)&&(!r.cook_grade||(rank&&tierOrder(rank)>=tierOrder(r.cook_grade))));
-  const status=j?`${sub("SJ-COOK")?.name||"烹飪"}［${j.grade}］ 熟練Lv${productionSubjobLevel(j)}｜XP ${j.xp||0}`:"未取得烹飪副職業：僅可製作F級基礎料理";
-  let b=`<div class="card small">${status}<br>成功率＝敏捷＋智力＋幸運＋烹飪階級／熟練Lv＋天賦＋組織加成－配方難度；最低20%、最高95%。</div>`+
-  list.map(r=>{
+openCooking=function(category=null){
+  const j=(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
+  const available=(DB.recipes||[]).filter(r=>cookingRecipeVisible(r,j));
+  const plan=cookingCategoryPlan(available);
+  if(category&&plan.options.includes(category))COOK_CATEGORY_STATE.selected=category;
+  const selected=plan.options.includes(COOK_CATEGORY_STATE.selected)?COOK_CATEGORY_STATE.selected:plan.selected;
+  COOK_CATEGORY_STATE.selected=selected;
+  const tabs=plan.options.map(cat=>`<button type="button" ${cat===selected?'class="primary"':""} aria-pressed="${cat===selected}" onclick="openCooking('${cat}')">${cat} ${available.filter(r=>cookingCategoryLabel(r)===cat).length}</button>`).join("");
+  const list=available.filter(r=>cookingCategoryLabel(r)===selected);
+  const rows=tierGroupedItemRows(list,r=>{
     const result=cookingOutputItem(r),s=cookingSuccessBreakdown(r);
-    return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${r.tier}</span>
-    <br><span class="small">${craftResultLine(result)}<br>${cookingMaterialText(r,true)}<br>成功率約${s.chance}%｜${productionCraftingSuccessText(s)}</span></span>
-    <span class="craft-batch"><button onclick="cookBatch('${r.id}',1)">製作1</button><button onclick="cookBatch('${r.id}',5)">×5</button><button onclick="cookBatch('${r.id}',10)">×10</button></span></div>`
-  }).join("");
-  showModal("料理",b,"openCooking()")
+    return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${r.tier||"F"}</span><br><span class="small">${craftResultLine(result)}<br>${cookingMaterialText(r,true)}<br>成功率約${s.chance}%｜${productionCraftingSuccessText(s)}</span></span><span class="craft-batch"><button onclick="cookBatch('${r.id}',1)">製作1</button><button onclick="cookBatch('${r.id}',5)">×5</button><button onclick="cookBatch('${r.id}',10)">×10</button></span></div>`
+  },"此分類目前沒有已學會的配方。");
+  const trainable=cookingLearningCandidates(j);
+  const status=j?`${sub("SJ-COOK")?.name||"烹飪"}［${j.grade}］ 熟練Lv${productionSubjobLevel(j)}｜XP ${j.xp||0}`:"未取得烹飪副職業：僅可製作F級基礎料理";
+  showModal("料理",`<div class="card small">${status}<br>只顯示已學料理；分類按鍵一次顯示一類。成功率＝敏捷＋智力＋幸運＋烹飪階級／熟練Lv＋天賦＋組織加成－配方難度。</div><h3>料理類別</h3><div class="actions craft-category-tabs" role="group" aria-label="料理類別">${tabs}</div>${rows}<div class="actions"><button onclick="openCookingRecipeTraining()">學習配方 ${trainable.length}</button></div>`,"openCooking()")
 };
-
 function runProductionCraftingSuccessAudit(){
   const issues=[];
   if(DB.production_crafting_success_system?.version!==REV)issues.push("全製作成功率系統版本異常");
