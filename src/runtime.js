@@ -1951,7 +1951,7 @@ function learnCraftRecipe(itemId){
  closeModal();if(!beginTurn("學習製作配方"))return;
  G.character.moneySilver-=fee;G.character.knownRecipes=G.character.knownRecipes||[];G.character.knownRecipes.push(d.recipe_id);
  const fid=d.craft_recipe.requires_facility;
- CRAFT_CATEGORY_STATE[fid]=fid==="alchemy"?alchemyRecipeCategory(d):itemListCategoryLabel(d);
+ CRAFT_CATEGORY_STATE[fid]=craftingCategoryLabel(fid,d);
  log("製作",`學會 ${d.name}［${d.tier}］配方，支付${fee}銀。`,"ok");endTurn(2);openCrafting(fid)
 }
 function consumeIngredient(id,qty){
@@ -2043,24 +2043,70 @@ function alchemyRecipeCategory(d){
  if(/強化|增益|抗性|能力|祝福|塗油|武器油/.test(name))return "增益";
  return "特殊"
 }
+const CRAFT_PROFESSIONAL_CATEGORY_ORDER=Object.freeze({
+ alchemy:ALCHEMY_CRAFT_CATEGORY_ORDER,
+ blacksmith:["武器","盾牌","防具","飾品","工具／其他"],
+ tailor:["衣甲","頭盔","手套","鞋靴","披風","飾品","其他"],
+ enchanter:["武器附魔","盾牌附魔","防具附魔","飾品附魔","其他"]
+});
+function craftingCategoryLabel(fid,d){
+ if(fid==="alchemy")return alchemyRecipeCategory(d);
+ const type=String(d?.type||d?.equipment_slot||d?.equip_slot||"");
+ const slot=String(d?.equip_slot||d?.equipment_slot||"");
+ const group=String(d?.catalog_group||"");
+ const shield=type==="盾牌"||slot==="shield";
+ const weapon=!shield&&(type==="主武器"||type==="副武器"||["weapon","offhand"].includes(slot)||group==="武器");
+ const armor=["盔甲","頭盔","手套","鞋子"].includes(type)||["body","head","hands","feet"].includes(slot)||group==="防具";
+ const accessory=["飾品","披風"].includes(type)||group==="飾品";
+ if(fid==="blacksmith"){
+   if(shield)return "盾牌";
+   if(weapon)return "武器";
+   if(armor)return "防具";
+   if(accessory)return "飾品";
+   return "工具／其他"
+ }
+ if(fid==="tailor"){
+   if(type==="頭盔"||slot==="head")return "頭盔";
+   if(type==="手套"||slot==="hands")return "手套";
+   if(type==="鞋子"||slot==="feet")return "鞋靴";
+   if(type==="披風"||slot==="cloak")return "披風";
+   if(type==="飾品"||group==="飾品")return "飾品";
+   if(type==="盔甲"||slot==="body")return "衣甲";
+   return "其他"
+ }
+ if(fid==="enchanter"){
+   if(shield)return "盾牌附魔";
+   if(weapon)return "武器附魔";
+   if(armor)return "防具附魔";
+   if(accessory)return "飾品附魔";
+   return "其他"
+ }
+ return itemListCategoryLabel(d)
+}
+function craftingCategoryPlan(fid,base){
+ const categoryOf=d=>craftingCategoryLabel(fid,d);
+ const order=CRAFT_PROFESSIONAL_CATEGORY_ORDER[fid]||["其他"];
+ const found=new Set((base||[]).map(categoryOf));
+ const categories=[...order.filter(cat=>found.has(cat)),...[...found].filter(cat=>!order.includes(cat))];
+ const options=categories.length?categories:[order[0]];
+ const defaultCategory=fid==="alchemy"&&categories.includes("恢復")?"恢復":options[0];
+ return {options,defaultCategory,categoryOf}
+}
 function openCrafting(fid,category=null){
  const prof=DB.crafting_system.facility_profession[fid];if(!prof)return;
  if(!currentFacilityAllowsCrafting(fid)){alert("必須先進入對應製作設施。");return}
  const locTier=loc(G.character.locationId).tier,j=subjobForProfession(prof);
  const base=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier)&&craftingRecipeVisible(d,j)&&recipeKnown(d));
  const trainable=craftingLearningCandidates(fid,j);
- const isAlchemy=fid==="alchemy",categoryOf=isAlchemy?alchemyRecipeCategory:itemListCategoryLabel;
- const categories=isAlchemy?ALCHEMY_CRAFT_CATEGORY_ORDER.filter(cat=>base.some(d=>categoryOf(d)===cat)):itemListCategories(base);
- const defaultCategory=isAlchemy?(categories.includes("恢復")?"恢復":categories[0]||"恢復"):"全部";
- const options=isAlchemy?(categories.length?categories:["恢復"]):["全部",...categories];
+ const {options,defaultCategory,categoryOf}=craftingCategoryPlan(fid,base);
  if(category&&options.includes(category))CRAFT_CATEGORY_STATE[fid]=category;
  const selected=options.includes(CRAFT_CATEGORY_STATE[fid])?CRAFT_CATEGORY_STATE[fid]:defaultCategory;
  CRAFT_CATEGORY_STATE[fid]=selected;
  const tabs=options.map(cat=>{
-   const count=cat==="全部"?base.length:base.filter(d=>categoryOf(d)===cat).length;
-   return `<button type="button" aria-pressed="${cat===selected}" ${cat===selected?'class="primary"':""} onclick="openCrafting('${fid}','${cat}')">${cat} ${count}</button>`
+  const count=base.filter(d=>categoryOf(d)===cat).length;
+  return `<button type="button" aria-pressed="${cat===selected}" ${cat===selected?'class="primary"':""} onclick="openCrafting('${fid}','${cat}')">${cat} ${count}</button>`
  }).join("");
- const all=(selected==="全部"?base:base.filter(d=>categoryOf(d)===selected)).sort(worldTierItemSort);
+ const all=base.filter(d=>categoryOf(d)===selected).sort(worldTierItemSort);
  const rows=tierGroupedItemRows(all,d=>{
    const known=recipeKnown(d),canLearn=!known&&recipeCanLearn(d),missing=craftingMissing(d),chance=j?craftSuccessChance(d,j):0,maxBatch=known?craftMaxBatch(d,10):0;
    const mats=craftMaterialText(d,true);
@@ -2068,7 +2114,7 @@ function openCrafting(fid,category=null){
    return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${craftResultLine(d)}<br>${mats}<br>${known?`成功率約${chance}%｜${craftTimeHours(d,j)}小時｜可連做${maxBatch}次`:`配方：${d.recipe_access==="special"?"特殊來源":d.recipe_access==="trainer"?"師傅教授":"公開"}`}${missing.length?`｜缺料${missing.length}種`:""}</span></span><span>${canLearn?`<button onclick="learnCraftRecipe('${d.id}')">學配方 ${recipeLearnFee(d)}銀</button>`:""} ${known?`<span class="craft-batch"><button ${canCraft&&maxBatch>=1?"":"disabled"} onclick="craftItemBatch('${d.id}',1)">製作1</button><button ${canCraft&&maxBatch>=5?"":"disabled"} onclick="craftItemBatch('${d.id}',5)">×5</button><button ${canCraft&&maxBatch>=10?"":"disabled"} onclick="craftItemBatch('${d.id}',10)">×10</button></span>`:""}</span></div>`
  },"此類別沒有可用配方。");
  const sj=j?`${sub(j.id).name}［${j.grade}］ XP ${j.xp||0}`:"尚未取得對應副職業";
- showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>製作清單只顯示已學會的配方，未學配方統一由「學習配方」查看；可見階級仍受副職業及地區限制。</div><h3>製作類別</h3>${isAlchemy?`<div class="small">依用途篩選煉金配方，現在只顯示「${selected}」類。</div>`:""}<div class="actions craft-category-tabs" role="group" aria-label="製作類別">${tabs}</div>${rows}<div class="actions"><button onclick="openCraftRecipeTraining('${fid}')">學習配方 ${trainable.length}</button><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting('${fid}','${selected}')`)
+ showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>製作清單只顯示已學會的配方，未學配方統一由「學習配方」查看；可見階級仍受副職業及地區限制。</div><h3>製作類別</h3><div class="small">依成品類型分類｜目前僅顯示「${selected}」的配方。</div><div class="actions craft-category-tabs" role="group" aria-label="製作類別">${tabs}</div>${rows}<div class="actions"><button onclick="openCraftRecipeTraining('${fid}')">學習配方 ${trainable.length}</button><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting('${fid}','${selected}')`)
 }function pantheon(id){return IDX.pantheon.get(id)||null}
 function faithEntity(id){return IDX.faith.get(id)}
 function deity(id){const x=faithEntity(id);return x?.entity_type==="deity"?x:null}

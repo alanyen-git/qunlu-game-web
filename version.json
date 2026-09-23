@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.13.8",
-  "previous_version": "CURRENT-2.13.7",
+  "version": "CURRENT-2.13.9",
+  "previous_version": "CURRENT-2.13.8",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.13.8：所有專業製作只顯示已學會的配方，尚未學會的配方統一由「學習配方」查看。",
+  "summary": "CURRENT-2.13.9：鍛造、裁縫、附魔製作新增獨立成品分類按鍵，每次只顯示目前類別的已學配方；學習配方獨立保留。",
   "changelog": [
+    "鍛造改為武器／盾牌／防具／飾品／工具等分類，裁縫改為衣甲／頭盔／手套／鞋靴／披風／飾品，附魔改為武器／盾牌／防具／飾品附魔；與煉金一致，每次只列該分類的已學配方，未學配方集中學習頁。",
     "專業製作與學習配方完整分離：煉金、鍛造、裁縫、附魔等專業製作清單僅列已學配方；學習視窗集中未學配方，展示未達條件與特殊來源，學習成功後自動移入製作清單。",
     "REGIONAL-QUEST-ECOLOGY-1.0：各城鎮／設施委託板分別依當地行省、世界大區、實際已建檔可到達地點、20小時鄰近道路、城鎮階級與繁榮程度選取任務；清單每遊戲日穩定變動，不跨地區憑空重複發布。",
     "相同模板在同一城鎮或行省完成後120小時不再發布；同地點同目標96小時冷卻；剛結束巡查／調查後同城鎮12小時暫緩同類型任務；只有存在有效目標的委託才可接取。",
@@ -449,7 +450,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v149",
+  "pwa_cache_revision": "v150",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1763,5 +1764,42 @@
     "save_compatible": true,
     "last_override_protected": true,
     "final_renderer_test": true
+  },
+  "crafting_category_revision": "CRAFT-PROFESSION-TABS-1.0",
+  "crafting_categories": {
+    "blacksmith": [
+      "武器",
+      "盾牌",
+      "防具",
+      "飾品",
+      "工具／其他"
+    ],
+    "tailor": [
+      "衣甲",
+      "頭盔",
+      "手套",
+      "鞋靴",
+      "披風",
+      "飾品",
+      "其他"
+    ],
+    "enchanter": [
+      "武器附魔",
+      "盾牌附魔",
+      "防具附魔",
+      "飾品附魔",
+      "其他"
+    ],
+    "alchemy": [
+      "恢復",
+      "傷害",
+      "異常恢復",
+      "增益",
+      "特殊"
+    ],
+    "one_category_at_a_time": true,
+    "known_recipes_only": true,
+    "learn_menu_separate": true,
+    "save_compatible": true
   }
 }
