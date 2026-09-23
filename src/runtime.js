@@ -5555,6 +5555,8 @@ function openMapLocationDetail(id){
  showModal(l.name,`${mapBreadcrumb(ctx)}<div class="actions regionmap-head-actions"><button type="button" class="primary" onclick="openRegionMapGraphic('local','${l.id}')">圖面顯示</button>${ctx.province?`<button type="button" onclick="openRegionMapGraphic('province','${ctx.province.id}')">行省圖面</button>`:""}</div><div class="card"><b>${l.name}</b> <span class="tier">${l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier}</span>｜${l.size||mapKindLabel(l.kind)}<br><span class="small">${mapKindLabel(l.kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）${l.kind==="town"?`<br>城市世界層級：${l.settlement_world_tier||l.tier}｜${settlementTierProfile(l)?.label||""}`:""}<br>政治：${pc.polity?.name||"未確認"}｜行省級：${ctx.province?.name||"未建立"}｜城鎮區域：${ctx.settlement?.name||"未建立"}${eco?`<br>經濟繁榮度：${eco.prosperity_score}/100（${eco.prosperity_label}）｜${eco.infrastructure||""}`:""}<br>整合資料：素材${ix.gather_item_ids.length+ix.fish_item_ids.length}｜組織${ix.organization_ids.length}｜神系${ix.pantheon_ids.length}</span><div class="actions"><button onclick="openLocationLore('${l.id}')">地方誌</button>${ctx.settlement?`<button onclick="openSettlementRegionMap('${ctx.settlement.id}')">城鎮區域</button>`:""}</div></div><div class="card"><b>道路連結</b></div>${links||"<div class='small'>沒有已建檔道路。</div>"}`)
 }
 function openMap(){
+ const current=G?.character?.locationId;
+ if(current&&typeof openRegionMapGraphic==="function"&&openRegionMapGraphic("local",current))return;
  const ctx=mapHierarchyForLocation();
  if(ctx.province)return openProvinceRegionMap(ctx.province.id);
  if(ctx.realm)return openRealmRegionMap(ctx.realm.id);
