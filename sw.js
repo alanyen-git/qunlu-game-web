@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v156";
+const CACHE_NAME=CACHE_PREFIX+"v157";
 const CORE=[
   "./",
   "./index.html",
@@ -94,7 +94,7 @@ self.addEventListener("install",event=>{
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache=>cache.addAll(CORE))
-      .catch(()=>null)
+      // Reject an incomplete install so the prior working offline cache survives.
       .then(()=>self.skipWaiting())
   );
 });
@@ -114,9 +114,9 @@ async function cachePut(request,response){
   return response;
 }
 
-async function networkFirst(request,{ignoreSearchFallback=false}={}){
+async function networkFirst(request,{ignoreSearchFallback=false,cacheMode="no-store"}={}){
   try{
-    const fresh=await fetch(request,{cache:"no-store"});
+    const fresh=await fetch(request,{cache:cacheMode});
     return await cachePut(request,fresh);
   }catch(error){
     const cached=await caches.match(request);
@@ -150,6 +150,7 @@ self.addEventListener("fetch",event=>{
 
   const isNavigation=request.mode==="navigate";
   const isVersion=url.pathname.endsWith("/version.json");
+  const isCode=/\.(?:js|css)$/i.test(url.pathname);
   const isStatic=/\.(?:js|css|png|jpg|jpeg|webp|svg|ico|woff2?|webmanifest)$/i.test(url.pathname);
 
   if(isNavigation){
@@ -166,6 +167,12 @@ self.addEventListener("fetch",event=>{
 
   if(isVersion){
     event.respondWith(networkFirst(request,{ignoreSearchFallback:true}));
+    return;
+  }
+
+  if(isCode){
+    // Revalidate unchanged asset URLs; retain cached code if the player is offline.
+    event.respondWith(networkFirst(request,{cacheMode:"no-cache",ignoreSearchFallback:true}));
     return;
   }
 
