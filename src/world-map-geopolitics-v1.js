@@ -617,13 +617,14 @@ function renderUndergroundSvg(){
    '<text x="'+cx+'" y="'+(cy+28)+'" text-anchor="middle" fill="#f3d68a" font-size="20" font-weight="700">'+esc(c?.name||"黑月城")+'</text>'+
    '</svg></div>';
 }
+function realmForPolity(pid){return (DB.realm_region_maps||[]).find(r=>r?.political_entity_id===pid)||null}
 function mapPolityRows(){
  return (DB.political_entities||[]).map(p=>{
    const c=capitalForPolity(p.id);
    const cap=c?.type==="none"?"無固定首都":c?.type==="mobile_court"?"季節性汗庭":c?.name||p.capital||"—";
    const layer=p.world_map_profile?.layer==="subterranean"?"地下":"地表";
    const ta=p.world_tier_assessment;
-   return '<div class="itemrow"><span><b>'+esc(p.name)+'</b> <span class="tier">'+esc(p.world_tier||"—")+'</span><br><span class="small">'+esc(p.government_type||"")+'｜'+layer+'｜首都／中樞：'+esc(cap)+(ta?'｜綜合承載 '+esc(ta.score)+'/100':'')+'</span></span><button onclick="openWorldMapPolityTerritory(\''+p.id+'\')">疆域</button></div>';
+   return '<div class="itemrow"><span><b>'+esc(p.name)+'</b> <span class="tier">'+esc(p.world_tier||"—")+'</span><br><span class="small">'+esc(p.government_type||"")+'｜'+layer+'｜首都／中樞：'+esc(cap)+(ta?'｜綜合承載 '+esc(ta.score)+'/100':'')+'</span></span><div class="actions"><button onclick="openWorldMapPolityTerritory(\''+p.id+'\')">疆域</button>'+(realmForPolity(p.id)?'<button onclick="openRegionMapGraphic(\'realm\',\''+realmForPolity(p.id).id+'\')">圖面顯示</button>':'')+'</div></div>';
  }).join("");
 }
 function atlasLegend(mode){
