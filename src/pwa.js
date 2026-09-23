@@ -55,7 +55,7 @@
   window.addEventListener("load",()=>{
     if(!("serviceWorker" in navigator))return;
     if(!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=CURRENT-2.13.4-ALCHEMY-CATEGORY-OVERRIDE1",{scope:"./"})
+    navigator.serviceWorker.register("sw.js?v=CURRENT-2.13.5-ALCHEMY-CATEGORY-OVERRIDE2",{scope:"./"})
       .then(registration=>registration.update().catch(()=>null))
       .catch(error=>console.warn("Service worker registration failed",error));
   },{once:true});
