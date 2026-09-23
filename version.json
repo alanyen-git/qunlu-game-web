@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.14.1",
-  "previous_version": "CURRENT-2.14.0",
+  "version": "CURRENT-2.14.2",
+  "previous_version": "CURRENT-2.14.1",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.14.1：料理分類與學習分頁正式上線，修正批量料理資格檢核順序。；酒館全天供餐與對照旅館加價10%～20%。",
+  "summary": "六名敵方同場戰鬥；首領固定置中，首領與菁英依世界層級成長。",
   "changelog": [
+    "ENEMY-ROSTER-1.0：戰鬥改為六名敵方兩列三欄，支援逐名選取目標、存活敵人輪流行動與逐名勝利結算；首領固定置中，首領與菁英依世界層級強化，並擴充既有戰鬥存檔。",
     "TAVERN-ALL-DAY-1.0：酒館全天候提供既有九款早餐／中餐／晚餐；以旅館相同餐期同級餐點定價，酒館加價10%～20%，旅館維持原時段；用餐效果、0.5小時消耗及既有存檔不變。",
     "修復料理製作驗證順序：先取得烹飪副職業再驗證已學配方，避免未學配方直接製作時發生例外；補齊無副職角色學習清單回歸檢查。",
     "料理新增主食／肉類／魚鮮／湯品／蔬果／飲品／甜點／其他八種分類按鍵，一次只列所選類別的已學料理；另設學習配方專頁，顯示未學料理、前置條件及特殊來源；舊存檔自動保留升級前有資格製作的料理，F級基礎料理維持公開可做。",
@@ -453,7 +454,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v153",
+  "pwa_cache_revision": "v154",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1831,5 +1832,6 @@
       10
     ]
   },
-  "tavern_meal_revision": "TAVERN-ALL-DAY-1.0"
+  "tavern_meal_revision": "TAVERN-ALL-DAY-1.0",
+  "battle_formation_revision": "ENEMY-ROSTER-1.0"
 }
