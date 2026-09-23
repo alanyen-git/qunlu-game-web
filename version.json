@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.13.7",
-  "previous_version": "CURRENT-2.13.6",
+  "version": "CURRENT-2.13.8",
+  "previous_version": "CURRENT-2.13.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.13.7：地區委託生態；依城鎮所在行省、實際地圖與旅程距離發布，加入逐日變化、類型均衡及完成後同模板／同目標冷卻。",
+  "summary": "CURRENT-2.13.8：所有專業製作只顯示已學會的配方，尚未學會的配方統一由「學習配方」查看。",
   "changelog": [
+    "專業製作與學習配方完整分離：煉金、鍛造、裁縫、附魔等專業製作清單僅列已學配方；學習視窗集中未學配方，展示未達條件與特殊來源，學習成功後自動移入製作清單。",
     "REGIONAL-QUEST-ECOLOGY-1.0：各城鎮／設施委託板分別依當地行省、世界大區、實際已建檔可到達地點、20小時鄰近道路、城鎮階級與繁榮程度選取任務；清單每遊戲日穩定變動，不跨地區憑空重複發布。",
     "相同模板在同一城鎮或行省完成後120小時不再發布；同地點同目標96小時冷卻；剛結束巡查／調查後同城鎮12小時暫緩同類型任務；只有存在有效目標的委託才可接取。",
     "公會及設施委託分類配額與地區專屬文案；已接取委託仍可查看及回報；完成記錄存入既有worldState和questHistory，兼容舊存檔且不修改委託戰利品、時限和市場經濟。",
@@ -448,7 +449,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v146",
+  "pwa_cache_revision": "v149",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -697,20 +698,13 @@
     "saved_skill_migration": true,
     "save_compatible": true
   },
-  "crafting_recipe_visibility_revision": "CRAFTING-RECIPE-VISIBILITY-1.0",
+  "crafting_recipe_visibility_revision": "CRAFTING-RECIPE-VISIBILITY-1.1",
   "crafting_recipe_visibility": {
-    "max_future_tier_gap": 2,
-    "hide_unlearned_from_tier": "D",
-    "applies_to": [
-      "鍛造",
-      "裁縫",
-      "藥劑",
-      "附魔"
-    ],
-    "no_subjob_visibility": "F級公開配方",
-    "trainer_recipe_learning_view": true,
-    "special_recipe_source_hidden_until_learned": true,
-    "cooking_note": "料理使用獨立cook_grade資格，尚無knownRecipes學習旗標",
+    "known_only_in_crafting": true,
+    "unlearned_in_training": true,
+    "show_unmet_requirements": true,
+    "special_sources_read_only": true,
+    "tier_gap": 2,
     "save_compatible": true
   },
   "recipe_economy_balance_revision": "RECIPE-ECONOMY-BALANCE-1.2",
@@ -801,7 +795,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.27",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 77,
+    "active_src_programs": 78,
     "groups": [
       "core",
       "data",

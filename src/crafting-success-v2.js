@@ -117,8 +117,8 @@ openCrafting=function(fid,category=null){
   const prof=DB.crafting_system.facility_profession[fid];if(!prof)return;
   if(!currentFacilityAllowsCrafting(fid)){alert("必須先進入對應製作設施。");return}
   const locTier=loc(G.character.locationId).tier,j=subjobForProfession(prof);
-  const base=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier)&&craftingRecipeVisible(d,j));
-  const trainable=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier)&&!recipeKnown(d)&&recipeCanLearn(d));
+  const base=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier)&&craftingRecipeVisible(d,j)&&recipeKnown(d));
+  const trainable=craftingLearningCandidates(fid,j);
   // Purpose classification must survive this module overriding runtime.openCrafting.
   const isAlchemy=fid==="alchemy",categoryOf=isAlchemy?alchemyRecipeCategory:itemListCategoryLabel;
   const categories=isAlchemy?ALCHEMY_CRAFT_CATEGORY_ORDER.filter(cat=>base.some(d=>categoryOf(d)===cat)):itemListCategories(base);
@@ -140,7 +140,7 @@ openCrafting=function(fid,category=null){
     return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${craftResultLine(d)}<br>${mats}<br>${known?`${chanceLine}<br>${craftTimeHours(d,j)}小時｜可連做${maxBatch}次`:`配方：${d.recipe_access==="special"?"特殊來源":d.recipe_access==="trainer"?"師傅教授":"公開"}`}${missing.length?`｜缺料${missing.length}種`:""}</span></span><span>${canLearn?`<button onclick="learnCraftRecipe('${d.id}')">學配方 ${recipeLearnFee(d)}銀</button>`:""} ${known?`<span class="craft-batch"><button ${canCraft&&maxBatch>=1?"":"disabled"} onclick="craftItemBatch('${d.id}',1)">製作1</button><button ${canCraft&&maxBatch>=5?"":"disabled"} onclick="craftItemBatch('${d.id}',5)">×5</button><button ${canCraft&&maxBatch>=10?"":"disabled"} onclick="craftItemBatch('${d.id}',10)">×10</button></span>`:""}</span></div>`
   },"此類別沒有可用配方。");
   const sj=j?`${sub(j.id).name}［${j.grade}］ 熟練Lv${productionSubjobLevel(j)}｜XP ${j.xp||0}`:"尚未取得對應副職業";
-  showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>製作清單最多顯示高於目前副職業2階的配方；D級以上未學配方不顯示。成功率＝能力值＋幸運＋副職業階級／熟練Lv＋天賦＋組織加成－配方難度。</div><h3>製作類別</h3>${isAlchemy?`<div class="small">煉金用途分類｜目前僅顯示「${selected}」的配方</div>`:""}<div class="actions craft-category-tabs" role="group" aria-label="製作類別">${tabs}</div>${rows}<div class="actions">${trainable.length?`<button onclick="openCraftRecipeTraining('${fid}')">學習配方 ${trainable.length}</button>`:""}<button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting('${fid}','${selected}')`)
+  showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>製作清單只顯示已學會的配方；未學配方請至「學習配方」查看。成功率＝能力值＋幸運＋副職業階級／熟練Lv＋天賦＋組織加成－配方難度。</div><h3>製作類別</h3>${isAlchemy?`<div class="small">煉金用途分類｜目前僅顯示「${selected}」的配方</div>`:""}<div class="actions craft-category-tabs" role="group" aria-label="製作類別">${tabs}</div>${rows}<div class="actions"><button onclick="openCraftRecipeTraining('${fid}')">學習配方 ${trainable.length}</button><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting('${fid}','${selected}')`)
 };
 
 function cookingSuccessBreakdown(r){

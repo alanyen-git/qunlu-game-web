@@ -31,7 +31,7 @@ const sandbox={
  subjobForProfession:p=>({id:p==="鍛造"?"SMITH":"AL",grade:"F",xp:0}),
  sub:id=>({name:id==="SMITH"?"鍛造師":"煉金師"}),
  craftingRecipeMatchesFacility:(d,fid)=>d.craft_recipe?.requires_facility===fid,
- craftingRecipeVisible:()=>true,recipeKnown:()=>true,recipeCanLearn:()=>false,
+ craftingRecipeVisible:()=>true,recipeKnown:()=>true,recipeCanLearn:()=>false,craftingLearningCandidates:()=>[],
  itemListCategories:list=>[...new Set(list.map(d=>d.type==="主武器"?"武器":"藥劑"))],
  itemListCategoryLabel:d=>d.type==="主武器"?"武器":"藥劑",
  tierGroupedItemRows:(list,fn,empty)=>list.map(fn).join("")||empty,
