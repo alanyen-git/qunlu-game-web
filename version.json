@@ -1,11 +1,13 @@
 {
-  "version": "CURRENT-2.12.8",
+  "version": "CURRENT-2.12.9",
   "previous_version": "CURRENT-2.12.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.8：新增王國／政體級、行省級及當地區域的互動圖面顯示，銜接現有世界疆域與真實道路資料。",
+  "summary": "CURRENT-2.12.9：三級圖面顯示正式擴增，新增行省分類篩選、手機縮放、地點路網互動及快速返回當地圖面。",
   "changelog": [
+    "每張圖均有上層返回入口、已建檔道路及當前位置提示；地圖檢視不消耗回合、不修改舊存檔；修正舊拍賣定價測試硬編碼版本。",
+    "REGION-MAP-GRAPHICS-1.1：王國／行省／當地圖面正式接入世界誌及地圖選單；行省可按城鎮、野外、地下城篩選，手機支援75%～200%圖面放大縮小與橫向捲動。",
     "圖面檢視不消耗回合、不修改存檔；只有角色目前位置可直達的節點才提供前往按鍵；未建檔的精確座標改採道路示意。",
     "REGION-MAP-GRAPHICS-1.0：王國沿用正史疆域、首都與地形圖；行省採城鎮／野外／地下城分欄的道路網；當地顯示直接連線、旅行時間與目前位置。三層加入圖面顯示及互通入口。",
     "拍賣行裝備報價改階級／部位／品質與地區供需綜合估算；NPC起標保底、玩家寄售新底價、批量拍品乘數量。舊NPC在架拍品自動重新估價，但已領先玩家的保證金競價、既有寄售原價均不更動。流標寄售退回時保留原始耐久。",
@@ -434,7 +436,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v139",
+  "pwa_cache_revision": "v140",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1738,5 +1740,5 @@
     "player_escrow_price_protection": true,
     "save_compatible": true
   },
-  "map_graphics_revision": "REGION-MAP-GRAPHICS-1.0"
+  "map_graphics_revision": "REGION-MAP-GRAPHICS-1.1"
 }
