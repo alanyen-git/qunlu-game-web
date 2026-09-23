@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v138";
+const CACHE_NAME=CACHE_PREFIX+"v139";
 const CORE=[
   "./",
   "./index.html",
@@ -52,6 +52,7 @@ const CORE=[
   "./src/affiliation-treasury-depth-v2.js",
   "./src/world-autonomy-v2.js",
   "./src/world-map-geopolitics-v1.js",
+  "./src/region-map-graphics-v1.js",
   "./src/npc-depth-v1.js",
   "./src/npc-depth-v2.js",
   "./src/dungeon-depth-v2.js",
