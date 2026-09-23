@@ -77,7 +77,8 @@ const createEl=dataset=>({dataset,style:{},hidden:false,ariaPressed:null,classLi
 const towns=createEl({mapKind:"town"}),wild=createEl({mapKind:"wild"});
 const road=createEl({fromKind:"town",toKind:"wild"}),cats=[createEl({mapKind:"town"}),createEl({mapKind:"wild"})];
 const buttons=["all","town","wild","dungeon"].map(regionmapFilter=>createEl({regionmapFilter}));
-const svg={style:{}},counter={textContent:"100%"};
+const scroll={clientWidth:676,scrollLeft:0,scrollTop:0};
+const svg={style:{},dataset:{},closest:selector=>selector===".regionmap-scroll"?scroll:null},counter={textContent:"100%"};
 const root={querySelectorAll(selector){return {
  ".regionmap-province .regionmap-node":[towns,wild],
  ".regionmap-province .regionmap-road":[road],
@@ -93,8 +94,8 @@ assert.equal(cats[1].hidden,false);
 assert.equal(buttons[2].ariaPressed,"true");
 vm.runInContext("changeRegionMapZoom(1)",context);
 assert.equal(counter.textContent,"125%");
-assert.equal(svg.style.width,"125%");
+assert.equal(svg.style.width,"825px");
 vm.runInContext("resetRegionMapView()",context);
 assert.equal(counter.textContent,"100%");
-assert.equal(svg.style.width,"100%");
+assert.equal(svg.style.width,"660px");
 console.log("region map graphics regression OK: realm atlas, provincial links/filter, local travel gating, zoom, save safety");
