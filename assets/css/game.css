@@ -1666,3 +1666,7 @@ details.card>summary{cursor:pointer;padding:6px 0}
 .wm-group-dungeon{border-left:3px solid #ae8cc0}
 .wm-place-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 @media(max-width:640px){.wm-map-labels{right:8px;bottom:8px;width:min(310px,76%);max-height:45%}.wm-label-body{padding:7px}.wm-place-list{grid-template-columns:minmax(0,1fr)}}
+
+/* 煉金用途分類：手機雙欄，長分類名稱不與其他按鍵擠在同一列。 */
+.modalbody .craft-category-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(116px,1fr));gap:8px;margin:10px 0 14px}
+.modalbody .craft-category-tabs button{min-width:0;min-height:44px;white-space:nowrap}

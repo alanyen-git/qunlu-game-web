@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.13.3",
-  "previous_version": "CURRENT-2.13.2",
+  "version": "CURRENT-2.13.4",
+  "previous_version": "CURRENT-2.13.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.13.3：煉金製作改為恢復／傷害／異常恢復／增益／特殊用途分類，預設僅顯示一類，不再一次展開全部配方。",
+  "summary": "CURRENT-2.13.4：修正製作成功率模組覆蓋煉金分類畫面；煉金改為恢復／傷害／異常恢復／增益／特殊專用分類，不顯示全部清單。",
   "changelog": [
+    "修正後載入的製作成功率模組將煉金分類重設為「全部／藥劑」的問題；最終畫面使用五種用途分類，並新增覆蓋後90筆配方的回歸測試。",
     "煉金製作新增五種用途分類按鍵與分類數量；切換後只列出該分類配方，保留副職業階級、配方學習、材料檢查及1／5／10批量製作。",
     "地圖按鍵直接開啟目前所在地的路網圖，立即標出相鄰城鎮、野外與地下城、道路時間及可用的前往操作；保留王國、行省與世界地圖入口。",
     "區域放大圖新增野外／地下城／跨境野外名稱板；點選名稱開啟對應地圖，分類清單取消18筆截斷；明確區域索引而非虛構座標，不改變旅行限制與存檔。",
@@ -441,7 +442,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v144",
+  "pwa_cache_revision": "v145",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1747,7 +1748,7 @@
   },
   "map_graphics_revision": "REGION-MAP-GRAPHICS-1.1",
   "world_mosaic_revision": "WORLD-MOSAIC-ATLAS-1.1",
-  "alchemy_recipe_category_revision": "ALCHEMY-CRAFT-CATEGORIES-1.0",
+  "alchemy_recipe_category_revision": "ALCHEMY-CRAFT-CATEGORIES-1.1",
   "alchemy_recipe_category": {
     "categories": [
       "恢復",
@@ -1759,6 +1760,8 @@
     "default": "恢復",
     "hide_all_tab": true,
     "shared_subjob_visibility_rules": true,
-    "save_compatible": true
+    "save_compatible": true,
+    "last_override_protected": true,
+    "final_renderer_test": true
   }
 }
