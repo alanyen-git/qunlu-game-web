@@ -1,11 +1,11 @@
-/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.12.8
- * REGION-MAP-GRAPHICS-1.0
+/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.12.9
+ * REGION-MAP-GRAPHICS-1.1
  * 王國使用既有正史疆域座標；未建立地理座標的行省與地方使用實際links路網示意，
  * 不推造城鎮方位、不改旅行權限、不寫入存檔。
  */
 (()=>{
 "use strict";
-const REV="REGION-MAP-GRAPHICS-1.0";
+const REV="REGION-MAP-GRAPHICS-1.1";
 const TIER_COLOR={F:"#79ae79",E:"#9ec47d",D:"#c3b778",C:"#d8a565",B:"#dd8876",A:"#ca83a6",S:"#b68ee5"};
 const D=()=>typeof DB!=="undefined"?DB:null;
 const player=()=>typeof G!=="undefined"?G?.character:null;
@@ -22,11 +22,36 @@ const kind=k=>({town:"城鎮",wild:"野外",dungeon:"地下城"})[k]||"地點";
 const go=(level,id)=>"openRegionMapGraphic('"+level+"','"+safeId(id)+"')";
 const detail=id=>"openMapLocationDetail('"+safeId(id)+"')";
 const linkLabel=h=>Number.isFinite(Number(h))?esc(h)+" 小時":"時間未建檔";
-const shell=(svg,note)=>'<div class="regionmap-scroll" tabindex="0" aria-label="可捲動地圖圖面">'+svg+'</div><div class="regionmap-legend small">'+note+'</div>';
+let ZOOM=1;
+const shell=(svg,note)=>{ZOOM=1;return '<div class="regionmap-toolbar actions"><button type="button" onclick="changeRegionMapZoom(-1)" aria-label="縮小地圖">－</button><output id="regionmapZoomLevel">100%</output><button type="button" onclick="changeRegionMapZoom(1)" aria-label="放大地圖">＋</button><button type="button" onclick="resetRegionMapView()">重設縮放</button></div><div class="regionmap-scroll" tabindex="0" aria-label="可捲動地圖圖面">'+svg+'</div><div class="regionmap-legend small">'+note+'</div>'};
 const svgStart=(w,h,label,view)=>'<svg class="regionmap-svg" viewBox="'+(view||"0 0 "+w+" "+h)+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><rect x="'+(view?view.split(" ")[0]:"0")+'" y="'+(view?view.split(" ")[1]:"0")+'" width="'+(view?view.split(" ")[2]:w)+'" height="'+(view?view.split(" ")[3]:h)+'" fill="#101b1b"></rect>';
 const poly=points=>array(points).filter(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(+p[0])&&Number.isFinite(+p[1])).map(p=>coord(p[0])+","+coord(p[1])).join(" ");
 const label=(x,y,value,size=15)=>'<text x="'+coord(x)+'" y="'+coord(y)+'" text-anchor="middle" fill="#f3f0d8" font-size="'+size+'" font-weight="700" pointer-events="none">'+esc(value)+'</text>';
 const pointName=(text,max=13)=>Array.from(String(text||"")).slice(0,max).join("")+(Array.from(String(text||"")).length>max?"…":"");
+function changeZoom(step,reset=false){
+ if(typeof document==="undefined")return;
+ const svg=document.querySelector("#modalBody .regionmap-svg");if(!svg)return;
+ ZOOM=reset?1:Math.max(.75,Math.min(2,ZOOM+step*.25));
+ svg.style.width=Math.round(ZOOM*100)+"%";
+ svg.style.minWidth=Math.round(ZOOM*660)+"px";
+ const counter=document.getElementById("regionmapZoomLevel");if(counter)counter.textContent=Math.round(ZOOM*100)+"%";
+}
+function setKindFilter(kind){
+ if(typeof document==="undefined")return;
+ const root=document.getElementById("modalBody");if(!root)return;
+ const selected=["town","wild","dungeon"].includes(kind)?kind:"all";
+ for(const node of root.querySelectorAll(".regionmap-province .regionmap-node")){
+  node.style.opacity=selected==="all"||node.dataset.mapKind===selected?"1":".18";
+  node.style.pointerEvents=selected==="all"||node.dataset.mapKind===selected?"auto":"none";
+ }
+ for(const road of root.querySelectorAll(".regionmap-province .regionmap-road")){
+  road.style.opacity=selected==="all"||road.dataset.fromKind===selected||road.dataset.toKind===selected?".72":".1";
+ }
+ for(const section of root.querySelectorAll(".regionmap-category"))section.hidden=selected!=="all"&&section.dataset.mapKind!==selected;
+ for(const button of root.querySelectorAll("[data-regionmap-filter]")){
+  const yes=button.dataset.regionmapFilter===selected;button.classList.toggle("primary",yes);button.setAttribute("aria-pressed",String(yes));
+ }
+}
 function currentAction(l){
  const c=player(),current=loc(c?.locationId);
  if(!current||!l||current.id===l.id)return "";
@@ -105,25 +130,25 @@ function provinceGraphic(provinceId){
   const rows=nodes.filter(n=>n.mapType===k);
   rows.forEach((n,i)=>pos.set(n.id,{x:xBy[k],y:(i+1)*h/(rows.length+1)}));
  }
- const parts=[svgStart(960,h,p.name+"行省路網示意")],seen=new Set();
+ const parts=[svgStart(960,h,p.name+"行省路網示意").replace('class="regionmap-svg"','class="regionmap-svg regionmap-province"')],seen=new Set();
  for(const n of nodes)for(const edge of array(n.links)){
   const a=pos.get(n.id),b=pos.get(edge.to),key=[n.id,edge.to].sort().join("|");
   if(!a||!b||seen.has(key)||n.id===edge.to)continue;seen.add(key);
-  parts.push('<line x1="'+coord(a.x)+'" y1="'+coord(a.y)+'" x2="'+coord(b.x)+'" y2="'+coord(b.y)+'" stroke="#8c997f" stroke-width="2.2" opacity=".72"><title>'+esc(n.name+" ↔ "+(loc(edge.to)?.name||edge.to))+'</title></line>');
+  parts.push('<line class="regionmap-road" data-from-kind="'+esc(n.mapType)+'" data-to-kind="'+esc(nodes.find(x=>x.id===edge.to)?.mapType||"")+'" x1="'+coord(a.x)+'" y1="'+coord(a.y)+'" x2="'+coord(b.x)+'" y2="'+coord(b.y)+'" stroke="#8c997f" stroke-width="2.2" opacity=".72"><title>'+esc(n.name+" ↔ "+(loc(edge.to)?.name||edge.to))+'</title></line>');
  }
  for(const k of columns)parts.push(label(xBy[k],31,kind(k),24));
  for(const n of nodes){
   const pt=pos.get(n.id),isHere=player()?.locationId===n.id,c=color(n),id=safeId(n.id);
-  parts.push('<g role="link" tabindex="0" class="regionmap-node" onclick="'+detail(id)+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+detail(id)+'}"><title>'+esc(n.name+"｜"+kind(n.mapType)+"｜"+tier(n))+'</title><rect x="'+coord(pt.x-112)+'" y="'+coord(pt.y-26)+'" width="224" height="56" rx="13" fill="'+(isHere?"#314d36":"#20312b")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="'+(isHere?4:2)+'"></rect>'+label(pt.x,pt.y-3,pointName(n.name),16)+label(pt.x,pt.y+17,tier(n)+(isHere?"｜目前位置":""),12)+'</g>');
+  parts.push('<g role="link" tabindex="0" class="regionmap-node" data-map-kind="'+esc(n.mapType)+'" onclick="'+detail(id)+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+detail(id)+'}"><title>'+esc(n.name+"｜"+kind(n.mapType)+"｜"+tier(n))+'</title><rect x="'+coord(pt.x-112)+'" y="'+coord(pt.y-26)+'" width="224" height="56" rx="13" fill="'+(isHere?"#314d36":"#20312b")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="'+(isHere?4:2)+'"></rect>'+label(pt.x,pt.y-3,pointName(n.name),16)+label(pt.x,pt.y+17,tier(n)+(isHere?"｜目前位置":""),12)+'</g>');
  }
  parts.push("</svg>");
  const grouped=columns.map(k=>{
   const values=nodes.filter(n=>n.mapType===k);
-  return '<h3>'+kind(k)+'（'+values.length+'）</h3>'+values.map(n=>'<div class="itemrow"><span><b>'+esc(n.name)+'</b> <span class="tier">'+esc(tier(n))+'</span></span><div class="actions"><button type="button" onclick="'+detail(n.id)+'">地點資料</button>'+currentAction(n)+'</div></div>').join("");
+  return '<section class="regionmap-category" data-map-kind="'+k+'"><h3>'+kind(k)+'（'+values.length+'）</h3>'+values.map(n=>'<div class="itemrow"><span><b>'+esc(n.name)+'</b> <span class="tier">'+esc(tier(n))+'</span></span><div class="actions"><button type="button" onclick="'+detail(n.id)+'">地點資料</button>'+currentAction(n)+'</div></div>').join("")+'</section>';
  }).join("");
  const realm=find("realm_region_maps",p.parent_realm_map_id),back=realm?'<button type="button" onclick="'+go("realm",realm.id)+'">王國級圖面</button>':"";
  const body='<div class="actions"><button type="button" onclick="openProvinceRegionMap(\''+safeId(p.id)+'\')">返回行省清單</button>'+back+'</div><div class="card small"><b>'+esc(p.name)+'</b>｜'+esc(p.administrative_type||"")+'｜已建檔地點 '+nodes.length+'</div>'+
-  shell(parts.join(""),"依城鎮／野外／地下城分欄的路網示意，線段只代表資料庫中已建檔道路，不代表實際方位、距離或跨區通行；只有角色目前位置直接相連的地點才會出現「前往」。")+
+  '<div class="regionmap-filters actions" role="group" aria-label="地圖分類"><button type="button" class="primary" data-regionmap-filter="all" aria-pressed="true" onclick="setRegionMapKindFilter(\'all\')">全部</button><button type="button" data-regionmap-filter="town" aria-pressed="false" onclick="setRegionMapKindFilter(\'town\')">城鎮</button><button type="button" data-regionmap-filter="wild" aria-pressed="false" onclick="setRegionMapKindFilter(\'wild\')">野外</button><button type="button" data-regionmap-filter="dungeon" aria-pressed="false" onclick="setRegionMapKindFilter(\'dungeon\')">地下城</button></div>'+shell(parts.join(""),"依城鎮／野外／地下城分欄的路網示意。篩選只影響顯示，不改變通行權限；線段只代表資料庫中已建檔道路。只有角色目前位置直接相連的地點才會出現「前往」。")+
   (nodes.length?grouped:'<div class="card small">本行省尚無已建立的可玩地點。</div>');
  showModal(p.name+"・行省級圖面",body);return true;
 }
@@ -170,6 +195,9 @@ function audit(){
  return {revision:REV,pass:!issues.length,issues,save_compatible:true};
 }
 globalThis.openRegionMapGraphic=open;
+globalThis.changeRegionMapZoom=step=>changeZoom(Number(step)||0);
+globalThis.resetRegionMapView=()=>changeZoom(0,true);
+globalThis.setRegionMapKindFilter=setKindFilter;
 globalThis.runRegionMapGraphicsAudit=audit;
 if(D()?.meta)D().meta.region_map_graphics_revision=REV;
 globalThis.QUNLU_CORE?.registerModule?.("src/region-map-graphics-v1.js",{domain:"world",revision:REV});
