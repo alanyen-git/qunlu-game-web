@@ -1566,3 +1566,12 @@ details.card>summary{cursor:pointer;padding:6px 0}
 .regionmap-legend{margin:8px 0 14px;padding:9px 12px;background:#1a271e;border-left:3px solid #a5bd98;border-radius:4px;line-height:1.7}
 .regionmap-scroll+.regionmap-legend{max-width:100%}
 @media(max-width:620px){.regionmap-svg{min-width:600px}.regionmap-scroll{max-height:54vh}.regionmap-head-actions>button{flex:1 1 auto}}
+
+/* ===== CURRENT-2.12.9 REGION MAP MOBILE CONTROLS ===== */
+.regionmap-toolbar{align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap}
+.regionmap-toolbar button{min-width:45px;min-height:40px}
+.regionmap-toolbar output{min-width:53px;text-align:center;font-weight:750;color:#efd38a;font-variant-numeric:tabular-nums}
+.regionmap-filters{gap:7px;margin:12px 0;flex-wrap:wrap}
+.regionmap-filters button{flex:1 1 87px;min-width:76px}
+.regionmap-category[hidden]{display:none!important}
+.regionmap-category>h3{margin:18px 0 6px}
