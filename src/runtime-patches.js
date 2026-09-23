@@ -715,6 +715,7 @@
       return issues;
     };
   }
+  if(typeof window!=="undefined"){
   // Six-unit enemy formation and persistent battle roster.
   const battleRosterOriginal={start:window.startBattle,render:window.renderBattle,enemyTurn:window.enemyBattleTurn,finish:window.finishBattle,init:window.init};
   const rankOf=m=>{const r=String(m?.lore_role||"");if(/高階首領|領主|魔王/.test(r)||m?.name==="克拉肯"||(/首領/.test(m?.name||"")&&!/菁英|精英/.test(r)))return "boss";if(/菁英|精英/.test(r))return "elite";return "normal"};
@@ -730,5 +731,6 @@
   window.finishBattle=function(result){const b=G?.battle;if(result==="勝利"&&b?.active&&Array.isArray(b.enemies)){const living=b.enemies.filter(e=>e.hp>0);if(living.length){selectRosterEnemy(living[0].battleId);return}const current=b.enemy,extras=b.enemies.filter(e=>e.battleId!==current?.battleId),done=battleRosterOriginal.finish.apply(this,arguments);for(const e of extras){emitIntegratedEvent("battle_victory","monster",e.id,"擊退"+e.name+"［"+e.tier+"］",{locationId:G.character.locationId});updateQuestProgress("kill",{name:e.name,id:e.id});rollEnemyLoot(e);awardBattleProgress(e)}return done}return battleRosterOriginal.finish.apply(this,arguments)};
   window.enemyBattleTurn=function(){const b=G?.battle;if(!b?.active||!Array.isArray(b.enemies))return battleRosterOriginal.enemyTurn.apply(this,arguments);rosterNormalize();if(b.awaitingCompanion){b.awaitingCompanion=false;if(typeof resolvePartyTurns==="function")resolvePartyTurns();if(typeof resolveCompanionTurn==="function")resolveCompanionTurn()}const round=b.round,units=b.enemies.filter(e=>e.hp>0);for(const e of units){if(!b.active)break;selectRosterEnemy(e.battleId,false);b.awaitingCompanion=false;battleRosterOriginal.enemyTurn.call(this);if(!G.battle?.active||G.character.hp<=0)break}if(b.active){b.round=round+1;if(typeof persist==="function")persist();if(typeof renderAll==="function")renderAll()}};
   window.init=async function(){await battleRosterOriginal.init.apply(this,arguments);rosterNormalize()};
+  }
 
 })();
