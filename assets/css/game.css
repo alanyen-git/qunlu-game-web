@@ -1619,7 +1619,7 @@ details.card>summary{cursor:pointer;padding:6px 0}
 .world-mosaic-region-aside{padding:13px;border:1px solid #435643;background:#14221b;border-radius:12px}
 .world-mosaic-region-aside .actions{gap:6px}
 .world-mosaic-region-aside .actions>button{flex:1 1 auto;text-align:left;overflow-wrap:anywhere}
-.world-mosaic-provinces{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.world-mosaic-provinces{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .world-mosaic-province-card{overflow:hidden;display:flex;flex-direction:column;align-items:stretch;width:100%;min-width:0;padding:0;text-align:left;border-radius:12px;border:1px solid #79835b;background:#223129;transition:transform .12s ease,border-color .12s}
 .world-mosaic-province-card:hover,.world-mosaic-province-card:focus-visible{transform:translateY(-2px);border-color:#edd095}
 .world-mosaic-province-art{display:block;width:100%;height:98px;object-fit:cover;background:#1c3323}
@@ -1634,7 +1634,7 @@ details.card>summary{cursor:pointer;padding:6px 0}
  .world-mosaic-svg{min-width:1050px}
  .world-mosaic-cropped .world-mosaic-svg{min-width:710px}
  .world-mosaic-region-layout{grid-template-columns:minmax(0,1fr)}
- .world-mosaic-provinces{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+ .world-mosaic-provinces{grid-template-columns:minmax(0,1fr)}
  .world-mosaic-index{grid-template-columns:minmax(0,1fr)}
  .world-mosaic-region-hero h3{font-size:20px}
  .world-mosaic-modes>button{min-width:90px;padding:8px 9px}
