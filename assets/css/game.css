@@ -1554,3 +1554,13 @@ hr{border-top-color:#394238;margin:16px 0}
 .prereq-unmet{border:1px solid #9d5151;background:#301d20;color:#f5c5c1}
 .prereq-met{border:1px solid #547d57;background:#1b2b21;color:#cbe4c0}
 details.card>summary{cursor:pointer;padding:6px 0}
+
+
+/* ===== CURRENT-2.12.8 THREE-LEVEL REGION MAP GRAPHICS ===== */
+.regionmap-scroll{overflow:auto;max-height:min(72vh,780px);margin:10px 0;border:1px solid #647763;border-radius:12px;background:#101b1b;scrollbar-width:thin;scrollbar-color:#8b936e #182320;overscroll-behavior:contain}
+.regionmap-svg{display:block;width:100%;height:auto;min-width:600px;max-width:none;background:#101b1b}
+.regionmap-node{cursor:pointer;outline:none}
+.regionmap-node:focus-visible rect{stroke:#fff5bc;stroke-width:5}
+.regionmap-legend{border-left:3px solid #a8bd91;background:#1a241e;border-radius:6px;padding:9px 12px;line-height:1.75}
+.regionmap-scroll:focus-visible{outline:2px solid #f1d793;outline-offset:2px}
+@media(max-width:640px){.regionmap-svg{min-width:650px}.regionmap-legend{font-size:12px}}
