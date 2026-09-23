@@ -1670,3 +1670,30 @@ details.card>summary{cursor:pointer;padding:6px 0}
 /* 煉金用途分類：手機雙欄，長分類名稱不與其他按鍵擠在同一列。 */
 .modalbody .craft-category-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 14px}
 .modalbody .craft-category-tabs button{min-width:0;min-height:44px;white-space:nowrap}
+
+/* ===== CURRENT-2.13.6 REGION MAP FIT-TO-SCREEN / MOBILE BOTTOM VISIBILITY ===== */
+.regionmap-scroll{
+  max-height:min(56dvh,610px);
+  overflow-x:auto;overflow-y:auto;overscroll-behavior:auto;
+  touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable;scrollbar-width:auto;
+}
+.regionmap-toolbar .regionmap-zoom-level{
+  min-width:60px;white-space:nowrap;font-variant-numeric:tabular-nums;
+  font-weight:800;color:#efd38a;border-color:#7b7959;background:#182820;
+}
+.regionmap-toolbar .regionmap-fit{white-space:nowrap;min-width:92px;background:#35442f;border-color:#9bb387;color:#f4e7c6}
+.modal:has(.regionmap-scroll) .modalbody{
+  overscroll-behavior:auto!important;
+  padding-bottom:calc(42px + env(safe-area-inset-bottom))!important;
+}
+.modal:has(.regionmap-scroll) .modaltitlewrap h2{white-space:normal;line-height:1.32}
+@media(max-width:620px){
+  .regionmap-scroll{max-height:min(39dvh,440px);padding:4px}
+  .regionmap-toolbar{display:grid;grid-template-columns:42px 68px 42px minmax(0,1fr);gap:6px;margin:6px 0}
+  .regionmap-toolbar>button{width:100%;min-width:0;min-height:39px;padding:5px 7px;font-size:13px}
+  .regionmap-toolbar .regionmap-fit{min-width:0;font-size:12px}
+  .modal:has(.regionmap-scroll) .modalhead{min-height:72px!important;padding:14px 12px 10px!important}
+  .modal:has(.regionmap-scroll) .modaltitlewrap h2{font-size:17px!important}
+  .modal:has(.regionmap-scroll) .modalbody{padding-top:8px!important}
+}
