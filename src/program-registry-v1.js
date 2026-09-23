@@ -25,7 +25,7 @@ const GROUPS=Object.freeze({
   ],
   progression:[
     "src/combat-class-progression-v1.js","src/class-skill-optimization-v1.js","src/class-skill-passive-compat-v1.js","src/class-naming-reference-v1.js",
-    "src/skill-naming-reference-v1.js","src/skill-mechanics-depth-v1.js","src/system-integrity-v2.js","src/affiliation-integrity-v1.js",
+    "src/skill-naming-reference-v1.js","src/skill-mechanics-depth-v1.js","src/skill-targeting-v1.js","src/system-integrity-v2.js","src/affiliation-integrity-v1.js",
     "src/player-experience-guidance-v1.js"
   ],
   naming:[
