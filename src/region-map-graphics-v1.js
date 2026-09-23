@@ -127,6 +127,34 @@ function provinceGraphic(provinceId){
   (nodes.length?grouped:'<div class="card small">本行省尚無已建立的可玩地點。</div>');
  showModal(p.name+"・行省級圖面",body);return true;
 }
+
+function settlementGraphic(id){
+ const sm=find("settlement_region_maps",id);if(!sm)return false;
+ const center=loc(sm.center_location_id);
+ const rows=[...new Map([sm.center_location_id,...array(sm.location_ids)].map(loc).filter(Boolean).map(n=>[n.id,n])).values()];
+ const others=rows.filter(n=>n.id!==center?.id),side=Math.max(1,Math.ceil(others.length/2));
+ const h=Math.max(460,side*82+120),placed=new Map();
+ if(center)placed.set(center.id,{x:460,y:h/2});
+ others.forEach((n,i)=>placed.set(n.id,{x:i%2===0?160:760,y:(Math.floor(i/2)+1)*h/(side+1)}));
+ const parts=[svgStart(920,h,sm.name+"當地區域路網示意")],seen=new Set();
+ for(const n of rows)for(const edge of array(n.links)){
+  if(!placed.has(edge.to)||!placed.has(n.id))continue;
+  const key=[n.id,edge.to].sort().join("|");if(seen.has(key))continue;seen.add(key);
+  const a=placed.get(n.id),b=placed.get(edge.to);
+  parts.push('<line x1="'+coord(a.x)+'" y1="'+coord(a.y)+'" x2="'+coord(b.x)+'" y2="'+coord(b.y)+'" stroke="#9aa687" stroke-width="3"><title>'+esc(n.name+" — "+(loc(edge.to)?.name||edge.to))+'</title></line>');
+ }
+ for(const n of rows){
+  const pt=placed.get(n.id),isCenter=n.id===center?.id,isHere=player()?.locationId===n.id;
+  parts.push('<g class="regionmap-node" role="link" tabindex="0" onclick="'+detail(n.id)+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+detail(n.id)+'}"><title>'+esc(n.name+"｜"+kind(n.kind))+'</title><rect x="'+coord(pt.x-117)+'" y="'+coord(pt.y-28)+'" width="234" height="58" rx="13" fill="'+(isCenter?"#355741":"#24352e")+'" stroke="'+(isHere?"#f4d48b":color(n))+'" stroke-width="'+(isCenter?4:2)+'"></rect>'+label(pt.x,pt.y-4,pointName(n.name),16)+label(pt.x,pt.y+17,kind(n.kind)+" "+tier(n)+(isHere?"｜目前":""),12)+'</g>');
+ }
+ parts.push("</svg>");
+ const parent=find("province_region_maps",sm.parent_province_region_id);
+ const actions='<div class="actions"><button type="button" onclick="openSettlementRegionMap(\''+safeId(sm.id)+'\')">返回當地區域清單</button>'+(parent?'<button type="button" onclick="'+go("province",parent.id)+'">行省級圖面</button>':"")+'</div>';
+ const list=rows.map(n=>'<div class="itemrow"><span><b>'+esc(n.name)+'</b> <span class="tier">'+esc(tier(n))+'</span></span><div class="actions"><button type="button" onclick="'+detail(n.id)+'">地點資料</button>'+currentAction(n)+'</div></div>').join("");
+ showModal(sm.name+"・當地區域圖面",actions+shell(parts.join(""),"以建檔聚落為中心的道路連結示意；各節點相對位置只為方便閱讀，連線必須存在於資料庫，並不代表實際方位或距離。")+'<h3>所轄地點</h3>'+(list||'<div class="card small">本區域尚無地點。</div>'));
+ return true;
+}
+
 function localGraphic(locationId){
  const l=loc(locationId);if(!l)return false;
  const links=array(l.links).map(edge=>({...edge,target:loc(edge.to)})).filter(x=>x.target);
@@ -157,6 +185,7 @@ function open(level,id){
  if(typeof showModal!=="function")return false;
  if(level==="realm")return realmGraphic(id);
  if(level==="province")return provinceGraphic(id);
+ if(level==="settlement")return settlementGraphic(id);
  if(level==="local")return localGraphic(id);
  return false;
 }
@@ -165,6 +194,7 @@ function audit(){
  if(!db?.world_geopolitical_map?.region_geometry)issues.push("世界正史疆域圖缺失");
  if(!Array.isArray(db?.realm_region_maps))issues.push("王國／政體級圖資料缺失");
  if(!Array.isArray(db?.province_region_maps))issues.push("行省級圖資料缺失");
+ if(!Array.isArray(db?.settlement_region_maps))issues.push("當地區域圖資料缺失");
  if(!Array.isArray(db?.locations))issues.push("當地圖資料缺失");
  if(typeof globalThis.openRegionMapGraphic!=="function")issues.push("三級圖面入口缺失");
  return {revision:REV,pass:!issues.length,issues,save_compatible:true};
