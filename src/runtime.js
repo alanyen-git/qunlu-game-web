@@ -5509,7 +5509,7 @@ function openRealmRegionMap(id){
  const r=realmRegionMap(id);if(!r)return;const p=politicalEntity(r.political_entity_id);
  const provinces=(r.province_region_ids||[]).map(provinceRegion).filter(Boolean);
  const rows=provinces.map(x=>`<div class="itemrow"><span><b>${x.name}</b> <span class="tier">${x.world_tier}</span><br><span class="small">${x.administrative_type}｜${x.map_status==="playable_current"?"CURRENT可玩":"背景資料"}｜首府：${loc(x.capital_location_id)?.name||p?.capital||"—"}</span></span><button onclick="openProvinceRegionMap('${x.id}')">查看</button></div>`).join("")||`<div class="card small">此政治體目前只建立王國／政體區域層級，尚未展開行省級可玩地圖；既有政治與世界誌資料仍有效。</div>`;
- showModal(`${p?.name||r.name}・${String(p?.government_type||"").includes("王國")?"王國區域地圖":"政體區域地圖"}`,`${mapBreadcrumb({realm:r})}<div class="card"><b>${p?.name||r.name}</b> <span class="tier">${r.world_tier||p?.world_tier||"—"}</span><br><span class="small">${p?.government_type||""}｜首府：${p?.capital||"未固定"}｜${p?.identity||""}</span><div class="actions">${p?`<button onclick="openPolity('${p.id}')">政治體</button>`:""}</div></div>${rows}`)
+ showModal(`${p?.name||r.name}・${String(p?.government_type||"").includes("王國")?"王國區域地圖":"政體區域地圖"}`,`${mapBreadcrumb({realm:r})}<div class="card"><b>${p?.name||r.name}</b> <span class="tier">${r.world_tier||p?.world_tier||"—"}</span><br><span class="small">${p?.government_type||""}｜首府：${p?.capital||"未固定"}｜${p?.identity||""}</span><div class="actions"><button type="button" onclick="openRegionMapGraphic('realm','${r.id}')">圖面顯示</button>${p?`<button onclick="openPolity('${p.id}')">政治體</button>`:""}</div></div>${rows}`)
 }
 
 function worldTierRank(t){return ({F:0,E:1,D:2,C:3,B:4,A:5,S:6})[t]??-1}
@@ -5529,7 +5529,7 @@ function openProvinceCategoryMap(pid,kind){
  const p=provinceRegion(pid);if(!p)return;const realm=realmRegionMap(p.parent_realm_map_id),rows=provinceCategoryLocations(p,kind,true);
  const body=rows.map(l=>{
    const tier=l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier,here=l.id===G.character.locationId,hours=here?0:directTravelHours(l.id);
-   return `<div class="itemrow"><span><b>${l.name}</b> <span class="tier">${tier}</span><br><span class="small">${l.size||provinceCategoryLabel(kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）</span></span>${here?`<span class="tier">目前</span>`:hours!==null?`<button onclick="travel('${l.id}',${hours})">前往 ${hours}小時</button>`:""}</div>`
+   return `<div class="itemrow"><span><b>${l.name}</b> <span class="tier">${tier}</span><br><span class="small">${l.size||provinceCategoryLabel(kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）</span></span>${here?`<span class="tier">目前</span>`:hours!==null?`<button onclick="travel('${l.id}',${hours})">前往 ${hours}小時</button>`:""}<button type="button" onclick="openRegionMapGraphic('local','${l.id}')">當地圖面</button></div>`
  }).join("");
  showModal(`${p.name}・${provinceCategoryLabel(kind)}`,`${mapBreadcrumb({realm,province:p})}<div class="card small">只顯示目前位置與可直接前往的${provinceCategoryLabel(kind)}；不可前往區域已隱藏。依世界層級由高至低排列。</div>${body||"<div class='card small'>目前沒有可直接前往的區域。</div>"}`)
 }
@@ -5540,18 +5540,22 @@ function openProvinceRegionMap(id){
    const all=provinceCategoryLocations(p,kind,false),reachable=provinceCategoryLocations(p,kind,true);
    return `<div class="itemrow"><span><b>${provinceCategoryLabel(kind)}</b><br><span class="small">已建置 ${all.length}｜目前可前往 ${reachable.filter(x=>x.id!==G.character.locationId).length}${reachable.some(x=>x.id===G.character.locationId)?"｜含目前位置":""}</span></span><button onclick="openProvinceCategoryMap('${p.id}','${kind}')">查看</button></div>`
  }).join("");
- showModal(`${p.name}・行省級區域`,`${mapBreadcrumb(ctx)}<div class="card"><b>${p.display_name||p.name}</b> <span class="tier">${p.world_tier}</span><br><span class="small">${p.administrative_type}<br>${p.identity||""}${eco?`<br>經濟繁榮度 ${eco.prosperity_score}/100（${eco.prosperity_label}）｜產業：${(eco.drivers||[]).join("、")}｜限制：${(eco.constraints||[]).join("、")}`:""}</span>${(p.lore_record_ids||[]).length?`<div class="actions"><button onclick="openLoreScope('province_region','${p.id}','${p.name}・地方史')">地方史</button></div>`:""}</div><div class="card small">省級地圖簡化為「城鎮／野外／地下城」三類。移動清單只顯示可以前往的區域；不可前往區域不顯示。</div>${cards}`)
+ showModal(`${p.name}・行省級區域`,`${mapBreadcrumb(ctx)}<div class="card"><b>${p.display_name||p.name}</b> <span class="tier">${p.world_tier}</span><br><span class="small">${p.administrative_type}<br>${p.identity||""}${eco?`<br>經濟繁榮度 ${eco.prosperity_score}/100（${eco.prosperity_label}）｜產業：${(eco.drivers||[]).join("、")}｜限制：${(eco.constraints||[]).join("、")}`:""}</span>${(p.lore_record_ids||[]).length?`<div class="actions"><button onclick="openLoreScope('province_region','${p.id}','${p.name}・地方史')">地方史</button></div>`:""}</div><div class="actions"><button type="button" onclick="openRegionMapGraphic('province','${p.id}')">圖面顯示</button></div><div class="card small">省級地圖簡化為「城鎮／野外／地下城」三類。移動清單只顯示可以前往的區域；不可前往區域不顯示。</div>${cards}`)
 }
 function openProvinceTerrainMap(pid,kind){return openProvinceCategoryMap(pid,kind)}
 function openSettlementRegionMap(id){
- const sm=settlementRegionMap(id);if(!sm)return;const p=provinceRegion(sm.parent_province_region_id);
- if(p)return openProvinceRegionMap(p.id);
- return openWorldMapHierarchy()
+ const sm=settlementRegionMap(id);if(!sm)return;
+ const p=provinceRegion(sm.parent_province_region_id),realm=realmRegionMap(p?.parent_realm_map_id);
+ const children=(sm.location_ids||[]).map(loc).filter(Boolean);
+ const rows=children.map(l=>'<div class="itemrow"><span><b>'+l.name+'</b> <span class="tier">'+(l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier)+'</span><br><span class="small">'+mapKindLabel(l.kind)+'</span></span><div class="actions"><button type="button" onclick="openMapLocationDetail(\''+l.id+'\')">詳情</button><button type="button" onclick="openRegionMapGraphic(\'local\',\''+l.id+'\')">當地圖面</button></div></div>').join("");
+ showModal(sm.name+"・當地區域",mapBreadcrumb({realm,province:p})+
+  '<div class="card"><b>'+sm.name+'</b> <span class="tier">'+(sm.world_tier||"—")+'</span><br><span class="small">'+(sm.role||"城鎮與周邊區域")+'</span><div class="actions"><button type="button" onclick="openRegionMapGraphic(\'settlement\',\''+sm.id+'\')">圖面顯示</button></div></div>'+
+  (rows||'<div class="card small">目前沒有已建檔地點。</div>'));
 }
 function openMapLocationDetail(id){
  const l=loc(id);if(!l)return;const ctx=mapHierarchyForLocation(id),ix=locationIntegration(l.id),pc=politicalContextForLocation(l.id),eco=l.local_economy||ctx.province?.economy_profile||null;
  const links=(l.links||[]).map(x=>{const d=loc(x.to);return `<div class="itemrow"><span>${d?.name||x.to} <span class="tier">${d?.kind==="town"?(d?.settlement_world_tier||d?.tier):d?.tier||"—"}</span><br><span class="small">${x.hours}小時</span></span>${l.id===G.character.locationId?`<button onclick="travel('${x.to}',${x.hours})">前往</button>`:""}</div>`}).join("");
- showModal(l.name,`${mapBreadcrumb(ctx)}<div class="card"><b>${l.name}</b> <span class="tier">${l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier}</span>｜${l.size||mapKindLabel(l.kind)}<br><span class="small">${mapKindLabel(l.kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）${l.kind==="town"?`<br>城市世界層級：${l.settlement_world_tier||l.tier}｜${settlementTierProfile(l)?.label||""}`:""}<br>政治：${pc.polity?.name||"未確認"}｜行省級：${ctx.province?.name||"未建立"}｜城鎮區域：${ctx.settlement?.name||"未建立"}${eco?`<br>經濟繁榮度：${eco.prosperity_score}/100（${eco.prosperity_label}）｜${eco.infrastructure||""}`:""}<br>整合資料：素材${ix.gather_item_ids.length+ix.fish_item_ids.length}｜組織${ix.organization_ids.length}｜神系${ix.pantheon_ids.length}</span><div class="actions"><button onclick="openLocationLore('${l.id}')">地方誌</button>${ctx.settlement?`<button onclick="openSettlementRegionMap('${ctx.settlement.id}')">城鎮區域</button>`:""}</div></div><div class="card"><b>道路連結</b></div>${links||"<div class='small'>沒有已建檔道路。</div>"}`)
+ showModal(l.name,`${mapBreadcrumb(ctx)}<div class="card"><b>${l.name}</b> <span class="tier">${l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier}</span>｜${l.size||mapKindLabel(l.kind)}<br><span class="small">${mapKindLabel(l.kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）${l.kind==="town"?`<br>城市世界層級：${l.settlement_world_tier||l.tier}｜${settlementTierProfile(l)?.label||""}`:""}<br>政治：${pc.polity?.name||"未確認"}｜行省級：${ctx.province?.name||"未建立"}｜城鎮區域：${ctx.settlement?.name||"未建立"}${eco?`<br>經濟繁榮度：${eco.prosperity_score}/100（${eco.prosperity_label}）｜${eco.infrastructure||""}`:""}<br>整合資料：素材${ix.gather_item_ids.length+ix.fish_item_ids.length}｜組織${ix.organization_ids.length}｜神系${ix.pantheon_ids.length}</span><div class="actions"><button type="button" onclick="openRegionMapGraphic('local','${l.id}')">圖面顯示</button><button onclick="openLocationLore('${l.id}')">地方誌</button>${ctx.settlement?`<button onclick="openSettlementRegionMap('${ctx.settlement.id}')">城鎮區域</button>`:""}</div></div><div class="card"><b>道路連結</b></div>${links||"<div class='small'>沒有已建檔道路。</div>"}`)
 }
 function openMap(){
  const ctx=mapHierarchyForLocation();
