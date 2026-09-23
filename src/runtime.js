@@ -5255,6 +5255,7 @@ function openMoreMenu(){
    <button class="more-card" onclick="openEquipment()"><span class="more-icon">⚔</span><span>裝備</span></button>
    <button class="more-card" onclick="openIntelArchive()"><span class="more-icon">◉</span><span>情報</span></button>
    <button class="more-card" onclick="openMap()"><span class="more-icon">⌖</span><span>地圖</span></button>
+   <button class="more-card" onclick="openWorldMosaic()"><span class="more-icon">▦</span><span>世界圖</span></button>
    <button class="more-card" onclick="openSettings()"><span class="more-icon">⚙</span><span>設定</span></button>
  </div>`)
 }

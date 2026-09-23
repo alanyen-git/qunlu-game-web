@@ -20,7 +20,7 @@ const GROUPS=Object.freeze({
     "src/world-autonomy-v1.js","src/runtime-patches.js"
   ],
   world:[
-    "src/affiliation-contribution-v1.js","src/affiliation-entry-gate-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js","src/world-map-geopolitics-v1.js","src/region-map-graphics-v1.js",
+    "src/affiliation-contribution-v1.js","src/affiliation-entry-gate-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js","src/world-map-geopolitics-v1.js","src/region-map-graphics-v1.js","src/world-map-tile-atlas-v1.js",
     "src/npc-depth-v1.js","src/npc-depth-v2.js","src/dungeon-depth-v2.js"
   ],
   progression:[
@@ -126,6 +126,7 @@ function audit(){
     ["卡薩維爾城盟深化",()=>typeof globalThis.runCasavelleDepthAudit==="function"&&globalThis.runCasavelleDepthAudit().pass],
     ["世界政治地圖",()=>typeof globalThis.runWorldGeopoliticalMapAudit==="function"],
     ["三級區域圖面",()=>typeof globalThis.runRegionMapGraphicsAudit==="function"&&globalThis.runRegionMapGraphicsAudit().pass],
+    ["原創拼接世界地圖",()=>typeof globalThis.runWorldMosaicAudit==="function"&&globalThis.runWorldMosaicAudit().pass],
     ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],

@@ -80,6 +80,7 @@ function allTiles(){
 }
 function regionNames(){return [...new Set(shapes().map(g=>g.id))]}
 function mainPolity(id){
+ if(shapes().some(x=>x.id===id&&x.raw.nonstate))return null;
  const g=shapes().find(x=>x.id===id&&!x.raw.nonstate);
  const source=g?.raw.political_entity_id||reg(id)?.political_entity_id;
  return polity(db()?.political_merge_map?.[source]||source);

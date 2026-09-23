@@ -171,6 +171,7 @@ jobs:
           node tools/test-combat-class-progression.js
           node tools/test-auction-equipment-pricing.js
           node tools/test-region-map-graphics.js
+          node tools/test-world-mosaic.js
 
       - name: Stage production site
         if: github.event_name == 'workflow_dispatch'

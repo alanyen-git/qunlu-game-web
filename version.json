@@ -1,11 +1,13 @@
 {
-  "version": "CURRENT-2.12.9",
-  "previous_version": "CURRENT-2.12.7",
+  "version": "CURRENT-2.13.0",
+  "previous_version": "CURRENT-2.12.9",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.9：三級圖面顯示正式擴增，新增行省分類篩選、手機縮放、地點路網互動及快速返回當地圖面。",
+  "summary": "CURRENT-2.13.0：以原創拼接式地形模組呈現世界地圖；點選陸地圖塊開啟區域地圖視窗，並連結王國、行省與當地路網。",
   "changelog": [
+    "世界地圖新增地形拼圖／政治區域／世界層級三種圖層、手機縮放和地區名稱索引；保留詳細地理、氣候、跨境野外和地下世界舊圖入口。只使用群陸自有世界座標與原創圖面，未知的地方位置以既有道路網示意，不修改存檔與旅行解鎖規則。",
+    "WORLD-MOSAIC-ATLAS-1.0：參考經典格狀地圖的瀏覽方式，以原創SVG地形模組繪製森林、雪原、山岳、平原、海岸與火山；每個可點選圖塊綁定正史宏觀地區，點擊即展開該區域地圖視窗、行省圖面入口與相鄰區域。",
     "每張圖均有上層返回入口、已建檔道路及當前位置提示；地圖檢視不消耗回合、不修改舊存檔；修正舊拍賣定價測試硬編碼版本。",
     "REGION-MAP-GRAPHICS-1.1：王國／行省／當地圖面正式接入世界誌及地圖選單；行省可按城鎮、野外、地下城篩選，手機支援75%～200%圖面放大縮小與橫向捲動。",
     "圖面檢視不消耗回合、不修改存檔；只有角色目前位置可直達的節點才提供前往按鍵；未建檔的精確座標改採道路示意。",
@@ -436,7 +438,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v140",
+  "pwa_cache_revision": "v141",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -789,7 +791,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.27",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 76,
+    "active_src_programs": 77,
     "groups": [
       "core",
       "data",
@@ -1740,5 +1742,6 @@
     "player_escrow_price_protection": true,
     "save_compatible": true
   },
-  "map_graphics_revision": "REGION-MAP-GRAPHICS-1.1"
+  "map_graphics_revision": "REGION-MAP-GRAPHICS-1.1",
+  "world_mosaic_revision": "WORLD-MOSAIC-ATLAS-1.0"
 }
