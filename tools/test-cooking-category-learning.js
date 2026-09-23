@@ -82,7 +82,7 @@ const silver=G.character.moneySilver;
 learn("R-TRAIN");
 assert(known(recipes[8]),"learned recipe status did not persist");
 assert(G.character.moneySilver<silver,"learning should charge silver");
-assert.deepEqual(names(),["蜜香麥飲"],"newly learned recipe should open its cooking category");
+assert.deepEqual(names(),["薄荷涼水","蜜香麥飲"],"newly learned recipe should join the existing recipes in its cooking category");
 assert(modal.html.includes("學習配方 3"),"learning count should update");
 training();
 assert(!names().includes("蜜香麥飲"),"learned recipe remains in training");
