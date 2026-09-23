@@ -1,11 +1,14 @@
 {
-  "version": "CURRENT-2.12.7",
-  "previous_version": "CURRENT-2.12.6",
+  "version": "CURRENT-2.12.8",
+  "previous_version": "CURRENT-2.12.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "CURRENT-2.12.7：拍賣裝備依階級／部位／稀有特性／本地供需設定價格底線，修復批量拍品未乘數量與既有NPC拍品過低問題。",
+  "region_map_graphics_revision": "REGION-MAP-GRAPHICS-1.0",
+  "summary": "CURRENT-2.12.8：新增王國／政體、行省及當地區域三級圖面顯示；王國沿用正史疆域，省內與地方以已建檔道路生成互動路網圖。",
   "changelog": [
+    "三級地圖新增圖面顯示按鍵：王國／政體級使用正史疆域與首都座標，行省級顯示城鎮／野外／地下城道路圖，當地區域與地點圖以既有旅行連結生成可點選路網；未建檔精確座標不作虛構。",
+    "圖面可進入行省與地點詳情，只有目前位置直接連通才提供前往；查看圖面不推進回合、不寫入存檔，並加入行動裝置捲動及三級地圖回歸測試。",
     "拍賣行裝備報價改階級／部位／品質與地區供需綜合估算；NPC起標保底、玩家寄售新底價、批量拍品乘數量。舊NPC在架拍品自動重新估價，但已領先玩家的保證金競價、既有寄售原價均不更動。流標寄售退回時保留原始耐久。",
     "裝備等級改為建議值；裝備類型／階級產生能力基準，職業專長與熟練度降低推定門檻，但固定需求、特殊資格與封印仍需滿足。",
     "CURRENT-2.12.5／COMBAT-CLASS-PROGRESSION-1.1：每個高階解封階級以職業ID＋目標階級獨立紀錄考核通過；中途B級考核不會提前授予原始A/S級最終資格；新增封印A級跨階防護回歸測試。",
@@ -432,7 +435,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v138",
+  "pwa_cache_revision": "v139",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -785,7 +788,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.27",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 75,
+    "active_src_programs": 76,
     "groups": [
       "core",
       "data",
