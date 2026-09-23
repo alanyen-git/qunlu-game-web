@@ -1,11 +1,11 @@
-/* 群陸旅誌：原創拼接式世界地圖 CURRENT-2.13.0
- * WORLD-MOSAIC-ATLAS-1.0
+/* 群陸旅誌：原創拼接式世界地圖 CURRENT-2.13.1
+ * WORLD-MOSAIC-ATLAS-1.1
  * 參考經典格狀地圖的瀏覽方式；幾何/道路/地名完全沿用群陸正史，
  * 不使用第三方遊戲貼圖；未具地理座標的行省不虛構地理位置。
  */
 (()=>{
 "use strict";
-const REV="WORLD-MOSAIC-ATLAS-1.0",TILE=56;
+const REV="WORLD-MOSAIC-ATLAS-1.1",TILE=56;
 const BIOMES=Object.freeze({
  forest:{name:"森林",fills:["#4d7950","#537f51","#416b49","#588051"],ink:"#b3d49a"},
  plains:{name:"平原",fills:["#83a464","#91ae6d","#80a15e","#9cb678"],ink:"#dbe6a8"},
@@ -230,6 +230,46 @@ function previewArt(p,i,biome){
  }
  parts.push('</svg>');return parts.join("");
 }
+/* 正史地點索引：只有明確world_region_id或行省歸屬的地點可以入圖。 */
+function regionalLocations(rid){
+ const data=db(),provs=arr(data?.province_region_maps).filter(pr=>pr.world_region_id===rid);
+ const pids=new Set(provs.map(pr=>pr.id)),assigned=new Set();
+ for(const pr of provs){
+  for(const key of ["all_settlement_ids","wild_location_ids","dungeon_location_ids","peer_city_ids","subordinate_settlement_ids"])
+   for(const id of arr(pr[key]))assigned.add(id);
+  if(pr.capital_location_id)assigned.add(pr.capital_location_id);
+ }
+ const seen=new Set();
+ return arr(data?.locations).filter(l=>{
+  if(!l?.id||seen.has(l.id)||!["town","wild","dungeon"].includes(l.kind))return false;
+  if(l.world_region_id!==rid&&(l.world_region_id||!(pids.has(l.province_region_id)||assigned.has(l.id))))return false;
+  seen.add(l.id);return true;
+ }).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"zh-Hant"));
+}
+function placeButton(l){
+ const kind=l.kind==="wild"?"wild":l.kind==="dungeon"?"dungeon":"town";
+ const glyph=kind==="wild"?"♣":kind==="dungeon"?"◆":"⌂";
+ const tier=l.kind==="town"?(l.settlement_world_tier||l.tier||"—"):(l.tier||"—");
+ return '<button type="button" class="wm-place wm-'+kind+'" onclick="openRegionMapGraphic(\'local\',\''+safe(l.id)+'\')" title="'+clean(l.name)+'｜開啟當地圖面"><span aria-hidden="true">'+glyph+'</span><span class="wm-place-name">'+clean(l.name)+'</span><span class="tier">'+clean(tier)+'</span></button>';
+}
+function crossButton(z){
+ return '<button type="button" class="wm-place wm-cross" onclick="openWorldMapWilderness(\''+safe(z.id)+'\')"><span aria-hidden="true">♧</span><span class="wm-place-name">'+clean(z.name)+'</span><span class="tier">'+clean(z.tier_min||"—")+'～'+clean(z.tier_max||"—")+'</span></button>';
+}
+function mapLabels(places,cross){
+ const wilds=places.filter(l=>l.kind==="wild"),dungeons=places.filter(l=>l.kind==="dungeon");
+ const borders=arr(cross).filter(z=>!wilds.some(l=>l.id===z.id||l.name===z.name));
+ if(!wilds.length&&!dungeons.length&&!borders.length)return '<div class="wm-no-label small">尚無已建檔的野外或地下城名稱。</div>';
+ const row=(title,items,render)=>items.length?'<section class="wm-label-group"><b>'+title+'（'+items.length+'）</b><div>'+items.map(render).join("")+'</div></section>':"";
+ return '<details class="wm-map-labels" open><summary>圖內地點標籤（'+(wilds.length+dungeons.length+borders.length)+'）</summary><div class="wm-label-body"><p class="small">按名稱開啟對應地圖；此名稱板不代表地點精確座標。</p>'+
+ row("野外地圖",wilds,placeButton)+row("地下城",dungeons,placeButton)+row("跨境野外",borders,crossButton)+'</div></details>';
+}
+function placeSections(places){
+ return '<h3>已建檔的當地圖面</h3><div class="wm-place-groups">'+[["town","城鎮"],["wild","野外地圖"],["dungeon","地下城"]].map(([kind,title])=>{
+  const rows=places.filter(l=>l.kind===kind);
+  return '<section class="wm-place-group wm-group-'+kind+'"><h4>'+title+'（'+rows.length+'）</h4><div class="wm-place-list">'+
+    (rows.length?rows.map(placeButton).join(""):'<span class="small">本區尚無已建檔的'+title+'。</span>')+'</div></section>';
+ }).join("")+'</div>';
+}
 function regionDetail(id){
  if(!regionNames().includes(id))return false;
  SELECTED=id;
@@ -243,15 +283,15 @@ function regionDetail(id){
   return '<button class="world-mosaic-province-card" type="button" onclick="openRegionMapGraphic(\'province\',\''+safe(pr.id)+'\')">'+previewArt(pr,i,biomeOf(id))+'<span class="wm-province-info"><b>'+clean(pr.display_name||pr.name)+'</b><small>'+clean(pr.administrative_type||"行省級區域")+'｜'+clean(pr.world_tier||"—")+'級｜地點 '+count+'</small><span class="wm-province-open">開啟行省圖面 →</span></span></button>';
  }).join("");
  const wilderness=wild.map(z=>'<button type="button" onclick="openWorldMapWilderness(\''+safe(z.id)+'\')">'+clean(z.name)+' '+clean(z.tier_min||"—")+'～'+clean(z.tier_max||"—")+'</button>').join("");
- const places=arr(db()?.locations).filter(l=>l.world_region_id===id).sort((a,b)=>String(a.name).localeCompare(String(b.name),"zh-Hant")).slice(0,18).map(l=>'<button type="button" onclick="openRegionMapGraphic(\'local\',\''+safe(l.id)+'\')">'+clean(l.name)+' <span class="tier">'+clean(l.tier||"—")+'</span></button>').join("");
+ const places=regionalLocations(id);
  const neighbors=arr(g.region_adjacency?.[id]).filter(x=>regionNames().includes(x)).map(rid=>'<button type="button" onclick="openWorldMosaicRegion(\''+safe(rid)+'\')">'+clean(reg(rid)?.name||rid)+'</button>').join("");
  const toolbar='<div class="world-mosaic-dialog-nav actions"><button type="button" class="primary" onclick="openWorldMosaic(\''+CURRENT_MODE+'\')">← 返回世界拼圖</button>'+(realm?'<button type="button" onclick="openRegionMapGraphic(\'realm\',\''+safe(realm.id)+'\')">王國級圖面</button>':"")+'</div>';
  const note=provinces.precise?"已確認屬於本區域的行省":"以下為相關政體所轄行省；正史未提供各行省精確地理界線，僅提供已建檔的圖面入口。";
  const info=(r?.terrain?'<b>地形：</b>'+clean(r.terrain)+'<br>':"")+(r?.political_status?'<b>政治：</b>'+clean(r.political_status)+'<br>':"");
  const body=toolbar+'<div class="world-mosaic-region-hero"><div><span class="world-mosaic-kicker">區域圖面 / '+clean(id)+'</span><h3>'+clean(r?.name||id)+'</h3><div class="small">'+clean(p?.name||"非統一主權區")+'｜'+clean(b.name)+'｜世界層級 '+clean(regionTier(id))+'</div></div>'+here+'</div>'+
-   zoomToolbar()+'<div class="world-mosaic-scroller world-mosaic-cropped" tabindex="0" aria-label="'+clean(r?.name||id)+'區域地形圖">'+atlasSvg("terrain",id)+'</div>'+
+   zoomToolbar()+'<div class="wm-map-stage"><div class="world-mosaic-scroller world-mosaic-cropped" tabindex="0" aria-label="'+clean(r?.name||id)+'區域地形圖">'+atlasSvg("terrain",id)+'</div>'+mapLabels(places,wild)+'</div>'+
    '<div class="world-mosaic-region-layout"><section><div class="card small">'+info+'此處為正史區域地貌與疆域放大圖；實際城鎮位置如未建檔，不使用推測座標。</div><h3>行省／地方區域</h3><p class="small">'+note+'</p><div class="world-mosaic-provinces">'+(provinceList||'<div class="card small">此區域尚無可玩的行省圖面，可使用王國地圖或地方誌。</div>')+'</div>'+
-   (places?'<h3>已建檔的當地圖面</h3><div class="actions world-mosaic-places">'+places+'</div>':"")+'</section>'+
+   placeSections(places)+'</section>'+
    '<aside class="world-mosaic-region-aside">'+(wild.length?'<h3>跨境野外</h3><div class="actions">'+wilderness+'</div>':"")+(neighbors?'<h3>相鄰區域</h3><div class="actions">'+neighbors+'</div>':"")+
    '<h3>其他資料</h3><div class="actions">'+(p?'<button type="button" onclick="openWorldMapPolityTerritory(\''+safe(p.id)+'\')">政治體與疆域</button>':"")+(typeof globalThis.openLoreScope==="function"?'<button type="button" onclick="openLoreScope(\'region\',\''+safe(id)+'\',\''+clean((r?.name||id)+"・地方誌").replace(/'/g,"&#39;")+'\')">地方誌</button>':"")+'</div></aside></div>';
  return show((r?.name||id)+"・區域地圖",body);
@@ -276,7 +316,7 @@ globalThis.openWorldMapHierarchy=()=>openMosaic("terrain");
 globalThis.openWorldMapAtlas=layer=>["physical","climate","wilderness","subterranean"].includes(layer)?globalThis.openWorldMapLegacy(layer):openMosaic(layer==="political"?"political":layer==="tier"?"tier":"terrain");
 globalThis.changeWorldMosaicZoom=zoom;
 globalThis.runWorldMosaicAudit=audit;
-globalThis.QUNLU_WORLD_MOSAIC=Object.freeze({revision:REV,tiles:allTiles,regionAt,regionNames,selectedRegion:()=>SELECTED,legacyHierarchy:LEGACY_HIERARCHY});
+globalThis.QUNLU_WORLD_MOSAIC=Object.freeze({revision:REV,tiles:allTiles,regionAt,regionNames,regionalLocations,selectedRegion:()=>SELECTED,legacyHierarchy:LEGACY_HIERARCHY});
 if(db()?.meta)db().meta.world_mosaic_revision=REV;
 globalThis.QUNLU_CORE?.registerModule?.("src/world-map-tile-atlas-v1.js",{domain:"world",revision:REV});
 })();

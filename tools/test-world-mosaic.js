@@ -4,7 +4,7 @@ const code=fs.readFileSync("src/world-map-tile-atlas-v1.js","utf8");
 const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8");
 const registry=fs.readFileSync("src/program-registry-v1.js","utf8"),style=fs.readFileSync("assets/css/game.css","utf8");
 const ver=JSON.parse(fs.readFileSync("version.json","utf8"));
-assert.equal(ver.world_mosaic_revision,"WORLD-MOSAIC-ATLAS-1.0");
+assert.equal(ver.world_mosaic_revision,"WORLD-MOSAIC-ATLAS-1.1");
 assert.ok(html.includes("src/world-map-tile-atlas-v1.js?v="+ver.version));
 assert.ok(sw.includes('"./src/world-map-tile-atlas-v1.js"'));
 assert.ok(registry.includes('"src/world-map-tile-atlas-v1.js"'));
@@ -18,10 +18,13 @@ const DB={
  ],
  political_entities:[{id:"POL-01",name:"蒼翠王國",world_tier:"D"},{id:"POL-02",name:"白銀王國",world_tier:"B"}],
  realm_region_maps:[{id:"RMAP-POL-01",political_entity_id:"POL-01",province_region_ids:["PR-01"]}],
- province_region_maps:[{id:"PR-01",name:"樹蔭行省",world_region_id:"REG-01",parent_realm_map_id:"RMAP-POL-01",all_settlement_ids:["L-01"],wild_location_ids:["L-02"]}],
+ province_region_maps:[{id:"PR-01",name:"樹蔭行省",world_region_id:"REG-01",parent_realm_map_id:"RMAP-POL-01",all_settlement_ids:["L-01"],wild_location_ids:["L-02","L-04"],dungeon_location_ids:["L-03"]}],
  locations:[
   {id:"L-01",name:"葉鎮",world_region_id:"REG-01",kind:"town",tier:"F",links:[{to:"L-02",hours:2}]},
-  {id:"L-02",name:"深林",world_region_id:"REG-01",kind:"wild",tier:"F",links:[{to:"L-01",hours:2}]}
+  {id:"L-02",name:"深林",world_region_id:"REG-01",kind:"wild",tier:"F",links:[{to:"L-01",hours:2}]},
+  {id:"L-03",name:"霧鎖地穴",world_region_id:"REG-01",kind:"dungeon",tier:"E",links:[]},
+  {id:"L-04",name:"林間野徑",province_region_id:"PR-01",kind:"wild",tier:"F",links:[]},
+  {id:"L-05",name:"他區地下城",world_region_id:"REG-02",kind:"dungeon",tier:"D",links:[]}
  ],
  world_geopolitical_map:{
   canvas:{width:600,height:360},
@@ -72,8 +75,19 @@ assert.match(modal.body,/王國級圖面/);
 assert.match(modal.body,/樹蔭行省/);
 assert.match(modal.body,/openRegionMapGraphic\('province','PR-01'\)/);
 assert.match(modal.body,/已建檔的當地圖面/);
+assert.match(modal.body,/圖內地點標籤/);
+assert.match(modal.body,/野外地圖/);
+assert.match(modal.body,/地下城/);
+assert.match(modal.body,/霧鎖地穴/);
+assert.match(modal.body,/林間野徑/);
+assert.match(modal.body,/openRegionMapGraphic\('local','L-03'\)/);
+assert.ok(!modal.body.includes("他區地下城"),"another region must not be shown");
+assert.equal(call("QUNLU_WORLD_MOSAIC.regionalLocations('REG-01').length"),4);
 assert.match(modal.body,/古樹交界/);
 assert.match(modal.body,/相鄰區域/);
+for(let i=0;i<25;i++)DB.locations.push({id:"EX-"+i,name:"林道-"+i,world_region_id:"REG-01",kind:"wild",tier:"F",links:[]});
+assert.equal(call("openWorldMosaicRegion('REG-01')"),true);
+assert.match(modal.body,/林道-24/,"long wild map lists must not be truncated");
 assert.equal(call("openWorldMosaicRegion('REG-17')"),true);
 assert.match(modal.body,/非統一主權區/);
 assert.equal(call("openWorldMosaicRegion('REG-NO')"),false);

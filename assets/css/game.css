@@ -1639,3 +1639,30 @@ details.card>summary{cursor:pointer;padding:6px 0}
  .world-mosaic-region-hero h3{font-size:20px}
  .world-mosaic-modes>button{min-width:90px;padding:8px 9px}
 }
+
+/* ===== CURRENT-2.13.1 REGION PLACE LABELS ===== */
+.wm-map-stage{position:relative;min-width:0;margin-bottom:15px}
+.wm-map-stage .world-mosaic-cropped{margin:0}
+.wm-map-labels{position:absolute;right:12px;bottom:12px;width:min(350px,44%);max-height:calc(100% - 24px);z-index:2;overflow:auto;scrollbar-width:thin;background:#17271fee;color:#f6eedc;border:1px solid #a9b789;border-radius:11px;box-shadow:0 5px 15px #0008}
+.wm-map-labels>summary{cursor:pointer;position:sticky;top:0;padding:11px;background:#263b2d;color:#f2dfa7;font-weight:800}
+.wm-label-body{padding:9px;display:grid;gap:9px}
+.wm-label-body>p{margin:0;color:#c4cfb7;font-size:11px}
+.wm-label-group{display:grid;gap:6px}
+.wm-label-group>b{font-size:12px}
+.wm-label-group>div{display:grid;gap:6px}
+.wm-place{display:flex;align-items:center;gap:8px;text-align:left;min-width:0;overflow-wrap:anywhere;white-space:normal;padding:8px 10px;line-height:1.45}
+.wm-place-name{flex:1;min-width:0;overflow-wrap:anywhere}
+.wm-place .tier{flex:0 0 auto;font-size:11px;white-space:nowrap}
+.wm-place.wm-wild{border-color:#74aa71;background:#263e29;color:#e1f3d8}
+.wm-place.wm-dungeon{border-color:#b28bc2;background:#39283f;color:#f0defb}
+.wm-place.wm-town{border-color:#beb789;background:#3a4031;color:#f5e9cd}
+.wm-place.wm-cross{border-color:#b4b58d;background:#3b4330;color:#f4e7c9}
+.wm-place:focus-visible{outline:2px solid #f2d48e;outline-offset:2px}
+.wm-no-label{position:absolute;right:12px;bottom:12px;max-width:70%;padding:8px 12px;background:#182a21ed;border:1px solid #718368;border-radius:10px}
+.wm-place-groups{display:grid;gap:12px}
+.wm-place-group{padding:11px;border:1px solid #4d624b;border-radius:10px;background:#1b291e}
+.wm-place-group h4{margin:0 0 10px;color:#f4ddb3}
+.wm-group-wild{border-left:3px solid #7dae74}
+.wm-group-dungeon{border-left:3px solid #ae8cc0}
+.wm-place-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(max-width:640px){.wm-map-labels{right:8px;bottom:8px;width:min(310px,76%);max-height:45%}.wm-label-body{padding:7px}.wm-place-list{grid-template-columns:minmax(0,1fr)}}
