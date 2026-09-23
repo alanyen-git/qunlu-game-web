@@ -616,3 +616,103 @@
   }
 
 })();
+
+
+/* TAVERN-ALL-DAY-1.0：酒館全天供餐；按旅館同時段同級餐點價格加價10%～20%。 */
+(()=>{
+  "use strict";
+  if(typeof DB!=="object"||!DB.meal_service_system?.venues?.tavern||!DB.meal_service_system?.venues?.inn)return;
+  const sys=DB.meal_service_system,tavern=sys.venues.tavern,inn=sys.venues.inn;
+  const periods=["breakfast","lunch","dinner"];
+  const rawOpen=globalThis.openMealService,rawEat=globalThis.eatFacilityMeal,rawRender=globalThis.renderFacility;
+  const originalAudit=globalThis.runGeneratorAudit;
+  if(typeof rawOpen!=="function"||typeof rawEat!=="function")return;
+  const esc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  function premiumPrice(reference){
+    const base=Number(reference),minimum=Math.ceil(base*1.10-1e-9),maximum=Math.floor(base*1.20+1e-9);
+    if(minimum>maximum)return Math.round(base*115)/100;
+    return Math.min(maximum,Math.max(minimum,Math.round(base*1.15)));
+  }
+  // 相同餐期、相同菜單順序為同級比較基準；既有九款菜色與恢復數值不變。
+  for(const period of periods){
+    (tavern[period]||[]).forEach((meal,index)=>{
+      const reference=Number(inn[period]?.[index]?.price);
+      if(!Number.isFinite(reference)||reference<=0)return;
+      meal.inn_reference_price=reference;
+      meal.price=premiumPrice(reference);
+      meal.premium_percentage=Math.round((meal.price/reference-1)*1000)/10;
+    });
+  }
+  sys.version="MEAL-1.1";
+  sys.tavern_all_day={revision:"TAVERN-ALL-DAY-1.0",hours:"00:00–24:00",inn_price_premium_min:10,inn_price_premium_max:20,reference:"同餐期同級餐點"};
+  sys.rules=[
+    "酒館全天24小時供應既有早餐、中餐、晚餐料理，任何遊戲時刻均可點餐。",
+    "酒館各同級料理以旅館對應餐期的同級料理為基準，價格增加10%～20%。",
+    "旅館仍只在早餐06:00–10:30、中餐11:00–14:30、晚餐17:00–21:30供餐。",
+    ...(sys.rules||[]).filter(rule=>!/餐點只在對應時段|酒館與旅館都有獨立用餐按鍵/.test(String(rule)))
+  ];
+  function tavernRows(){
+    return periods.map(period=>{
+      const label=sys.service_windows?.[period]?.label||period;
+      const rows=(tavern[period]||[]).map(meal=>{
+        const cost=Number(meal.price),affordable=Number(G.character.moneySilver)>=cost;
+        const compared=Number.isFinite(meal.inn_reference_price)
+          ?"｜旅館同級 "+meal.inn_reference_price+"銀（加價"+meal.premium_percentage+"%）":"";
+        const stats="飢餓-"+meal.hunger+"｜口渴-"+(meal.thirst||0)+"｜疲勞-"+(meal.fatigue||0)+(meal.hp?"｜HP+"+meal.hp:"");
+        return '<div class="itemrow"><span><b>'+esc(meal.name)+'</b>｜'+cost+'銀'+compared+
+          '<br><span class="small">'+stats+'</span></span>'+
+          '<button type="button" '+(affordable?"":"disabled")+
+          ' onclick=\x27eatFacilityMeal("tavern",'+JSON.stringify(period)+','+JSON.stringify(meal.id)+')\x27>用餐</button></div>';
+      }).join("");
+      return "<h3>"+esc(label)+"｜全天可點</h3>"+rows;
+    }).join("");
+  }
+  globalThis.openMealService=function(fid){
+    if(fid!=="tavern")return rawOpen.apply(this,arguments);
+    if(!G?.character||G.character.currentFacility!=="tavern")return;
+    const t=G.worldTime||{},hour=String(t.hour??0).padStart(2,"0"),minute=String(t.minute??0).padStart(2,"0");
+    globalThis.showModal(tavern.label+"・全天供餐",
+      '<div class="card small">目前 '+hour+':'+minute+'｜24小時供餐。酒館比旅館同級餐點貴10%～20%；每次用餐消耗0.5遊戲小時。</div>'+
+      tavernRows()+'<div class="actions"><button type="button" onclick="renderFacility(\x27tavern\x27)">上一頁</button></div>');
+  };
+  globalThis.eatFacilityMeal=function(fid,period,mealId){
+    if(fid!=="tavern")return rawEat.apply(this,arguments);
+    if(!G?.character||G.character.currentFacility!=="tavern"||!periods.includes(period))return;
+    const meal=(tavern[period]||[]).find(m=>m.id===mealId);
+    if(!meal||!Number.isFinite(Number(meal.price))||G.character.moneySilver<meal.price)return;
+    globalThis.closeModal();
+    if(!globalThis.beginTurn("酒館用餐"))return;
+    if(G.character.moneySilver<meal.price){globalThis.log("用餐","銀幣不足。","warnText");globalThis.endTurn(.1);return}
+    G.character.moneySilver=Math.round((Number(G.character.moneySilver)-meal.price)*100)/100;
+    G.character.hunger=Math.max(0,Math.min(120,G.character.hunger-meal.hunger));
+    G.character.thirst=Math.max(0,Math.min(120,G.character.thirst-(meal.thirst||0)));
+    G.character.fatigue=Math.max(0,Math.min(120,G.character.fatigue-(meal.fatigue||0)));
+    if(meal.hp)G.character.hp=Math.max(0,Math.min(G.character.maxHp,G.character.hp+meal.hp));
+    globalThis.log("用餐",DB.facilities.tavern.name+"：享用"+meal.name+"，支付"+meal.price+"銀。","ok");
+    globalThis.endTurn(.5);
+  };
+  if(typeof rawRender==="function"){
+    globalThis.renderFacility=function(fid){
+      const result=rawRender.apply(this,arguments);
+      if(fid==="tavern"&&typeof document!=="undefined"){
+        const body=document.getElementById("modalBody");
+        const button=body&&Array.from(body.querySelectorAll("button")).find(b=>b.getAttribute("onclick")==="openMealService('tavern')");
+        if(button)button.textContent="用餐・24小時供應";
+      }
+      return result;
+    };
+  }
+  if(typeof originalAudit==="function"){
+    globalThis.runGeneratorAudit=function(){
+      const issues=originalAudit.apply(this,arguments)||[];
+      for(const period of periods){
+        (tavern[period]||[]).forEach((meal,index)=>{
+          const base=Number(inn[period]?.[index]?.price),price=Number(meal.price);
+          if(!Number.isFinite(base)||!Number.isFinite(price)||price<base*1.1-1e-8||price>base*1.2+1e-8)
+            issues.push("酒館餐價超出旅館加價10%～20%:"+period+"/"+meal.id);
+        });
+      }
+      return issues;
+    };
+  }
+})();
