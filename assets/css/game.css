@@ -1554,3 +1554,15 @@ hr{border-top-color:#394238;margin:16px 0}
 .prereq-unmet{border:1px solid #9d5151;background:#301d20;color:#f5c5c1}
 .prereq-met{border:1px solid #547d57;background:#1b2b21;color:#cbe4c0}
 details.card>summary{cursor:pointer;padding:6px 0}
+
+/* ===== CURRENT-2.12.8 REGION MAP GRAPHICS ===== */
+.regionmap-head-actions{margin:10px 0 14px;gap:10px}
+.regionmap-head-actions button{min-width:104px}
+.regionmap-scroll{overflow:auto;overscroll-behavior:contain;max-width:100%;max-height:min(62vh,690px);border:1px solid #536b59;background:#101b1b;border-radius:13px;padding:6px;scrollbar-width:thin;scrollbar-color:#91a181 #17251c}
+.regionmap-scroll:focus-visible{outline:2px solid #efce86;outline-offset:3px}
+.regionmap-svg{display:block;width:100%;min-width:660px;height:auto;max-height:none}
+.regionmap-node{cursor:pointer;outline:none}
+.regionmap-node:hover rect,.regionmap-node:focus rect{filter:brightness(1.23);stroke-width:4}
+.regionmap-legend{margin:8px 0 14px;padding:9px 12px;background:#1a271e;border-left:3px solid #a5bd98;border-radius:4px;line-height:1.7}
+.regionmap-scroll+.regionmap-legend{max-width:100%}
+@media(max-width:620px){.regionmap-svg{min-width:600px}.regionmap-scroll{max-height:54vh}.regionmap-head-actions>button{flex:1 1 auto}}
