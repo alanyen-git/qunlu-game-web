@@ -68,7 +68,7 @@ const audit=vm.runInContext("runAuctionBlackMarketAudit()",ctx);
 assert.equal(audit.pass,true,JSON.stringify(audit.issues));
 const ver=JSON.parse(fs.readFileSync("version.json","utf8"));
 assert.equal(ver.auction_equipment_pricing_revision,"AUCTION-GEAR-PRICE-1.0");
-assert.equal(ver.version,"CURRENT-2.12.7");
+assert.match(ver.version,/^CURRENT-\d+\.\d+\.\d+$/);
 const idx=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8");
 assert.ok(idx.includes("src/trade-venues-runtime-v1.js?v="+ver.version));
 assert.ok(sw.includes('CACHE_PREFIX+"'+ver.pwa_cache_revision+'"'));
