@@ -1697,3 +1697,13 @@ details.card>summary{cursor:pointer;padding:6px 0}
   .modal:has(.regionmap-scroll) .modaltitlewrap h2{font-size:17px!important}
   .modal:has(.regionmap-scroll) .modalbody{padding-top:8px!important}
 }
+
+/* CURRENT-2.14.2 six enemy formation */
+.battle-formation-v2>.battle-enemy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 9px;align-items:stretch}
+.battle-enemy-grid>.battle-enemy-card{min-width:0;width:auto;margin:0;padding:8px;border:1px solid #6b6559;text-align:left;cursor:pointer;overflow-wrap:anywhere;font-size:11.5px;line-height:1.4}
+.battle-enemy-grid>.battle-enemy-card.selected{border:2px solid #f2c66d;box-shadow:0 0 0 1px #f2c66f}
+.battle-enemy-grid>.battle-enemy-card.boss{border-color:#bd5546}
+.battle-enemy-grid>.battle-enemy-card.elite{border-color:#b58a45}
+.battle-enemy-grid>.battle-enemy-card.defeated{opacity:.48;filter:grayscale(.8)}
+.battle-enemy-grid>.battle-enemy-card b{display:block;overflow-wrap:anywhere}
+.battle-enemy-grid>.battle-enemy-card .small{font-size:10px}
