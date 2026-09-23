@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.14.3",
-  "previous_version": "CURRENT-2.14.2",
+  "version": "CURRENT-2.14.4",
+  "previous_version": "CURRENT-2.14.3",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "技能目標系統擴充六種範圍類型，新增七項單體／範圍攻擊與治療技能。",
+  "summary": "全93個正規職業E～B階級技能擴充、精簡重複F共通技能，新增公會F→E精修路線。",
   "changelog": [
+    "CLASS-TIER-SKILL-EXPANSION-1.0：依現行93個正規職業的戰鬥定位與元素系別，E～B每階新增攻擊與戰術各一式；清理多職重複的F基礎共通技能至E，保留各職業至少兩項F基礎技能與原已學存檔；F核心技能Lv6且職業E以上時可在公會精修為E級，保留熟練及XP；B仍循既有前置與職業考核；新增全職業階級回歸測試。",
     "SKILL-TARGETING-1.0：技能區分單體、一列、一行、十字、全體與亂數型；支援敵方格位範圍、全體免選目標、四次可重複連鎖、亂數四人治療與同列盾牆實際吸傷；新增七項範圍技能。",
     "ENEMY-ROSTER-1.0：戰鬥改為六名敵方兩列三欄，支援逐名選取目標、存活敵人輪流行動與逐名勝利結算；首領固定置中，首領與菁英依世界層級強化，並擴充既有戰鬥存檔。",
     "TAVERN-ALL-DAY-1.0：酒館全天候提供既有九款早餐／中餐／晚餐；以旅館相同餐期同級餐點定價，酒館加價10%～20%，旅館維持原時段；用餐效果、0.5小時消耗及既有存檔不變。",
@@ -455,7 +456,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v155",
+  "pwa_cache_revision": "v156",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -798,10 +799,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.27",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.29",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 79,
+    "active_src_programs": 80,
     "groups": [
       "core",
       "data",
@@ -1835,5 +1836,22 @@
   },
   "tavern_meal_revision": "TAVERN-ALL-DAY-1.0",
   "battle_formation_revision": "ENEMY-ROSTER-1.0",
-  "skill_targeting_revision": "SKILL-TARGETING-1.0"
+  "skill_targeting_revision": "SKILL-TARGETING-1.0",
+  "class_tier_skill_expansion_revision": "CLASS-TIER-SKILL-EXPANSION-1.0",
+  "class_tier_skill_expansion": {
+    "canonical_classes": 93,
+    "skills_per_class_per_grade": 2,
+    "tiers": [
+      "E",
+      "D",
+      "C",
+      "B"
+    ],
+    "minimum_added": 744,
+    "f_core_preserved": 2,
+    "skill_evolution": "F Lv6 → E（職業E級、冒險者公會）",
+    "b_exam_required": true,
+    "save_compatible": true,
+    "regression_test": "tools/test-class-tier-skill-expansion.js"
+  }
 }

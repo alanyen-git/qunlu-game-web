@@ -170,6 +170,15 @@ jobs:
           node tools/test-skill-targeting.js
           node tools/test-requirement-details.js
           node tools/test-combat-class-progression.js
+          node tools/test-class-tier-skill-expansion.js
+          node <<'NODE'
+          const fs=require('fs'),vm=require('vm');
+          const ctx=vm.createContext({console,structuredClone,setTimeout,clearTimeout});
+          for(const path of ['src/game-data.js','src/data-patches.js','src/combat-class-identity-depth-v1.js','src/class-tier-skill-expansion-v1.js'])vm.runInContext(fs.readFileSync(path,'utf8'),ctx,{filename:path});
+          const report=ctx.runClassTierSkillExpansionAudit();
+          if(!report.pass||report.stats.classes!==93||report.stats.byGrade.B<186)throw new Error('full 93-class E–B skill audit failed: '+JSON.stringify(report).slice(0,4000));
+          console.log('93-class E–B skill audit OK:',JSON.stringify(report.stats));
+          NODE
           node tools/test-auction-equipment-pricing.js
           node tools/test-alchemy-craft-categories.js
           node tools/test-crafting-recipe-separation.js
