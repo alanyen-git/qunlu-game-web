@@ -190,8 +190,21 @@ jobs:
           node tools/test-region-map-graphics.js
           node tools/test-world-mosaic.js
 
+      - name: Detect Pages publishing source
+        id: pages_mode
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mode="$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq '.build_type // "legacy"' 2>/dev/null || echo legacy)"
+          echo "build_type=${mode}" >> "${GITHUB_OUTPUT}"
+          if [[ "${mode}" != "workflow" ]]; then
+            echo "::warning title=Pages quality gate::Branch-based Pages may publish before tests finish. Set Settings > Pages > Source to GitHub Actions to enforce validated publishing."
+          fi
+
       - name: Stage production site
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
         shell: bash
         run: |
           set -euo pipefail
@@ -205,16 +218,16 @@ jobs:
           find _site -maxdepth 2 -type f | sort
 
       - name: Setup Pages
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
         uses: actions/upload-pages-artifact@v4
         with:
           path: "_site"
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
         id: deployment
         uses: actions/deploy-pages@v4
