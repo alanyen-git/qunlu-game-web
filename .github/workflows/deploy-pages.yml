@@ -165,6 +165,7 @@ jobs:
           NODE
 
           node tools/debug-all-programs.js
+          node tools/test-audit-metadata.js
           node tools/test-service-worker-refresh.js
           node tools/test-battle-formation.js
           node tools/test-battle-skill-popup.js
