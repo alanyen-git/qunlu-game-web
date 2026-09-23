@@ -92,5 +92,5 @@ render("肉類");assert(names().includes("秘製龍肉排"),"migration did not p
 G.character.knownCookingRecipes=[];G.character.subjobs=[];
 render("飲品");
 assert.deepEqual(names(),["薄荷涼水"],"new character should retain F public recipe without subjob");
-assert(modal.html.includes("學習配方 0"),"untrained character should not see high-tier trainer recipes");
+assert(modal.html.includes("學習配方 1"),"untrained character should see only visible F trainer recipes, with locked requirements");
 console.log("cooking tabs/learning regression OK: eight categories, isolated known/unknown, late override, batch gate, legacy saves, F starters");

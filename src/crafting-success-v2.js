@@ -149,9 +149,9 @@ cookBatch=function(rid,count=1){
   count=Math.max(1,Math.min(10,Number(count)||1));
   const r=IDX.recipe.get(rid);if(!r)return;
   if(!isCookingRecipe(r)){alert("此配方不是料理配方，無法從料理介面製作。");return}
+  const j=G.character.subjobs.find(x=>x.id==="SJ-COOK")||null;
   if(!cookingRecipeVisible(r,j)){alert("尚未學會此料理配方，或烹飪資格不足。");return}
   if(G.character.level<(r.recipe_level||1)){alert(`需要角色Lv${r.recipe_level}。`);return}
-  const j=G.character.subjobs.find(x=>x.id==="SJ-COOK")||null;
   if(tierOrder(r.tier||"F")>0&&!j){alert("E級以上料理需要烹飪副職業。");return}
   if(r.cook_grade&&(!j||tierOrder(j.grade)<tierOrder(r.cook_grade))){alert(`烹飪副職業階級不足，需要${r.cook_grade}級。`);return}
   const miss=cookingMissingBatch(r,count);
