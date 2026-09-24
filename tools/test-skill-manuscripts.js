@@ -104,6 +104,6 @@ G.character.currentFacility="tavern";
 vm.runInContext("openBlackMarket()",ctx);
 assert.equal(modal.title,"黑市");
 const bs=G.worldState.tradeVenues.blackMarkets.TOWN;
-assert.equal(Object.keys(bs.stock).filter(id=>id.startsWith("IT-SKM-")).length<=1,"rare black-market stock at most one");
+assert(Object.keys(bs.stock).filter(id=>id.startsWith("IT-SKM-")).length<=1,"rare black-market stock at most one");
 assert(Object.keys(bs.stock).length>0);
 console.log("skill manuscripts OK: complete E–D, C+ 60% fragments, B mentor exam, XP, venue rarity and audits");
