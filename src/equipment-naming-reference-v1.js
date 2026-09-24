@@ -6,14 +6,14 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="EQUIPMENT-NAMING-REFERENCE-1.1";
+const REV="EQUIPMENT-NAMING-REFERENCE-1.2";
 const RELEASE="CURRENT-1.74.0";
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const CATEGORY_ALIASES={
   weapon:"武器","武器":"武器",armor:"防具","防具":"防具",accessory:"飾品","飾品":"飾品"
 };
 const CATEGORIES=Object.freeze({
-  武器:Object.freeze(["長劍","細劍","短劍","匕首","彎刀","手半劍","武士刀","雙手大劍","巨劍","戰斧","巨斧","戰鎚","釘頭錘","連枷","長槍","戰戟","三叉戟","戰鐮","長弓","短弓","複合弓","手弩","重弩","法杖","魔杖","權杖"]),
+  武器:Object.freeze(["單手劍","雙手劍","細劍","短劍","匕首","彎刀","武士刀","單手斧","雙手斧","單手鎚","雙手鎚","釘頭錘","連枷","長槍","戰戟","三叉戟","戰鐮","長弓","短弓","複合弓","手弩","重弩","單手法杖","雙手法杖","魔杖","權杖"]),
   防具:Object.freeze(["頭盔","戰盔","冠冕","兜帽","面具","胸甲","板甲","重鎧","鎖子甲","皮甲","法袍","手套","護手","臂甲","護腿","戰靴","脛甲","圓盾","鳶盾","塔盾","大盾"]),
   飾品:Object.freeze(["指環","戒指","項鍊","護身符","吊墜","護心鏡","披風","斗篷","腰帶","束帶","徽章","聖物","奇物","護符"])
 });
@@ -95,6 +95,7 @@ function validateEquipmentName(name,category="武器",tier="F",context={}){
   const s=clean(name),t=tierOf(tier),issues=[];
   if(!s)issues.push("空白名稱");
   if(s.length>24)issues.push("名稱過長");
+  if(/(晨曦|暮影|灰燼|霜痕|雷紋|潮痕|裂風|月泉|赤岩|深林|銀穗|星砂|靜心|鷹眼|不屈|守望|巡獵|祈誓|熔脈)\1/.test(s))issues.push("修飾詞重複堆疊");
   if(/[A-Za-z_]{3,}/.test(s))issues.push("含英文識別字");
   for(const token of EXTERNAL_TOKENS)if(s.includes(token))issues.push("外部作品專名:"+token);
   if(!context.allowExisting&&itemNameSet().has(s))issues.push("與CURRENT物品名稱重複");
@@ -117,13 +118,13 @@ function generateEquipmentName(category="武器",tier="F",context={}){
     if(t==="F"){
       base=(attempt%2===0?material:(clean(context.role)||"旅人"))+subtype;
     }else if(t==="E"){
-      base=attempt%2===0?motif+subtype:material+(effect||motif)+subtype;
+      base=(attempt%2===0?motif:material)+subtype;
     }else if(t==="D"||t==="C"){
       const head=provenance||motif;
-      base=head+(effect||choose(motifPool(context)))+subtype;
+      base=head+(effect&&!head.includes(effect)?effect:"")+subtype;
     }else{
       const head=provenance||material||motif;
-      base=head+(effect||motif)+subtype;
+      base=head+(effect&&!head.includes(effect)?effect:"")+subtype;
       if(title&&context.canonApproved===true)base+=`「${title}」`;
     }
     if(used.has(base))continue;

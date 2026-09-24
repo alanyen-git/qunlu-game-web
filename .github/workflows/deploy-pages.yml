@@ -184,6 +184,7 @@ jobs:
           if(!report.pass||report.stats.classes!==93||report.stats.byGrade.B<186)throw new Error('full 93-class E–B skill audit failed: '+JSON.stringify(report).slice(0,4000));
           console.log('93-class E–B skill audit OK:',JSON.stringify(report.stats));
           NODE
+          node tools/test-equipment-taxonomy.js
           node tools/test-auction-equipment-pricing.js
           node tools/test-black-market-pricing.js
           node tools/test-skill-manuscripts.js

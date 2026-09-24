@@ -36,7 +36,7 @@ const GROUPS=Object.freeze({
     "src/water-source-v1.js","src/companion-aura-v1.js","src/companion-unique-skill-v1.js","src/companion-identity-depth-v1.js","src/companion-species-identity-v1.js","src/adventure-party-teammate-depth-v1.js","src/rpg-reference-synthesis-v1.js"
   ],
   finalization:[
-    "src/quest-regional-ecology-v1.js","src/profession-recipe-differentiation-v1.js","src/recipe-finalization-v1.js","src/release-integrity-v1.js","src/release-version-sync-v1.js",
+    "src/quest-regional-ecology-v1.js","src/profession-recipe-differentiation-v1.js","src/recipe-finalization-v1.js","src/equipment-taxonomy-v1.js","src/release-integrity-v1.js","src/release-version-sync-v1.js",
     "src/pwa.js","src/program-registry-v1.js"
   ]
 });

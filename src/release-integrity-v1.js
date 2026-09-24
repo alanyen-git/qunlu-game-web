@@ -55,6 +55,8 @@ function audit(){
   else issues.push("取水:稽核runtime缺失");
   if(typeof globalThis.runEquipmentNamingReferenceAudit==="function")pushResult(issues,"裝備命名:",globalThis.runEquipmentNamingReferenceAudit());
   else issues.push("裝備命名:稽核runtime缺失");
+  if(typeof globalThis.runEquipmentTaxonomyAudit==="function")pushResult(issues,"裝備分類／盾牌:",globalThis.runEquipmentTaxonomyAudit());
+  else issues.push("裝備分類／盾牌:稽核runtime缺失");
   if(typeof globalThis.runClassNamingReferenceAudit==="function")pushResult(issues,"職業命名:",globalThis.runClassNamingReferenceAudit());
   else issues.push("職業命名:稽核runtime缺失");
   if(typeof globalThis.runCombatClassIdentityDepthAudit==="function")pushResult(issues,"戰鬥職業深化:",globalThis.runCombatClassIdentityDepthAudit());

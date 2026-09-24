@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.15.0",
-  "previous_version": "CURRENT-2.14.9",
+  "version": "CURRENT-2.15.1",
+  "previous_version": "CURRENT-2.15.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "稀有技能書與殘本：拍賣行／黑市偶爾販售E～D完整技能書與C級以上60%威力殘本；完整B級須通過考驗並取得導師傳授。",
+  "summary": "武器細分單手／雙手劍、斧、鎚與法杖；盾牌改採防禦數值；簡化拗口裝備名稱，商鋪、拍賣行與黑市明列裝備／道具／素材分類。",
   "changelog": [
+    "EQUIPMENT-TAXONOMY-1.0：依持用手數分類劍、斧、鎚（兼容錘）與法杖；盾牌移除一般攻擊加成並修正防具分類，保留ID與存檔。簡化重複意象與既有拗口名稱；商鋪、公會收購、拍賣行、黑市明列裝備／道具／素材及細項；新增回歸測試和五回合稽核。",
     "SKILL-MANUSCRIPT-1.0：拍賣行每次補貨22%機率、黑市每次開市28%機率出現一冊稀有技能書。E～D為完整本、C/B/A/S僅有殘本，殘本威力60%；B級完整技能須完成B級考核並由C級以上城鎮公會導師傳授；保留殘本XP補完、存檔相容。",
     "黑市掮客資金改依當地可接觸層級、當次貨源與高價物品支付能力計算；每次開市資金有限、風險熱度與庫存上限保留。舊存檔目前未售貨源一次性補足新價及合理預算，不修改已成交金額、入場資格或其他交易場所；新增黑市定價回歸測試，PWA快取v162。",
     "BLACK-MARKET-PRICING-2.0：修正黑市僅以商店價乘1.18～1.60及收購固定+15%造成高階裝備、稀有貨物價格偏低；裝備串接拍賣階級／品質／耐久與地區供需底價，稀有非裝備使用獨立階級底價，普通商品仍維持市場連動；黑市收購保留合理折價以避免無風險套利。",
@@ -461,7 +462,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v163",
+  "pwa_cache_revision": "v164",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -538,7 +539,7 @@
     "save_compatible": true
   },
   "release_integrity_revision": "RELEASE-INTEGRITY-2.27",
-  "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
+  "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.2",
   "equipment_naming_reference": {
     "weapon_types": 26,
     "armor_types": 21,
@@ -807,7 +808,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.30",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 83,
+    "active_src_programs": 84,
     "groups": [
       "core",
       "data",
@@ -1914,5 +1915,31 @@
     "b_mentor_exam_required": true,
     "b_mentor_minimum_town_tier": "C",
     "save_compatible": true
+  },
+  "equipment_taxonomy_revision": "EQUIPMENT-TAXONOMY-1.0",
+  "trade_classification_revision": "TRADE-KIND-1.0",
+  "equipment_taxonomy": {
+    "families": [
+      "劍",
+      "斧",
+      "鎚",
+      "法杖"
+    ],
+    "handedness": [
+      "單手",
+      "雙手"
+    ],
+    "shield_primary_stats": [
+      "防禦",
+      "格擋",
+      "抗性"
+    ],
+    "id_and_save_compatible": true,
+    "trade_labels": [
+      "商鋪",
+      "拍賣行",
+      "黑市",
+      "公會收購櫃檯"
+    ]
   }
 }

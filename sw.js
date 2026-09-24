@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v163";
+const CACHE_NAME=CACHE_PREFIX+"v164";
 const CORE=[
   "./",
   "./index.html",
@@ -85,6 +85,7 @@ const CORE=[
   "./src/quest-regional-ecology-v1.js",
   "./src/profession-recipe-differentiation-v1.js",
   "./src/recipe-finalization-v1.js",
+  "./src/equipment-taxonomy-v1.js",
   "./src/release-integrity-v1.js",
   "./src/release-version-sync-v1.js",
   "./src/pwa.js",

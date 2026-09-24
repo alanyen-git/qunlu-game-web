@@ -20,6 +20,7 @@
   };
 
   const CFG=DB.market_economy_system.local_trade_flow;
+  const tradeKindHtml=d=>'<span class="small">類別：'+String(globalThis.itemTradeTypeText?.(d)||d?.catalog_subcategory||d?.type||"其他道具").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")+'</span>';
   const BULK_TYPES=new Set(["食材","素材","草藥素材","工藝素材","礦石","藥劑","料理","食物","補給"]);
 
   function marketTradeLedger(){
@@ -100,7 +101,7 @@
     const market=marketFacilityState("guild"),list=G.character.inventory.map((x,i)=>[x,i]).filter(([x])=>!!item(x.id));
     const rows=list.map(([x,i])=>{
       const d=item(x.id),p=guildBuybackUnitPrice(d),regional=Math.round(regionalItemMarketFactor(d)*100),local=Math.round(itemTradeFlowFactor(d)*100),affordable=Math.min(x.qty||1,Math.floor(market.budgetRemaining/p));
-      return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span> ×${x.qty||1}<br><span class="small">地區${regional}%｜本地供需${local}%｜一般市場收購價再減10%｜單價${p}銀</span></span><span><button ${affordable>=1?"":"disabled"} onclick="guildSellItem(${i},${p},1)">出售1</button>${(x.qty||1)>1?`<button ${affordable>=1?"":"disabled"} onclick="guildSellItem(${i},${p},${x.qty||1})">${affordable<(x.qty||1)?`出售${affordable}`:"全售"}</button>`:""}</span></div>`;
+      return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span> ${tradeKindHtml(d)} ×${x.qty||1}<br><span class="small">地區${regional}%｜本地供需${local}%｜一般市場收購價再減10%｜單價${p}銀</span></span><span><button ${affordable>=1?"":"disabled"} onclick="guildSellItem(${i},${p},1)">出售1</button>${(x.qty||1)>1?`<button ${affordable>=1?"":"disabled"} onclick="guildSellItem(${i},${p},${x.qty||1})">${affordable<(x.qty||1)?`出售${affordable}`:"全售"}</button>`:""}</span></div>`;
     }).join("")||"<div class='card small'>背包內目前沒有可出售物品。</div>";
     showModal("冒險者公會・收購櫃檯",`<div class="card small">同一商品的收購與零售價格共用本地供需倍率。玩家大量出售只會讓價格緩慢下降，96小時內逐步恢復；單一局部供需最多下壓10%、上推8%。公會收購仍固定比一般市場收購價低10%。本日剩餘收購資金：<b>${market.budgetRemaining}銀</b>。</div>${rows}<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`);
   };
@@ -135,7 +136,7 @@
     const filtered=(selected==="全部"?stock:stock.filter(d=>itemListCategoryLabel(d)===selected));
     const rowFn=d=>{
       const p=shopBuyUnitPrice(d),qty=marketStockQty(fid,d),flow=itemTradeFlowText(d),rare=typeof isAbilityStatPotion==="function"&&isAbilityStatPotion(d);
-      return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span>${rare?" <span class='small'>・稀有到貨</span>":""}<br><span class="small">${itemStatsText(d)}｜${flow}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`;
+      return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span> ${tradeKindHtml(d)}${rare?" <span class='small'>・稀有到貨</span>":""}<br><span class="small">${itemStatsText(d)}｜${flow}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`;
     };
     const rows=typeof tierGroupedItemRows==="function"?tierGroupedItemRows(filtered,rowFn,"此類別目前沒有庫存。"):[...filtered].sort((a,b)=>tierOrder(a.tier)-tierOrder(b.tier)).map(rowFn).join("")||"此類別目前沒有庫存。";
     const rareNote=fid==="alchemy"?'<div class="card small">能力屬性強化藥水屬稀有到貨：只在符合城鎮層級時以低機率每日輪替，出現時最多1瓶。</div>':"";
@@ -162,7 +163,7 @@
     const market=marketFacilityState(fid),list=G.character.inventory.map((x,i)=>[x,i]).filter(([x])=>{const d=item(x.id);return d&&canSellTo(fid,d)});
     const rows=list.map(([x,i])=>{
       const d=item(x.id),p=shopSellUnitPrice(d),ok=market.budgetRemaining>=p,flow=itemTradeFlowText(d);
-      return `<div class="itemrow"><span>${d.name} <span class="tier">${d.tier}</span> ×${x.qty||1}<br><span class="small">${flow}</span></span><span>${p}銀 <button ${ok?"":"disabled"} onclick="sellItem('${fid}',${i},${p})">出售1</button></span></div>`;
+      return `<div class="itemrow"><span>${d.name} <span class="tier">${d.tier}</span> ${tradeKindHtml(d)} ×${x.qty||1}<br><span class="small">${flow}</span></span><span>${p}銀 <button ${ok?"":"disabled"} onclick="sellItem('${fid}',${i},${p})">出售1</button></span></div>`;
     }).join("")||"沒有此設施會收購的物品。";
     showModal(DB.facilities[fid].name+"・出售",`<div class="card small">大量出售不再讓收購價快速崩跌；局部供需變動有上下限，且同商品零售價同步調整。本日剩餘收購資金：<b>${market.budgetRemaining}銀</b>，隔日恢復。</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`);
   };
