@@ -5650,11 +5650,11 @@ function applyConsumable(d){
    if(d.use.conditions)removeStatuses(d.use.conditions);
    if(d.use.regeneration){
      const r=d.use.regeneration;
+     c.buffs=(c.buffs||[]).filter(b=>b.regen_source!=="healing_potion");
      if(G.battle?.active){
        const rounds=Math.max(0,Math.floor(Number(r.combat_rounds)||0));
        if(rounds)G.battle.playerRegeneration={source:d.name,hp_per_round:Math.max(0,Number(r.combat_hp_per_round)||0),rounds};
      }else{
-       c.buffs=(c.buffs||[]).filter(b=>b.regen_source!=="healing_potion");
        c.buffs.push({name:d.name,regen_source:"healing_potion",hp_regen:Math.max(0,Number(r.field_hp_per_hour)||0),hours:Math.max(0,Number(r.field_hours)||0)});
      }
    }
