@@ -6,7 +6,7 @@
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.12.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.0";
-const REV="PROGRAM-REGISTRY-1.30";
+const REV="PROGRAM-REGISTRY-1.31";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -33,7 +33,7 @@ const GROUPS=Object.freeze({
     "src/equipment-naming-reference-v1.js","src/name-generator-v2.js"
   ],
   survival:[
-    "src/water-source-v1.js","src/companion-aura-v1.js","src/companion-unique-skill-v1.js","src/companion-identity-depth-v1.js","src/companion-species-identity-v1.js","src/adventure-party-teammate-depth-v1.js","src/rpg-reference-synthesis-v1.js"
+    "src/water-source-v1.js","src/companion-aura-v1.js","src/companion-unique-skill-v1.js","src/companion-identity-depth-v1.js","src/companion-species-identity-v1.js","src/adventure-party-teammate-depth-v1.js","src/front-back-formation-v1.js","src/rpg-reference-synthesis-v1.js"
   ],
   finalization:[
     "src/quest-regional-ecology-v1.js","src/profession-recipe-differentiation-v1.js","src/recipe-finalization-v1.js","src/release-integrity-v1.js","src/release-version-sync-v1.js",
@@ -105,6 +105,7 @@ function audit(){
     ["夥伴特色深化",()=>typeof globalThis.runCompanionIdentityDepthAudit==="function"],
     ["夥伴物種簽章",()=>typeof globalThis.runCompanionSpeciesIdentityAudit==="function"],
     ["冒險團隊友深化",()=>typeof globalThis.runAdventurePartyTeammateDepthAudit==="function"],
+    ["前後排隊形",()=>typeof globalThis.runFrontBackFormationAudit==="function"&&globalThis.runFrontBackFormationAudit().pass],
     ["RPG參考綜合深化",()=>typeof globalThis.runRpgReferenceSynthesisAudit==="function"&&globalThis.runRpgReferenceSynthesisAudit().pass],
     ["交易場靜態資料",()=>typeof globalThis.runTradeVenueDataAudit==="function"],
     ["拍賣行／黑市",()=>typeof globalThis.runAuctionBlackMarketAudit==="function"],
