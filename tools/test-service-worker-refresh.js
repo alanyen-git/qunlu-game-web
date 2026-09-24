@@ -72,17 +72,17 @@ async function retrieve(resource,mode="same-origin",method="GET"){
   return promise?await promise:null;
 }
 (async()=>{
-  assert.equal(cacheName,"qunlu-pwa-v161");
+  assert.equal(cacheName,"qunlu-pwa-v162");
   assert(core.includes("./src/runtime.js"));
   let install;
   events.get("install")({waitUntil(p){install=p;}});
   await install;
   assert(stores.get(cacheName).has(url("./src/runtime.js")));
-  stores.set("qunlu-pwa-v160",new Map([["old",new Response("stale")]]));
+  stores.set("qunlu-pwa-v161",new Map([["old",new Response("stale")]]));
   let activate;
   events.get("activate")({waitUntil(p){activate=p;}});
   await activate;
-  assert(!stores.has("qunlu-pwa-v160"));
+  assert(!stores.has("qunlu-pwa-v161"));
 
   const js=url("./src/runtime.js?v=CURRENT-2.14.8");
   await bucket(cacheName).put({url:js},new Response("stale-js"));
