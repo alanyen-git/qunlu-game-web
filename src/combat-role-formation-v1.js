@@ -97,6 +97,10 @@ function enrichAttack(s,role){
  if(role==="mage"||role==="spellblade"||role==="geo"||role==="fire"||role==="storm"||role==="frost"){if(s.element){add(m,"elemental_focus");m.weakness_bonus_pct=Math.max(Number(m.weakness_bonus_pct||0),7+r*2)}}
  if(role==="spellblade"){m.penetration_bonus_pct=Math.max(Number(m.penetration_bonus_pct||0),3+r)}
  if(role==="geo"){m.guard_after_hit=true;add(m,"guard_strike")}
+ if(role==="healer"){add(m,"sanctified");m.controlled_target_bonus_pct=Math.max(Number(m.controlled_target_bonus_pct||0),6+r*2)}
+ if(role==="battle_healer"){add(m,"guard_strike");m.guard_after_hit=true}
+ if(role==="mage"){add(m,"arcane_pressure");m.penetration_bonus_pct=Math.max(Number(m.penetration_bonus_pct||0),3+r);m.resource_refund_on_hit=Math.max(Number(m.resource_refund_on_hit||0),1)}
+ if(role==="spellblade"){add(m,"hybrid_balance");m.penetration_bonus_pct=Math.max(Number(m.penetration_bonus_pct||0),3+r)}
  m.class_role=role;m.class_role_revision=REV;s.mechanics=m
 }
 function enrichUtility(s,role){
