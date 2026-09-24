@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.14.4",
-  "previous_version": "CURRENT-2.14.3",
+  "version": "CURRENT-2.14.5",
+  "previous_version": "CURRENT-2.14.4",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "全93個正規職業E～B階級技能擴充、精簡重複F共通技能，新增公會F→E精修路線。",
+  "summary": "背包新增可點擊分類按鍵：僅顯示所選類別、保留全部總覽與一鍵整理。",
   "changelog": [
+    "INVENTORY-CATEGORY-FILTER-1.0：背包分類數量標籤改為可點擊篩選按鍵，包含全部、裝備、藥劑／消耗品、食物、食材、補給、工具、素材、書籍／卷軸／符文及其他現有分類。每次僅列所選分類，顯示作用中分類及件數；排序、負重、原始物品索引及使用／裝備／丟棄功能維持原狀，切換分類不消耗回合、不寫入存檔。",
     "CLASS-TIER-SKILL-EXPANSION-1.0：依現行93個正規職業的戰鬥定位與元素系別，E～B每階新增攻擊與戰術各一式；清理多職重複的F基礎共通技能至E，保留各職業至少兩項F基礎技能與原已學存檔；F核心技能Lv6且職業E以上時可在公會精修為E級，保留熟練及XP；B仍循既有前置與職業考核；新增全職業階級回歸測試。",
     "SKILL-TARGETING-1.0：技能區分單體、一列、一行、十字、全體與亂數型；支援敵方格位範圍、全體免選目標、四次可重複連鎖、亂數四人治療與同列盾牆實際吸傷；新增七項範圍技能。",
     "ENEMY-ROSTER-1.0：戰鬥改為六名敵方兩列三欄，支援逐名選取目標、存活敵人輪流行動與逐名勝利結算；首領固定置中，首領與菁英依世界層級強化，並擴充既有戰鬥存檔。",
@@ -456,7 +457,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v157",
+  "pwa_cache_revision": "v158",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -822,8 +823,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.14.4：80 個正式 src 程序已與入口、Service Worker、PROGRAM-REGISTRY 完整同步。",
-    "last_verified_release": "CURRENT-2.14.4",
+    "note": "CURRENT-2.14.5：80 個正式 src 程序已與入口、Service Worker、PROGRAM-REGISTRY 完整同步；背包分類篩選僅影響UI。",
+    "last_verified_release": "CURRENT-2.14.5",
     "notes": [
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
       "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",
@@ -883,7 +884,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.14.4",
+    "last_verified_release": "CURRENT-2.14.5",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -891,7 +892,7 @@
     "audited_src_programs": 80,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v157",
+    "pwa_cache": "v158",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1855,5 +1856,6 @@
     "b_exam_required": true,
     "save_compatible": true,
     "regression_test": "tools/test-class-tier-skill-expansion.js"
-  }
+  },
+  "inventory_category_filter_revision": "INVENTORY-CATEGORY-FILTER-1.0"
 }

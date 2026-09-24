@@ -1707,3 +1707,23 @@ details.card>summary{cursor:pointer;padding:6px 0}
 .battle-enemy-grid>.battle-enemy-card.defeated{opacity:.48;filter:grayscale(.8)}
 .battle-enemy-grid>.battle-enemy-card b{display:block;overflow-wrap:anywhere}
 .battle-enemy-grid>.battle-enemy-card .small{font-size:10px}
+
+
+/* INVENTORY-CATEGORY-FILTER-1.0: tappable, exclusive inventory tabs. */
+.inventory-chiprow.inventory-filter-buttons{gap:8px;align-items:center}
+.inventory-filter-buttons button.inventory-chip{
+  appearance:none;cursor:pointer;font:inherit;font-size:13px;font-weight:650;
+  min-height:39px;padding:7px 12px;line-height:1.3;touch-action:manipulation;
+  background:#15231f;border:1px solid #57665b;color:#d9e2d4;
+  transition:background-color .12s ease,border-color .12s ease;
+}
+.inventory-filter-buttons button.inventory-chip:hover{background:#26392e;border-color:#9aac8b}
+.inventory-filter-buttons button.inventory-chip.active,
+.inventory-filter-buttons button.inventory-chip[aria-pressed="true"]{
+  background:#e5d09a;border-color:#f0dca7;color:#17221d;font-weight:800;
+}
+.inventory-filter-buttons button.inventory-chip:focus-visible{outline:3px solid #f6db93;outline-offset:3px}
+.inventory-filter-status{margin-top:9px;color:#b7c8b8}
+@media(max-width:520px){
+  .inventory-filter-buttons button.inventory-chip{min-height:43px;padding:8px 12px;font-size:13px}
+}

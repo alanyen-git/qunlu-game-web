@@ -6,6 +6,7 @@ DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
 DB.meta.runtime_optimization_revision="RUNTIME-OPT-1.5";
 DB.meta.save_storage_revision="SAVE-STORAGE-2.0";
 DB.meta.ui_runtime_revision="UI-RUNTIME-1.0";
+DB.meta.inventory_category_filter_revision="INVENTORY-CATEGORY-FILTER-1.0";
 DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
 DB.meta.political_standing_repair_revision="POLITICAL-STANDING-REPAIR-1.0";
@@ -5573,9 +5574,23 @@ function organizeInventory(){
  inv.sort(inventorySortCompare);
  persist();openInventory()
 }
+
+/* INVENTORY-CATEGORY-FILTER-1.0: UI-only selection, never written to character saves. */
+let inventoryCategoryFilter="全部",inventoryCategoryChips=[];
+function setInventoryCategory(index){
+ const next=index<0?"全部":inventoryCategoryChips[index]||"全部";
+ if(next===inventoryCategoryFilter)return;
+ inventoryCategoryFilter=next;
+ openInventory();
+ if(typeof requestAnimationFrame==="function")requestAnimationFrame(()=>{
+   document.querySelector('#inventoryCategoryButtons button[data-inventory-category-index="'+index+'"]')?.focus({preventScroll:true});
+ });
+}
 function openInventory(){
- const list=G.character.inventory,summary=inventorySummary();let lastCat="";
- const view=list.map((x,i)=>({x,i})).sort((a,b)=>inventorySortCompare(a.x,b.x));
+ const list=G.character.inventory||[],summary=inventorySummary();let lastCat="";
+ inventoryCategoryChips=summary.groups.map(([name])=>name);
+ if(inventoryCategoryFilter!=="全部"&&!inventoryCategoryChips.includes(inventoryCategoryFilter))inventoryCategoryFilter="全部";
+ const view=list.map((x,i)=>({x,i})).filter(({x})=>inventoryCategoryFilter==="全部"||inventoryCategory(item(x.id)).key===inventoryCategoryFilter).sort((a,b)=>inventorySortCompare(a.x,b.x));
  const rows=view.map(({x,i})=>{
    const d=item(x.id),cat=inventoryCategory(d),isEq=d&&["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type),usable=!!d.use||!!d.buff||!!d.utility_effect||!!d.battle_effect||d.type==="料理";
    const head=cat.key!==lastCat?(lastCat=cat.key,`<div class="inventory-category-title">${cat.key}</div>`):"";
@@ -5599,10 +5614,11 @@ function openInventory(){
      <div class="inventory-item-meta">${itemStatsText(d,isEq?inventoryComparisonItem(d):null)}${x.durability!=null?`｜耐久${x.durability}/${x.maxDurability}`:""}</div>
      <div class="inventory-item-actions ${actionCount===1?"one":""}">${actions}</div>
    </div>`
- }).join("")||"<div class='small'>背包為空。</div>";
- const chips=summary.groups.map(([name,v])=>`<span class="inventory-chip">${name} ${v.qty}</span>`).join("");
+ }).join("")||(inventoryCategoryFilter==="全部"?"<div class='small'>背包為空。</div>":"<div class='small'>此分類目前沒有物品。</div>");
+ const chips=`<button type="button" class="inventory-chip${inventoryCategoryFilter==="全部"?" active":""}" data-inventory-category-index="-1" aria-pressed="${inventoryCategoryFilter==="全部"}" onclick="setInventoryCategory(-1)">全部 ${summary.qty}</button>`+summary.groups.map(([name,v],index)=>`<button type="button" class="inventory-chip${inventoryCategoryFilter===name?" active":""}" data-inventory-category-index="${index}" aria-pressed="${inventoryCategoryFilter===name}" onclick="setInventoryCategory(${index})">${name} ${v.qty}</button>`).join("");
+ const visibleCount=inventoryCategoryFilter==="全部"?summary.qty:(summary.groups.find(([name])=>name===inventoryCategoryFilter)?.[1]?.qty||0);
  const loadClass=summary.pct>=100?"danger":summary.pct>=85?"warnText":"ok";
- showModal("背包",`<div class="inventory-summary"><div class="inventory-summary-top"><span>物品 ${summary.qty} 件｜堆疊 ${summary.stacks}</span><span class="${loadClass}">負重 ${summary.weight}/${summary.cap}kg（${summary.pct}%）</span></div><div class="small">同行負重支援：隊友 +${summary.sharedCarry.teammates.total}kg｜寵物／契約獸 +${summary.sharedCarry.companions.total}kg</div><div class="inventory-chiprow">${chips}</div></div><div class="inventory-sortbar"><button class="good" onclick="organizeInventory()">一鍵整理</button><span class="small">目前已依分類顯示；整理會固定此排序。</span></div>${rows}`,"openInventory()")
+ showModal("背包",`<div class="inventory-summary"><div class="inventory-summary-top"><span>物品 ${summary.qty} 件｜堆疊 ${summary.stacks}</span><span class="${loadClass}">負重 ${summary.weight}/${summary.cap}kg（${summary.pct}%）</span></div><div class="small">同行負重支援：隊友 +${summary.sharedCarry.teammates.total}kg｜寵物／契約獸 +${summary.sharedCarry.companions.total}kg</div><div class="inventory-chiprow inventory-filter-buttons" id="inventoryCategoryButtons" role="group" aria-label="背包物品分類">${chips}</div><div class="small inventory-filter-status" role="status">目前顯示${inventoryCategoryFilter==="全部"?"所有物品":inventoryCategoryFilter}：${visibleCount}件</div></div><div class="inventory-sortbar"><button class="good" onclick="organizeInventory()">一鍵整理</button><span class="small">點選上方分類按鍵切換清單；整理只會調整順序。</span></div>${rows}`,"openInventory()")
 }
 function removeStatuses(list){
  if(!list?.length)return;

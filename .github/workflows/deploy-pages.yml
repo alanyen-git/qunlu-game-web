@@ -171,6 +171,7 @@ jobs:
           node tools/test-battle-skill-popup.js
           node tools/test-skill-targeting.js
           node tools/test-requirement-details.js
+          node tools/test-inventory-category-buttons.js
           node tools/test-combat-class-progression.js
           node tools/test-class-tier-skill-expansion.js
           node <<'NODE'
