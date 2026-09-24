@@ -40,13 +40,13 @@ function addSkills(){
  return count
 }
 function patternOf(s){const p=s?.target_pattern;if(MODES.has(p))return p;if(s?.damage_type==="heal"&&s?.mechanics?.traits?.includes("group_heal"))return "all_allies";return "single"}
-function targetsFor(pattern,anchor){const b=G?.battle||{},units=Array.isArray(b.enemies)?b.enemies:[b.enemy].filter(Boolean);if(pattern==="all")return units.filter(e=>e.hp>0);return formationTargets(pattern,units,anchor)}
+function targetsFor(pattern,anchor,skill){const b=G?.battle||{},units=Array.isArray(b.enemies)?b.enemies:[b.enemy].filter(Boolean);const targets=pattern==="all"?units.filter(e=>e.hp>0):formationTargets(pattern,units,anchor);return targets.filter(e=>globalThis.QUNLU_FRONT_BACK_FORMATION?.canPlayerHit(skill,e)!==false)}
 function enemyKey(e){return "enemy:"+(e?.battleId||e?.id||"")}
 function targetStage(index,s,pattern){
  const enemySide=["column","row","cross"].includes(pattern),body=document.querySelector("#battleSkillPopupBody");if(!body)return;
- const units=G.battle.enemies||[G.battle.enemy],rows=enemySide?aliveEnemies().map(e=>{const i=units.indexOf(e);return{key:enemyKey(e),name:e.name,hp:e.hp,maxHp:e.maxHp,slot:"第"+(Math.floor(i/3)+1)+"行・第"+(i%3+1)+"列"}}):allyKeys().map((key,i)=>{const t=key==="self"?G.character:key==="companion"?G.battle.companion:G.battle.party[Number(key.slice(6))];return{key,name:t?.name||"我方成員",hp:t?.hp,maxHp:t?.maxHp,slot:"第"+(Math.floor(i/2)+1)+"行"}});
+ const units=G.battle.enemies||[G.battle.enemy],rows=enemySide?aliveEnemies().map(e=>{const i=units.indexOf(e);return{key:enemyKey(e),name:e.name,hp:e.hp,maxHp:e.maxHp,blocked:globalThis.QUNLU_FRONT_BACK_FORMATION?.canPlayerHit(s,e)===false,slot:(i<3?"前排":"後排")+"・第"+(i%3+1)+"列"}}):allyKeys().map((key,i)=>{const t=key==="self"?G.character:key==="companion"?G.battle.companion:G.battle.party[Number(key.slice(6))];return{key,name:t?.name||"我方成員",hp:t?.hp,maxHp:t?.maxHp,slot:"第"+(Math.floor(i/2)+1)+"行"}});
  battleSkillPopupStage="targets";battleSelectedSkillIndex=index;document.querySelector("#battleSkillPopupTitle").textContent="使用"+s.name+"：選擇"+(enemySide?"起點敵人":"我方起點");
- setUIHTML(body,'<div class="battle-skill-return"><button type="button" onclick="battleSkillMenu()">← 返回技能列表</button></div>'+rows.map(t=>'<div class="itemrow"><span><b>'+t.name+'</b> <span class="small">'+t.slot+'｜HP '+Math.round(t.hp||0)+'/'+Math.round(t.maxHp||0)+'</span></span><button type="button" onclick="battleConfirmSkillTarget('+index+',\''+t.key+'\')">選擇</button></div>').join(""));body.scrollTop=0
+ setUIHTML(body,'<div class="battle-skill-return"><button type="button" onclick="battleSkillMenu()">← 返回技能列表</button></div>'+rows.map(t=>'<div class="itemrow"><span><b>'+t.name+'</b> <span class="small">'+t.slot+'｜HP '+Math.round(t.hp||0)+'/'+Math.round(t.maxHp||0)+(t.blocked?"｜受前衛掩護":"")+'</span></span><button type="button" '+(t.blocked?"disabled ":"")+'onclick="battleConfirmSkillTarget('+index+',\''+t.key+'\')">'+(t.blocked?"無法越過":"選擇")+"</button></div>').join(""));body.scrollTop=0
 }
 function alliedRowKeys(anchor){const keys=allyKeys(),idx=keys.indexOf(anchor);if(idx<0)return[];const row=Math.floor(idx/2);return keys.filter((_,i)=>Math.floor(i/2)===row)}
 function resolveShieldWall(s,targetKey){
@@ -74,8 +74,8 @@ function patchUse(){
   if(pattern==="ally_row"){if(!String(targetKey).startsWith("enemy:"))return resolveShieldWall(s,targetKey);return}
   if(["column","row","cross"].includes(pattern)&&!String(targetKey).startsWith("enemy:"))return;
   const side=s.target_side||(s.damage_type==="heal"?"ally":"enemy");let queue=[];
-  if(["column","row","cross"].includes(pattern))queue=targetsFor(pattern,targetKey.slice(6));
-  else if(pattern==="all")queue=targetsFor("all");
+  if(["column","row","cross"].includes(pattern))queue=targetsFor(pattern,targetKey.slice(6),s);
+  else if(pattern==="all")queue=targetsFor("all",null,s);
   else if(pattern==="random_ally")queue=sampleWithoutReplacement(allyKeys(),Math.max(1,Number(s.target_count||4))).map(key=>({key}));
   else if(pattern==="all_allies"){battleSkillPopupStage="closed";return oldUse.call(this,index,"self")}
   if(pattern==="random_ally"&&!queue.length)return;
@@ -90,7 +90,7 @@ function patchUse(){
   if(saved.mastery)globalThis.gainSkillMastery=function(){return first?saved.mastery.apply(this,arguments):undefined};
   try{
    for(const item of queue){if(!G?.battle?.active)break;let key=item.key;
-    if(item.random){const live=aliveEnemies();if(!live.length)break;key=enemyKey(live[Math.floor(Math.random()*live.length)])}
+    if(item.random){const live=aliveEnemies().filter(e=>globalThis.QUNLU_FRONT_BACK_FORMATION?.canPlayerHit(s,e)!==false);if(!live.length)break;key=enemyKey(live[Math.floor(Math.random()*live.length)])}
     if(side==="enemy"){const id=String(key).startsWith("enemy:")?String(key).slice(6):key,unit=(G.battle.enemies||[G.battle.enemy]).find(e=>e&&(e.battleId===id||e.id===id));if(!unit||unit.hp<=0)continue;if(globalThis.selectBattleEnemy)globalThis.selectBattleEnemy(unit.battleId||unit.id,false);else G.battle.enemy=unit}
     if(!first)G.character[prop]=startResource;battleSkillPopupStage="committing";oldUse.call(this,index,side==="ally"?key:"self");
     if(first){paid=Number(G.character[prop]||0);first=false}else G.character[prop]=paid;
@@ -106,7 +106,7 @@ function patchPicker(){
   if(["column","row","cross","ally_row"].includes(p))return targetStage(index,s,p);battleSkillPopupStage="committing";globalThis.battleUseSkill(index,"area")
  };
  globalThis.battleConfirmSkillTarget=function(index,key){if(!G?.battle?.active||battleSkillPopupStage!=="targets"||battleSelectedSkillIndex!==index||document.querySelector("#battleSkillPopup")?.classList.contains("hide"))return;
-  const s=G.character.skills[index],p=patternOf(s);if(["column","row","cross"].includes(p)){if(!String(key).startsWith("enemy:")||!aliveEnemies().some(e=>enemyKey(e)===key))return}
+  const s=G.character.skills[index],p=patternOf(s);if(["column","row","cross"].includes(p)){if(!String(key).startsWith("enemy:")||!aliveEnemies().some(e=>enemyKey(e)===key&&globalThis.QUNLU_FRONT_BACK_FORMATION?.canPlayerHit(s,e)!==false))return}
   else if(p==="ally_row"){if(!allyKeys().includes(key))return}else return oldConfirm?.apply(this,arguments);
   if((skillUsesMana(s)?G.character.mana:G.character.stamina)<skillResourceCost(s))return;battleSkillPopupStage="committing";globalThis.battleUseSkill(index,key)
  };
