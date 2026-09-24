@@ -67,5 +67,5 @@ assert.equal(audit.pass,true,JSON.stringify(audit.issues));
 assert.equal(vm.runInContext("runTradeVenueDataAudit()",ctx).pass,true,"data audit");
 const ver=JSON.parse(fs.readFileSync("version.json","utf8"));
 assert.equal(ver.black_market_pricing_revision,"BLACK-MARKET-PRICING-2.0");
-assert.equal(ver.pwa_cache_revision,"v163");
+assert.equal(ver.pwa_cache_revision,(fs.readFileSync("sw.js","utf8").match(/CACHE_PREFIX\+"([^"]+)"/)||[])[1],"SW快取與發布資訊同步");
 console.log("black market pricing regression OK: tier, rarity, durability, finite budget, legacy repricing, actual sale, low-value gate");
