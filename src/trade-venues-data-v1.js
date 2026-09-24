@@ -1,5 +1,5 @@
 /* 群陸旅誌：拍賣行／黑市靜態資料 CURRENT-2.10.0
- * TRADE-VENUES-DATA-1.2
+ * TRADE-VENUES-DATA-1.3
  * 拍賣行只配置於省級行政中心與國都；黑市憑證納入正式物品資料，供runtime資格檢核。
  */
 (()=>{
@@ -7,7 +7,7 @@
 if(typeof DB!=="object"||!DB)return;
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.10.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.10.0";
-const REV="TRADE-VENUES-DATA-1.2";
+const REV="TRADE-VENUES-DATA-1.3";
 const AUCTION_ID="auction";
 const BADGE_ID="IT-BM-GRAY-SIGIL";
 const PASS_ID="IT-BM-NIGHT-PASS";
@@ -89,6 +89,12 @@ DB.trade_venue_system=Object.assign({},DB.trade_venue_system||{}, {
  black_market:{
   cycle_hours:96,min_window_hours:8,max_window_hours:14,fame_threshold:12,heat_limit:100,
   min_general_value:30,min_general_tier:"D",
+  price_revision:"BLACK-MARKET-PRICING-2.0",general_buy_markup:1.48,general_sell_markup:1.35,
+  equipment_buy_floor_ratio:1.65,equipment_buy_reference_ratio:1.48,
+  equipment_sell_floor_ratio:.68,equipment_sell_reference_ratio:.56,
+  special_tier_floors_silver:{F:60,E:170,D:460,C:1400,B:4200,A:13000,S:39000},
+  special_buy_floor_ratio:1.35,special_buy_markup:1.6,special_sell_floor_ratio:.52,special_sell_markup:1.45,
+  stock_risk_spread:.26,budget_top_item_cover:2,budget_stock_cover:.62,
   access_kinds:["story","quest","encounter","intel","badge","pass","fame"],credential_item_ids:[BADGE_ID,PASS_ID],
   principle:"黑市不是固定設施；各聚落開市時段不同，且必須先取得劇情、委託、奇遇、地下情報、徽章／入場券或足夠名聲之一的接觸資格。一般低價值貨物不進地下收購與貨源池，避免黑市退化成雜貨店。"
  },
@@ -101,6 +107,9 @@ function audit(){
  if(!(Number(DB.trade_venue_system?.auction?.min_general_value)>0))issues.push("拍賣行低價值門檻缺失");
  for(const tier of ["F","E","D","C","B","A","S"])if(!(Number(DB.trade_venue_system?.auction?.equipment_price_floors_silver?.[tier])>0))issues.push("拍賣裝備階級價格下限缺失:"+tier);
  if(!(Number(DB.trade_venue_system?.black_market?.min_general_value)>0))issues.push("黑市低價值門檻缺失");
+ if(!(Number(DB.trade_venue_system?.black_market?.equipment_buy_floor_ratio)>1))issues.push("黑市裝備買入溢價設定缺失");
+ if(!(Number(DB.trade_venue_system?.black_market?.equipment_sell_floor_ratio)>0))issues.push("黑市裝備收購基準缺失");
+ for(const tier of ["F","E","D","C","B","A","S"])if(!(Number(DB.trade_venue_system?.black_market?.special_tier_floors_silver?.[tier])>0))issues.push("黑市特殊商品階級基準缺失:"+tier);
  for(const id of [BADGE_ID,PASS_ID]){
   if(!rows("items").some(x=>x?.id===id))issues.push("黑市憑證缺失:"+id);
   if(!(DB.content_link_index?.item_sources?.[id]?.special_sources||[]).length)issues.push("黑市憑證特殊來源缺失:"+id);

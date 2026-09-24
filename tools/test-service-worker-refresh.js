@@ -72,7 +72,7 @@ async function retrieve(resource,mode="same-origin",method="GET"){
   return promise?await promise:null;
 }
 (async()=>{
-  assert.equal(cacheName,"qunlu-pwa-v161");
+  assert.equal(cacheName,"qunlu-pwa-v162");
   assert(core.includes("./src/runtime.js"));
   let install;
   events.get("install")({waitUntil(p){install=p;}});
