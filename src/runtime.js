@@ -4509,6 +4509,7 @@ function battleUseSkill(index,targetKey="self"){
    b.playerBuff.accuracy=(b.playerBuff.accuracy||0)+(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus");b.playerBuff.evasion=(b.playerBuff.evasion||0)+(s.evasion||0);
    for(const k of ["magicPower","magicDefense","critRate","critDamage","attackSpeed","castSpeed","blockRate","statusResist"])b.playerBuff[k]=(b.playerBuff[k]||0)+(s[k]||0);
    b.playerBuff.statusResist=(b.playerBuff.statusResist||0)+skillLevelBonus(s,"status_resist_bonus");
+   globalThis.QUNLU_FRONT_BACK_FORMATION?.activateGuardSkill(s);
    b.playerBuffPct=b.playerBuffPct||{};
    const defPct=supportPercentValue(s,"defense_pct"),mdefPct=supportPercentValue(s,"magic_defense_pct");
    if(defPct)b.playerBuffPct.defensePct=Math.max(Number(b.playerBuffPct.defensePct||0),defPct);
@@ -4543,7 +4544,7 @@ function battleUseSkill(index,targetKey="self"){
  if(e.hp<=0){finishBattle("勝利");return}
  enemyBattleTurn()
 }
-function battleDefend(){if(!G.battle?.active||!beginPlayerBattleAction())return;G.battle.defending=true;G.battle.playerStaggered=false;battleLog("採取防禦姿態，本次敵方攻擊獲得防禦與格擋加成，並穩定自身架勢。");enemyBattleTurn()}
+function battleDefend(){if(!G.battle?.active||!beginPlayerBattleAction())return;G.battle.defending=true;G.battle.playerCover=G.battle.formationPositions?.self==="front";G.battle.playerStaggered=false;battleLog("採取防禦姿態，本次敵方攻擊獲得防禦與格擋加成，並穩定自身架勢。");enemyBattleTurn()}
 function battleItemMenu(){
  if(!G.battle?.active)return;
  const list=G.character.inventory.map((x,i)=>[x,i]).filter(([x])=>{
@@ -4605,7 +4606,7 @@ function enemyStatusEvasionPenalty(){return enemyHasStatus("slow")?1:0}
 function enemyStatusDefensePenalty(){return enemyHasStatus("curse")?2:0}
 function companionBattleLog(msg){battleLog(`【夥伴】${msg}`)}
 function resolveCompanionTurn(){
- const b=G.battle,c=b?.companion,e=b?.enemy;if(!b?.active||!c||c.knockedOut||c.hp<=0||e.hp<=0)return;
+ const b=G.battle,c=b?.companion,e=globalThis.QUNLU_FRONT_BACK_FORMATION?.chooseAllyEnemy(c,b?.enemy,["caster","support","legend"].includes(c?.ai))||b?.enemy;if(!b?.active||!c||c.knockedOut||c.hp<=0||!e||e.hp<=0)return;
  const player=G.character,playerRatio=player.hp/player.maxHp,compRatio=c.hp/c.maxHp;
  if(c.ai==="support"&&playerRatio<.65){
    const heal=Math.max(2,Math.round(c.magic*.75));player.hp=clamp(player.hp+heal,0,player.maxHp);companionBattleLog(`${c.name}施展支援治療，恢復${heal}HP。`);return
@@ -4641,7 +4642,10 @@ function enemyBattleTurn(){
  if(e.hp<=0){finishBattle("勝利");return}
  const r=rollD20(),targets=[{type:"player",weight:combatStats().threat||100},...partyThreatTargets()];
  if(b.companion&&!b.companion.knockedOut&&b.companion.hp>0)targets.push({type:"companion",unit:b.companion,weight:b.companion.guarding?180:70});
- let pick=weightedPick(targets.map(x=>[x,x.weight])),targetCompanion=pick?.type==="companion",targetParty=pick?.type==="party";
+ const accessible=globalThis.QUNLU_FRONT_BACK_FORMATION?.filterEnemyTargets(e,targets)||targets;
+ let pick=weightedPick(accessible.map(x=>[x,x.weight]));
+ pick=globalThis.QUNLU_FRONT_BACK_FORMATION?.interceptEnemyAttack(pick,e)||pick;
+ const targetCompanion=pick?.type==="companion",targetParty=pick?.type==="party";
  if(targetCompanion){
    const c=pick.unit;c.guarding=false;
    const score=r+Math.floor((e.accuracy-(c.evasion||0))/10);
@@ -5298,9 +5302,10 @@ function lowestPartyTarget(){
  return units.sort((a,b)=>a.ratio-b.ratio)[0]
 }
 function resolvePartyTurns(){
- const b=G.battle,e=b?.enemy;if(!b?.active||!Array.isArray(b.party))return;
+ const b=G.battle;if(!b?.active||!Array.isArray(b.party))return;
  for(const m of b.party){
-   if(!b.active||e.hp<=0||m.knockedOut||m.hp<=0)continue;
+   const e=globalThis.QUNLU_FRONT_BACK_FORMATION?.chooseAllyEnemy(m,b.enemy,m.role==="caster"||m.role==="healer")||b.enemy;
+   if(!b.active||!e||e.hp<=0||m.knockedOut||m.hp<=0)continue;
    const t=partyTemplate(m.templateId),target=lowestPartyTarget();
    if(m.role==="healer"&&target&&target.ratio<.68){
      const heal=Math.max(2,Math.round(m.magic*.75));
