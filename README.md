@@ -16,4 +16,14 @@ https://alanyen-git.github.io/qunlu-game-web/
 - 清除瀏覽器網站資料、使用無痕模式、換瀏覽器或換手機，都可能無法讀到原本的本機存檔；重要進度請使用遊戲內「匯出存檔」備份。
 - 第一次成功載入後，Service Worker 會快取正式版資源；已快取資源完整時可離線啟動。
 
-正式版更新仍由 `main` 分支與 GitHub Pages 發布流程管理。
+## 正式版發布與自動驗證
+
+GitHub Pages 的 Source 設為 **GitHub Actions**。每次推送到 `main` 時，
+`.github/workflows/deploy-pages.yml` 會先執行語法檢查、資料庫完整性稽核、
+建角／存檔／交易／戰鬥回歸測試及 PWA 快取測試。只有驗證成功才會
+打包正式遊戲資源並執行 GitHub Pages 部署。
+
+部署進度：https://github.com/alanyen-git/qunlu-game-web/actions
+
+遊戲持續採本機存檔。部署時只打包公開網頁資源，不包含測試報告或
+工具程式，且不會清除玩家裝置上的 IndexedDB／localStorage 存檔。
