@@ -72,19 +72,19 @@ async function retrieve(resource,mode="same-origin",method="GET"){
   return promise?await promise:null;
 }
 (async()=>{
-  assert.equal(cacheName,"qunlu-pwa-v160");
+  assert.equal(cacheName,"qunlu-pwa-v161");
   assert(core.includes("./src/runtime.js"));
   let install;
   events.get("install")({waitUntil(p){install=p;}});
   await install;
   assert(stores.get(cacheName).has(url("./src/runtime.js")));
-  stores.set("qunlu-pwa-v159",new Map([["old",new Response("stale")]]));
+  stores.set("qunlu-pwa-v160",new Map([["old",new Response("stale")]]));
   let activate;
   events.get("activate")({waitUntil(p){activate=p;}});
   await activate;
-  assert(!stores.has("qunlu-pwa-v159"));
+  assert(!stores.has("qunlu-pwa-v160"));
 
-  const js=url("./src/runtime.js?v=CURRENT-2.14.7");
+  const js=url("./src/runtime.js?v=CURRENT-2.14.8");
   await bucket(cacheName).put({url:js},new Response("stale-js"));
   const freshJs=await retrieve(js);
   assert.equal(freshJs.body,"fresh:"+js,"script must refresh despite matching URL");
@@ -93,7 +93,7 @@ async function retrieve(resource,mode="same-origin",method="GET"){
   assert.equal((await retrieve(js)).body,"fresh:"+js,"script must work offline");
   online=true;
 
-  const css=url("./assets/css/game.css?v=CURRENT-2.14.7");
+  const css=url("./assets/css/game.css?v=CURRENT-2.14.8");
   await bucket(cacheName).put({url:css},new Response("stale-css"));
   assert.equal((await retrieve(css)).body,"fresh:"+css,"style must refresh");
   assert.equal(requests.at(-1).cache,"no-cache");

@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.14.7",
-  "previous_version": "CURRENT-2.14.6",
+  "version": "CURRENT-2.14.8",
+  "previous_version": "CURRENT-2.14.7",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "背包新增可點擊分類按鍵：僅顯示所選類別、保留全部總覽與一鍵整理。",
+  "summary": "六格戰場職業深化：93個正規戰鬥職業導入27種戰術定位、職業招牌機制、E～B分階範圍技能與隊伍配合，保留既有角色與技能XP。",
   "changelog": [
+    "COMBAT-ROLE-FORMATION-1.0：93職業對應27種前排／後排／彈性戰術定位，E～B招牌技能依職能調整單體／行／列／十字／全體／亂數範圍並作每目標威力折算；守護護盾、狂戰處決、遊俠陷阱、刺客先手、召喚追擊、元素連鎖、治療群療等接入實際技能機制。建角／角色卡新增戰術職能與隊友搭配，已學技能升級時同步範圍與機制，保留既有存檔及技能熟練。新增27定位回歸測試與PWA v161。",
     "INVENTORY-CATEGORY-FILTER-1.0：背包分類數量標籤改為可點擊篩選按鍵，包含全部、裝備、藥劑／消耗品、食物、食材、補給、工具、素材、書籍／卷軸／符文及其他現有分類。每次僅列所選分類，顯示作用中分類及件數；排序、負重、原始物品索引及使用／裝備／丟棄功能維持原狀，切換分類不消耗回合、不寫入存檔。",
     "CLASS-TIER-SKILL-EXPANSION-1.0：依現行93個正規職業的戰鬥定位與元素系別，E～B每階新增攻擊與戰術各一式；清理多職重複的F基礎共通技能至E，保留各職業至少兩項F基礎技能與原已學存檔；F核心技能Lv6且職業E以上時可在公會精修為E級，保留熟練及XP；B仍循既有前置與職業考核；新增全職業階級回歸測試。",
     "SKILL-TARGETING-1.0：技能區分單體、一列、一行、十字、全體與亂數型；支援敵方格位範圍、全體免選目標、四次可重複連鎖、亂數四人治療與同列盾牆實際吸傷；新增七項範圍技能。",
@@ -457,7 +458,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v160",
+  "pwa_cache_revision": "v161",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -800,10 +801,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.29",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.30",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 81,
+    "active_src_programs": 82,
     "groups": [
       "core",
       "data",
@@ -823,7 +824,7 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.14.7：檢查595項專業配方與59項料理；鍛造／裁縫／藥劑／附魔／料理完成54筆定向差異化修正。新增跨職配方重複及效益倒掛稽核，81個正式src程序與PWA一致，保留存檔。",
+    "note": "CURRENT-2.14.8：82個正式src模組；新增27種戰術職能，保持93職業ID、存檔及離線更新。",
     "last_verified_release": "CURRENT-2.14.7",
     "notes": [
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
@@ -1872,5 +1873,6 @@
     ],
     "same_tier_same_material_same_effect_issues": 0,
     "save_compatible": true
-  }
+  },
+  "combat_role_formation_revision": "COMBAT-ROLE-FORMATION-1.0"
 }
