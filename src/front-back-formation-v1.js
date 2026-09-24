@@ -121,7 +121,7 @@ function interceptEnemyAttack(pick,enemy){
  if(!pick||!weaponCanReachRear(enemy))return pick;
  const b=setup(),key=pick.type==="player"?"self":pick.type==="companion"?"companion":"party:"+(pick.unit?.uid||"");
  if(rowOf(key)!=="back")return pick;
- if(rowOf("self")==="front"&&alive(S()?.character)&&(b.playerCover||b.defending)){
+ if(rowOf("self")==="front"&&alive(S()?.character)&&b.playerCover){
   b.playerCover=false;if(typeof battleLog==="function")battleLog(S().character.name+"施展援護，替後排承受攻擊。");
   return{type:"player",weight:999}
  }
@@ -137,12 +137,8 @@ function chooseAllyEnemy(actor,current,magic=false){
  const b=setup(),all=(b?.enemies||[b?.enemy].filter(Boolean)).filter(alive);
  if(!all.length)return null;
  const choices=weaponCanReachRear(actor,null,magic)?all:all.filter(e=>enemyRow(e)==="front"||!frontEnemies().length);
- const chosen=choices.find(e=>e===current||e.battleId===current?.battleId)||choices[0]||null;
- if(chosen&&chosen!==b.enemy){
-  if(typeof selectBattleEnemy==="function")selectBattleEnemy(chosen.battleId,false);
-  else{b.enemy=chosen;b.enemyBuff=chosen.enemyBuff||(chosen.enemyBuff={});b.enemyStatuses=chosen.enemyStatuses||(chosen.enemyStatuses=[])}
- }
- return chosen
+ // 只回傳AI合法目標，絕不覆寫敵方當前行動者或玩家選定的目標。
+ return choices.find(e=>e===current||e.battleId===current?.battleId)||choices[0]||null
 }
 function activateGuardSkill(skill){
  const b=setup();if(!b||rowOf("self")!=="front"||skill?.damage_type!=="buff")return;
@@ -248,6 +244,10 @@ if(typeof globalThis.battleUseSkill==="function"){
   return original.apply(this,arguments)
  }
 }
+if(typeof globalThis.startBattle==="function"){
+ const original=globalThis.startBattle;
+ globalThis.startBattle=function(){const result=original.apply(this,arguments);if(S()?.battle?.active){initBattle(S().battle);if(typeof persist==="function")persist()}return result}
+}
 if(typeof globalThis.renderBattle==="function"){
  const original=globalThis.renderBattle;
  globalThis.renderBattle=function(){const result=original.apply(this,arguments);paint();return result}
@@ -264,6 +264,7 @@ for(const ai of DB.management_ai||[])if(["AI-CLASS","AI-SKILL"].includes(ai.id))
 }
 globalThis.openPartyFormation=openPartyFormation;
 globalThis.setPartyFormationPosition=saveFormation;
+globalThis.runFrontBackFormationAudit=audit;
 globalThis.QUNLU_FRONT_BACK_FORMATION={revision:REV,positions,initBattle,rowOf,enemyRow,frontEnemies,canPlayerHit,playerTargets,weaponCanReachRear,filterEnemyTargets,interceptEnemyAttack,chooseAllyEnemy,activateGuardSkill,audit};
 globalThis.QUNLU_CORE?.registerModule?.("src/front-back-formation-v1.js",{domain:"survival",revision:REV,release:globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.14.9"});
 })();
