@@ -48,7 +48,16 @@ function targetStage(index,s,pattern){
  battleSkillPopupStage="targets";battleSelectedSkillIndex=index;document.querySelector("#battleSkillPopupTitle").textContent="使用"+s.name+"：選擇"+(enemySide?"起點敵人":"我方起點");
  setUIHTML(body,'<div class="battle-skill-return"><button type="button" onclick="battleSkillMenu()">← 返回技能列表</button></div>'+rows.map(t=>'<div class="itemrow"><span><b>'+t.name+'</b> <span class="small">'+t.slot+'｜HP '+Math.round(t.hp||0)+'/'+Math.round(t.maxHp||0)+(t.blocked?"｜受前衛掩護":"")+'</span></span><button type="button" '+(t.blocked?"disabled ":"")+'onclick="battleConfirmSkillTarget('+index+',\''+t.key+'\')">'+(t.blocked?"無法越過":"選擇")+"</button></div>').join(""));body.scrollTop=0
 }
-function alliedRowKeys(anchor){const keys=allyKeys(),idx=keys.indexOf(anchor);if(idx<0)return[];const row=Math.floor(idx/2);return keys.filter((_,i)=>Math.floor(i/2)===row)}
+function alliedRowKeys(anchor){
+ const keys=allyKeys(),formation=globalThis.QUNLU_FRONT_BACK_FORMATION;
+ if(formation){
+  const id=key=>String(key).startsWith("party:")?"party:"+(G.battle?.party?.[Number(key.slice(6))]?.uid||""):key;
+  const row=formation.rowOf(id(anchor));
+  return keys.filter(key=>formation.rowOf(id(key))===row)
+ }
+ const idx=keys.indexOf(anchor);if(idx<0)return[];
+ const row=Math.floor(idx/2);return keys.filter((_,i)=>Math.floor(i/2)===row)
+}
 function resolveShieldWall(s,targetKey){
  const b=G.battle,cs=combatStats(),cost=skillResourceCost(s),mana=skillUsesMana(s);if((mana?G.character.mana:G.character.stamina)<cost||!beginPlayerBattleAction())return;
  if(mana)G.character.mana-=cost;else G.character.stamina-=cost;gainSkillMastery(s);
