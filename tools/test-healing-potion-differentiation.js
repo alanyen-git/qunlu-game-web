@@ -1,7 +1,7 @@
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
 const ctx=vm.createContext({console,structuredClone,setTimeout,clearTimeout});
-const dataFiles=["src/game-data.js","src/data-patches.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js","src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js","src/recipe-finalization-v1.js"];
+const dataFiles=["src/game-data.js","src/data-patches.js","src/asdail-depth-v2.js","src/asdail-narrative-depth-v1.js","src/asdail-integration-v1.js","src/alchemy-healing-recipe-v1.js","src/equipment-depth-v1.js","src/crafting-recipe-semantic-v1.js","src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js","src/profession-recipe-differentiation-v1.js","src/recipe-finalization-v1.js"];
 for(const file of dataFiles)vm.runInContext(fs.readFileSync(file,"utf8"),ctx,{filename:file});
 const lookup=vm.runInContext('id=>DB.items.find(x=>x.id===id)',ctx);
 const instant=lookup("PC-LIFE-02"),sustained=lookup("P7-05");
