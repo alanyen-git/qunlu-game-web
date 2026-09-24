@@ -176,6 +176,7 @@ jobs:
           node tools/test-combat-class-progression.js
           node tools/test-class-tier-skill-expansion.js
           node tools/test-combat-role-formation.js
+          node tools/test-front-back-formation.js
           node <<'NODE'
           const fs=require('fs'),vm=require('vm');
           const ctx=vm.createContext({console,structuredClone,setTimeout,clearTimeout});
