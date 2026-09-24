@@ -4364,6 +4364,8 @@ function beginPlayerBattleAction(){
  const blocked=processPlayerStatuses();
  if(G.character.hp<=0){if(tryAutoRevive())return false;finishBattle("戰敗");return false}
  if(blocked){battleLog("負面狀態使本回合無法正常行動。");enemyBattleTurn();return false}
+ // 上一行動未觸發的援護不累積至下一次玩家行動。
+ G.battle.playerCover=false;
  return true
 }
 let battleLastFocus=null,battleSkillLastFocus=null;
@@ -4625,7 +4627,7 @@ function resolveCompanionTurn(){
  if(c.element)dmg=applyElementDamage(dmg,e,c.element);
  e.hp=Math.max(0,e.hp-dmg);
  if(c.ai==="dark")c.hp=clamp(c.hp+Math.max(1,Math.round(dmg*.18)),0,c.maxHp);
- if(c.ai==="caster"&&roll>=17){b.enemyBuff.accuracy=(b.enemyBuff.accuracy||0)-2;companionBattleLog(`${c.name}的術法造成${dmg}傷害，並干擾敵人命中。`)}
+ if(c.ai==="caster"&&roll>=17){const buff=e.enemyBuff||(e.enemyBuff={});buff.accuracy=(buff.accuracy||0)-2;companionBattleLog(`${c.name}的術法造成${dmg}傷害，並干擾敵人命中。`)}
  else companionBattleLog(`${c.name}造成${dmg}傷害${c.element?`／${c.element}`:""}。`)
 }
 function enemyTargetsCompanion(){
@@ -5304,7 +5306,7 @@ function lowestPartyTarget(){
 function resolvePartyTurns(){
  const b=G.battle;if(!b?.active||!Array.isArray(b.party))return;
  for(const m of b.party){
-   const e=globalThis.QUNLU_FRONT_BACK_FORMATION?.chooseAllyEnemy(m,b.enemy,m.role==="caster"||m.role==="healer")||b.enemy;
+   const e=globalThis.QUNLU_FRONT_BACK_FORMATION?.chooseAllyEnemy(m,b.enemy,["caster","healer","hybrid"].includes(m.role))||b.enemy;
    if(!b.active||!e||e.hp<=0||m.knockedOut||m.hp<=0)continue;
    const t=partyTemplate(m.templateId),target=lowestPartyTarget();
    if(m.role==="healer"&&target&&target.ratio<.68){
