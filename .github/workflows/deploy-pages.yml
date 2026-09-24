@@ -186,6 +186,7 @@ jobs:
           NODE
           node tools/test-auction-equipment-pricing.js
           node tools/test-black-market-pricing.js
+          node tools/test-skill-manuscripts.js
           node tools/test-alchemy-craft-categories.js
           node tools/test-healing-potion-differentiation.js
           node tools/test-profession-recipe-distinctness.js

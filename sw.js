@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v162";
+const CACHE_NAME=CACHE_PREFIX+"v163";
 const CORE=[
   "./",
   "./index.html",
@@ -66,6 +66,7 @@ const CORE=[
   "./src/skill-mechanics-depth-v1.js",
   "./src/skill-targeting-v1.js",
   "./src/combat-role-formation-v1.js",
+  "./src/trade-skill-manuscripts-v1.js",
   "./src/system-integrity-v2.js",
   "./src/affiliation-integrity-v1.js",
   "./src/player-experience-guidance-v1.js",

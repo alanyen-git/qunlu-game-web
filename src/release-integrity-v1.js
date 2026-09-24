@@ -77,6 +77,8 @@ function audit(){
   else issues.push("交易場靜態資料:稽核runtime缺失");
   if(typeof globalThis.runAuctionBlackMarketAudit==="function")pushResult(issues,"拍賣行／黑市:",globalThis.runAuctionBlackMarketAudit());
   else issues.push("拍賣行／黑市:稽核runtime缺失");
+  if(typeof globalThis.runSkillManuscriptAudit==="function")pushResult(issues,"技能書／殘本:",globalThis.runSkillManuscriptAudit());
+  else issues.push("技能書／殘本:稽核runtime缺失");
   if(typeof globalThis.runOriginDepthAudit==="function")pushResult(issues,"角色出身:",globalThis.runOriginDepthAudit());
   else issues.push("角色出身:稽核runtime缺失");
   if(typeof globalThis.runAffiliationIdentityDepthAudit==="function")pushResult(issues,"組織流派深化:",globalThis.runAffiliationIdentityDepthAudit());

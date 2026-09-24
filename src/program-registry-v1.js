@@ -6,7 +6,7 @@
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.12.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.0";
-const REV="PROGRAM-REGISTRY-1.30";
+const REV="PROGRAM-REGISTRY-1.31";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -25,7 +25,7 @@ const GROUPS=Object.freeze({
   ],
   progression:[
     "src/combat-class-progression-v1.js","src/class-skill-optimization-v1.js","src/class-skill-passive-compat-v1.js","src/class-naming-reference-v1.js",
-    "src/skill-naming-reference-v1.js","src/class-tier-skill-expansion-v1.js","src/skill-mechanics-depth-v1.js","src/skill-targeting-v1.js","src/combat-role-formation-v1.js","src/system-integrity-v2.js","src/affiliation-integrity-v1.js",
+    "src/skill-naming-reference-v1.js","src/class-tier-skill-expansion-v1.js","src/skill-mechanics-depth-v1.js","src/skill-targeting-v1.js","src/combat-role-formation-v1.js","src/trade-skill-manuscripts-v1.js","src/system-integrity-v2.js","src/affiliation-integrity-v1.js",
     "src/player-experience-guidance-v1.js"
   ],
   naming:[

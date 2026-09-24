@@ -166,7 +166,7 @@ function repriceLegacyAuction(s){
 
 function auctionCandidates(l){
  const cap=Math.min(6,Math.max(2,rank(l?.tier||"F")+1));
- return (DB.items||[]).filter(d=>tradeVenueEligible(d,"auction","listing")&&rank(d.tier)<=cap)
+ return (DB.items||[]).filter(d=>!d.trade_venue_special_stock_only&&tradeVenueEligible(d,"auction","listing")&&rank(d.tier)<=cap)
 }
 function seededUnique(pool,count,seed){
  const work=[...pool],out=[];let x=hash(seed);
@@ -291,7 +291,7 @@ function blackCandidateTierCap(l){
 }
 function blackCandidates(l){
  const cap=blackCandidateTierCap(l);
- return (DB.items||[]).filter(d=>tradeVenueEligible(d,"black_market","stock")&&!d.not_auctionable&&rank(d.tier)<=cap)
+ return (DB.items||[]).filter(d=>!d.trade_venue_special_stock_only&&tradeVenueEligible(d,"black_market","stock")&&!d.not_auctionable&&rank(d.tier)<=cap)
 }
 /* 地下市場不是一般商店的固定加價版：裝備銜接正式拍賣階級底價，
  * 特殊商品依各階稀缺性獨立定價；一般用品仍沿用實際商店供需。 */

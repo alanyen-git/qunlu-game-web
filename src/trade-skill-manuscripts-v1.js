@@ -52,15 +52,21 @@ for(const [cid,pool] of Object.entries(DB.skill_pools)){
   rows.push(rec);byItem.set(id,rec)
  }
 }
+function lineage(c,cid){
+ const target=DB.combat_classes?.find(x=>x.id===cid);
+ return c?.classId===cid||(c?.classHistory||[]).some(x=>x.id===cid)||
+  !!target?.progression_from?.includes(c?.classId)||
+  !!target?.progression_from?.some(id=>(c?.classHistory||[]).some(h=>h.id===id))
+}
 function canStudy(rec){
  const c=game()?.character;
  if(!c)return "尚未建立角色";
  const base=rec?.skill;if(!base)return "技能資料不存在";
- const ownClass=c.classId===rec.classId||(c.classHistory||[]).some(x=>x.id===rec.classId);
+ const ownClass=lineage(c,rec.classId);
  if(!ownClass)return "尚未取得「"+(DB.combat_classes?.find(x=>x.id===rec.classId)?.name||rec.classId)+"」職業傳承";
  const required=rec.fragment?Math.max(0,rank(rec.grade)-1):rank(rec.grade);
  if(rank(c.combatGrade)<required)return "實際職業階級不足，需達"+GRADES[required]+"級";
- const level=Math.max(1,Number(base.required_level)||1);
+ const level=Math.max(1,Number(base.required_level)||0,Number(base.recommended_level||1)-(rec.fragment?12:0));
  if(Number(c.level||1)<level)return "角色等級需達Lv"+level;
  for(const [key,value] of Object.entries({...base.prereq,...base.required_stats})){
   if(Number.isFinite(Number(value))&&Number(c.stats?.[key]||0)<Number(value))return key+"需達"+value;
@@ -109,7 +115,10 @@ function study(invIndex){
  globalThis.openCharacterSkills?.();return true
 }
 function passedBExam(c,cid){
- return (c?.classExamHistory||[]).some(e=>e.targetId===cid&&e.targetGrade==="B")
+ const active=DB.combat_classes?.find(x=>x.id===c?.classId);
+ return (c?.classExamHistory||[]).some(e=>e.targetGrade==="B"&&
+  (e.targetId===cid||(e.targetId===c.classId&&
+   (lineage(c,cid)||active?.progression_from?.includes(cid)))))
 }
 function canMentorB(s,c=game()?.character){
  if(!s||s.tier!=="B")return true;
@@ -123,6 +132,24 @@ function mentorReason(s){
  if(rank(c.combatGrade)<rank("B"))return "實際戰鬥職業需達B級";
  if(rank(town()?.tier)<rank("C"))return "需前往C級以上城鎮公會尋找導師";
  return "須先完成本職B級考核（實戰與委託回報），再由導師傳授"
+}
+function mentorCompletionReason(s,cid=s?.source_class||game()?.character?.classId){
+ const c=game()?.character;
+ if(!c||c.currentFacility!=="guild")return "須前往冒險者公會完成技能傳承";
+ if(!lineage(c,cid))return "此技能不屬於已取得的職業傳承";
+ if(rank(c.combatGrade)<rank(s?.tier))return "實際戰鬥職業需達"+s.tier+"級";
+ if(s?.tier==="B"&&!canMentorB(s))return mentorReason(s);
+ const gate=originalGate?.(s,{mode:"class",requireGuild:true});
+ const blockers=(gate?.checks||[]).filter(x=>x.label!=="技能欄"&&!x.ok);
+ return blockers.length?"尚未達成："+blockers.map(x=>x.label).join("、"):""
+}
+function completeManuscriptSkill(ref,cid){
+ const c=game()?.character,pool=DB.skill_pools?.[cid]||[];
+ const s=pool.find(x=>skillKey(x)===String(ref)||x.id===ref);
+ if(!s||!(c?.skills||[]).some(x=>x.manuscript_fragment&&x.manuscript_original_skill_id===skillKey(s)&&x.manuscript_source_class===cid))return false;
+ const reason=mentorCompletionReason(s,cid);
+ if(reason){globalThis.alert?.(reason);return false}
+ return replaceFragment(s)
 }
 function replaceFragment(s){
  const c=game()?.character,original=skillKey(s);
@@ -142,7 +169,7 @@ function selectBook(l,venue,seed){
  const available=rows.filter(x=>rank(x.grade)<=cap);
  if(!available.length)return null;
  const roll=hash(seed+"|tier")%100;
- const tier=roll<53?"E":roll<80?"D":roll<93?"C":roll<98?"B":roll<100?"A":"S";
+ const tier=roll<53?"E":roll<80?"D":roll<93?"C":roll<98?"B":roll<99?"A":"S";
  let pool=available.filter(x=>x.grade===tier);
  if(!pool.length)pool=available.filter(x=>rank(x.grade)<=rank(tier));
  if(!pool.length)pool=available;
@@ -216,12 +243,7 @@ if(typeof originalLearn==="function")globalThis.learnCombatSkill=function(ref){
  if(s?.tier==="B"&&!canMentorB(s)){globalThis.alert?.(mentorReason(s));return false}
  if(s&&c?.currentFacility==="guild"){
   const fragment=(c.skills||[]).find(x=>x.manuscript_fragment&&x.manuscript_original_skill_id===skillKey(s)&&x.manuscript_source_class===(s.source_class||c.classId));
-  if(fragment){
-   const gate=globalThis.skillLearningPrereqState?.(s,{mode:"class",requireGuild:true});
-   const blocker=(gate?.checks||[]).filter(x=>x.label!=="技能欄"&&!x.ok);
-   if(blocker.length){globalThis.alert?.("尚未達成："+blocker.map(x=>x.label).join("、"));return false}
-   return replaceFragment(s)
-  }
+  if(fragment)return completeManuscriptSkill(skillKey(s),s.source_class||c.classId);
  }
  return originalLearn.apply(this,arguments)
 };
@@ -232,8 +254,21 @@ if(typeof originalTraining==="function")globalThis.classTraining=function(){
   const body=document.getElementById("modalBody");
   if(body&&!body.querySelector?.("[data-manuscript-mentor]")){
    const note=document.createElement("div");note.className="card small";note.dataset.manuscriptMentor="1";
-   note.textContent="高階技能書：E～D級可能取得完整本；C級以上流通的只有60%威力殘本。完整B級技能必須完成本職B級考核，再到C級以上城鎮公會接受導師傳授；已研讀殘本可保留XP補完。";
-   body.prepend(note)
+   note.textContent="E～D級偶爾流通完整技能書；C級以上流通的只有60%威力殘本。完整B級技能須先通過B級考核，再由C級以上城鎮公會導師傳授。已研讀殘本可以保留技能XP補完。";
+   body.prepend(note);
+   const fragments=(game()?.character?.skills||[]).filter(x=>x.manuscript_fragment);
+   if(fragments.length){
+    const card=document.createElement("section");card.className="card";card.dataset.manuscriptCompletion="1";
+    const lines=fragments.map(x=>{
+     const cid=x.manuscript_source_class,ref=x.manuscript_original_skill_id;
+     const s=DB.skill_pools?.[cid]?.find(y=>skillKey(y)===ref);
+     if(!s)return "";
+     const reason=mentorCompletionReason(s,cid),action="completeManuscriptSkill("+JSON.stringify(ref)+","+JSON.stringify(cid)+")";
+     return '<div class="itemrow"><span><b>'+esc(x.name)+'</b> → '+esc(s.name)+'［'+esc(s.tier)+'］<br><span class="small">'+(reason?esc(reason):"可完成傳承，保留已累積技能XP")+'</span></span><button type="button" '+(reason?'disabled':'onclick=\''+esc(action)+'\'')+'>'+(reason?"尚未達條件":"補完傳承")+'</button></div>'
+    }).filter(Boolean);
+    card.innerHTML="<h3>殘本補完與導師傳承</h3>"+lines.join("");
+    body.prepend(card)
+   }
   }
  }
  return result
@@ -254,6 +289,7 @@ DB.meta=DB.meta||{};DB.meta.skill_manuscript_revision=REV;
 DB.skill_manuscript_system={revision:REV,auction_refresh_chance_pct:chance.auction,black_market_window_chance_pct:chance.black_market,complete_book_grades:["E","D"],fragment_grades:["C","B","A","S"],fragment_power_ratio:.6,b_complete_requires_exam:true,b_mentor_min_town_tier:"C",save_compatible:true};
 globalThis.runSkillManuscriptAudit=audit;
 globalThis.studySkillManuscript=study;
-globalThis.QUNLU_SKILL_MANUSCRIPTS={version:REV,audit,catalog:rows,learned,canStudy,canMentorB,selectBook,addAuctionManuscript,addBlackManuscript};
+globalThis.completeManuscriptSkill=completeManuscriptSkill;
+globalThis.QUNLU_SKILL_MANUSCRIPTS={version:REV,audit,catalog:rows,learned,canStudy,canMentorB,mentorCompletionReason,selectBook,addAuctionManuscript,addBlackManuscript};
 CORE?.registerModule?.("src/trade-skill-manuscripts-v1.js",{domain:"progression",revision:REV,release:globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.14.9"});
 })();

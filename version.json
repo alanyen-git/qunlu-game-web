@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.14.9",
-  "previous_version": "CURRENT-2.14.8",
+  "version": "CURRENT-2.15.0",
+  "previous_version": "CURRENT-2.14.9",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "黑市交易估值深化：高階裝備與特殊素材採階級／品質底價，地下售價、收購價與掮客資金同步調整；舊存檔未售貨源一次性補價。",
+  "summary": "稀有技能書與殘本：拍賣行／黑市偶爾販售E～D完整技能書與C級以上60%威力殘本；完整B級須通過考驗並取得導師傳授。",
   "changelog": [
+    "SKILL-MANUSCRIPT-1.0：拍賣行每次補貨22%機率、黑市每次開市28%機率出現一冊稀有技能書。E～D為完整本、C/B/A/S僅有殘本，殘本威力60%；B級完整技能須完成B級考核並由C級以上城鎮公會導師傳授；保留殘本XP補完、存檔相容。",
     "黑市掮客資金改依當地可接觸層級、當次貨源與高價物品支付能力計算；每次開市資金有限、風險熱度與庫存上限保留。舊存檔目前未售貨源一次性補足新價及合理預算，不修改已成交金額、入場資格或其他交易場所；新增黑市定價回歸測試，PWA快取v162。",
     "BLACK-MARKET-PRICING-2.0：修正黑市僅以商店價乘1.18～1.60及收購固定+15%造成高階裝備、稀有貨物價格偏低；裝備串接拍賣階級／品質／耐久與地區供需底價，稀有非裝備使用獨立階級底價，普通商品仍維持市場連動；黑市收購保留合理折價以避免無風險套利。",
     "COMBAT-ROLE-FORMATION-1.0：93職業對應27種前排／後排／彈性戰術定位，E～B招牌技能依職能調整單體／行／列／十字／全體／亂數範圍並作每目標威力折算；守護護盾、狂戰處決、遊俠陷阱、刺客先手、召喚追擊、元素連鎖、治療群療等接入實際技能機制。建角／角色卡新增戰術職能與隊友搭配，已學技能升級時同步範圍與機制，保留既有存檔及技能熟練。新增27定位回歸測試與PWA v161。",
@@ -460,7 +461,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v162",
+  "pwa_cache_revision": "v163",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -806,7 +807,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.30",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 82,
+    "active_src_programs": 83,
     "groups": [
       "core",
       "data",
@@ -826,9 +827,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.14.9：82個正式src模組，黑市定價深化與舊存檔價款遷移，保持既有ID、存檔及離線更新。",
+    "note": "CURRENT-2.15.0：83個正式src模組，稀有技能書與高階殘本完整接線；舊版角色與交易資料保持相容。",
     "last_verified_release": "CURRENT-2.14.9",
     "notes": [
+      "CURRENT-2.15.0：新增稀有技能書／殘本獨立模組，83個程序與PWA v163同步，B級導師考核與殘本補完納入回歸測試。",
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
       "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",
       "CURRENT-2.09.0：新增src/trade-venues-data-v1.js與src/trade-venues-runtime-v1.js；拍賣行／黑市接入現行引擎，PWA v122；正式程序增為72個。",
@@ -892,10 +894,10 @@
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 82,
+    "audited_src_programs": 83,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v162",
+    "pwa_cache": "v163",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1892,6 +1894,25 @@
     },
     "legacy_open_stock_repricing": true,
     "adaptive_finite_budget": true,
+    "save_compatible": true
+  },
+  "skill_manuscript_revision": "SKILL-MANUSCRIPT-1.0",
+  "skill_manuscript": {
+    "auction_daily_chance_pct": 22,
+    "black_market_window_chance_pct": 28,
+    "complete_book_grades": [
+      "E",
+      "D"
+    ],
+    "fragment_book_grades": [
+      "C",
+      "B",
+      "A",
+      "S"
+    ],
+    "fragment_power_pct": 60,
+    "b_mentor_exam_required": true,
+    "b_mentor_minimum_town_tier": "C",
     "save_compatible": true
   }
 }
