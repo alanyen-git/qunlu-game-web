@@ -828,7 +828,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.15.0：83個正式src模組，稀有技能書與高階殘本完整接線；舊版角色與交易資料保持相容。",
-    "last_verified_release": "CURRENT-2.14.9",
+    "last_verified_release": "CURRENT-2.15.0",
     "notes": [
       "CURRENT-2.15.0：新增稀有技能書／殘本獨立模組，83個程序與PWA v163同步，B級導師考核與殘本補完納入回歸測試。",
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
@@ -861,12 +861,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 82,
-    "programs_loaded": 82,
+    "programs_total": 83,
+    "programs_loaded": 83,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 65,
-    "full_audits_passed": 65,
+    "full_audits_executed": 66,
+    "full_audits_passed": 66,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -889,7 +889,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.14.9",
+    "last_verified_release": "CURRENT-2.15.0",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
