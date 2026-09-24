@@ -1,12 +1,12 @@
 /* 群陸旅誌：正式發布完整性橋接 CURRENT-2.12.0
- * RELEASE-INTEGRITY-2.27
+ * RELEASE-INTEGRITY-2.28
  * 將靜態資料完整性與先前在 runtime 載入前建立的配方稽核正式接回五回合自檢。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.12.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.0";
-const REV="RELEASE-INTEGRITY-2.27";
+const REV="RELEASE-INTEGRITY-2.28";
 const STATIC_COLLECTIONS=["items","monsters","locations","quest_templates","world_organizations","companion_species","party_member_templates","lore_records","faith_entities"];
 function pushResult(issues,prefix,result){
   if(!result||result.pass!==false)return;
@@ -71,6 +71,8 @@ function audit(){
   else issues.push("夥伴物種簽章:稽核runtime缺失");
   if(typeof globalThis.runAdventurePartyTeammateDepthAudit==="function")pushResult(issues,"冒險團隊友深化:",globalThis.runAdventurePartyTeammateDepthAudit());
   else issues.push("冒險團隊友深化:稽核runtime缺失");
+  if(typeof globalThis.runFrontBackFormationAudit==="function")pushResult(issues,"前後排隊形:",globalThis.runFrontBackFormationAudit());
+  else issues.push("前後排隊形:稽核runtime缺失");
   if(DB.team_carry_system?.version!=="TEAM-CARRY-1.0"||typeof globalThis.QUNLU_TEAM_CARRY?.total!=="function")issues.push("同行負重:TEAM-CARRY-1.0缺失");
   else{const carry=globalThis.QUNLU_TEAM_CARRY.total();if(!Number.isFinite(Number(carry?.total)))issues.push("同行負重:總負重加成異常")}
   if(typeof globalThis.runTradeVenueDataAudit==="function")pushResult(issues,"交易場靜態資料:",globalThis.runTradeVenueDataAudit());
