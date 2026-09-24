@@ -1727,3 +1727,21 @@ details.card>summary{cursor:pointer;padding:6px 0}
 @media(max-width:520px){
   .inventory-filter-buttons button.inventory-chip{min-height:43px;padding:8px 12px;font-size:13px}
 }
+
+
+/* ===== CURRENT-2.14.9 FRONT/BACK FORMATION ===== */
+.battle-formation-v2>.battle-allies{display:flex!important;flex-direction:column;gap:9px}
+.battle-formation-v2 .formation-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;min-width:0;padding:8px;border:1px solid #4f604c;border-radius:10px;background:rgba(16,28,23,.68)}
+.battle-formation-v2 .formation-row.formation-front{border-color:#988254}
+.battle-formation-v2 .formation-row-title{grid-column:1/-1;font-size:13px;font-weight:800;color:#f4dc9d;margin-bottom:2px}
+.battle-formation-v2 .formation-row>.battleunit{width:100%;min-width:0;grid-column:auto!important;order:initial!important;margin:0}
+.battle-formation-v2 .formation-slot-label{display:block;font-size:11px;font-weight:700;color:#f4da99;margin-bottom:3px}
+.battle-enemy-grid>.battle-enemy-card.formation-rear-protected{border-style:dashed}
+.battle-enemy-grid>.battle-enemy-card .formation-slot-label{font-size:10px;color:#e8cd96}
+.formation-enemy-label{margin-bottom:6px;color:#e8cd96}
+.formation-editor-group{border:1px solid #54634f;border-radius:10px;padding:9px;margin:10px 0}
+.formation-editor-group h3{font-size:15px;color:#f1d391;margin:0 0 9px}
+.formation-editor-member{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:7px}
+.formation-editor-member button{min-height:40px;margin-left:auto}
+.formation-editor-entry{margin:0 0 10px}
+@media(max-width:620px){.battle-formation-v2 .formation-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:6px}.battle-formation-v2 .formation-row>.battleunit{font-size:12px}}
