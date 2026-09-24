@@ -20,6 +20,10 @@ function audit(){
     const r=globalThis.runRecipeEconomyBalanceAudit();
     if(r?.pass===false)for(const x of r.issues||[])issues.push(typeof x==="string"?x:JSON.stringify(x));
   }
+  if(typeof globalThis.runHealingPotionDifferentiationAudit==="function"){
+    const h=globalThis.runHealingPotionDifferentiationAudit();
+    if(h?.pass===false)for(const x of h.issues||[])issues.push("藥劑差異性:"+String(x));
+  }else issues.push("藥劑差異性稽核runtime缺失");
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)]}
 }
 

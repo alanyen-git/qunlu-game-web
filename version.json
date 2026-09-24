@@ -1,6 +1,6 @@
 {
-  "version": "CURRENT-2.14.5",
-  "previous_version": "CURRENT-2.14.4",
+  "version": "CURRENT-2.14.6",
+  "previous_version": "CURRENT-2.14.5",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
@@ -823,8 +823,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.14.5：80 個正式 src 程序已與入口、Service Worker、PROGRAM-REGISTRY 完整同步；背包分類篩選僅影響UI。",
-    "last_verified_release": "CURRENT-2.14.5",
+    "note": "CURRENT-2.14.6：同階即效與持續回復藥劑區分用途，配方差異性與戰鬥效果加入發布稽核；80個src程序不變。",
+    "last_verified_release": "CURRENT-2.14.6",
     "notes": [
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
       "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",

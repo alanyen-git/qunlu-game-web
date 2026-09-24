@@ -4195,6 +4195,7 @@ function craftEffectText(d){
    add(n<0?`降低口渴${Math.abs(n)}`:`增加口渴${n}`)
  }
  if(use.hp)add(`恢復HP ${use.hp}`);
+ if(use.regeneration)add("持續恢復：戰鬥中每回合+"+use.regeneration.combat_hp_per_round+"HP，共"+use.regeneration.combat_rounds+"回合；非戰鬥每小時+"+use.regeneration.field_hp_per_hour+"HP，共"+use.regeneration.field_hours+"小時（不疊加）");
  if(use.hp_percent)add(`HP恢復至${use.hp_percent}%`);
  if(use.stamina)add(`恢復SP ${use.stamina}`);
  if(use.mana)add(`恢復MP ${use.mana}`);
@@ -4302,7 +4303,7 @@ function itemStatsText(d,compareTo=null){
    if(d.feature)a.push(`特色：${d.feature}`);
    if(d.set_id){const set=(DB.equipment_sets||[]).find(x=>x.id===d.set_id);if(set)a.push(`套裝：${set.name}（${set.pieces.length}件）`)}
  }
- if(d.use?.hp)a.push(`HP+${d.use.hp}`);if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
+ if(d.use?.hp)a.push(`HP+${d.use.hp}`);if(d.use?.regeneration)a.push("持續恢復：戰鬥每回合+"+d.use.regeneration.combat_hp_per_round+"HP ×"+d.use.regeneration.combat_rounds+"回合／非戰鬥每小時+"+d.use.regeneration.field_hp_per_hour+"HP ×"+d.use.regeneration.field_hours+"小時");if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
  if(d.use?.mana)a.push(`MP+${d.use.mana}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
  if(d.use?.stamina)a.push(`體力+${d.use.stamina}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
  if(d.revive)a.push(`倒下自動復甦${d.revive.hp_percent}%`);
@@ -4589,6 +4590,14 @@ function tryAutoRevive(){
 function tickBattleEffects(){
  if(!G.battle)return;
  if(G.battle.weaponOil){G.battle.weaponOil.rounds--;if(G.battle.weaponOil.rounds<=0){battleLog("武器塗油效果消失。");G.battle.weaponOil=null}}
+ const r=G.battle.playerRegeneration;
+ if(r&&G.character.hp>0&&r.rounds>0){
+   const before=G.character.hp;
+   G.character.hp=clamp(before+r.hp_per_round,0,G.character.maxHp);
+   r.rounds--;
+   if(G.character.hp>before)battleLog(r.source+"持續恢復 "+Math.round(G.character.hp-before)+"HP（剩餘"+r.rounds+"回合）。");
+   if(r.rounds<=0)G.battle.playerRegeneration=null;
+ }
 }
 function enemyHasStatus(id){return (G.battle?.enemyStatuses||[]).some(s=>s.id===id)}
 function enemyStatusAccuracyPenalty(){return (enemyHasStatus("blind")?4:0)+(enemyHasStatus("confusion")?2:0)+(enemyHasStatus("slow")?1:0)}
@@ -4628,7 +4637,7 @@ function enemyBattleTurn(){
  if(!G.battle?.active)return;
  const b=G.battle,e=b.enemy,cs=combatStats();
  if(b.awaitingCompanion){b.awaitingCompanion=false;resolvePartyTurns();if(e.hp<=0){finishBattle("勝利");return}resolveCompanionTurn();if(e.hp<=0){finishBattle("勝利");return}}
- if(processEnemyStatuses()){battleLog(`${e.name}因狀態影響無法正常行動。`);b.round++;persist();renderAll();return}
+ if(processEnemyStatuses()){battleLog(`${e.name}因狀態影響無法正常行動。`);tickBattleEffects();b.round++;persist();renderAll();return}
  if(e.hp<=0){finishBattle("勝利");return}
  const r=rollD20(),targets=[{type:"player",weight:combatStats().threat||100},...partyThreatTargets()];
  if(b.companion&&!b.companion.knockedOut&&b.companion.hp>0)targets.push({type:"companion",unit:b.companion,weight:b.companion.guarding?180:70});
@@ -5638,7 +5647,17 @@ function applyConsumable(d){
    if(d.use.stamina)c.stamina=clamp(c.stamina+d.use.stamina,0,c.maxStamina);
    if(d.use.mana)c.mana=clamp(c.mana+d.use.mana,0,c.maxMana);
    if(d.use.mana_percent)c.mana=clamp(c.maxMana*d.use.mana_percent/100,0,c.maxMana);
-   if(d.use.conditions)removeStatuses(d.use.conditions)
+   if(d.use.conditions)removeStatuses(d.use.conditions);
+   if(d.use.regeneration){
+     const r=d.use.regeneration;
+     if(G.battle?.active){
+       const rounds=Math.max(0,Math.floor(Number(r.combat_rounds)||0));
+       if(rounds)G.battle.playerRegeneration={source:d.name,hp_per_round:Math.max(0,Number(r.combat_hp_per_round)||0),rounds};
+     }else{
+       c.buffs=(c.buffs||[]).filter(b=>b.regen_source!=="healing_potion");
+       c.buffs.push({name:d.name,regen_source:"healing_potion",hp_regen:Math.max(0,Number(r.field_hp_per_hour)||0),hours:Math.max(0,Number(r.field_hours)||0)});
+     }
+   }
  }
  if(d.buff)c.buffs.push({...d.buff,hours:d.buff.hours||2,name:d.name});
  return {ok:true,msg:""}
