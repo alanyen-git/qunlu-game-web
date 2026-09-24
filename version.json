@@ -826,8 +826,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.14.8：82個正式src模組；新增27種戰術職能，保持93職業ID、存檔及離線更新。",
-    "last_verified_release": "CURRENT-2.14.8",
+    "note": "CURRENT-2.14.9：82個正式src模組，黑市定價深化與舊存檔價款遷移，保持既有ID、存檔及離線更新。",
+    "last_verified_release": "CURRENT-2.14.9",
     "notes": [
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
       "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",
@@ -887,7 +887,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.14.8",
+    "last_verified_release": "CURRENT-2.14.9",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -895,7 +895,7 @@
     "audited_src_programs": 82,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v161",
+    "pwa_cache": "v162",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
