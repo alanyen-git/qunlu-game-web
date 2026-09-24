@@ -75,7 +75,7 @@ assert.equal(G.character.skills[0].id,skills.B.id);
 assert.equal(G.character.skills[0].skillXp,95,"original XP retained");
 const c=byGrade("C");G.character.inventory.push({id:c.itemId,qty:1});
 vm.runInContext("useItem(0)",ctx);
-assert.equal(G.character.skills[1].base_power_percent,Math.round(skills.C.base_power_percent*.6));
+assert.equal(G.character.skills[1].base_power_percent,Math.round(skills.C.base_power_percent*.6*100)/100,"C fragment preserves exact 60% potency");
 const e=byGrade("E");G.character.inventory.push({id:e.itemId,qty:1});
 vm.runInContext("useItem(0)",ctx);
 assert.equal(G.character.skills[2].base_power_percent,skills.E.base_power_percent);
