@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.14.8",
-  "previous_version": "CURRENT-2.14.7",
+  "version": "CURRENT-2.14.9",
+  "previous_version": "CURRENT-2.14.8",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "六格戰場職業深化：93個正規戰鬥職業導入27種戰術定位、職業招牌機制、E～B分階範圍技能與隊伍配合，保留既有角色與技能XP。",
+  "summary": "戰鬥雙方導入前後排、近戰遮擋、遠程／魔法／特殊技能跨排、前衛守衛援護及冒險團持久化隊形。",
   "changelog": [
+    "FRONT-BACK-FORMATION-1.0：敵我雙方各分前後排；敵方六格上列前排、下列後排；近戰在敵方前衛存活時不能直擊後排，遠程、魔法及特定突襲技能可繞過；範圍、亂數技能與AI同樣遵守遮擋。前衛守衛／援護可攔截後排單體遠距攻擊；盾牆依實際隊形施放。冒險團新增調整隊形視窗，以隊友UID儲存站位、不消耗回合、不重置舊存檔。PWA v162、83個正式src模組與66項稽核。",
     "COMBAT-ROLE-FORMATION-1.0：93職業對應27種前排／後排／彈性戰術定位，E～B招牌技能依職能調整單體／行／列／十字／全體／亂數範圍並作每目標威力折算；守護護盾、狂戰處決、遊俠陷阱、刺客先手、召喚追擊、元素連鎖、治療群療等接入實際技能機制。建角／角色卡新增戰術職能與隊友搭配，已學技能升級時同步範圍與機制，保留既有存檔及技能熟練。新增27定位回歸測試與PWA v161。",
     "INVENTORY-CATEGORY-FILTER-1.0：背包分類數量標籤改為可點擊篩選按鍵，包含全部、裝備、藥劑／消耗品、食物、食材、補給、工具、素材、書籍／卷軸／符文及其他現有分類。每次僅列所選分類，顯示作用中分類及件數；排序、負重、原始物品索引及使用／裝備／丟棄功能維持原狀，切換分類不消耗回合、不寫入存檔。",
     "CLASS-TIER-SKILL-EXPANSION-1.0：依現行93個正規職業的戰鬥定位與元素系別，E～B每階新增攻擊與戰術各一式；清理多職重複的F基礎共通技能至E，保留各職業至少兩項F基礎技能與原已學存檔；F核心技能Lv6且職業E以上時可在公會精修為E級，保留熟練及XP；B仍循既有前置與職業考核；新增全職業階級回歸測試。",
@@ -458,7 +459,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v161",
+  "pwa_cache_revision": "v162",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -534,7 +535,7 @@
     "aura_compatible": true,
     "save_compatible": true
   },
-  "release_integrity_revision": "RELEASE-INTEGRITY-2.27",
+  "release_integrity_revision": "RELEASE-INTEGRITY-2.28",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
@@ -801,10 +802,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.30",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.31",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 82,
+    "active_src_programs": 83,
     "groups": [
       "core",
       "data",
@@ -824,9 +825,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.14.8：82個正式src模組；新增27種戰術職能，保持93職業ID、存檔及離線更新。",
-    "last_verified_release": "CURRENT-2.14.8",
+    "note": "CURRENT-2.14.9：83個正式src模組；導入前後排AI、援護與UID隊形存檔。",
+    "last_verified_release": "CURRENT-2.14.9",
     "notes": [
+      "CURRENT-2.14.9：新增src/front-back-formation-v1.js並同步入口、PWA、服務工作者、程序清單、前後排回歸及發布稽核。",
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
       "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",
       "CURRENT-2.09.0：新增src/trade-venues-data-v1.js與src/trade-venues-runtime-v1.js；拍賣行／黑市接入現行引擎，PWA v122；正式程序增為72個。",
@@ -857,12 +859,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 82,
-    "programs_loaded": 82,
+    "programs_total": 83,
+    "programs_loaded": 83,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 65,
-    "full_audits_passed": 65,
+    "full_audits_executed": 66,
+    "full_audits_passed": 66,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -885,15 +887,15 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.14.8",
-    "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
+    "last_verified_release": "CURRENT-2.14.9",
+    "delivery_note": "前後排版新增主動回歸測試與自檢；GitHub Pages發布仍依目前Pages來源設定，分支模式下無法以Actions測試作前置阻擋。"
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 82,
+    "audited_src_programs": 83,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v161",
+    "pwa_cache": "v162",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1874,5 +1876,19 @@
     "same_tier_same_material_same_effect_issues": 0,
     "save_compatible": true
   },
-  "combat_role_formation_revision": "COMBAT-ROLE-FORMATION-1.0"
+  "combat_role_formation_revision": "COMBAT-ROLE-FORMATION-1.0",
+  "front_back_formation_revision": "FRONT-BACK-FORMATION-1.0",
+  "front_back_formation": {
+    "version": "FRONT-BACK-FORMATION-1.0",
+    "enemy_front": 3,
+    "enemy_back": 3,
+    "ally_front_max": 3,
+    "ally_back_max": 3,
+    "weapon_reach": true,
+    "skill_target_geometry": true,
+    "ally_guard_interception": true,
+    "party_formation_editor": true,
+    "save_schema_changed": false,
+    "save_compatible": true
+  }
 }
