@@ -7,12 +7,17 @@ const REPEAT=/(晨曦|暮影|灰燼|霜痕|雷紋|潮痕|裂風|月泉|赤岩|�
 const FAMILIES=["劍","斧","鎚","法杖"];
 function isShield(d){return !!d&&(d.catalog_subcategory==="盾牌"||d.type==="盾牌"||((d.type==="主武器"||d.type==="副武器"||d.catalog_group==="防具")&&/盾(?:牌)?$/.test(String(d.name||""))))}
 function family(d){
- const s=String(d.name||"")+" "+String(d.catalog_subcategory||"");
- if(/武士刀/.test(s))return null;
- if(/法杖|魔杖|權杖|祈禱杖|秘杖|法器/.test(s))return "法杖";
- if(/斧/.test(s))return "斧";
- if(/[錘鎚]/.test(s))return "鎚";
- if(/劍/.test(s))return "劍";
+ const name=String(d.name||""),sub=String(d.catalog_subcategory||"");
+ if(/武士刀/.test(name+" "+sub))return null;
+ // 優先辨認名稱，避免共用的「斧錘」次分類誤將戰鎚辨識成戰斧。
+ if(/法杖|魔杖|權杖|祈禱杖|秘杖|法器/.test(name))return "法杖";
+ if(/[錘鎚]/.test(name))return "鎚";
+ if(/斧/.test(name))return "斧";
+ if(/劍/.test(name))return "劍";
+ if(/法杖|魔杖|權杖/.test(sub))return "法杖";
+ if(/[錘鎚]/.test(sub)&&!/斧/.test(sub))return "鎚";
+ if(/斧/.test(sub)&&!/[錘鎚]/.test(sub))return "斧";
+ if(/劍/.test(sub))return "劍";
  const g=String(d.weapon_profile?.group||"");
  if(g==="法杖")return "法杖";
  if(g==="長劍"||g==="劍")return "劍";

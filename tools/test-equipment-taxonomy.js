@@ -2,7 +2,7 @@
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
 const specs=[["單手劍","短劍",1],["雙手劍","雙手劍",2],["單手斧","戰斧",1],["雙手斧","巨斧",2],["單手鎚","戰錘",1],["雙手鎚","戰鎚",2],["單手法杖","法杖",1],["雙手法杖","祈禱杖",2]];
-const rows=specs.map(([kind,word,h],i)=>({id:"W"+i,name:"測試"+word,type:"主武器",catalog_group:"武器",weapon_profile:{hands:h,group:kind.includes("劍")?"長劍":kind.includes("法杖")?"法杖":"斧錘"}}));
+const rows=specs.map(([kind,word,h],i)=>({id:"W"+i,name:"測試"+word,type:"主武器",catalog_group:"武器",catalog_subcategory:(kind.includes("斧")||kind.includes("鎚"))?"斧錘":undefined,weapon_profile:{hands:h,group:kind.includes("劍")?"長劍":kind.includes("法杖")?"法杖":"斧錘"}}));
 rows.push({id:"S",name:"圓盾",type:"副武器",catalog_subcategory:"盾牌",combat:{attack:8}});
 rows.push({id:"K",name:"遠雷武士刀",type:"主武器",catalog_group:"武器",weapon_profile:{hands:2,group:"長劍"}});
 rows.push({id:"M",name:"秘銀礦",type:"礦石",material_group:"礦石與金屬素材"});
