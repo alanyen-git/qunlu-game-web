@@ -1,5 +1,5 @@
 /* 群陸旅誌：生命回復藥劑配方完整性 CURRENT-1.72.1
- * ALCHEMY-HEALING-RECIPE-1.2
+ * ALCHEMY-HEALING-RECIPE-1.3
  * 修正低階生命回復品被通用魔物素材模板誤綁黏獸凝膠／核心。
  */
 (()=>{
@@ -7,31 +7,36 @@
 if(typeof DB!=="object"||!DB)return;
 
 const RELEASE="CURRENT-1.69.4";
-const REV="ALCHEMY-HEALING-RECIPE-1.2";
+const REV="ALCHEMY-HEALING-RECIPE-1.3";
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const byId=id=>(DB.items||[]).find(x=>x?.id===id)||null;
 const clone=x=>JSON.parse(JSON.stringify(x));
 const uniq=a=>[...new Set(Array.isArray(a)?a:[])];
 
 const FORMULAS={
-  "P-HEAL-F":[["I-HERB",1],["I-MINT",1]],
-  "P-HEAL-E":[["I-HERB",2],["MAT-HERB-05",1]],
-  "P-HEAL-D":[["I-HERB",2],["MAT-HERB-03",1],["MAT-HERB-05",1]],
+  "P-HEAL-F":[["I-HERB",2],["I-MINT",1]],
+  "P-HEAL-E":[["I-HERB",1],["MAT-HERB-05",1],["I-MINT",1]],
+  "P-HEAL-D":[["I-HERB",2],["MAT-HERB-03",1],["MAT-HERB-06",1]],
   "P7-01":[["I-HERB",1],["I-MINT",1]],
   "P7-05":[["I-HERB",1],["MAT-HERB-06",1],["MAT-HERB-18",1]],
-  "P7-11":[["I-HERB",2],["MAT-HERB-03",1],["MAT-HERB-05",1]],
+  "P7-11":[["I-HERB",2],["MAT-HERB-03",1],["MAT-HERB-18",1]],
   "PC-LIFE-01":[["I-HERB",1],["I-MINT",1]],
   "PC-LIFE-02":[["I-HERB",2],["MAT-HERB-05",1]],
   "PC-LIFE-03":[["I-HERB",2],["MAT-HERB-03",1],["MAT-HERB-05",1]],
   "PC-LIFE-06":[["MAT-HERB-06",2]],
   "PC-LIFE-07":[["MAT-HERB-02",1],["MAT-HERB-05",1],["I-MINT",1]],
   "PC-LIFE-08":[["MAT-HERB-03",1],["MAT-HERB-05",1],["MAT-HERB-02",1]],
-  "PC-LIFE-10":[["I-HERB",1],["I-MINT",1]],
+  "PC-LIFE-10":[["I-HERB",1],["I-MINT",1],["MAT-CRAFT-19",1]],
   "PC-LIFE-11":[["I-BANDAGE",1],["I-HERB",1]],
-  "PC-LIFE-12":[["I-HERB",2],["MAT-HERB-05",1]]
+  "PC-LIFE-12":[["I-HERB",2],["MAT-HERB-05",1],["MAT-CRAFT-19",1]]
 };
 
 const DESCRIPTIONS={
+  "P-HEAL-F":"使用更多止血草製作的加量初階恢復藥劑，立即恢復10HP。",
+  "P-HEAL-E":"成本較低的常規恢復藥劑，立即恢復24HP；中型生命藥水則適合急救。",
+  "P-HEAL-D":"星辰花與血棘草調製的長效療癒藥劑：立即30HP，戰鬥後續3回合各8HP。",
+  "P7-01":"微量混合藥劑，立即恢復6HP與4SP。",
+  "P7-11":"以迷迭香補強的上級綜合恢復藥劑，立即恢復42HP與18SP。",
   "P7-05":"以血棘草與迷迭香穩定療效；先恢復12HP，戰鬥中再連續3回合各恢復8HP，非戰鬥則持續3小時每小時恢復8HP。",
   "PC-LIFE-01":"以河岸止血草與林薄荷調製的基礎生命藥水；不需要魔物素材。",
   "PC-LIFE-02":"以濃縮止血草與晨露花調製的即效生命藥水；一次恢復32HP，適合緊急治療。",
@@ -39,9 +44,9 @@ const DESCRIPTIONS={
   "PC-LIFE-06":"經挑選、乾燥與調製的高級藥草，可直接用於簡易治療。",
   "PC-LIFE-07":"以花性草藥與林薄荷調成的治癒花蜜。",
   "PC-LIFE-08":"以星辰花、晨露花與太陽草調成的高濃度花蜜。",
-  "PC-LIFE-10":"以止血草與林薄荷研成的外用療傷膏。",
+  "PC-LIFE-10":"以止血草、林薄荷及油脂研成的外用療傷膏；恢復7HP並解除流血。",
   "PC-LIFE-11":"以乾淨繃帶包覆止血草製成的止血繃帶。",
-  "PC-LIFE-12":"以濃縮止血草與晨露花製成的治療軟膏。"
+  "PC-LIFE-12":"以止血草、晨露花與油脂製成的治療軟膏；恢復16HP並解除流血。"
 };
 
 function normalize(){
@@ -57,12 +62,18 @@ function normalize(){
     if(DESCRIPTIONS[id])d.desc=DESCRIPTIONS[id];
     changed.push(id)
   }
+  const commonE=byId("P-HEAL-E");if(commonE)commonE.value=32;
+  const sustainedD=byId("P-HEAL-D");
+  if(sustainedD){sustainedD.use={...(sustainedD.use||{}),hp:30,regeneration:{combat_hp_per_round:8,combat_rounds:3,field_hp_per_hour:8,field_hours:3}};sustainedD.recipe_logic="sustained_starflower_healing"}
+  const hybridD=byId("P7-11");if(hybridD){hybridD.use={...(hybridD.use||{}),hp:42,stamina:18};hybridD.recipe_logic="hybrid_healing_stamina"}
+  for(const id of ["PC-LIFE-10","PC-LIFE-12"]){const d=byId(id);if(d)d.use={...(d.use||{}),conditions:["bleed"]}}
   const sustained=byId("P7-05");
   if(sustained){
     sustained.use={...(sustained.use||{}),hp:12,regeneration:{combat_hp_per_round:8,combat_rounds:3,field_hp_per_hour:8,field_hours:3}};
     sustained.recipe_logic="sustained_bloodthorn_healing";
     sustained.recipe_revision=REV;
   }
+  const f=byId("P7-01");if(f){f.use={...(f.use||{}),hp:6,stamina:4};f.recipe_logic="micro_hybrid"}
   const instant=byId("PC-LIFE-02");
   if(instant){instant.use={...(instant.use||{}),hp:32};instant.recipe_logic="instant_life_healing"}
   return changed

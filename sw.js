@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v159";
+const CACHE_NAME=CACHE_PREFIX+"v160";
 const CORE=[
   "./",
   "./index.html",
@@ -81,6 +81,7 @@ const CORE=[
   "./src/adventure-party-teammate-depth-v1.js",
   "./src/rpg-reference-synthesis-v1.js",
   "./src/quest-regional-ecology-v1.js",
+  "./src/profession-recipe-differentiation-v1.js",
   "./src/recipe-finalization-v1.js",
   "./src/release-integrity-v1.js",
   "./src/release-version-sync-v1.js",

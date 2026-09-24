@@ -1,6 +1,6 @@
 {
-  "version": "CURRENT-2.14.6",
-  "previous_version": "CURRENT-2.14.5",
+  "version": "CURRENT-2.14.7",
+  "previous_version": "CURRENT-2.14.6",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
@@ -457,7 +457,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v159",
+  "pwa_cache_revision": "v160",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -803,7 +803,7 @@
   "program_registry_revision": "PROGRAM-REGISTRY-1.29",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 80,
+    "active_src_programs": 81,
     "groups": [
       "core",
       "data",
@@ -823,8 +823,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.14.6：同階即效與持續回復藥劑區分用途，配方差異性與戰鬥效果加入發布稽核；80個src程序不變。",
-    "last_verified_release": "CURRENT-2.14.6",
+    "note": "CURRENT-2.14.7：檢查595項專業配方與59項料理；鍛造／裁縫／藥劑／附魔／料理完成54筆定向差異化修正。新增跨職配方重複及效益倒掛稽核，81個正式src程序與PWA一致，保留存檔。",
+    "last_verified_release": "CURRENT-2.14.7",
     "notes": [
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
       "CURRENT-2.12.4：新增src/combat-class-progression-v1.js，修復封印高階職業升階停滯；加入tools/test-combat-class-progression.js正式回歸測試。",
@@ -856,12 +856,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 80,
-    "programs_loaded": 80,
+    "programs_total": 81,
+    "programs_loaded": 81,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 63,
-    "full_audits_passed": 63,
+    "full_audits_executed": 64,
+    "full_audits_passed": 64,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -884,15 +884,15 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.14.6",
+    "last_verified_release": "CURRENT-2.14.7",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 80,
+    "audited_src_programs": 81,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v159",
+    "pwa_cache": "v160",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1857,5 +1857,20 @@
     "save_compatible": true,
     "regression_test": "tools/test-class-tier-skill-expansion.js"
   },
-  "inventory_category_filter_revision": "INVENTORY-CATEGORY-FILTER-1.0"
+  "inventory_category_filter_revision": "INVENTORY-CATEGORY-FILTER-1.0",
+  "profession_recipe_differentiation_revision": "PROFESSION-RECIPE-DIFFERENTIATION-1.0",
+  "profession_recipe_differentiation_audit": {
+    "professional_recipes": 595,
+    "cooking_recipes": 59,
+    "corrected_targets": 54,
+    "professions": [
+      "鍛造",
+      "裁縫",
+      "藥劑",
+      "附魔",
+      "料理"
+    ],
+    "same_tier_same_material_same_effect_issues": 0,
+    "save_compatible": true
+  }
 }

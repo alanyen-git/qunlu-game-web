@@ -1,12 +1,12 @@
 /* 群陸旅誌：配方最終載入鎖定 CURRENT-1.71.8
- * RECIPE-FINALIZATION-1.0
+ * RECIPE-FINALIZATION-1.1
  * 所有內容模組載入後，再次正規化配方素材量、種類與價值比，防止後載入模組覆寫既有平衡。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const RELEASE="CURRENT-1.71.8";
-const REV="RECIPE-FINALIZATION-1.0";
+const RELEASE=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.14.7";
+const REV="RECIPE-FINALIZATION-1.1";
 
 function audit(){
   const issues=[];
@@ -24,6 +24,10 @@ function audit(){
     const h=globalThis.runHealingPotionDifferentiationAudit();
     if(h?.pass===false)for(const x of h.issues||[])issues.push("藥劑差異性:"+String(x));
   }else issues.push("藥劑差異性稽核runtime缺失");
+  if(typeof globalThis.runProfessionRecipeDifferentiationAudit==="function"){
+    const d=globalThis.runProfessionRecipeDifferentiationAudit();
+    if(d?.pass===false)for(const x of d.issues||[])issues.push("副職配方差異性:"+String(x));
+  }else issues.push("副職配方差異性稽核runtime缺失");
   return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)]}
 }
 
@@ -40,6 +44,7 @@ DB.recipe_finalization_system={
   rule:"所有內容模組完成後依序執行裝備結構配方與配方經濟正規化；最終稽核未通過時由發布完整性與部署流程阻擋。",
   equipment_normalization,
   normalization,
+  differentiation:DB.profession_recipe_differentiation_system?.initial_audit||null,
   initial_audit:result,
   save_compatible:true
 };
