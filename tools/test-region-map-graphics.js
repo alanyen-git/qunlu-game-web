@@ -5,7 +5,7 @@ const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8
 const moduleSource=fs.readFileSync("src/region-map-graphics-v1.js","utf8");
 const runtimeSource=fs.readFileSync("src/runtime.js","utf8");
 const css=fs.readFileSync("assets/css/game.css","utf8");
-assert.equal(version.map_graphics_revision,"REGION-MAP-GRAPHICS-1.1");
+assert.equal(version.map_graphics_revision,"REGION-MAP-GRAPHICS-1.3");
 assert.ok(html.includes('src/region-map-graphics-v1.js?v='+version.version));
 assert.ok(sw.includes('"./src/region-map-graphics-v1.js"'));
 assert.ok(css.includes(".regionmap-scroll")&&css.includes(".regionmap-toolbar")&&css.includes(".regionmap-category[hidden]"));
