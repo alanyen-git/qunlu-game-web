@@ -840,7 +840,7 @@ function advance(h){
  G.character.toxicity=clamp((G.character.toxicity||0)-h*4,0,100);
  decayFood();applySurvival()
 }
-function endTurn(h){advance(h);updateQuestDeadlines();runWorldDynamics();if(G.character.alive&&G.turn>0&&G.turn%AUDIT_INTERVAL_TURNS===0)runAudit();persist();renderAll()}
+function endTurn(travelHours){advance(h);updateQuestDeadlines();runWorldDynamics();if(G.character.alive&&G.turn>0&&G.turn%AUDIT_INTERVAL_TURNS===0)runAudit();persist();renderAll()}
 
 function decayFood(){const now=totalHours();G.character.inventory.forEach(x=>{const d=item(x.id);if(d?.fresh_hours)x.freshness=clamp(Math.round(100-(now-(x.acquiredHour??now))/d.fresh_hours*100),0,100)})}
 function applySurvival(){
@@ -5774,10 +5774,18 @@ function openMap(){
  if(ctx.realm)return openRealmRegionMap(ctx.realm.id);
  return openWorldMapHierarchy()
 }
-function travel(id,h){
- const from=loc(G.character.locationId);if(!from.links.some(x=>x.to===id))return;
+function travel(id,h,mapRoute){
+ const from=loc(G.character.locationId),to=loc(id);
+ if(!from||!to)return;
+ let route=[from.id,id],travelHours=h;
+ if(mapRoute?.mapRoute===true){
+  route=Array.isArray(mapRoute.path)?mapRoute.path:[];
+  if(to.kind!=="town"||route.length<2||route[0]!==from.id||route.at(-1)!==id)return;
+  for(let i=0;i<route.length-1;i++)if(!loc(route[i])?.links?.some(edge=>edge.to===route[i+1]))return;
+  travelHours=route.slice(0,-1).reduce((sum,at,i)=>sum+Number(loc(at).links.find(edge=>edge.to===route[i+1])?.hours||0),0);
+ }else if(!from.links.some(x=>x.to===id))return;
  closeModal();if(!beginTurn("旅行"))return;
- const to=loc(id),routeRisk=["wild","dungeon"].includes(from.kind)||["wild","dungeon"].includes(to.kind);
+ const routeRisk=route.some(locationId=>["wild","dungeon"].includes(loc(locationId)?.kind));
  G.character.locationId=id;G.character.currentFacility=null;discoverScopeLore("location",id,"旅行");if(to.world_region_id)discoverScopeLore("region",to.world_region_id,"旅行");if(to.political_entity_id)discoverScopeLore("polity",to.political_entity_id,"旅行");
  log("旅行",`抵達${to.name}［${to.tier}］；安全度${locationSafety(to)}/100（${safetyLabel(to)}）。`,"ok");
  let battled=false;

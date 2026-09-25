@@ -1,11 +1,11 @@
-/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.12.9
- * REGION-MAP-GRAPHICS-1.2
+/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.15.2
+ * REGION-MAP-GRAPHICS-1.3
  * 王國使用既有正史疆域座標；未建立地理座標的行省與地方使用實際links路網示意，
  * 不推造城鎮方位、不改旅行權限、不寫入存檔。
  */
 (()=>{
 "use strict";
-const REV="REGION-MAP-GRAPHICS-1.2";
+const REV="REGION-MAP-GRAPHICS-1.3";
 const TIER_COLOR={F:"#79ae79",E:"#9ec47d",D:"#c3b778",C:"#d8a565",B:"#dd8876",A:"#ca83a6",S:"#b68ee5"};
 const D=()=>typeof DB!=="undefined"?DB:null;
 const player=()=>typeof G!=="undefined"?G?.character:null;
@@ -22,6 +22,21 @@ const kind=k=>({town:"城鎮",wild:"野外",dungeon:"地下城"})[k]||"地點";
 const go=(level,id)=>"openRegionMapGraphic('"+level+"','"+safeId(id)+"')";
 const detail=id=>"openMapLocationDetail('"+safeId(id)+"')";
 const linkLabel=h=>Number.isFinite(Number(h))?esc(h)+" 小時":"時間未建檔";
+function shortestRoadRoute(fromId,toId){
+ if(!fromId||!toId)return null;if(fromId===toId)return {path:[fromId],hours:0};
+ const dist=new Map([[fromId,0]]),prev=new Map(),open=new Set([fromId]);
+ while(open.size){let at=null,best=Infinity;for(const id of open){if(dist.get(id)<best){at=id;best=dist.get(id)}}if(at===toId)break;open.delete(at);
+  for(const edge of array(loc(at)?.links)){const next=loc(edge.to),hours=Number(edge.hours);if(!next||!Number.isFinite(hours)||hours<0)continue;const cost=best+hours;if(cost<(dist.get(edge.to)??Infinity)){dist.set(edge.to,cost);prev.set(edge.to,at);open.add(edge.to)}}
+ }
+ if(!dist.has(toId))return null;const path=[toId];while(path[0]!==fromId){const parent=prev.get(path[0]);if(!parent)return null;path.unshift(parent)}return {path,hours:dist.get(toId)}
+}
+function activateRegionMapNode(id){
+ const l=loc(id),c=player();if(!l)return false;
+ if(l.kind==="town"&&c?.locationId!==id){const route=shortestRoadRoute(c?.locationId,id);if(route&&typeof globalThis.travel==="function")return globalThis.travel(id,route.hours,{mapRoute:true,path:route.path})}
+ return typeof globalThis.openMapLocationDetail==="function"?globalThis.openMapLocationDetail(id):false
+}
+globalThis.travelMapRoute=id=>{const l=loc(id),c=player(),route=shortestRoadRoute(c?.locationId,id);if(l?.kind!=="town"||!route||c?.locationId===id)return false;return globalThis.travel(id,route.hours,{mapRoute:true,path:route.path})};
+
 let ZOOM=1,FIT_MODE=true;
 const shell=(svg,note)=>{ZOOM=1;FIT_MODE=true;return '<div class="regionmap-toolbar actions" role="group" aria-label="地圖縮放"><button type="button" onclick="changeRegionMapZoom(-1)" aria-label="縮小地圖">－</button><button type="button" class="regionmap-zoom-level" id="regionmapZoomLevel" onclick="resetRegionMapView()" title="點按還原100%縮放" aria-label="目前縮放比例，點按還原100%">100%</button><button type="button" onclick="changeRegionMapZoom(1)" aria-label="放大地圖">＋</button><button type="button" class="regionmap-fit" onclick="fitRegionMapView()" aria-label="將整張地圖縮放至可完整顯示">完整顯示</button></div><div class="regionmap-scroll" tabindex="0" aria-label="地圖可上下左右捲動；點完整顯示可看完整圖">'+svg+'</div><div class="regionmap-legend small">按「完整顯示」可看到整張圖；點百分比還原100%，放大後可上下左右滑動。<br>'+note+'</div>'};
 const svgStart=(w,h,label,view)=>'<svg class="regionmap-svg" viewBox="'+(view||"0 0 "+w+" "+h)+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><rect x="'+(view?view.split(" ")[0]:"0")+'" y="'+(view?view.split(" ")[1]:"0")+'" width="'+(view?view.split(" ")[2]:w)+'" height="'+(view?view.split(" ")[3]:h)+'" fill="#101b1b"></rect>';
@@ -87,10 +102,9 @@ function setKindFilter(kind){
  }
 }
 function currentAction(l){
- const c=player(),current=loc(c?.locationId);
- if(!current||!l||current.id===l.id)return "";
- const edge=array(current.links).find(x=>x.to===l.id);
- return edge?'<button type="button" onclick="travel(\''+safeId(l.id)+'\','+num(edge.hours,1)+')">前往 '+linkLabel(edge.hours)+'</button>':"";
+ const c=player(),current=loc(c?.locationId);if(!current||!l||current.id===l.id)return "";
+ if(l.kind==="town"){const route=shortestRoadRoute(current.id,l.id);return route?'<button type="button" onclick="travelMapRoute(\''+safeId(l.id)+'\')">前往 '+esc((route.path.length-1)+' 段路・'+route.hours.toFixed(1)+' 小時')+'</button>':""}
+ const edge=array(current.links).find(x=>x.to===l.id);return edge?'<button type="button" onclick="travel(\''+safeId(l.id)+'\','+num(edge.hours,1)+')">前往 '+linkLabel(edge.hours)+'</button>':""
 }
 function rowsToButtons(rows,level){
  return rows.map(x=>'<div class="itemrow"><span><b>'+esc(x.name||x.id)+'</b> <span class="tier">'+esc(x.world_tier||x.tier||"—")+'</span></span><button type="button" onclick="'+go(level,x.id)+'">圖面顯示</button></div>').join("");
@@ -130,6 +144,14 @@ function realmGraphic(realmId){
  if(cap){
   parts.push('<circle cx="'+coord(cap.x)+'" cy="'+coord(cap.y)+'" r="9" fill="#efd68c" stroke="#232d25" stroke-width="3"></circle>');
   parts.push(label(cap.x,cap.y-17,cap.name||p?.capital||"統治中樞",Math.max(11,Math.min(20,(maxX-minX)/22))));
+ }
+ // 行省點落在既有大區幾何中心；沒有對應幾何時只保留清單，不推造位置。
+ const provinceByRegion=new Map(provinces.filter(x=>x.world_region_id).map(x=>[x.world_region_id,x]));
+ for(const g of geoms){
+  const province=provinceByRegion.get(g.region_id),coords=array(g.points).filter(q=>Array.isArray(q)&&Number.isFinite(+q[0])&&Number.isFinite(+q[1]));
+  if(!province||!coords.length)continue;
+  const cx=coords.reduce((a,q)=>a+ +q[0],0)/coords.length,cy=coords.reduce((a,q)=>a+ +q[1],0)/coords.length;
+  parts.push('<g class="regionmap-node" role="link" tabindex="0" onclick="'+go("province",province.id)+'"><title>'+esc(province.name+"｜行省所在大區")+'</title><circle cx="'+coord(cx)+'" cy="'+coord(cy)+'" r="10" fill="#e9bc64" stroke="#273027" stroke-width="3"></circle>'+label(cx,cy-15,province.name,14)+'</g>');
  }
  // 北向固定與世界圖相同；不要把省份清單的順序偽裝成地理位置。
  const nx=maxX-30,ny=minY+20;
@@ -173,7 +195,7 @@ function provinceGraphic(provinceId){
  for(const k of columns)parts.push(label(xBy[k],31,kind(k),24));
  for(const n of nodes){
   const pt=pos.get(n.id),isHere=player()?.locationId===n.id,c=color(n),id=safeId(n.id);
-  parts.push('<g role="link" tabindex="0" class="regionmap-node" data-map-kind="'+esc(n.mapType)+'" onclick="'+detail(id)+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+detail(id)+'}"><title>'+esc(n.name+"｜"+kind(n.mapType)+"｜"+tier(n))+'</title><rect x="'+coord(pt.x-112)+'" y="'+coord(pt.y-26)+'" width="224" height="56" rx="13" fill="'+(isHere?"#314d36":"#20312b")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="'+(isHere?4:2)+'"></rect>'+label(pt.x,pt.y-3,pointName(n.name),16)+label(pt.x,pt.y+17,tier(n)+(isHere?"｜目前位置":""),12)+'</g>');
+  parts.push('<g role="link" tabindex="0" class="regionmap-node" data-map-kind="'+esc(n.mapType)+'" onclick="'+(n.mapType==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+(n.mapType==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'}"><title>'+esc(n.name+"｜"+kind(n.mapType)+"｜"+tier(n))+'</title><rect x="'+coord(pt.x-112)+'" y="'+coord(pt.y-26)+'" width="224" height="56" rx="13" fill="'+(isHere?"#314d36":"#20312b")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="'+(isHere?4:2)+'"></rect>'+label(pt.x,pt.y-3,pointName(n.name),16)+label(pt.x,pt.y+17,tier(n)+(isHere?"｜目前位置":""),12)+'</g>');
  }
  parts.push("</svg>");
  const grouped=columns.map(k=>{
@@ -198,7 +220,7 @@ function localGraphic(locationId){
  }
  for(const {e,x,y} of placed){
   const n=e.target,id=safeId(n.id),c=color(n),isHere=player()?.locationId===id;
-  parts.push('<g class="regionmap-node" role="link" tabindex="0" onclick="'+detail(id)+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+detail(id)+'}"><title>'+esc(n.name+"｜"+kind(n.kind)+"｜"+tier(n))+'</title><rect x="'+coord(x-115)+'" y="'+coord(y-26)+'" width="230" height="55" rx="12" fill="'+(isHere?"#344b37":"#24352e")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="2.5"></rect>'+label(x,y-3,pointName(n.name),16)+label(x,y+17,kind(n.kind)+" "+tier(n),12)+'</g>');
+  parts.push('<g class="regionmap-node" role="link" tabindex="0" onclick="'+(n.kind==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+(n.kind==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'}"><title>'+esc(n.name+"｜"+kind(n.kind)+"｜"+tier(n))+'</title><rect x="'+coord(x-115)+'" y="'+coord(y-26)+'" width="230" height="55" rx="12" fill="'+(isHere?"#344b37":"#24352e")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="2.5"></rect>'+label(x,y-3,pointName(n.name),16)+label(x,y+17,kind(n.kind)+" "+tier(n),12)+'</g>');
  }
  const here=player()?.locationId===l.id;
  parts.push('<circle cx="450" cy="'+coord(center.y)+'" r="56" fill="#355743" stroke="#efd38a" stroke-width="4"></circle>');
