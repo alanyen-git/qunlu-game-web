@@ -756,6 +756,8 @@
     command.appendChild(stats);
     const names=["攻擊","技能","防禦","道具","逃跑"];
     actions.querySelectorAll("button").forEach((button,i)=>{if(names[i])button.textContent=names[i]});
+    const buttons=actions.querySelectorAll("button");
+    if(buttons.length>=4)actions.insertBefore(buttons[3],buttons[2]);
     const formation=document.createElement("button");
     formation.type="button";formation.className="ff4-formation-button";formation.textContent="隊形";
     formation.setAttribute("aria-label","檢視我方目前隊形，不消耗回合");
