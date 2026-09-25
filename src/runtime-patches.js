@@ -727,7 +727,57 @@
   window.selectBattleEnemy=selectRosterEnemy;
   function encounterFormation(first){const loc=(DB.locations||DB.places||[]).find(x=>x.id===G?.character?.locationId)||null,tier=loc?.tier||first.tier||"F",pool=typeof encounterCandidates==="function"?encounterCandidates(loc).filter(m=>rankOf(m)!=="boss"):[],chosen=[first];while(chosen.length<6)chosen.push(pool.length&&typeof weightedPick==="function"?weightedPick(pool.map(m=>[m,Math.max(1,Number(m.encounter_weight||m.weight||1))])):first);const bi=chosen.findIndex(m=>rankOf(m)==="boss");if(bi>1)[chosen[1],chosen[bi]]=[chosen[bi],chosen[1]];const seen={};return chosen.map((m,i)=>{const e=scaledEnemy(m,tier,i);seen[m.id]=(seen[m.id]||0)+1;if(seen[m.id]>1)e.name=m.name+"（"+seen[m.id]+"）";return e})}
   window.startBattle=function(monster,context){const result=battleRosterOriginal.start.apply(this,arguments),b=G?.battle;if(b?.active){b.enemies=encounterFormation(monster);const primary=b.enemies.find(x=>x.id===monster.id&&x.battleRank===rankOf(monster))||b.enemies[0];selectRosterEnemy(primary.battleId,false);b.log.push("敵方陣形：六名敵人列陣；首領固定在第一列中央。");if(typeof renderAll==="function")renderAll()}return result};
-  window.renderBattle=function(){rosterNormalize();const result=battleRosterOriginal.render.apply(this,arguments),b=G?.battle,head=document.querySelector(".battlehead");if(!b?.active||!head||!Array.isArray(b.enemies))return result;head.querySelector(".battle-enemy-row")?.remove();let grid=head.querySelector(".battle-enemy-grid");if(!grid){grid=document.createElement("div");grid.className="battle-enemy-grid";head.insertBefore(grid,head.firstChild)}grid.innerHTML=b.enemies.map(e=>{const p=Math.max(0,Math.min(100,e.hp/Math.max(1,e.maxHp)*100)),alive=e.hp>0,sel=e.battleId===b.enemy?.battleId,rank=e.battleRank==="boss"?"首領":e.battleRank==="elite"?"菁英":"",scale=e.worldScale>1?"｜層級倍率 ×"+e.worldScale.toFixed(2):"";return '<button type="button" class="battleunit enemy battle-enemy-card '+(sel?"selected ":"")+(alive?"":"defeated ")+(e.battleRank||"")+'" onclick="selectBattleEnemy(\''+e.battleId+'\')"><b>'+e.name+' <span class="tier">'+e.tier+'</span></b><div class="small">'+(rank||e.category||"敵人")+'｜'+(alive?"回合目標":"已擊倒")+scale+'</div><div>HP '+Math.max(0,Math.round(e.hp))+'/'+e.maxHp+'</div><div class="hpbar"><i style="width:'+p+'%"></i></div></button>'}).join("");return result};
+
+  /* FF4-inspired original command UI: changes presentation, not combat rules. */
+  function decorateFF4Battle(){
+    const body=document.getElementById("battleBody"),head=body?.querySelector(".battlehead"),b=G?.battle,c=G?.character;
+    if(!body||!head||!b?.active||!c)return;
+    body.classList.add("ff4-battle-ui");
+    const top=document.createElement("div");top.className="ff4-battle-banner";
+    const title=document.createElement("strong");title.textContent="群陸旅誌 · 戰鬥";
+    const round=document.createElement("span");round.textContent="第 "+b.round+" 回合";
+    top.append(title,round);body.insertBefore(top,head);
+    head.setAttribute("aria-label","敵我側視戰場");
+    const grid=head.querySelector(".battle-enemy-grid");
+    if(grid){grid.setAttribute("aria-label","敵方：兩列各三名");grid.querySelectorAll(".battle-enemy-card").forEach((button,i)=>{
+      button.setAttribute("aria-pressed",button.classList.contains("selected")?"true":"false");
+      button.setAttribute("aria-label","敵方第"+(Math.floor(i/3)+1)+"列第"+(i%3+1)+"位："+button.textContent.trim());
+      if(button.classList.contains("defeated"))button.disabled=true;
+    })}
+    const allies=head.querySelector(".battle-allies");if(allies)allies.setAttribute("aria-label","我方隊伍");
+    const actions=body.querySelector(".battleactions"),choice=body.querySelector("#battleChoice");
+    if(!actions||!choice)return;
+    const command=document.createElement("section");command.className="ff4-command-panel";command.setAttribute("aria-label","戰鬥指令與狀態");
+    const stats=document.createElement("div");stats.className="ff4-status-strip";stats.setAttribute("aria-label","主角當前狀態");
+    const safeNum=n=>Math.max(0,Math.round(Number(n)||0));
+    for(const value of [c.name||"主角","HP "+safeNum(c.hp)+"/"+safeNum(c.maxHp),"MP "+safeNum(c.mana)+"/"+safeNum(c.maxMana),"SP "+safeNum(c.stamina)+"/"+safeNum(c.maxStamina)]){
+      const span=document.createElement("span");span.textContent=value;stats.appendChild(span);
+    }
+    command.appendChild(stats);
+    const names=["攻擊","技能","防禦","道具","逃跑"];
+    actions.querySelectorAll("button").forEach((button,i)=>{if(names[i])button.textContent=names[i]});
+    const formation=document.createElement("button");
+    formation.type="button";formation.className="ff4-formation-button";formation.textContent="隊形";
+    formation.setAttribute("aria-label","檢視我方目前隊形，不消耗回合");
+    formation.onclick=()=>{
+      const party=[c,...(b.party||[]),...(b.companion?[b.companion]:[])];
+      const panel=document.createElement("div");panel.className="ff4-formation-info";
+      const label=document.createElement("strong");label.textContent="目前隊形（僅檢視）";
+      panel.appendChild(label);
+      party.forEach((member,i)=>{
+        const row=document.createElement("div");
+        const position=member.battlefield_position||member.position||member.formation_position||"依現有戰術設定";
+        row.textContent=(i+1)+". "+(member.name||"夥伴")+"｜"+position;
+        panel.appendChild(row);
+      });
+      choice.replaceChildren(panel);
+      if(typeof choice.scrollIntoView==="function")choice.scrollIntoView({block:"nearest",behavior:"auto"});
+    };
+    actions.insertBefore(formation,actions.querySelector(".warn")||null);
+    actions.setAttribute("role","group");actions.setAttribute("aria-label","回合制戰鬥指令");
+    command.append(actions,choice);body.appendChild(command);
+  }
+  window.renderBattle=function(){rosterNormalize();const result=battleRosterOriginal.render.apply(this,arguments),b=G?.battle,head=document.querySelector(".battlehead");if(!b?.active||!head||!Array.isArray(b.enemies))return result;head.querySelector(".battle-enemy-row")?.remove();let grid=head.querySelector(".battle-enemy-grid");if(!grid){grid=document.createElement("div");grid.className="battle-enemy-grid";head.insertBefore(grid,head.firstChild)}grid.innerHTML=b.enemies.map(e=>{const p=Math.max(0,Math.min(100,e.hp/Math.max(1,e.maxHp)*100)),alive=e.hp>0,sel=e.battleId===b.enemy?.battleId,rank=e.battleRank==="boss"?"首領":e.battleRank==="elite"?"菁英":"",scale=e.worldScale>1?"｜層級倍率 ×"+e.worldScale.toFixed(2):"";return '<button type="button" class="battleunit enemy battle-enemy-card '+(sel?"selected ":"")+(alive?"":"defeated ")+(e.battleRank||"")+'" onclick="selectBattleEnemy(\''+e.battleId+'\')"><b>'+e.name+' <span class="tier">'+e.tier+'</span></b><div class="small">'+(rank||e.category||"敵人")+'｜'+(alive?"回合目標":"已擊倒")+scale+'</div><div>HP '+Math.max(0,Math.round(e.hp))+'/'+e.maxHp+'</div><div class="hpbar"><i style="width:'+p+'%"></i></div></button>'}).join("");decorateFF4Battle();return result};
   window.finishBattle=function(result){const b=G?.battle;if(result==="勝利"&&b?.active&&Array.isArray(b.enemies)){const living=b.enemies.filter(e=>e.hp>0);if(living.length){selectRosterEnemy(living[0].battleId);return}const current=b.enemy,extras=b.enemies.filter(e=>e.battleId!==current?.battleId),done=battleRosterOriginal.finish.apply(this,arguments);for(const e of extras){emitIntegratedEvent("battle_victory","monster",e.id,"擊退"+e.name+"［"+e.tier+"］",{locationId:G.character.locationId});updateQuestProgress("kill",{name:e.name,id:e.id});rollEnemyLoot(e);awardBattleProgress(e)}return done}return battleRosterOriginal.finish.apply(this,arguments)};
   window.enemyBattleTurn=function(){const b=G?.battle;if(!b?.active||!Array.isArray(b.enemies))return battleRosterOriginal.enemyTurn.apply(this,arguments);rosterNormalize();if(b.awaitingCompanion){b.awaitingCompanion=false;if(typeof resolvePartyTurns==="function")resolvePartyTurns();if(typeof resolveCompanionTurn==="function")resolveCompanionTurn()}const round=b.round,units=b.enemies.filter(e=>e.hp>0);for(const e of units){if(!b.active)break;selectRosterEnemy(e.battleId,false);b.awaitingCompanion=false;battleRosterOriginal.enemyTurn.call(this);if(!G.battle?.active||G.character.hp<=0)break}if(b.active){b.round=round+1;if(typeof persist==="function")persist();if(typeof renderAll==="function")renderAll()}};
   window.init=async function(){await battleRosterOriginal.init.apply(this,arguments);rosterNormalize()};

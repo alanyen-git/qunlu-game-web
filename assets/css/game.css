@@ -1727,3 +1727,67 @@ details.card>summary{cursor:pointer;padding:6px 0}
 @media(max-width:520px){
   .inventory-filter-buttons button.inventory-chip{min-height:43px;padding:8px 12px;font-size:13px}
 }
+
+
+/* FF4-STYLE-UI-1.0: original blue command frames; purely visual, no sprites/ATB */
+#battleBack .battlebox{background:linear-gradient(180deg,#182538,#111d30);border:2px solid #829fcf;border-radius:15px}
+#battleBack #battleTitle{color:#f0e3bb;border-bottom-color:#728db5}
+#battleBack #battleBody.ff4-battle-ui{display:flex;flex-direction:column;gap:8px;min-height:0;height:100%;overflow-y:auto;padding:0 3px 4px;scrollbar-gutter:stable}
+.ff4-battle-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;color:#f0e3bb;background:#29415b;border:1px solid #6b8ab0;border-radius:9px;font-weight:700}
+.ff4-battle-banner span{white-space:nowrap;font-size:12px;color:#d6e1f0}
+#battleBack .battlehead.battle-formation-v2{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;gap:12px;min-height:0}
+#battleBack .battle-formation-v2>.battle-enemy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0;align-content:start}
+#battleBack .battle-enemy-grid>.battle-enemy-card{min-width:0;min-height:100px;padding:7px 5px;background:#344255;border:1px solid #607b9f;border-radius:7px;color:#f0f3fc;text-align:left;overflow-wrap:anywhere}
+#battleBack .battle-enemy-grid>.battle-enemy-card.selected{border:2px solid #f2cc78;box-shadow:0 0 0 1px #f2cc78}
+#battleBack .battle-enemy-grid>.battle-enemy-card.boss{border-color:#e88a79}
+#battleBack .battle-enemy-grid>.battle-enemy-card:focus-visible{outline:3px solid #ffe7ad;outline-offset:2px}
+#battleBack .battle-enemy-grid>.battle-enemy-card.defeated{opacity:.4}
+#battleBack .battle-enemy-grid>.battle-enemy-card b{font-size:12px;line-height:1.4}
+#battleBack .battle-formation-v2>.battle-allies{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-content:start}
+#battleBack .battle-formation-v2>.battle-allies>.battleunit{min-width:0;min-height:100px;padding:8px 6px;background:#344255;border:1px solid #607b9f;border-radius:7px;color:#f0f3fc}
+#battleBack .battle-formation-v2>.battle-allies>.battleunit .small{color:#cedbea}
+#battleBack .battle-formation-v2 .hpbar{height:7px;background:#1b2840;border-color:#566b83;margin-top:8px}
+#battleBack .battle-formation-v2 .hpbar i{background:#73c58d}
+#battleBack .battle-enemy-grid .hpbar i{background:#d97971}
+#battleBack .battlelog{order:1;flex:0 0 auto;min-height:45px;max-height:94px;margin:0;padding:7px 10px;background:#1b2d49;color:#e5ebfa;border:1px solid #6985b1;border-radius:8px;font-size:12px;overflow-y:auto}
+#battleBack .ff4-command-panel{order:2;flex:0 0 auto;display:grid;gap:8px;padding:9px;background:#253d70;border:2px solid #829fcf;border-radius:10px}
+#battleBack .ff4-status-strip{display:flex;flex-wrap:wrap;align-items:center;gap:5px 13px;color:#f7e8bf;font-weight:750;font-size:13px;font-variant-numeric:tabular-nums}
+#battleBack .ff4-status-strip span:first-child{margin-right:auto;font-size:15px}
+#battleBack .ff4-command-panel .battleactions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#battleBack .ff4-command-panel .battleactions button{min-width:0;min-height:46px;padding:8px 5px;background:#385891;border:1px solid #7c9bd0;border-radius:7px;color:#fff;font-size:15px;font-weight:750;touch-action:manipulation}
+#battleBack .ff4-command-panel .battleactions button.good{background:#365e91}
+#battleBack .ff4-command-panel .battleactions button.warn{background:#624872}
+#battleBack .ff4-command-panel .battleactions button:focus-visible{outline:3px solid #f9e0a0;outline-offset:2px}
+#battleBack .ff4-command-panel .battlechoice{max-height:160px;overflow:auto;margin:0}
+#battleBack .ff4-formation-info{display:grid;gap:4px;padding:8px;background:#172b4d;border:1px solid #7294c6;border-radius:7px;font-size:12px;color:#f0f3fc}
+#battleBack .battle-skill-popup{background:rgba(7,15,31,.87)}
+#battleBack .battle-skill-sheet{background:#20365b;border:2px solid #8da8dc;border-radius:12px}
+#battleBack .battle-skill-head{background:#294776;border-bottom:1px solid #8da8dc;color:#fff3d5}
+#battleBack .battle-skill-body{color:#f1f5ff}
+#battleBack .battle-skill-body .itemrow{border-bottom:1px solid #60779e}
+#battleBack .battle-skill-body button{background:#385891;border:1px solid #8da8dc;color:#fff;min-height:44px}
+@media(max-width:620px){
+ #battleBack .battlebox{width:100%;height:96dvh;max-height:96dvh;padding:9px 7px calc(10px + env(safe-area-inset-bottom));border-radius:14px 14px 0 0}
+ #battleBack #battleBody.ff4-battle-ui{gap:7px}
+ #battleBack .battlehead.battle-formation-v2{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #battleBack .battle-formation-v2>.battle-enemy-grid{gap:3px}
+ #battleBack .battle-enemy-grid>.battle-enemy-card{min-height:90px;padding:5px 3px;font-size:10px;line-height:1.35}
+ #battleBack .battle-enemy-grid>.battle-enemy-card b{font-size:10.5px}
+ #battleBack .battle-enemy-grid>.battle-enemy-card .small{font-size:9px}
+ #battleBack .battle-formation-v2>.battle-allies{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+ #battleBack .battle-formation-v2>.battle-allies>.battleunit{min-height:90px;padding:6px 4px;font-size:10.5px;line-height:1.3}
+ #battleBack .battle-formation-v2>.battle-allies>.battleunit b{font-size:11px}
+ #battleBack .battle-formation-v2>.battle-allies>.battleunit .small{font-size:9px}
+ #battleBack .battlelog{min-height:35px;max-height:66px;font-size:11px}
+ #battleBack .ff4-command-panel{padding:7px;gap:6px}
+ #battleBack .ff4-status-strip{font-size:11px;gap:3px 9px}
+ #battleBack .ff4-status-strip span:first-child{font-size:12px}
+ #battleBack .ff4-command-panel .battleactions{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ #battleBack .ff4-command-panel .battleactions button{min-height:42px;font-size:13px;padding:5px 3px}
+ #battleBack .battle-skill-sheet{max-height:85dvh;border-radius:13px 13px 0 0}
+}
+@media(max-width:350px){
+ #battleBack .battle-enemy-grid>.battle-enemy-card{font-size:9px;min-height:85px}
+ #battleBack .battle-formation-v2>.battle-allies>.battleunit{font-size:9.5px;min-height:85px}
+ #battleBack .ff4-status-strip{font-size:10px}
+}
