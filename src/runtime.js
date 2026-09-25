@@ -840,7 +840,7 @@ function advance(h){
  G.character.toxicity=clamp((G.character.toxicity||0)-h*4,0,100);
  decayFood();applySurvival()
 }
-function endTurn(travelHours){advance(h);updateQuestDeadlines();runWorldDynamics();if(G.character.alive&&G.turn>0&&G.turn%AUDIT_INTERVAL_TURNS===0)runAudit();persist();renderAll()}
+function endTurn(h){advance(h);updateQuestDeadlines();runWorldDynamics();if(G.character.alive&&G.turn>0&&G.turn%AUDIT_INTERVAL_TURNS===0)runAudit();persist();renderAll()}
 
 function decayFood(){const now=totalHours();G.character.inventory.forEach(x=>{const d=item(x.id);if(d?.fresh_hours)x.freshness=clamp(Math.round(100-(now-(x.acquiredHour??now))/d.fresh_hours*100),0,100)})}
 function applySurvival(){
@@ -5793,7 +5793,7 @@ function travel(id,h,mapRoute){
  let evented=false;if(!battled&&["wild","dungeon"].includes(to.kind))evented=maybeAdventureEvent("旅行");
  let socialed=false;if(!battled&&!evented&&["wild","dungeon"].includes(to.kind))socialed=maybePartySocialEvent("旅行");
  if(!battled&&!evented&&!socialed&&["wild","dungeon"].includes(to.kind))maybeOrganizationEncounter("旅行");
- endTurn(h)
+ endTurn(travelHours)
 }
 function showAdventure(){setNavActive("adventure");closeModal();if(!G?.battle?.active){$("#battleBack")?.classList.add("hide");document.body.classList.remove("battle-open");closeBattleSkillPopup()}syncBodyScrollLock();window.scrollTo({top:0,behavior:"smooth"});renderHistoryLog();setTimeout(()=>{ensureActionsVisible();syncBodyScrollLock()},0)}
 
