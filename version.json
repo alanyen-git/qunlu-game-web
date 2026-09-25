@@ -831,7 +831,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.15.1：84個正式src模組，新增裝備單雙手與盾牌防禦正規化，交易類別明確，舊存檔相容。",
-    "last_verified_release": "CURRENT-2.15.1",
+    "last_verified_release": "CURRENT-2.15.2",
     "notes": [
       "CURRENT-2.15.1：新增裝備分類正規化模組，84個程序與PWA v164同步，五回合稽核與交易分類測試接線。",
       "CURRENT-2.15.0：新增稀有技能書／殘本獨立模組，83個程序與PWA v163同步，B級導師考核與殘本補完納入回歸測試。",
@@ -893,7 +893,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.15.1",
+    "last_verified_release": "CURRENT-2.15.2",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -901,7 +901,7 @@
     "audited_src_programs": 84,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v165",
+    "pwa_cache": "v166",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
