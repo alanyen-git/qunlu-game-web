@@ -169,6 +169,7 @@ jobs:
           node tools/test-audit-metadata.js
           node tools/test-service-worker-refresh.js
           node tools/test-battle-formation.js
+          node tools/test-gameplay-balance-fixes.js
           node tools/test-battle-skill-popup.js
           node tools/test-skill-targeting.js
           node tools/test-requirement-details.js

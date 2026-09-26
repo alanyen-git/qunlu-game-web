@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.16.0",
-  "previous_version": "CURRENT-2.15.2",
+  "version": "CURRENT-2.17.0",
+  "previous_version": "CURRENT-2.16.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "群陸旅誌介面與美術升級：新增原創世界主視覺，統一霧夜藍、暖金與羊皮紙層級，整理首頁、狀態欄、卡片、按鍵與導覽；保留手機操作與遊戲資料。",
+  "summary": "教會全隊治療、依危險度隨機生成怪物數量，並為探索／巡查委託加入同鎮48小時冷卻。",
   "changelog": [
+    "GAMEPLAY-FIXES-2.17.0：教會可付費為全隊恢復滿血並清除異常狀態；遭遇怪物數量依地圖階級與危險度於1至6隻間抽選，首領隊伍另行限制；同鎮探索／巡查委託完成後冷卻48小時，避免立即重複。存檔結構相容。",
     "UI-ART-SYSTEM-2.1：新增原創世界橫幅插畫並完成介面視覺整理；統一字色、表面材質、框線、圓角、陰影、狀態卡、按鍵與行動導覽。手機觸控尺寸、底部導覽、地圖羊皮紙畫面、戰鬥編排、遊戲規則與存檔格式維持相容。",
     "BATTLE-UI-HF1：修復戰鬥介面重繪時重複插入狀態列、隊形鍵與逃跑鍵；手機版改為敵方全寬陣列、我方雙欄，調整資訊層級、按鍵尺寸、留白與深藍灰金配色。保留原戰鬥行動、傷害、敵方行動與存檔規則。",
     "ATLAS-REDESIGN-1.0：重做地圖視窗與導航，統一世界／王國／行省／當地四層圖冊；新增羊皮紙底圖、層級導覽、政治體首都索引、世界地圖側欄、行省地點分類與當地位置檔案，保留正史地理與存檔格式。",
@@ -467,7 +468,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v169",
+  "pwa_cache_revision": "v170",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -834,8 +835,9 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.15.1：84個正式src模組，新增裝備單雙手與盾牌防禦正規化，交易類別明確，舊存檔相容。",
-    "last_verified_release": "CURRENT-2.16.0",
+    "last_verified_release": "CURRENT-2.17.0",
     "notes": [
+      "CURRENT-2.17.0：修正教會全隊治療、依地圖危險度隨機生成1至6隻敵人、探索／巡查委託同鎮48小時冷卻；PWA v170。",
       "CURRENT-2.15.1：新增裝備分類正規化模組，84個程序與PWA v164同步，五回合稽核與交易分類測試接線。",
       "CURRENT-2.15.0：新增稀有技能書／殘本獨立模組，83個程序與PWA v163同步，B級導師考核與殘本補完納入回歸測試。",
       "CURRENT-2.12.6：新增裝備適性獨立模組；75個src程序與入口、PWA、PROGRAM-REGISTRY同步。",
@@ -896,7 +898,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.16.0",
+    "last_verified_release": "CURRENT-2.17.0",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -904,7 +906,7 @@
     "audited_src_programs": 84,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v169",
+    "pwa_cache": "v170",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1850,7 +1852,7 @@
     ]
   },
   "tavern_meal_revision": "TAVERN-ALL-DAY-1.0",
-  "battle_formation_revision": "ENEMY-ROSTER-1.0",
+  "battle_formation_revision": "ENEMY-ROSTER-1.1",
   "skill_targeting_revision": "SKILL-TARGETING-1.0",
   "class_tier_skill_expansion_revision": "CLASS-TIER-SKILL-EXPANSION-1.0",
   "class_tier_skill_expansion": {
@@ -1956,5 +1958,6 @@
     "offline_precached": true,
     "mobile_first": true,
     "save_compatible": true
-  }
+  },
+  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.1"
 }

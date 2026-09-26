@@ -1,11 +1,11 @@
 /* 群陸旅誌：地區委託生態／城鎮差異與完成冷卻 CURRENT-2.13.7
- * REGIONAL-QUEST-ECOLOGY-1.0
+ * REGIONAL-QUEST-ECOLOGY-1.1
  * 只從現有正史委託和已建檔可到達地圖發布；不創造不存在的地點／素材／魔物。
  * 保存於既有 G.worldState 下；不重置 G.quests、questHistory 或舊存檔。
  */
 (()=>{
 "use strict";
-const REV="REGIONAL-QUEST-ECOLOGY-1.0";
+const REV="REGIONAL-QUEST-ECOLOGY-1.1";
 const arr=x=>Array.isArray(x)?x:[];
 const game=()=>typeof G!=="undefined"?G:null;
 const db=()=>typeof DB!=="undefined"?DB:null;
@@ -38,7 +38,7 @@ function cooldown(t,town){
   const sameTown=!!town&&r.townId===town.id,sameProvince=!!p&&r.provinceId===p;
   if(r.templateId===t.id&&(sameTown||sameProvince)&&elapsed<120)return "近期已完成同一委託";
   if(r.signature===signature&&signature&&(sameTown||sameProvince)&&elapsed<96)return "相同目標正在冷卻";
-  if(sameTown&&category==="調查／巡查"&&r.kind===category&&elapsed<12)return "剛結束巡查，待地方狀況更新";
+  if(sameTown&&category==="調查／巡查"&&r.kind===category&&elapsed<48)return "探索／巡查委託同城鎮48小時冷卻";
  }
  return "";
 }
@@ -198,7 +198,7 @@ function audit(){
  if(!arr(db()?.quest_templates).length)issues.push("沒有可供地區調度的公會委託模板");
  if(!arr(db()?.locations).some(x=>x.kind==="town"))issues.push("缺少城鎮索引");
  return {revision:REV,pass:issues.length===0,issues,history_size:arr(game()?.worldState?.regionalQuestEcology?.records).length,
-  cooldown_hours:{same_template:120,same_target:96,recent_patrol_type:12},save_compatible:true};
+  cooldown_hours:{same_template:120,same_target:96,recent_patrol_type:48},save_compatible:true};
 }
 globalThis.runRegionalQuestEcologyAudit=audit;
 globalThis.QUNLU_REGIONAL_QUEST=Object.freeze({revision:REV,board,cooldown,validLocations,kind,target,audit});
