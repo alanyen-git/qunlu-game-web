@@ -134,14 +134,22 @@ function atlasSvg(mode="terrain",focus=null){
  const shapesInView=shapes().filter(s=>s.maxX>=bounds.x&&s.minX<=bounds.x+bounds.w&&s.maxY>=bounds.y&&s.minY<=bounds.y+bounds.h);
  const tiles=allTiles().filter(t=>t.x+t.w>=bounds.x&&t.y+t.h>=bounds.y&&t.x<=bounds.x+bounds.w&&t.y<=bounds.y+bounds.h);
  const parts=['<svg class="world-mosaic-svg" viewBox="'+[bounds.x,bounds.y,bounds.w,bounds.h].map(n1).join(" ")+'" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="'+clean(focus?(reg(focus)?.name||focus)+"區域拼接地圖":"群陸原創拼接世界圖")+'"><defs><linearGradient id="mosaicSea" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#142e47"></stop><stop offset="55%" stop-color="#234b65"></stop><stop offset="100%" stop-color="#112e45"></stop></linearGradient></defs><rect x="0" y="0" width="'+n1(val(g.canvas?.width)||1800)+'" height="'+n1(val(g.canvas?.height)||1100)+'" fill="url(#mosaicSea)"></rect>'];
- for(const t of tiles)parts.push(terrainTile(t,mode,focus));
- // 小島輪廓以正史polygon補繪，避免格狀採樣吞沒細小島嶼。
- for(const s of shapesInView){
-  const isSmall=s.raw.island_class==="minor"||s.raw.island_class==="islet";
-  const active=!focus||focus===s.id;
-  parts.push('<polygon points="'+fmtPoints(s.raw.points)+'" fill="'+(isSmall?(BIOMES[biomeOf(s.id)]||BIOMES.coast).fills[1]:"none")+'" fill-opacity="'+(isSmall?(active?".87":".38"):"0")+'" stroke="'+(s.id===focus?"#f4d18c":"#d3dab9")+'" stroke-width="'+(isSmall?2.5:3)+'" stroke-opacity="'+(active?".84":".31")+'" stroke-dasharray="'+(s.raw.nonstate?"13 8":"none")+'" pointer-events="'+(isSmall?"all":"none")+'"'+(isSmall?' onclick="openWorldMosaicRegion(\''+safe(s.id)+'\')" style="cursor:pointer"':'')+'><title>'+clean(reg(s.id)?.name||s.id)+'</title></polygon>');
- }
- if(mode!=="political"){
+ if(mode==="political"){
+  for(const s of shapesInView){
+   const owner=mainPolity(s.id),active=!focus||focus===s.id,hue=owner?((hash(owner.id.length,s.id.length,owner.id.charCodeAt(owner.id.length-1))%54)+24):34;
+   const fill=owner?"hsl("+hue+" 27% "+(64+hash(s.id.length,s.id.charCodeAt(0)||0,7)%7)+"%)":"#c6b995";
+   const stroke=s.raw.nonstate?"#746548":"#665438";
+   parts.push('<g class="mosaic-land-tile mosaic-political-region" data-region="'+safe(s.id)+'" role="button" aria-label="'+clean(reg(s.id)?.name||s.id)+'・'+clean(owner?.name||"非統一主權區")+'" onclick="openWorldMosaicRegion(\''+safe(s.id)+'\')" style="cursor:pointer"><polygon points="'+fmtPoints(s.raw.points)+'" fill="'+fill+'" fill-opacity="'+(active?".97":".62")+'" stroke="'+stroke+'" stroke-width="'+(s.raw.nonstate?3.2:4.5)+'" stroke-opacity="'+(active?".92":".65")+'" stroke-dasharray="'+(s.raw.nonstate?"12 8":"none")+'"></polygon><title>'+clean((reg(s.id)?.name||s.id)+"｜"+(owner?.name||"非統一主權區")+"｜世界層級 "+regionTier(s.id))+'</title></g>');
+  }
+ }else{
+  for(const t of tiles)parts.push(terrainTile(t,mode,focus));
+  // 小島以正史polygon補繪，避免格狀採樣吞沒細小島嶼。
+  for(const s of shapesInView){
+   const isSmall=s.raw.island_class==="minor"||s.raw.island_class==="islet";
+   const active=!focus||focus===s.id;
+   parts.push('<polygon points="'+fmtPoints(s.raw.points)+'" fill="'+(isSmall?(BIOMES[biomeOf(s.id)]||BIOMES.coast).fills[1]:"none")+'" fill-opacity="'+(isSmall?(active?".87":".38"):"0")+'" stroke="'+(s.id===focus?"#f4d18c":"#d3dab9")+'" stroke-width="'+(isSmall?2.5:3)+'" stroke-opacity="'+(active?".84":".31")+'" stroke-dasharray="'+(s.raw.nonstate?"13 8":"none")+'" pointer-events="'+(isSmall?"all":"none")+'"'+(isSmall?' onclick="openWorldMosaicRegion(\''+safe(s.id)+'\')" style="cursor:pointer"':'')+'><title>'+clean(reg(s.id)?.name||s.id)+'</title></polygon>');
+  }
+ } if(mode!=="political"){
   for(const road of arr(g.major_roads)){
    if(!arr(road.points).length)continue;
    parts.push('<polyline points="'+fmtPoints(road.points)+'" fill="none" stroke="#e8c783" stroke-width="3.3" stroke-dasharray="9 7" stroke-linejoin="round" opacity=".65" pointer-events="none"><title>'+clean(road.name)+'</title></polyline>');

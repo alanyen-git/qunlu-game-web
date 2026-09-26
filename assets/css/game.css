@@ -1849,7 +1849,7 @@ details.card>summary{cursor:pointer;padding:6px 0}
 .atlas-world-controls .world-mosaic-modes{flex:1 1 300px;margin:0}
 .atlas-world-controls .world-mosaic-zoom{margin:0}
 .atlas-world-paper{height:min(68vh,740px);max-height:none!important;min-height:400px;border:2px solid #9a8558!important;border-radius:8px!important;background:radial-gradient(ellipse at 48% 40%,#e6dab7,#b8ae8c 72%,#786f56)!important;padding:8px!important}
-.atlas-world-paper .world-mosaic-svg{width:100%;height:100%;min-width:820px;filter:sepia(.46) saturate(.78) brightness(1.12) contrast(.93)}
+.atlas-world-paper .world-mosaic-svg{width:100%;height:100%;min-width:820px;filter:sepia(.18) saturate(.93) brightness(1.05) contrast(.96)}
 .atlas-world-screen .world-mosaic-zoom{justify-content:flex-end}
 .atlas-world-screen .world-mosaic-zoom output{min-width:48px;color:#f0dda9}
 .atlas-world-sidebar{display:flex;flex-direction:column;gap:12px;min-width:0;padding:12px;border:1px solid #877752;border-radius:12px;background:linear-gradient(145deg,#d9c99b,#b6a47a);color:#302d23}
