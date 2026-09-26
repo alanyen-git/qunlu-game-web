@@ -198,6 +198,7 @@ jobs:
           node tools/test-tavern-all-day-meals.js
           node tools/test-region-map-graphics.js
           node tools/test-world-mosaic.js
+          node tools/test-polity-province-depth.js
 
       - name: Detect Pages publishing source
         id: pages_mode
