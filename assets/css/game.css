@@ -1907,3 +1907,255 @@ details.card>summary{cursor:pointer;padding:6px 0}
  .atlas-world-region-screen .world-mosaic-region-layout{grid-template-columns:1fr}
  .atlas-world-region-screen .world-mosaic-region-aside{order:-1}
 }
+
+
+/* CURRENT-2.16.0 BATTLE-UI-HF1: polished spacing, mobile formation, and one command dock. */
+#battleBack .battlebox{
+  width:min(980px,calc(100vw - 32px));
+  height:min(900px,calc(100dvh - 32px));
+  max-height:calc(100dvh - 32px);
+  padding:clamp(14px,2.2vw,22px);
+  border:1px solid rgba(144,166,190,.46);
+  border-top:2px solid rgba(216,185,111,.78);
+  border-radius:22px;
+  background:
+    radial-gradient(1000px 420px at 50% -20%,rgba(89,119,151,.22),transparent 70%),
+    linear-gradient(165deg,#172231 0%,#111a27 52%,#101722 100%);
+  box-shadow:0 28px 90px rgba(0,0,0,.66),inset 0 1px rgba(255,255,255,.055);
+}
+#battleBack #battleTitle{
+  padding:2px 2px 11px;
+  margin:0 0 12px;
+  border-bottom:1px solid rgba(145,164,187,.22);
+  color:#d7c99f;
+  font-size:12px;
+  font-weight:650;
+  letter-spacing:.16em;
+}
+#battleBack #battleBody.ff4-battle-ui{
+  flex:1 1 auto;
+  min-height:0;
+  height:auto;
+  padding:0 2px 4px;
+  gap:12px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  scrollbar-gutter:stable;
+}
+#battleBack .ff4-battle-banner{
+  min-height:52px;
+  padding:10px 15px;
+  border:1px solid rgba(126,153,181,.38);
+  border-radius:13px;
+  background:linear-gradient(120deg,rgba(44,66,89,.92),rgba(31,47,65,.92));
+  box-shadow:inset 0 1px rgba(255,255,255,.055);
+  color:#eee2c1;
+}
+#battleBack .ff4-battle-banner strong{font-size:16px;letter-spacing:.06em}
+#battleBack .ff4-battle-banner span{
+  color:#d8dfeb;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+}
+#battleBack .battlehead.battle-formation-v2{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:start;
+  gap:12px;
+}
+#battleBack .battle-formation-v2>.battle-enemy-grid{
+  gap:7px;
+  align-content:start;
+}
+#battleBack .battle-enemy-grid>.battle-enemy-card{
+  min-height:108px;
+  padding:10px 9px;
+  border:1px solid rgba(142,157,175,.32);
+  border-radius:12px;
+  background:linear-gradient(160deg,#263548,#202c3b);
+  color:#edf1f5;
+  box-shadow:inset 0 1px rgba(255,255,255,.045);
+  font-size:12px;
+  line-height:1.45;
+  transition:transform .14s ease,border-color .14s ease,background .14s ease;
+}
+#battleBack .battle-enemy-grid>.battle-enemy-card:hover{transform:translateY(-1px);border-color:#aab8c8}
+#battleBack .battle-enemy-grid>.battle-enemy-card.selected{
+  border:1px solid #dfc17b;
+  background:linear-gradient(160deg,#3c4550,#293646);
+  box-shadow:inset 0 0 0 1px rgba(223,193,123,.42),0 0 0 2px rgba(223,193,123,.12);
+}
+#battleBack .battle-enemy-grid>.battle-enemy-card.boss{border-color:rgba(199,120,105,.72)}
+#battleBack .battle-enemy-grid>.battle-enemy-card.elite{border-color:rgba(197,160,96,.66)}
+#battleBack .battle-enemy-grid>.battle-enemy-card b{font-size:12.5px;line-height:1.4}
+#battleBack .battle-enemy-grid>.battle-enemy-card .small{color:#bac7d5;font-size:10.5px}
+#battleBack .battle-formation-v2>.battle-allies{gap:7px}
+#battleBack .battle-formation-v2>.battle-allies>.battleunit{
+  min-height:108px;
+  padding:10px;
+  border:1px solid rgba(126,153,139,.32);
+  border-radius:12px;
+  background:linear-gradient(160deg,#202f31,#1b292d);
+  box-shadow:inset 0 1px rgba(255,255,255,.045);
+  line-height:1.45;
+}
+#battleBack .battle-formation-v2>.battle-allies>.battleunit b{font-size:13px;line-height:1.4}
+#battleBack .battle-formation-v2>.battle-allies>.battleunit .small{color:#bfced1;font-size:10.5px}
+#battleBack .battle-formation-v2>.battle-allies>.player>div:not(.small):not(.hpbar){display:none}
+#battleBack .battle-formation-v2 .hpbar{
+  height:7px;
+  margin-top:10px;
+  border:1px solid rgba(222,232,238,.13);
+  border-radius:99px;
+  background:#111c24;
+  overflow:hidden;
+}
+#battleBack .battle-formation-v2 .hpbar i{border-radius:99px;background:linear-gradient(90deg,#5e9a79,#8ec49a)}
+#battleBack .battle-enemy-grid .hpbar i{background:linear-gradient(90deg,#a55853,#d78376)}
+#battleBack .battlelog{
+  order:1;
+  flex:0 0 auto;
+  min-height:56px;
+  max-height:116px;
+  margin:0;
+  padding:10px 13px;
+  border:1px solid rgba(135,153,174,.24);
+  border-radius:12px;
+  background:rgba(11,17,25,.76);
+  color:#dbe2eb;
+  font-size:12px;
+  line-height:1.65;
+}
+#battleBack .ff4-command-panel{
+  order:2;
+  flex:0 0 auto;
+  gap:10px;
+  padding:12px;
+  border:1px solid rgba(147,169,191,.42);
+  border-radius:15px;
+  background:linear-gradient(155deg,rgba(36,54,74,.98),rgba(25,39,56,.99));
+  box-shadow:0 10px 25px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.06);
+}
+#battleBack .ff4-status-strip{
+  min-height:30px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px 16px;
+  padding:0 2px 9px;
+  border-bottom:1px solid rgba(193,204,217,.15);
+  color:#ded4b7;
+  font-size:12px;
+  font-weight:650;
+}
+#battleBack .ff4-status-strip span:first-child{margin-right:auto;color:#f0e5ca;font-size:14px}
+#battleBack .ff4-command-panel .battleactions{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+#battleBack .ff4-command-panel .battleactions button{
+  min-width:0;
+  min-height:48px;
+  padding:9px 8px;
+  border:1px solid rgba(151,174,199,.37);
+  border-radius:11px;
+  background:linear-gradient(180deg,#344c64,#2a4057);
+  color:#f0f3f6;
+  box-shadow:inset 0 1px rgba(255,255,255,.07);
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.03em;
+  transition:transform .14s ease,filter .14s ease,border-color .14s ease;
+}
+#battleBack .ff4-command-panel .battleactions button:hover{filter:brightness(1.12);border-color:rgba(215,196,145,.6)}
+#battleBack .ff4-command-panel .battleactions button:active{transform:translateY(1px)}
+#battleBack .ff4-command-panel .battleactions button.good{
+  background:linear-gradient(180deg,#3b5d63,#304d55);
+  border-color:rgba(141,187,168,.46);
+}
+#battleBack .ff4-command-panel .battleactions button.warn{
+  background:linear-gradient(180deg,#59404a,#48333c);
+  border-color:rgba(193,132,134,.42);
+}
+#battleBack .ff4-command-panel .battleactions .ff4-formation-button{
+  background:linear-gradient(180deg,#46536a,#374457);
+  border-color:rgba(168,174,197,.42);
+}
+#battleBack .ff4-command-panel .battleactions button:focus-visible{
+  outline:2px solid #f0d797;
+  outline-offset:2px;
+}
+#battleBack .ff4-command-panel .battlechoice{max-height:140px;padding:0 1px;overflow:auto}
+#battleBack .ff4-formation-info{
+  gap:6px;
+  padding:11px 12px;
+  border:1px solid rgba(147,169,191,.26);
+  border-radius:11px;
+  background:rgba(12,19,28,.72);
+  color:#e1e8ef;
+  line-height:1.55;
+}
+#battleBack .battle-skill-sheet{
+  border:1px solid rgba(168,185,203,.5);
+  border-radius:18px;
+  background:linear-gradient(165deg,#1c2b3c,#152131);
+}
+#battleBack .battle-skill-head{
+  background:linear-gradient(120deg,#293e55,#203248);
+  border-bottom:1px solid rgba(168,185,203,.24);
+  color:#efe5cd;
+}
+#battleBack .battle-skill-body .itemrow{border-bottom-color:rgba(168,185,203,.19)}
+#battleBack .battle-skill-body button{
+  min-height:46px;
+  border:1px solid rgba(151,174,199,.45);
+  border-radius:10px;
+  background:linear-gradient(180deg,#344c64,#2a4057);
+}
+@media(max-width:680px){
+  #battleBack .battlebox{
+    width:100%;
+    height:calc(100dvh - 8px);
+    max-height:calc(100dvh - 8px);
+    padding:12px 11px calc(11px + env(safe-area-inset-bottom));
+    border-radius:20px 20px 0 0;
+  }
+  #battleBack #battleBody.ff4-battle-ui{gap:10px;padding-bottom:3px}
+  #battleBack .ff4-battle-banner{min-height:48px;padding:9px 12px}
+  #battleBack .ff4-battle-banner strong{font-size:15px}
+  #battleBack .battlehead.battle-formation-v2{
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
+  #battleBack .battle-formation-v2>.battle-enemy-grid{gap:6px}
+  #battleBack .battle-enemy-grid>.battle-enemy-card{
+    min-height:88px;
+    padding:8px 7px;
+    font-size:11px;
+  }
+  #battleBack .battle-enemy-grid>.battle-enemy-card b{font-size:11.5px}
+  #battleBack .battle-enemy-grid>.battle-enemy-card .small{font-size:10px}
+  #battleBack .battle-formation-v2>.battle-allies{gap:6px}
+  #battleBack .battle-formation-v2>.battle-allies>.battleunit{
+    min-height:82px;
+    padding:8px;
+    font-size:11.5px;
+  }
+  #battleBack .battle-formation-v2>.battle-allies>.battleunit b{font-size:12.5px}
+  #battleBack .battlelog{min-height:45px;max-height:84px;padding:8px 10px;font-size:11px}
+  #battleBack .ff4-command-panel{gap:8px;padding:9px;border-radius:14px}
+  #battleBack .ff4-status-strip{gap:5px 12px;padding-bottom:7px;font-size:11.5px}
+  #battleBack .ff4-status-strip span:first-child{font-size:13px}
+  #battleBack .ff4-command-panel .battleactions{gap:6px}
+  #battleBack .ff4-command-panel .battleactions button{min-height:44px;padding:7px 4px;font-size:13px}
+  #battleBack .ff4-command-panel .battlechoice{max-height:112px}
+}
+@media(max-width:360px){
+  #battleBack .battle-enemy-grid>.battle-enemy-card{min-height:78px;padding:6px 5px;font-size:10px}
+  #battleBack .battle-enemy-grid>.battle-enemy-card b{font-size:10.5px}
+  #battleBack .battle-formation-v2>.battle-allies>.battleunit{padding:7px 6px}
+  #battleBack .ff4-status-strip{gap:4px 8px}
+  #battleBack .ff4-command-panel .battleactions{gap:5px}
+  #battleBack .ff4-command-panel .battleactions button{min-height:42px;font-size:12px}
+}

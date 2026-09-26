@@ -732,6 +732,14 @@
   function decorateFF4Battle(){
     const body=document.getElementById("battleBody"),head=body?.querySelector(".battlehead"),b=G?.battle,c=G?.character;
     if(!body||!head||!b?.active||!c)return;
+    /* renderAll may invoke decoration more than once before the base renderer replaces the body.
+       Detach and reuse the original controls before removing any previous command wrapper. */
+    const oldActions=[...body.querySelectorAll(".battleactions")],oldChoices=[...body.querySelectorAll("#battleChoice")];
+    body.querySelectorAll(".ff4-command-panel,.ff4-battle-banner").forEach(node=>node.remove());
+    const actions=oldActions[0]||body.querySelector(".battleactions"),choice=oldChoices[0]||body.querySelector("#battleChoice");
+    oldActions.slice(1).forEach(node=>node.remove());oldChoices.slice(1).forEach(node=>node.remove());
+    if(actions&&actions.parentElement!==body)body.appendChild(actions);
+    if(choice&&choice.parentElement!==body)body.appendChild(choice);
     body.classList.add("ff4-battle-ui");
     const top=document.createElement("div");top.className="ff4-battle-banner";
     const title=document.createElement("strong");title.textContent="群陸旅誌 · 戰鬥";
@@ -745,7 +753,6 @@
       if(button.classList.contains("defeated"))button.disabled=true;
     })}
     const allies=head.querySelector(".battle-allies");if(allies)allies.setAttribute("aria-label","我方隊伍");
-    const actions=body.querySelector(".battleactions"),choice=body.querySelector("#battleChoice");
     if(!actions||!choice)return;
     const command=document.createElement("section");command.className="ff4-command-panel";command.setAttribute("aria-label","戰鬥指令與狀態");
     const stats=document.createElement("div");stats.className="ff4-status-strip";stats.setAttribute("aria-label","主角當前狀態");
@@ -754,28 +761,31 @@
       const span=document.createElement("span");span.textContent=value;stats.appendChild(span);
     }
     command.appendChild(stats);
-    const names=["攻擊","技能","防禦","道具","逃跑"];
-    actions.querySelectorAll("button").forEach((button,i)=>{if(names[i])button.textContent=names[i]});
-    const buttons=actions.querySelectorAll("button");
-    if(buttons.length>=4)actions.insertBefore(buttons[3],buttons[2]);
-    const formation=document.createElement("button");
-    formation.type="button";formation.className="ff4-formation-button";formation.textContent="隊形";
-    formation.setAttribute("aria-label","檢視我方目前隊形，不消耗回合");
-    formation.onclick=()=>{
-      const party=[c,...(b.party||[]),...(b.companion?[b.companion]:[])];
-      const panel=document.createElement("div");panel.className="ff4-formation-info";
-      const label=document.createElement("strong");label.textContent="目前隊形（僅檢視）";
-      panel.appendChild(label);
-      party.forEach((member,i)=>{
-        const row=document.createElement("div");
-        const position=member.battlefield_position||member.position||member.formation_position||"依現有戰術設定";
-        row.textContent=(i+1)+". "+(member.name||"夥伴")+"｜"+position;
-        panel.appendChild(row);
-      });
-      choice.replaceChildren(panel);
-      if(typeof choice.scrollIntoView==="function")choice.scrollIntoView({block:"nearest",behavior:"auto"});
-    };
-    actions.insertBefore(formation,actions.querySelector(".warn")||null);
+    const actionLabels={battleGeneralAttack:"攻擊",battleSkillMenu:"技能",battleDefend:"防禦",battleItemMenu:"道具",battleFlee:"逃跑"};
+    const buttons=[...actions.querySelectorAll("button")];
+    buttons.filter(button=>button.classList.contains("ff4-formation-button")).slice(1).forEach(button=>button.remove());
+    for(const button of buttons){
+      const call=button.getAttribute("onclick")||"";
+      const key=Object.keys(actionLabels).find(name=>call.startsWith(name+"("));
+      if(key)button.textContent=actionLabels[key];
+    }
+    const ordered=["battleGeneralAttack","battleSkillMenu","battleItemMenu","battleDefend","battleFlee"]
+      .map(name=>buttons.find(button=>(button.getAttribute("onclick")||"").startsWith(name+"("))).filter(Boolean);
+    if(ordered.length===5)actions.replaceChildren(...ordered);
+    let formation=actions.querySelector(".ff4-formation-button");
+    if(!formation){
+      formation=document.createElement("button");formation.type="button";formation.className="ff4-formation-button";formation.textContent="隊形";
+      formation.setAttribute("aria-label","檢視我方目前隊形，不消耗回合");
+      formation.onclick=()=>{
+        const party=[c,...(b.party||[]),...(b.companion?[b.companion]:[])];
+        const panel=document.createElement("div");panel.className="ff4-formation-info";
+        const label=document.createElement("strong");label.textContent="目前隊形（僅檢視）";panel.appendChild(label);
+        party.forEach((member,i)=>{const row=document.createElement("div");const position=member.battlefield_position||member.position||member.formation_position||"依現有戰術設定";row.textContent=(i+1)+". "+(member.name||"夥伴")+"｜"+position;panel.appendChild(row)});
+        choice.replaceChildren(panel);
+        if(typeof choice.scrollIntoView==="function")choice.scrollIntoView({block:"nearest",behavior:"auto"});
+      };
+      actions.appendChild(formation);
+    }
     actions.setAttribute("role","group");actions.setAttribute("aria-label","回合制戰鬥指令");
     command.append(actions,choice);body.appendChild(command);
   }

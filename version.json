@@ -4,8 +4,9 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "地圖系統全面改版，整合世界、政體、行省與當地圖層，採羊皮紙圖冊介面與地點索引。",
+  "summary": "戰鬥介面修整：修復重繪造成的指令重複，重新配置手機敵我陣列與操作區，提升間距、層次與閱讀性。",
   "changelog": [
+    "BATTLE-UI-HF1：修復戰鬥介面重繪時重複插入狀態列、隊形鍵與逃跑鍵；手機版改為敵方全寬陣列、我方雙欄，調整資訊層級、按鍵尺寸、留白與深藍灰金配色。保留原戰鬥行動、傷害、敵方行動與存檔規則。",
     "ATLAS-REDESIGN-1.0：重做地圖視窗與導航，統一世界／王國／行省／當地四層圖冊；新增羊皮紙底圖、層級導覽、政治體首都索引、世界地圖側欄、行省地點分類與當地位置檔案，保留正史地理與存檔格式。",
     "REGION-MAP-GRAPHICS-1.3：世界圖沿用政治體與首都正史座標；王國圖在既有世界大區幾何上標示所屬行省及方位，未建檔位置仍列清單、不虛構邊界；行省圖完整列出城鎮、野外與地下城及世界級別；當地圖標示所在地與鄰近連線；點選城鎮沿已建道路最短路線旅行，經過危險地帶時保留遭遇判定，不改存檔格式。",
     "FF4-STYLE-UI-1.0：戰鬥畫面改為敵左我右，六名敵方2×3、我方2欄，深藍指令區含攻擊／技能／道具／防禦／隊形檢視／逃跑；技能視窗統一藍色設計與手機觸控區。不新增動畫、角色美術、ATB；保留戰鬥規則與存檔。",
@@ -465,7 +466,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v167",
+  "pwa_cache_revision": "v168",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -1945,5 +1946,6 @@
       "黑市",
       "公會收購櫃檯"
     ]
-  }
+  },
+  "battle_ui_revision": "BATTLE-UI-HF1"
 }
