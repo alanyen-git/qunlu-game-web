@@ -3,12 +3,14 @@ const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const css=fs.readFileSync("assets/css/game.css","utf8");
 const runtime=fs.readFileSync("src/runtime.js","utf8");
+const patches=fs.readFileSync("src/runtime-patches.js","utf8");
 const html=fs.readFileSync("index.html","utf8");
 const sw=fs.readFileSync("sw.js","utf8");
 const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 const marker="/* ===== CURRENT-2.12.1 BATTLE FORMATION V3 ===== */";
 assert.ok(css.includes(marker),"missing current CSS");
 const tail=css.slice(css.lastIndexOf(marker));
+const polish=css.slice(css.lastIndexOf("/* CURRENT-2.16.0 BATTLE-UI-HF1"));
 const rule=selector=>{
   const start=tail.indexOf(selector+"{");
   assert.ok(start>=0,"selector missing: "+selector);
@@ -37,7 +39,10 @@ assert.ok(html.includes("assets/css/game.css?v="+version.version+"-ENEMY-ROSTER1
 assert.ok(sw.includes('CACHE_PREFIX+"'+version.pwa_cache_revision+'"'));
 assert.match(tail,/\.battle-enemy-grid/);
 assert.match(tail,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
-const patches=fs.readFileSync("src/runtime-patches.js","utf8");
+assert.match(polish,/#battleBack \.battlehead\.battle-formation-v2\{\s*grid-template-columns:minmax\(0,1fr\)/,"mobile enemies need full-width battle row");
+assert.match(patches,/querySelectorAll\("\.ff4-command-panel,\.ff4-battle-banner"\)/,"battle decorator must clear previous command wrappers");
+assert.match(patches,/actions\.replaceChildren\(\.\.\.ordered\)/,"battle actions must be rebuilt in a stable order");
+assert.match(patches,/let formation=actions\.querySelector\("\.ff4-formation-button"\)/,"formation action must be unique");
 assert.match(patches,/Six-unit enemy formation/);
 assert.match(patches,/chosen.length<6/);
 assert.match(patches,/tierScale/);
