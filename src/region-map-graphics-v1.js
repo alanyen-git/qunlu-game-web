@@ -1,11 +1,11 @@
-/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.15.2
- * REGION-MAP-GRAPHICS-1.3
+/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.16.0
+ * REGION-MAP-GRAPHICS-1.4
  * 王國使用既有正史疆域座標；未建立地理座標的行省與地方使用實際links路網示意，
  * 不推造城鎮方位、不改旅行權限、不寫入存檔。
  */
 (()=>{
 "use strict";
-const REV="REGION-MAP-GRAPHICS-1.3";
+const REV="REGION-MAP-GRAPHICS-1.4";
 const TIER_COLOR={F:"#79ae79",E:"#9ec47d",D:"#c3b778",C:"#d8a565",B:"#dd8876",A:"#ca83a6",S:"#b68ee5"};
 const D=()=>typeof DB!=="undefined"?DB:null;
 const player=()=>typeof G!=="undefined"?G?.character:null;
@@ -38,10 +38,25 @@ function activateRegionMapNode(id){
 globalThis.travelMapRoute=id=>{const l=loc(id),c=player(),route=shortestRoadRoute(c?.locationId,id);if(l?.kind!=="town"||!route||c?.locationId===id)return false;return globalThis.travel(id,route.hours,{mapRoute:true,path:route.path})};
 
 let ZOOM=1,FIT_MODE=true;
-const shell=(svg,note)=>{ZOOM=1;FIT_MODE=true;return '<div class="regionmap-toolbar actions" role="group" aria-label="地圖縮放"><button type="button" onclick="changeRegionMapZoom(-1)" aria-label="縮小地圖">－</button><button type="button" class="regionmap-zoom-level" id="regionmapZoomLevel" onclick="resetRegionMapView()" title="點按還原100%縮放" aria-label="目前縮放比例，點按還原100%">100%</button><button type="button" onclick="changeRegionMapZoom(1)" aria-label="放大地圖">＋</button><button type="button" class="regionmap-fit" onclick="fitRegionMapView()" aria-label="將整張地圖縮放至可完整顯示">完整顯示</button></div><div class="regionmap-scroll" tabindex="0" aria-label="地圖可上下左右捲動；點完整顯示可看完整圖">'+svg+'</div><div class="regionmap-legend small">按「完整顯示」可看到整張圖；點百分比還原100%，放大後可上下左右滑動。<br>'+note+'</div>'};
-const svgStart=(w,h,label,view)=>'<svg class="regionmap-svg" viewBox="'+(view||"0 0 "+w+" "+h)+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><rect x="'+(view?view.split(" ")[0]:"0")+'" y="'+(view?view.split(" ")[1]:"0")+'" width="'+(view?view.split(" ")[2]:w)+'" height="'+(view?view.split(" ")[3]:h)+'" fill="#101b1b"></rect>';
+function levelNavigation(level,selectedId){
+ const current=loc(player()?.locationId),currentProvince=find("province_region_maps",current?.province_region_id);
+ const selectedProvince=level==="province"?find("province_region_maps",selectedId):currentProvince;
+ const realmId=level==="realm"?selectedId:(selectedProvince?.parent_realm_map_id||null);
+ const realm=realmId?find("realm_region_maps",realmId):(current?.political_entity_id?array(D()?.realm_region_maps).find(x=>x.political_entity_id===current.political_entity_id):null);
+ const provinceId=level==="province"?selectedId:(currentProvince?.id||null),localId=level==="local"?selectedId:(current?.id||null);
+ const button=(key,label,action,available)=>'<button type="button" class="atlas-level-tab'+(level===key?' is-active':'')+'"'+(level===key?' aria-current="page"':'')+(available?' onclick="'+action+'"':' disabled')+'><span class="atlas-level-index">'+({world:"01",realm:"02",province:"03",local:"04"}[key])+'</span>'+label+'</button>';
+ return '<nav class="atlas-level-nav" aria-label="地圖層級">'+button("world","世界地圖","openWorldMapAtlas('political')",true)+button("realm","王國／政體圖",realm?go("realm",realm.id):"",!!realm)+button("province","行省圖",provinceId?go("province",provinceId):"",!!provinceId)+button("local","當地圖",localId?go("local",localId):"",!!localId)+'</nav>';
+}
+const shell=(svg,note,info="")=>{
+ ZOOM=1;FIT_MODE=true;
+ return '<div class="atlas-map-layout"><section class="atlas-map-stage"><div class="regionmap-toolbar actions" role="group" aria-label="地圖縮放"><button type="button" onclick="changeRegionMapZoom(-1)" aria-label="縮小地圖">－</button><button type="button" class="regionmap-zoom-level" id="regionmapZoomLevel" onclick="resetRegionMapView()" title="點按還原100%縮放" aria-label="目前縮放比例，點按還原100%">100%</button><button type="button" onclick="changeRegionMapZoom(1)" aria-label="放大地圖">＋</button><button type="button" class="regionmap-fit" onclick="fitRegionMapView()" aria-label="將整張地圖縮放至可完整顯示">適合視窗</button></div><div class="regionmap-scroll atlas-paper-map" tabindex="0" aria-label="地圖可上下左右捲動">'+svg+'</div></section><aside class="atlas-map-dossier">'+info+'<div class="atlas-map-note">'+note+'</div></aside></div>';
+};
+function atlasPage(level,selectedId,content){
+ return '<div class="atlas-screen atlas-screen--'+level+'">'+levelNavigation(level,selectedId)+'<div class="atlas-screen-content">'+content+'</div></div>';
+}
+const svgStart=(w,h,label,view)=>'<svg class="regionmap-svg" viewBox="'+(view||"0 0 "+w+" "+h)+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><rect x="'+(view?view.split(" ")[0]:"0")+'" y="'+(view?view.split(" ")[1]:"0")+'" width="'+(view?view.split(" ")[2]:w)+'" height="'+(view?view.split(" ")[3]:h)+'" fill="#d9cfaa"></rect>';
 const poly=points=>array(points).filter(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(+p[0])&&Number.isFinite(+p[1])).map(p=>coord(p[0])+","+coord(p[1])).join(" ");
-const label=(x,y,value,size=15)=>'<text x="'+coord(x)+'" y="'+coord(y)+'" text-anchor="middle" fill="#f3f0d8" font-size="'+size+'" font-weight="700" pointer-events="none">'+esc(value)+'</text>';
+const label=(x,y,value,size=15)=>'<text x="'+coord(x)+'" y="'+coord(y)+'" text-anchor="middle" fill="#3e382b" font-size="'+size+'" font-weight="700" pointer-events="none">'+esc(value)+'</text>';
 const pointName=(text,max=13)=>Array.from(String(text||"")).slice(0,max).join("")+(Array.from(String(text||"")).length>max?"…":"");
 function mapElements(){
  if(typeof document==="undefined")return null;
@@ -120,7 +135,7 @@ function realmGraphic(realmId){
  const provinces=array(r.province_region_ids).map(id=>find("province_region_maps",id)).filter(Boolean);
  const linkBack='<div class="actions"><button type="button" onclick="openRealmRegionMap(\''+safeId(r.id)+'\')">返回區域清單</button><button type="button" onclick="openWorldMapAtlas(\''+(layer==="surface"?"surface":"subterranean")+'\')">世界圖面</button></div>';
  if(!geoms.length){
-  showModal((p?.name||r.name)+"・王國級圖面",linkBack+'<div class="card small">本政體尚無精確疆域幾何資料；以下保留已建檔的行省入口，不補造位置。</div>'+rowsToButtons(provinces,"province"));
+  showModal((p?.name||r.name)+"・王國級圖面",atlasPage("realm",r.id,linkBack+'<div class="atlas-empty-state">本政體尚無可用疆域座標。所轄行省仍列於下方清單。</div>'+rowsToButtons(provinces,"province")));
   return true;
  }
  const points=geoms.flatMap(g=>array(g.points)).filter(q=>Array.isArray(q)&&Number.isFinite(+q[0])&&Number.isFinite(+q[1]));
@@ -138,7 +153,7 @@ function realmGraphic(realmId){
   }
  }
  for(const g of geoms){
-  parts.push('<polygon points="'+poly(g.points)+'" fill="#47735b" fill-opacity=".66" stroke="#d3d6b8" stroke-width="3"><title>'+esc(find("world_regions",g.region_id)?.name||p?.name||g.region_id)+'</title></polygon>');
+  parts.push('<polygon points="'+poly(g.points)+'" fill="#b6b392" fill-opacity=".88" stroke="#594c36" stroke-width="3"><title>'+esc(find("world_regions",g.region_id)?.name||p?.name||g.region_id)+'</title></polygon>');
  }
  const cap=array(geo.capitals).find(c=>c.political_entity_id===pid&&Number.isFinite(+c.x)&&Number.isFinite(+c.y));
  if(cap){
@@ -160,7 +175,8 @@ function realmGraphic(realmId){
  parts.push(label(nx,ny+63,"北 N",13));
  parts.push("</svg>");
  const note="實線為正史疆域｜金點為首都／統治中樞｜褐線山脈、藍線河流、虛金線道路；行省精確邊界尚未建檔，不以假座標呈現。";
- const body=linkBack+'<div class="card small"><b>'+esc(p?.name||r.name)+'</b>｜'+esc(p?.government_type||"")+'｜'+esc(r.world_tier||p?.world_tier||"—")+'級</div>'+shell(parts.join(""),note)+'<h3>所轄行省</h3>'+(rowsToButtons(provinces,"province")||'<div class="card small">尚無行省級圖面資料。</div>');
+ const info='<div class="atlas-dossier-kicker">政治體檔案</div><div class="atlas-dossier-stat"><b>'+provinces.length+'</b><span>所轄行省</span></div><div class="atlas-dossier-stat"><b>'+geoms.length+'</b><span>已繪疆域區塊</span></div><div class="atlas-dossier-divider"></div><div class="atlas-dossier-kicker">圖例</div><div class="atlas-key"><i class="atlas-key-capital"></i>首都／統治中樞</div><div class="atlas-key"><i class="atlas-key-province"></i>行省所在大區</div>';
+ const body=atlasPage("realm",r.id,linkBack+'<div class="card small"><b>'+esc(p?.name||r.name)+'</b>｜'+esc(p?.government_type||"")+'｜'+esc(r.world_tier||p?.world_tier||"—")+'級</div>'+shell(parts.join(""),note,info)+'<h3 class="atlas-section-title">所轄行省</h3>'+(rowsToButtons(provinces,"province")||'<div class="card small">尚無行省級圖面資料。</div>'));
  showModal((p?.name||r.name)+"・王國級圖面",body);scheduleFit();
  return true;
 }
@@ -195,7 +211,7 @@ function provinceGraphic(provinceId){
  for(const k of columns)parts.push(label(xBy[k],31,kind(k),24));
  for(const n of nodes){
   const pt=pos.get(n.id),isHere=player()?.locationId===n.id,c=color(n),id=safeId(n.id);
-  parts.push('<g role="link" tabindex="0" class="regionmap-node" data-map-kind="'+esc(n.mapType)+'" onclick="'+(n.mapType==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+(n.mapType==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'}"><title>'+esc(n.name+"｜"+kind(n.mapType)+"｜"+tier(n))+'</title><rect x="'+coord(pt.x-112)+'" y="'+coord(pt.y-26)+'" width="224" height="56" rx="13" fill="'+(isHere?"#314d36":"#20312b")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="'+(isHere?4:2)+'"></rect>'+label(pt.x,pt.y-3,pointName(n.name),16)+label(pt.x,pt.y+17,tier(n)+(isHere?"｜目前位置":""),12)+'</g>');
+  parts.push('<g role="link" tabindex="0" class="regionmap-node" data-map-kind="'+esc(n.mapType)+'" onclick="'+(n.mapType==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+(n.mapType==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'}"><title>'+esc(n.name+"｜"+kind(n.mapType)+"｜"+tier(n))+'</title><rect x="'+coord(pt.x-112)+'" y="'+coord(pt.y-26)+'" width="224" height="56" rx="13" fill="'+(isHere?"#f4e5b9":"#e4d8b9")+'" stroke="'+(isHere?"#906b32":c)+'" stroke-width="'+(isHere?4:2)+'"></rect>'+label(pt.x,pt.y-3,pointName(n.name),16)+label(pt.x,pt.y+17,tier(n)+(isHere?"｜目前位置":""),12)+'</g>');
  }
  parts.push("</svg>");
  const grouped=columns.map(k=>{
@@ -203,9 +219,9 @@ function provinceGraphic(provinceId){
   return '<section class="regionmap-category" data-map-kind="'+k+'"><h3>'+kind(k)+'（'+values.length+'）</h3>'+values.map(n=>'<div class="itemrow"><span><b>'+esc(n.name)+'</b> <span class="tier">'+esc(tier(n))+'</span></span><div class="actions"><button type="button" onclick="'+detail(n.id)+'">地點資料</button>'+currentAction(n)+'</div></div>').join("")+'</section>';
  }).join("");
  const realm=find("realm_region_maps",p.parent_realm_map_id),back=realm?'<button type="button" onclick="'+go("realm",realm.id)+'">王國級圖面</button>':"";
- const body='<div class="actions"><button type="button" onclick="openProvinceRegionMap(\''+safeId(p.id)+'\')">返回行省清單</button>'+back+'</div><div class="card small"><b>'+esc(p.name)+'</b>｜'+esc(p.administrative_type||"")+'｜已建檔地點 '+nodes.length+'</div>'+
-  '<div class="regionmap-filters actions" role="group" aria-label="地圖分類"><button type="button" class="primary" data-regionmap-filter="all" aria-pressed="true" onclick="setRegionMapKindFilter(\'all\')">全部</button><button type="button" data-regionmap-filter="town" aria-pressed="false" onclick="setRegionMapKindFilter(\'town\')">城鎮</button><button type="button" data-regionmap-filter="wild" aria-pressed="false" onclick="setRegionMapKindFilter(\'wild\')">野外</button><button type="button" data-regionmap-filter="dungeon" aria-pressed="false" onclick="setRegionMapKindFilter(\'dungeon\')">地下城</button></div>'+shell(parts.join(""),"依城鎮／野外／地下城分欄的路網示意。篩選只影響顯示，不改變通行權限；線段只代表資料庫中已建檔道路。只有角色目前位置直接相連的地點才會出現「前往」。")+
-  (nodes.length?grouped:'<div class="card small">本行省尚無已建立的可玩地點。</div>');
+ const countBy=type=>nodes.filter(n=>n.mapType===type).length,current=loc(player()?.locationId);
+ const info='<div class="atlas-dossier-kicker">行省地點索引</div><div class="atlas-dossier-stat"><b>'+countBy("town")+'</b><span>城鎮</span></div><div class="atlas-dossier-stat"><b>'+countBy("wild")+'</b><span>野外</span></div><div class="atlas-dossier-stat"><b>'+countBy("dungeon")+'</b><span>地下城</span></div><div class="atlas-dossier-divider"></div><div class="atlas-current-pin"><i></i><span>目前所在</span><b>'+esc(current?.province_region_id===p.id?current.name:"尚未進入本行省")+'</b></div><div class="atlas-dossier-help">點選城鎮標記可沿道路直接旅行；野外與地下城標示世界級別。</div>';
+ const body=atlasPage("province",p.id,'<div class="actions"><button type="button" onclick="openProvinceRegionMap(\''+safeId(p.id)+'\')">行省索引</button>'+back+'</div><div class="regionmap-filters atlas-filterbar actions" role="group" aria-label="地圖分類"><button type="button" class="primary" data-regionmap-filter="all" aria-pressed="true" onclick="setRegionMapKindFilter(\'all\')">全部</button><button type="button" data-regionmap-filter="town" aria-pressed="false" onclick="setRegionMapKindFilter(\'town\')">城鎮</button><button type="button" data-regionmap-filter="wild" aria-pressed="false" onclick="setRegionMapKindFilter(\'wild\')">野外</button><button type="button" data-regionmap-filter="dungeon" aria-pressed="false" onclick="setRegionMapKindFilter(\'dungeon\')">地下城</button></div>'+shell(parts.join(""),"地點位置依已建道路關係排布，僅表示路網相連，不代表精確測繪方位。道路距離與危險層級依遊戲資料標示。",info)+(nodes.length?grouped:'<div class="card small">本行省尚無已建立的可玩地點。</div>'));
  showModal(p.name+"・行省級圖面",body);scheduleFit();return true;
 }
 function localGraphic(locationId){
@@ -215,23 +231,22 @@ function localGraphic(locationId){
  const parts=[svgStart(900,h,l.name+"周邊道路示意")];
  const placed=links.map((e,i)=>({e,x:i%2===0?167:733,y:(Math.floor(i/2)+1)*h/(half+1)}));
  for(const {e,x,y} of placed){
-  parts.push('<path d="M 450 '+coord(center.y)+' L '+coord(x)+' '+coord(y)+'" fill="none" stroke="#9ca889" stroke-width="3" stroke-linecap="round"></path>');
+  parts.push('<path d="M 450 '+coord(center.y)+' L '+coord(x)+' '+coord(y)+'" fill="none" stroke="#8a7859" stroke-width="3" stroke-linecap="round"></path>');
   parts.push(label((center.x+x)/2,(center.y+y)/2-9,(Number.isFinite(Number(e.hours))?e.hours+"h":"道路"),13));
  }
  for(const {e,x,y} of placed){
   const n=e.target,id=safeId(n.id),c=color(n),isHere=player()?.locationId===id;
-  parts.push('<g class="regionmap-node" role="link" tabindex="0" onclick="'+(n.kind==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+(n.kind==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'}"><title>'+esc(n.name+"｜"+kind(n.kind)+"｜"+tier(n))+'</title><rect x="'+coord(x-115)+'" y="'+coord(y-26)+'" width="230" height="55" rx="12" fill="'+(isHere?"#344b37":"#24352e")+'" stroke="'+(isHere?"#f2cf7b":c)+'" stroke-width="2.5"></rect>'+label(x,y-3,pointName(n.name),16)+label(x,y+17,kind(n.kind)+" "+tier(n),12)+'</g>');
+  parts.push('<g class="regionmap-node" role="link" tabindex="0" onclick="'+(n.kind==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+(n.kind==="town"?"activateRegionMapNode('"+id+"')":detail(id))+'}"><title>'+esc(n.name+"｜"+kind(n.kind)+"｜"+tier(n))+'</title><rect x="'+coord(x-115)+'" y="'+coord(y-26)+'" width="230" height="55" rx="12" fill="'+(isHere?"#f4e5b9":"#e4d8b9")+'" stroke="'+(isHere?"#906b32":c)+'" stroke-width="2.5"></rect>'+label(x,y-3,pointName(n.name),16)+label(x,y+17,kind(n.kind)+" "+tier(n),12)+'</g>');
  }
  const here=player()?.locationId===l.id;
- parts.push('<circle cx="450" cy="'+coord(center.y)+'" r="56" fill="#355743" stroke="#efd38a" stroke-width="4"></circle>');
+ parts.push('<circle cx="450" cy="'+coord(center.y)+'" r="56" fill="#eee2bd" stroke="#986c30" stroke-width="4"></circle>');
  parts.push(label(450,center.y-7,pointName(l.name,10),17));
  parts.push(label(450,center.y+17,(here?"你的位置｜":"中心｜")+tier(l),12));
  parts.push("</svg>");
  const back=l.province_region_id?'<button type="button" onclick="'+go("province",l.province_region_id)+'">行省級圖面</button>':"";
  const rows=links.map(e=>'<div class="itemrow"><span><b>'+esc(e.target.name)+'</b> <span class="tier">'+esc(tier(e.target))+'</span><br><span class="small">'+kind(e.target.kind)+'｜'+linkLabel(e.hours)+'</span></span><div class="actions"><button type="button" onclick="'+detail(e.target.id)+'">地點資料</button>'+currentAction(e.target)+'</div></div>').join("");
- const body='<div class="actions"><button type="button" onclick="'+detail(l.id)+'">返回地點資料</button>'+back+'</div><div class="card small"><b>'+esc(l.name)+'</b>｜'+kind(l.kind)+'｜安全度 '+esc(l.safety_score??"未建檔")+'/100｜直連道路 '+links.length+'</div>'+
-  shell(parts.join(""),"中央為檢視地點；線段為此地點確實登記的外出路線，標示單程旅行時間。此圖為路網示意，未建檔的道路與隱藏區域不會捏造顯示。")+
-  '<h3>已知直連地點</h3>'+(rows||'<div class="card small">尚無已建檔的直連道路。</div>');
+ const current=player()?.locationId===l.id,info='<div class="atlas-dossier-kicker">當地位置</div><div class="atlas-current-location"><span class="atlas-current-pulse"></span><div><small>'+ (current?"目前所在地":"檢視地點")+'</small><b>'+esc(l.name)+'</b><span>'+kind(l.kind)+'｜世界 '+esc(tier(l))+' 級</span></div></div><div class="atlas-dossier-stat"><b>'+links.length+'</b><span>已知相鄰地點</span></div><div class="atlas-dossier-divider"></div><div class="atlas-dossier-help">線段表示已建檔的道路；標籤顯示單程時間。點城鎮可直接移動。</div>';
+ const body=atlasPage("local",l.id,'<div class="actions"><button type="button" onclick="'+detail(l.id)+'">地點資料</button>'+back+'</div>'+shell(parts.join(""),"中央為目前檢視位置；四周是已知鄰近區域。道路與時間只使用遊戲內既有資料。",info)+'<h3 class="atlas-section-title">鄰近區域</h3>'+(rows||'<div class="card small">尚無已建檔的直連道路。</div>'));
  showModal(l.name+"・當地圖面",body);scheduleFit();return true;
 }
 function open(level,id){

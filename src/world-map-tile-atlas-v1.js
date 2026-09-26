@@ -1,5 +1,5 @@
-/* 群陸旅誌：原創拼接式世界地圖 CURRENT-2.13.1
- * WORLD-MOSAIC-ATLAS-1.1
+/* 群陸旅誌：原創拼接式世界地圖 CURRENT-2.16.0
+ * WORLD-MOSAIC-ATLAS-1.2
  * 參考經典格狀地圖的瀏覽方式；幾何/道路/地名完全沿用群陸正史，
  * 不使用第三方遊戲貼圖；未具地理座標的行省不虛構地理位置。
  */
@@ -198,18 +198,38 @@ function modes(mode){
  const options=[["terrain","地形拼圖"],["political","政治區域"],["tier","世界層級"]];
  return '<div class="world-mosaic-modes actions" role="group" aria-label="地圖圖層">'+options.map(([id,label])=>'<button type="button"'+(mode===id?' class="primary" aria-pressed="true"':' aria-pressed="false"')+' onclick="openWorldMosaic(\''+id+'\')">'+label+'</button>').join("")+'</div>';
 }
+function worldPoliticalIndex(){
+ const merge=db()?.political_merge_map||{},canonical=id=>merge[id]||id,entries=new Map(),entities=arr(db()?.political_entities);
+ for(const p of entities){
+  if(!p?.id)continue;
+  const key=canonical(p.id);if(!entries.has(key))entries.set(key,{p,regionId:null});
+ }
+ for(const id of regionNames()){
+  const p=mainPolity(id);if(!p)continue;
+  const row=entries.get(canonical(p.id))||{p,regionId:null};
+  row.regionId=row.regionId||id;entries.set(canonical(p.id),row);
+ }
+ return [...entries.values()].sort((a,b)=>String(a.p.name||"").localeCompare(String(b.p.name||""))).map(({p,regionId})=>{
+  const cap=arr(geo()?.capitals).find(c=>canonical(c.political_entity_id)===canonical(p.id)&&c.layer!=="subterranean");
+  const region=regionId?reg(regionId):null;
+  return '<button type="button" class="atlas-polity-row"'+(regionId?' onclick="openWorldMosaicRegion(\''+safe(regionId)+'\')"':' disabled')+'><span class="atlas-polity-symbol">✦</span><span class="atlas-polity-copy"><b>'+clean(p.name||p.id)+'</b><small>'+clean(cap?.name||p.capital||"首都座標尚未建檔")+' · '+clean(region?.name||"未標示區域")+'</small></span><span class="atlas-polity-tier">'+clean(p.world_tier||"—")+'</span></button>';
+ }).join("");
+}
+function worldLevelNavigation(){
+ const current=get("locations",(typeof G!=="undefined"?G?.character?.locationId:null)),province=get("province_region_maps",current?.province_region_id);
+ const realm=province?get("realm_region_maps",province.parent_realm_map_id):arr(db()?.realm_region_maps).find(x=>x.political_entity_id===current?.political_entity_id);
+ const btn=(id,label,action,enabled)=>'<button type="button" class="atlas-level-tab'+(id==="world"?' is-active':'')+'"'+(enabled?' onclick="'+action+'"':' disabled')+'><span class="atlas-level-index">'+({world:"01",realm:"02",province:"03",local:"04"}[id])+'</span>'+label+'</button>';
+ return '<nav class="atlas-level-nav" aria-label="地圖層級">'+btn("world","世界地圖","openWorldMosaic('political')",true)+btn("realm","王國／政體圖",realm?'openRegionMapGraphic(\'realm\',\''+safe(realm.id)+'\')':"",!!realm)+btn("province","行省圖",province?'openRegionMapGraphic(\'province\',\''+safe(province.id)+'\')':"",!!province)+btn("local","當地圖",current?'openRegionMapGraphic(\'local\',\''+safe(current.id)+'\')':"",!!current)+'</nav>';
+}
 function openMosaic(mode){
  if(!geo())return show("世界地圖",'<div class="card small">世界圖庫尚未載入，請稍後重新整理。</div>');
- CURRENT_MODE=["terrain","political","tier"].includes(mode)?mode:"terrain";SELECTED=null;
+ CURRENT_MODE=["terrain","political","tier"].includes(mode)?mode:"political";SELECTED=null;
  const world=geo(),names=regionNames(),current=get("locations",(typeof G!=="undefined"?G?.character?.locationId:null));
- const index=current?.world_region_id?'<button type="button" onclick="openWorldMosaicRegion(\''+safe(current.world_region_id)+'\')">目前所在區域</button>':"";
- const body='<div class="world-mosaic-intro"><b>群陸・拼接世界圖</b><span>以原創地形模組拼成的正史世界。點選任何陸地拼圖，即可開啟該處的區域地圖視窗。</span></div>'+
-   modes(CURRENT_MODE)+zoomToolbar()+
-   '<div class="world-mosaic-scroller" tabindex="0" aria-label="可左右上下捲動的世界拼接地圖">'+atlasSvg(CURRENT_MODE)+'</div>'+
-   '<div class="world-mosaic-legend"><span><i class="wm-key wm-forest"></i>森林</span><span><i class="wm-key wm-grass"></i>平原</span><span><i class="wm-key wm-mountain"></i>山岳</span><span><i class="wm-key wm-water"></i>海域</span><span><i class="wm-key wm-gold"></i>首都</span></div>'+
-   '<div class="world-mosaic-actions actions">'+index+'<button type="button" onclick="openWorldMapLegacy(\'surface\')">詳細地理／道路</button><button type="button" onclick="openWorldMapLegacy(\'wilderness\')">跨境野外</button><button type="button" onclick="openWorldMapLegacy(\'subterranean\')">地下世界</button></div>'+
-   worldIndex()+'<div class="small world-mosaic-foot">陸地拼圖依既有疆域與地形生成，非第三方遊戲貼圖。行省沒有精確座標者，點進區域後改用既有道路網示意；圖面不會解鎖未知區域或改動存檔。</div>';
- return show("世界地圖・拼接圖面",body);
+ const currentRegion=current?.world_region_id?'<div class="atlas-world-current"><span class="atlas-current-pulse"></span><div><small>目前所在地</small><b>'+clean(current.name||"未命名地點")+'</b><span>'+clean(reg(current.world_region_id)?.name||current.world_region_id)+'</span></div><button type="button" onclick="openWorldMosaicRegion(\''+safe(current.world_region_id)+'\')">定位</button></div>':'';
+ const body='<div class="atlas-world-screen">'+worldLevelNavigation()+'<div class="atlas-world-heading"><div><span class="atlas-kicker">THE CONTINENTAL ATLAS · '+names.length+' REGIONS</span><h2>群陸・世界總圖</h2><p>依政治疆域、首都、地形與世界層級檢視各地。</p></div><div class="atlas-compass" aria-label="北方">N<span>✦</span></div></div>'+
+  '<div class="atlas-world-grid"><section class="atlas-world-map-panel"><div class="atlas-world-controls">'+modes(CURRENT_MODE)+zoomToolbar()+'</div><div class="world-mosaic-scroller atlas-world-paper" tabindex="0" aria-label="可縮放與捲動的群陸世界地圖">'+atlasSvg(CURRENT_MODE)+'</div><div class="world-mosaic-legend"><span><i class="wm-key wm-forest"></i>森林／平原</span><span><i class="wm-key wm-mountain"></i>山岳／高地</span><span><i class="wm-key wm-water"></i>海域與河川</span><span><i class="wm-key wm-gold"></i>首都／統治中樞</span></div></section>'+
+  '<aside class="atlas-world-sidebar">'+currentRegion+'<section class="atlas-world-directory"><div class="atlas-dossier-kicker">政治體與首都</div><div class="atlas-world-polity-list">'+worldPoliticalIndex()+'</div></section><details class="world-mosaic-directory atlas-region-directory"><summary>全部區域（'+names.length+'）</summary><div class="atlas-world-polity-list">'+worldIndex()+'</div></details><div class="atlas-world-actions">'+(current?.world_region_id?'<button type="button" onclick="openWorldMosaicRegion(\''+safe(current.world_region_id)+'\')">定位目前區域</button>':"")+'<button type="button" onclick="openWorldMapLegacy(\'surface\')">詳細地理／道路</button><button type="button" onclick="openWorldMapLegacy(\'subterranean\')">地下世界</button></div><p class="atlas-world-note">點選地圖上的區域或右側政體，可查看疆域、首都、相鄰區與下層圖面。</p></aside></div><div class="atlas-world-foot">地圖沿用群陸既有地理資料；未建檔的行省與地方位置不會臆測繪製。</div></div>';
+ return show("世界地圖・拼接圖面｜政治圖冊",body);
 }
 function polityProvinces(id,p){
  const dbv=db(),same=arr(dbv?.province_region_maps).filter(x=>x.world_region_id===id);
@@ -294,7 +314,7 @@ function regionDetail(id){
    placeSections(places)+'</section>'+
    '<aside class="world-mosaic-region-aside">'+(wild.length?'<h3>跨境野外</h3><div class="actions">'+wilderness+'</div>':"")+(neighbors?'<h3>相鄰區域</h3><div class="actions">'+neighbors+'</div>':"")+
    '<h3>其他資料</h3><div class="actions">'+(p?'<button type="button" onclick="openWorldMapPolityTerritory(\''+safe(p.id)+'\')">政治體與疆域</button>':"")+(typeof globalThis.openLoreScope==="function"?'<button type="button" onclick="openLoreScope(\'region\',\''+safe(id)+'\',\''+clean((r?.name||id)+"・地方誌").replace(/'/g,"&#39;")+'\')">地方誌</button>':"")+'</div></aside></div>';
- return show((r?.name||id)+"・區域地圖",body);
+ return show((r?.name||id)+"・區域地圖",'<div class="atlas-world-region-screen">'+worldLevelNavigation()+body+'</div>');
 }
 function audit(){
  const issues=[],g=geo();if(!g?.canvas?.width||!g?.canvas?.height)issues.push("世界地圖尺寸遺失");
@@ -312,7 +332,7 @@ function audit(){
 globalThis.openWorldMosaic=openMosaic;
 globalThis.openWorldMosaicRegion=regionDetail;
 globalThis.openWorldMapLegacy=layer=>typeof LEGACY_ATLAS==="function"?LEGACY_ATLAS(layer||"surface"):false;
-globalThis.openWorldMapHierarchy=()=>openMosaic("terrain");
+globalThis.openWorldMapHierarchy=()=>openMosaic("political");
 globalThis.openWorldMapAtlas=layer=>["physical","climate","wilderness","subterranean"].includes(layer)?globalThis.openWorldMapLegacy(layer):openMosaic(layer==="political"?"political":layer==="tier"?"tier":"terrain");
 globalThis.changeWorldMosaicZoom=zoom;
 globalThis.runWorldMosaicAudit=audit;

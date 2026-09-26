@@ -5,7 +5,7 @@ const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8
 const moduleSource=fs.readFileSync("src/region-map-graphics-v1.js","utf8");
 const runtimeSource=fs.readFileSync("src/runtime.js","utf8");
 const css=fs.readFileSync("assets/css/game.css","utf8");
-assert.equal(version.map_graphics_revision,"REGION-MAP-GRAPHICS-1.3");
+assert.equal(version.map_graphics_revision,"REGION-MAP-GRAPHICS-1.4");
 assert.ok(html.includes('src/region-map-graphics-v1.js?v='+version.version));
 assert.ok(sw.includes('"./src/region-map-graphics-v1.js"'));
 assert.ok(css.includes(".regionmap-scroll")&&css.includes(".regionmap-toolbar")&&css.includes(".regionmap-category[hidden]"));
@@ -50,6 +50,8 @@ assert.match(modal.body,/openRegionMapGraphic\('province','P1'\)/);
 assert.equal(open("province","P1"),true);
 assert.match(modal.title,/行省級圖面/);
 assert.match(modal.body,/regionmap-province/);
+assert.match(modal.body,/atlas-map-layout/);
+assert.match(modal.body,/atlas-level-nav/);
 assert.match(modal.body,/regionmap-road/);
 assert.match(modal.body,/setRegionMapKindFilter/);
 assert.match(modal.body,/data-map-kind="dungeon"/);
