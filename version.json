@@ -4,8 +4,9 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "戰鬥介面修整：修復重繪造成的指令重複，重新配置手機敵我陣列與操作區，提升間距、層次與閱讀性。",
+  "summary": "群陸旅誌介面與美術升級：新增原創世界主視覺，統一霧夜藍、暖金與羊皮紙層級，整理首頁、狀態欄、卡片、按鍵與導覽；保留手機操作與遊戲資料。",
   "changelog": [
+    "UI-ART-SYSTEM-2.1：新增原創世界橫幅插畫並完成介面視覺整理；統一字色、表面材質、框線、圓角、陰影、狀態卡、按鍵與行動導覽。手機觸控尺寸、底部導覽、地圖羊皮紙畫面、戰鬥編排、遊戲規則與存檔格式維持相容。",
     "BATTLE-UI-HF1：修復戰鬥介面重繪時重複插入狀態列、隊形鍵與逃跑鍵；手機版改為敵方全寬陣列、我方雙欄，調整資訊層級、按鍵尺寸、留白與深藍灰金配色。保留原戰鬥行動、傷害、敵方行動與存檔規則。",
     "ATLAS-REDESIGN-1.0：重做地圖視窗與導航，統一世界／王國／行省／當地四層圖冊；新增羊皮紙底圖、層級導覽、政治體首都索引、世界地圖側欄、行省地點分類與當地位置檔案，保留正史地理與存檔格式。",
     "REGION-MAP-GRAPHICS-1.3：世界圖沿用政治體與首都正史座標；王國圖在既有世界大區幾何上標示所屬行省及方位，未建檔位置仍列清單、不虛構邊界；行省圖完整列出城鎮、野外與地下城及世界級別；當地圖標示所在地與鄰近連線；點選城鎮沿已建道路最短路線旅行，經過危險地帶時保留遭遇判定，不改存檔格式。",
@@ -466,7 +467,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v168",
+  "pwa_cache_revision": "v169",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -903,7 +904,7 @@
     "audited_src_programs": 84,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v168",
+    "pwa_cache": "v169",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1170,7 +1171,7 @@
     "legacy_id_migration": true,
     "save_compatible": true
   },
-  "ui_art_revision": "UI-ART-SYSTEM-2.0",
+  "ui_art_revision": "UI-ART-SYSTEM-2.1",
   "talent_revision": "TALENT-IDENTITY-DEPTH-1.0",
   "talent_identity_depth_revision": "TALENT-IDENTITY-DEPTH-1.0",
   "talent_identity": {
@@ -1947,5 +1948,13 @@
       "公會收購櫃檯"
     ]
   },
-  "battle_ui_revision": "BATTLE-UI-HF1"
+  "battle_ui_revision": "BATTLE-UI-HF1",
+  "ui_art": {
+    "original_world_hero": "assets/art/qunlu-world-hero.webp",
+    "webp_bytes": 307238,
+    "source_resolution": "2048x768",
+    "offline_precached": true,
+    "mobile_first": true,
+    "save_compatible": true
+  }
 }

@@ -2159,3 +2159,244 @@ details.card>summary{cursor:pointer;padding:6px 0}
   #battleBack .ff4-command-panel .battleactions{gap:5px}
   #battleBack .ff4-command-panel .battleactions button{min-height:42px;font-size:12px}
 }
+
+
+/* CURRENT-2.16.0 UI-ART-SYSTEM-2.1: cohesive material, type, and original world art. */
+:root{
+  --bg:#091116;
+  --bg2:#101b20;
+  --panel:#15242a;
+  --panel2:#182930;
+  --panel3:#20353b;
+  --line:#40545a;
+  --line2:#607378;
+  --text:#f0eee6;
+  --muted:#aeb9b9;
+  --accent:#d2b47b;
+  --accent2:#f0ddb0;
+  --good:#91bea2;
+  --warn:#dfbd78;
+  --bad:#ce877d;
+  --blue:#a5c1d5;
+  --shadow:0 18px 48px rgba(0,0,0,.42);
+  --radius:18px;
+  --touch:46px;
+}
+html{background:#091116}
+body{
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 50% -14%,rgba(94,128,137,.16),transparent 46%),
+    radial-gradient(ellipse at 100% 12%,rgba(150,123,76,.08),transparent 35%),
+    linear-gradient(180deg,#0a1318 0%,#0d171b 48%,#091116 100%);
+  text-rendering:optimizeLegibility;
+}
+.top{
+  background:linear-gradient(180deg,rgba(8,17,22,.97),rgba(11,22,27,.92));
+  border-bottom-color:rgba(165,190,193,.18);
+  box-shadow:0 8px 26px rgba(0,0,0,.26);
+}
+.topin{min-height:52px}
+.title{
+  color:#f1e6cd;
+  font-family:ui-serif,"Noto Serif TC","Songti TC",serif;
+  letter-spacing:.1em;
+  text-shadow:0 2px 16px rgba(214,184,123,.12);
+}
+.top-subtitle{color:#9fadae;letter-spacing:.045em}
+#topState{color:#c3ccca}
+.wrap{max-width:980px}
+.panel{
+  border-color:rgba(129,154,156,.25);
+  background:linear-gradient(155deg,rgba(25,43,49,.97),rgba(17,31,36,.98));
+  box-shadow:0 16px 44px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035);
+}
+.panel.game-shell{
+  border-color:rgba(137,165,167,.24);
+  background:linear-gradient(165deg,rgba(18,35,41,.97),rgba(12,26,32,.985));
+  box-shadow:0 22px 55px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.04);
+}
+#gamePanel .journey-hero{
+  height:clamp(178px,23vw,224px);
+  min-height:178px;
+  margin:0 0 16px;
+  padding:22px 24px;
+  border:1px solid rgba(211,198,164,.46);
+  border-radius:17px;
+  background:
+    linear-gradient(90deg,rgba(5,11,15,.72) 0%,rgba(6,12,16,.34) 47%,rgba(6,12,16,.06) 78%),
+    linear-gradient(0deg,rgba(4,9,12,.78) 0%,transparent 55%),
+    url("../art/qunlu-world-hero.webp") center 57% / cover no-repeat;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),inset 0 -24px 48px rgba(0,0,0,.19),0 12px 30px rgba(0,0,0,.24);
+}
+#gamePanel .journey-hero::before{display:none}
+#gamePanel .journey-hero::after{
+  content:"";
+  right:0;top:0;width:34%;height:100%;
+  border-radius:0;
+  background:linear-gradient(90deg,transparent,rgba(6,14,18,.08));
+  box-shadow:none;
+  pointer-events:none;
+}
+.journey-hero-caption{
+  color:#f4ead1;
+  font-family:ui-serif,"Noto Serif TC","Songti TC",serif;
+  font-size:clamp(25px,4.5vw,38px);
+  font-weight:760;
+  letter-spacing:.09em;
+  line-height:1.25;
+  text-shadow:0 2px 5px rgba(0,0,0,.86),0 8px 24px rgba(0,0,0,.5);
+}
+.journey-hero-note{
+  width:max-content;
+  max-width:100%;
+  margin-top:8px;
+  padding:5px 10px;
+  border:1px solid rgba(219,204,166,.22);
+  border-radius:999px;
+  background:rgba(9,19,23,.58);
+  color:#d1d2c9;
+  font-size:10px;
+  letter-spacing:.08em;
+  backdrop-filter:blur(6px);
+}
+.hud-meta-item,.hud-meta-item.flat{
+  border-color:rgba(138,163,164,.23);
+  border-radius:13px;
+  background:linear-gradient(150deg,rgba(27,47,53,.94),rgba(17,32,37,.96));
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.hud-meta-item>.small{
+  color:#a9b8b7;
+  letter-spacing:.12em;
+  font-size:9px;
+  font-weight:720;
+}
+.hud-meta-item>#timeTop,.hud-meta-item>#locTop,.hud-meta-item>#turnTop{
+  color:#eee6d2;
+  font-size:15px;
+  font-weight:720;
+}
+.hud-meta-item>#timeTop{color:#e7cc91;font-variant-numeric:tabular-nums}
+.hud-section,.play-section,.log-section,.journal-section{
+  border-color:rgba(128,154,156,.20);
+  border-radius:15px;
+  background:rgba(13,25,30,.74);
+}
+.section-title{margin-bottom:11px}
+.section-title h3{
+  color:#eee4cf;
+  font-family:ui-serif,"Noto Serif TC","Songti TC",serif;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:.07em;
+}
+.section-title .small{color:#98a8aa}
+.resource-card{
+  border-color:rgba(125,154,153,.24);
+  border-radius:13px;
+  background:linear-gradient(160deg,#1b3035,#14262b);
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.resource-card .resource-name{color:#aab9b7;letter-spacing:.1em}
+.resource-card .resource-value{color:#f0ece1;font-variant-numeric:tabular-nums}
+.resource-track{height:6px;background:rgba(3,10,13,.7);border-color:rgba(160,183,179,.15)}
+.resource-card.hp .resource-track>i{background:linear-gradient(90deg,#568c72,#9cc7a0)}
+.resource-card.sp .resource-track>i{background:linear-gradient(90deg,#a17f4c,#dfbf7d)}
+.resource-card.mp .resource-track>i{background:linear-gradient(90deg,#597f9c,#9ebed2)}
+.action-grid button{
+  min-height:52px;
+  border-color:rgba(139,168,169,.28);
+  border-radius:13px;
+  background:linear-gradient(155deg,#20383e,#192e34);
+  color:#e7ebe4;
+  font-weight:680;
+  letter-spacing:.015em;
+  box-shadow:inset 0 1px rgba(255,255,255,.045),0 5px 14px rgba(0,0,0,.12);
+}
+.action-grid button:hover:not(:disabled){
+  border-color:rgba(211,180,123,.62);
+  background:linear-gradient(155deg,#2a4449,#20373d);
+  transform:translateY(-1px);
+}
+button{
+  border-color:rgba(143,164,159,.4);
+  border-radius:11px;
+  background:linear-gradient(180deg,#26383a,#203033);
+  color:#edf0e8;
+  box-shadow:inset 0 1px rgba(255,255,255,.045),0 3px 10px rgba(0,0,0,.14);
+}
+button:hover:not(:disabled){border-color:rgba(213,185,128,.62);background:linear-gradient(180deg,#304344,#263a3b)}
+button.primary{background:linear-gradient(180deg,#7a6745,#5c4c33);border-color:#b59a64;color:#fff5dc}
+button.good{background:linear-gradient(180deg,#345449,#29463e);border-color:#6f9c82}
+button.warn{background:linear-gradient(180deg,#5b4a31,#423827);border-color:#8e774d}
+button.bad{background:linear-gradient(180deg,#5a3734,#432a28);border-color:#95635c}
+.card{
+  border-color:rgba(135,159,157,.23);
+  border-radius:13px;
+  background:linear-gradient(160deg,rgba(23,41,45,.96),rgba(16,30,34,.96));
+  box-shadow:inset 0 1px rgba(255,255,255,.025);
+}
+.card>b:first-child{color:#e7d6b1}
+.badge,.tier{
+  border-color:rgba(210,180,123,.36);
+  background:rgba(210,180,123,.09);
+  color:#dec990;
+}
+input,select{
+  border-color:rgba(139,164,160,.38);
+  background:#101d21;
+  color:#f0eee6;
+}
+input:focus,select:focus{
+  border-color:rgba(220,194,137,.7);
+  box-shadow:0 0 0 3px rgba(210,180,123,.11);
+}
+.nav{
+  border-top-color:rgba(160,181,177,.22);
+  background:linear-gradient(180deg,rgba(11,23,27,.94),rgba(7,15,19,.985));
+}
+.nav button{color:#9eaeae}
+.nav button.active,.nav button.primary.active{
+  color:#f1dba7;
+  background:linear-gradient(180deg,rgba(172,139,77,.20),rgba(101,80,44,.13));
+  box-shadow:inset 0 0 0 1px rgba(211,180,123,.34),inset 0 1px rgba(255,255,255,.04);
+}
+.navico{color:#cdb57f}
+.modalback,.battleback{background:rgba(2,8,11,.78)}
+.modal{
+  border-color:rgba(139,165,166,.4);
+  background:linear-gradient(155deg,#192c32,#122228);
+  box-shadow:0 30px 90px rgba(0,0,0,.64),inset 0 1px rgba(255,255,255,.045);
+}
+.modalhead{
+  background:linear-gradient(180deg,#192c32 75%,rgba(25,44,50,0));
+  border-bottom-color:rgba(158,181,178,.22);
+}
+.modalhead h2,.modaltitlewrap h2{
+  color:#efe4cd;
+  font-family:ui-serif,"Noto Serif TC","Songti TC",serif;
+  letter-spacing:.04em;
+}
+.x{background:#22353a;border-color:rgba(151,175,174,.28);color:#efe8d8}
+.entry{border-bottom-color:rgba(139,157,154,.14)}
+.entry::before{background:linear-gradient(180deg,#d5b97c,#708b83)}
+.log{
+  border-color:rgba(131,157,156,.25);
+  background:rgba(7,16,20,.68);
+}
+.creation-shell{
+  border-color:rgba(142,169,168,.3);
+  background:linear-gradient(155deg,rgba(23,41,46,.97),rgba(14,28,33,.98));
+}
+.creation-shell h2,.creation-shell h3{
+  color:#f0e4c9;
+  font-family:ui-serif,"Noto Serif TC","Songti TC",serif;
+}
+@media(max-width:720px){
+  #gamePanel .journey-hero{height:190px;min-height:190px;padding:18px 16px;background-position:center 55%}
+  .journey-hero-caption{font-size:clamp(25px,7vw,33px)}
+  .journey-hero-note{font-size:9px}
+  .section-title h3{font-size:15px}
+  .action-grid button{min-height:50px}
+}
