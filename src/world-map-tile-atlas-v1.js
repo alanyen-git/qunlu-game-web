@@ -133,7 +133,7 @@ function atlasSvg(mode="terrain",focus=null){
  const bounds=focus?selectedBounds(focus):{x:0,y:0,w:val(g.canvas?.width)||1800,h:val(g.canvas?.height)||1100};
  const shapesInView=shapes().filter(s=>s.maxX>=bounds.x&&s.minX<=bounds.x+bounds.w&&s.maxY>=bounds.y&&s.minY<=bounds.y+bounds.h);
  const tiles=allTiles().filter(t=>t.x+t.w>=bounds.x&&t.y+t.h>=bounds.y&&t.x<=bounds.x+bounds.w&&t.y<=bounds.y+bounds.h);
- const parts=['<svg class="world-mosaic-svg" viewBox="'+[bounds.x,bounds.y,bounds.w,bounds.h].map(n1).join(" ")+'" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="'+clean(focus?(reg(focus)?.name||focus)+"區域拼接地圖":"群陸原創拼接世界圖")+'"><defs><linearGradient id="mosaicSea" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#142e47"></stop><stop offset="55%" stop-color="#234b65"></stop><stop offset="100%" stop-color="#112e45"></stop></linearGradient></defs><rect x="0" y="0" width="'+n1(val(g.canvas?.width)||1800)+'" height="'+n1(val(g.canvas?.height)||1100)+'" fill="url(#mosaicSea)"></rect>'];
+ const parts=['<svg class="world-mosaic-svg" viewBox="'+[bounds.x,bounds.y,bounds.w,bounds.h].map(n1).join(" ")+'" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="'+clean(focus?(reg(focus)?.name||focus)+"區域拼接地圖":"群陸原創拼接世界圖")+'"><defs><linearGradient id="mosaicSea" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9bb8b0"></stop><stop offset="55%" stop-color="#c6d1b7"></stop><stop offset="100%" stop-color="#8daea7"></stop></linearGradient></defs><rect x="0" y="0" width="'+n1(val(g.canvas?.width)||1800)+'" height="'+n1(val(g.canvas?.height)||1100)+'" fill="url(#mosaicSea)"></rect>'];
  if(mode==="political"){
   for(const s of shapesInView){
    const owner=mainPolity(s.id),active=!focus||focus===s.id,hue=owner?((hash(owner.id.length,s.id.length,owner.id.charCodeAt(owner.id.length-1))%54)+24):34;
@@ -149,12 +149,16 @@ function atlasSvg(mode="terrain",focus=null){
    const active=!focus||focus===s.id;
    parts.push('<polygon points="'+fmtPoints(s.raw.points)+'" fill="'+(isSmall?(BIOMES[biomeOf(s.id)]||BIOMES.coast).fills[1]:"none")+'" fill-opacity="'+(isSmall?(active?".87":".38"):"0")+'" stroke="'+(s.id===focus?"#f4d18c":"#d3dab9")+'" stroke-width="'+(isSmall?2.5:3)+'" stroke-opacity="'+(active?".84":".31")+'" stroke-dasharray="'+(s.raw.nonstate?"13 8":"none")+'" pointer-events="'+(isSmall?"all":"none")+'"'+(isSmall?' onclick="openWorldMosaicRegion(\''+safe(s.id)+'\')" style="cursor:pointer"':'')+'><title>'+clean(reg(s.id)?.name||s.id)+'</title></polygon>');
   }
- } if(mode!=="political"){
+ } if(mode!=="tier"){
   for(const road of arr(g.major_roads)){
    if(!arr(road.points).length)continue;
    parts.push('<polyline points="'+fmtPoints(road.points)+'" fill="none" stroke="#e8c783" stroke-width="3.3" stroke-dasharray="9 7" stroke-linejoin="round" opacity=".65" pointer-events="none"><title>'+clean(road.name)+'</title></polyline>');
   }
-  for(const river of arr(g.rivers)){
+  for(const ridge of arr(g.mountain_ranges)){
+  if(!arr(ridge.points).length)continue;
+  parts.push('<polyline points="'+fmtPoints(ridge.points)+'" fill="none" stroke="#695c46" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round" opacity=".54" pointer-events="none"><title>'+clean(ridge.name||"山脈")+'</title></polyline>');
+ }
+ for(const river of arr(g.rivers)){
    if(!arr(river.points).length)continue;
    parts.push('<polyline points="'+fmtPoints(river.points)+'" fill="none" stroke="#8ed1eb" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round" opacity=".83" pointer-events="none"><title>'+clean(river.name)+'</title></polyline>');
   }
