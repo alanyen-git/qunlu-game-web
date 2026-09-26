@@ -212,19 +212,20 @@ function modes(mode){
 }
 function worldPoliticalIndex(){
  const merge=db()?.political_merge_map||{},canonical=id=>merge[id]||id,entries=new Map(),entities=arr(db()?.political_entities);
- for(const p of entities){
-  if(!p?.id)continue;
-  const key=canonical(p.id);if(!entries.has(key))entries.set(key,{p,regionId:null});
- }
+ for(const p of entities){if(!p?.id)continue;const key=canonical(p.id);if(!entries.has(key))entries.set(key,{p,regionId:null,undergroundId:null})}
  for(const id of regionNames()){
   const p=mainPolity(id);if(!p)continue;
-  const row=entries.get(canonical(p.id))||{p,regionId:null};
+  const row=entries.get(canonical(p.id))||{p,regionId:null,undergroundId:null};
   row.regionId=row.regionId||id;entries.set(canonical(p.id),row);
  }
- return [...entries.values()].sort((a,b)=>String(a.p.name||"").localeCompare(String(b.p.name||""))).map(({p,regionId})=>{
-  const cap=arr(geo()?.capitals).find(c=>canonical(c.political_entity_id)===canonical(p.id)&&c.layer!=="subterranean");
-  const region=regionId?reg(regionId):null;
-  return '<button type="button" class="atlas-polity-row"'+(regionId?' onclick="openWorldMosaicRegion(\''+safe(regionId)+'\')"':' disabled')+'><span class="atlas-polity-symbol">✦</span><span class="atlas-polity-copy"><b>'+clean(p.name||p.id)+'</b><small>'+clean(cap?.name||p.capital||"首都座標尚未建檔")+' · '+clean(region?.name||"未標示區域")+'</small></span><span class="atlas-polity-tier">'+clean(p.world_tier||"—")+'</span></button>';
+ for(const shape of arr(geo()?.region_geometry).filter(x=>x?.layer==="subterranean")){
+  const polityId=shape.political_entity_id||reg(shape.region_id)?.political_entity_id;
+  const row=entries.get(canonical(polityId));if(row&&!row.regionId)row.undergroundId=row.undergroundId||shape.region_id;
+ }
+ return [...entries.values()].sort((a,b)=>String(a.p.name||"").localeCompare(String(b.p.name||""))).map(({p,regionId,undergroundId})=>{
+  const cap=arr(geo()?.capitals).find(c=>canonical(c.political_entity_id)===canonical(p.id)&&(regionId?c.layer!=="subterranean":c.layer==="subterranean"));
+  const region=reg(regionId||undergroundId),action=regionId?'openWorldMosaicRegion(\''+safe(regionId)+'\')':undergroundId?'openWorldMapLegacy(\'subterranean\')':"";
+  return '<button type="button" class="atlas-polity-row"'+(action?' onclick="'+action+'"':" disabled")+'><span class="atlas-polity-symbol">✦</span><span class="atlas-polity-copy"><b>'+clean(p.name||p.id)+'</b><small>'+clean(cap?.name||p.capital||"首都座標尚未建檔")+' · '+clean(region?.name||(undergroundId?"地下政治層":"未標示區域"))+'</small></span><span class="atlas-polity-tier">'+clean(p.world_tier||"—")+'</span></button>';
  }).join("");
 }
 function worldLevelNavigation(){
