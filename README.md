@@ -27,3 +27,16 @@ GitHub Pages 的 Source 設為 **GitHub Actions**。每次推送到 `main` 時�
 
 遊戲持續採本機存檔。部署時只打包公開網頁資源，不包含測試報告或
 工具程式，且不會清除玩家裝置上的 IndexedDB／localStorage 存檔。
+
+## Android app architecture
+
+The repository now includes a Capacitor 8 build path for an offline Android app. It packages the existing text game and game data locally in the APK, while the web/PWA release continues to deploy through the existing Pages workflow.
+
+- Run `npm install`, then `npm run build:mobile` to stage the app runtime in `dist/`.
+- Run `npx cap add android`, then `npm run cap:sync:android` to generate and sync the Android project.
+- Build a test APK with `cd android && ./gradlew assembleDebug`.
+- GitHub Actions builds the debug APK when runtime files change. Download it from the `Build Android app` workflow run's artifact named `qunlu-android-debug`.
+- The app works from bundled local files after installation. Save data is local to each app/browser installation; move saves between web and Android with the game's export/import feature.
+- This milestone changes packaging only. Visual redesign and animation are deferred. The debug APK is for testing and is not signed for store release.
+
+See [mobile/ARCHITECTURE.md](mobile/ARCHITECTURE.md) for the platform and storage boundaries.

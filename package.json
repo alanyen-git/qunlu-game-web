@@ -1,0 +1,17 @@
+{
+  "name": "qunlu-game-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "群陸旅誌 mobile application build",
+  "scripts": {
+    "build:mobile": "node scripts/build-mobile.mjs",
+    "cap:sync:android": "cap sync android"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.2"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2"
+  }
+}
