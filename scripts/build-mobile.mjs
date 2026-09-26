@@ -1,6 +1,8 @@
 import { cpSync, existsSync, mkdirSync, rmSync, statSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const output = join(root, "dist");
@@ -25,9 +27,21 @@ for (const relativePath of runtimePaths) {
   cpSync(source, join(output, relativePath), { recursive: true });
 }
 
-// Capacitor loads this packaged directory locally, so the native app starts
-// from its bundled runtime and remains playable without a web connection.
-const html = await (await import("node:fs/promises")).readFile(join(output, "index.html"), "utf8");
+// The OTA bridge only exists in the native package; the web/PWA entry point stays unchanged.
+const mobileOutput = join(output, "mobile");
+mkdirSync(mobileOutput, { recursive: true });
+await build({
+  absWorkingDir: root,
+  entryPoints: ["mobile/ota-bootstrap.js"],
+  bundle: true,
+  format: "esm",
+  platform: "browser",
+  target: ["es2020"],
+  outfile: join(mobileOutput, "ota-bootstrap.js")
+});
+
+const indexPath = join(output, "index.html");
+let html = await readFile(indexPath, "utf8");
 const references = [...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(match => match[1]);
 const localReferences = references.filter(path => !/^(?:[a-z]+:|\/\/|#)/i.test(path));
 for (const path of localReferences) {
@@ -41,8 +55,13 @@ for (const path of localReferences) {
     throw new Error(`Runtime reference is missing from the mobile package: ${path}`);
   }
 }
-if (!statSync(join(output, "index.html")).isFile()) {
+if (!statSync(indexPath).isFile()) {
   throw new Error("Mobile package does not contain index.html");
 }
+if (!html.includes("</body>")) {
+  throw new Error("Cannot attach the native update bridge: </body> was not found.");
+}
+html = html.replace("</body>", '  <script type="module" src="./mobile/ota-bootstrap.js"></script>\n</body>');
+await writeFile(indexPath, html);
 console.log(`Mobile web runtime prepared at ${output}`);
-console.log(`Verified ${localReferences.length} local HTML asset references.`);
+console.log(`Bundled native OTA bridge and verified ${localReferences.length} local HTML asset references.`);

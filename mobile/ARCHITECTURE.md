@@ -2,7 +2,7 @@
 
 ## Scope of this release
 
-The mobile build packages the existing text game as an Android app. The web/PWA release remains available and shares the same game runtime and game content. This release changes packaging and build infrastructure only; visual redesign, animations, and gameplay changes are deferred.
+The mobile build packages the existing text game as an Android app. The web/PWA release remains available and shares the same game runtime and game content. The visual design, animation, and gameplay rules remain unchanged.
 
 ## Runtime layers
 
@@ -11,9 +11,11 @@ The mobile build packages the existing text game as an Android app. The web/PWA 
 2. **Shared text game — existing web runtime**  
    The same HTML, JavaScript modules, game data, and text-first interface are used by Android and the web/PWA build.
 3. **Local save — existing storage layer**  
-   Saves stay on the player's device in IndexedDB, with the current localStorage fallback. Android and the browser have separate storage origins. Use the in-game save export/import flow to move a save between them.
-4. **Build and delivery**  
-   `scripts/build-mobile.mjs` stages only runtime files into `dist/`. Capacitor packages `dist/` into an Android app. GitHub Actions builds and stores an installable debug APK artifact. The existing Pages workflow continues to deploy the web/PWA version.
+   Saves stay on the player's device in IndexedDB, with the current localStorage fallback. Android and browser storage are separate. Use the in-game save export/import flow to move a save between them.
+4. **Over-the-air game updates**  
+   GitHub Pages publishes a versioned web bundle and `mobile/update-manifest.json`. The Android app checks the manifest at startup, downloads a newer HTML/CSS/JavaScript bundle, and activates it when the app backgrounds or starts again. A failed network check does not prevent play. The normal web/PWA page is not modified by the native updater.
+5. **Native app updates**  
+   Changes to native plugins, Android permissions, or other Android project code require a new APK. The OTA updater only updates the web game bundle.
 
 ## Build locally
 
@@ -28,8 +30,22 @@ cd android
 ./gradlew assembleDebug
 ```
 
-The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`. Debug APKs are for device testing; store distribution and release signing are not part of this architecture milestone.
+The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`. Debug APKs are for device testing; store signing is not included.
 
-## Release boundary
+## Update pipeline
 
-A later release can add native back-button/lifecycle behavior, save migration helpers, a signed release pipeline, and platform-specific polish. No animation or art changes are included in this release.
+```sh
+npm install
+npm run build:mobile
+npm run build:mobile:update -- _site/mobile <git-commit-sha>
+```
+
+The Pages workflow runs the same steps after the web game passes its existing validation. It publishes the update zip and manifest alongside the site.
+
+## Update behavior and save safety
+
+- On a network connection, a native launch checks for a newer game version. If available, it downloads the bundle in the background.
+- The app switches to the downloaded bundle when it enters the background or on its next launch, without interrupting an active session.
+- Offline launches continue using the last installed bundle.
+- App and browser saves are separate local stores. Export the save before moving between installations.
+- The initial APK containing the updater plugin must be installed once. Future text/game-content updates use OTA; changes to native code need an APK update.

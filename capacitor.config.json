@@ -2,5 +2,15 @@
   "appId": "io.github.alanyengit.qunlu",
   "appName": "群陸旅誌",
   "webDir": "dist",
-  "backgroundColor": "#091116"
+  "backgroundColor": "#091116",
+  "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": "off",
+      "appReadyTimeout": 30000,
+      "statsUrl": ""
+    },
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
 }

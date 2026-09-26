@@ -35,7 +35,7 @@ The repository now includes a Capacitor 8 build path for an offline Android app.
 - Run `npm install`, then `npm run build:mobile` to stage the app runtime in `dist/`.
 - Run `npx cap add android`, then `npm run cap:sync:android` to generate and sync the Android project.
 - Build a test APK with `cd android && ./gradlew assembleDebug`.
-- GitHub Actions builds the debug APK when runtime files change. Download it from the `Build Android app` workflow run's artifact named `qunlu-android-debug`.
+- GitHub Actions builds the debug APK when runtime files change. Download it from the `Build Android app` workflow run's artifact named `qunlu-android-debug`. The Android app checks the GitHub Pages update manifest at launch and downloads newer HTML/CSS/JavaScript bundles; updates apply when the app goes to the background or on its next launch. Native plugin or Android code changes still require installing a new APK.
 - The app works from bundled local files after installation. Save data is local to each app/browser installation; move saves between web and Android with the game's export/import feature.
 - This milestone changes packaging only. Visual redesign and animation are deferred. The debug APK is for testing and is not signed for store release.
 

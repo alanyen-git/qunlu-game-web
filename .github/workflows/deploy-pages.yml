@@ -225,6 +225,13 @@ jobs:
           echo "production artifact files:"
           find _site -maxdepth 2 -type f | sort
 
+      - name: Build Android over-the-air update bundle
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:mobile
+          npm run build:mobile:update -- _site/mobile "$GITHUB_SHA"
+
       - name: Setup Pages
         if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
         uses: actions/configure-pages@v5
