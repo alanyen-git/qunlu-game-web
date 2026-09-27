@@ -837,7 +837,7 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.36",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.37",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
     "active_src_programs": 92,
@@ -860,7 +860,7 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.25.10：修正舊版 localStorage 存檔讀取失敗時的 IndexedDB 備援恢復；91個正式src模組與PWA v188同步，Android版號由版本檔遞增；舊存檔相容。",
+    "note": "CURRENT-2.25.10：修正舊版 localStorage 存檔讀取失敗時的 IndexedDB 備援恢復；92個正式src模組與PWA v188同步，Android版號由版本檔遞增；舊存檔相容。",
     "last_verified_release": "CURRENT-2.25.10",
     "notes": [
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
@@ -899,12 +899,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 91,
-    "programs_loaded": 91,
+    "programs_total": 92,
+    "programs_loaded": 92,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 73,
-    "full_audits_passed": 73,
+    "full_audits_executed": 74,
+    "full_audits_passed": 74,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -932,7 +932,7 @@
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 91,
+    "audited_src_programs": 92,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
     "pwa_cache": "v188",
