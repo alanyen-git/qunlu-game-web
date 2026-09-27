@@ -114,6 +114,6 @@ async function retrieve(resource,mode="same-origin",method="GET"){
   events.get("install")({waitUntil(p){rejected=p;}});
   await assert.rejects(rejected,/precache rejected/,"failed install must preserve old worker");
   const release=JSON.parse(fs.readFileSync("version.json","utf8")).version;
-  assert(fs.readFileSync("src/pwa.js","utf8").includes("sw.js?v="+release+"-MAP-SURVEY1"),"PWA registration must use new SW");
+  assert(fs.readFileSync("src/pwa.js","utf8").includes("sw.js?v="+release+"-ITEM-NAMING1"),"PWA registration must use new SW");
   console.log("service worker refresh OK: online JS/CSS, offline fallback, image cache, failed install, registration");
 })().catch(error=>{console.error(error);process.exitCode=1;});
