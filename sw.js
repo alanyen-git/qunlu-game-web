@@ -89,7 +89,7 @@ const CORE=[
   "./src/companion-unique-skill-v1.js",
   "./src/companion-identity-depth-v1.js",
   "./src/companion-species-identity-v1.js",
-  "./src/adventure-party-teammate-depth-v1.js",
+  "./src/adventure-party-teammate-depth-v1.js",  "./src/adventure-party-formation-v1.js",
   "./src/rpg-reference-synthesis-v1.js",
   "./src/quest-regional-ecology-v1.js",
   "./src/profession-recipe-differentiation-v1.js",
