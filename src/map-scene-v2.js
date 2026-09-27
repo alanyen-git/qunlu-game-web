@@ -1,4 +1,4 @@
-/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.2
+/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.3
  * MAP-SCENE-2.1 / CARTOGRAPHIC-SCENE-1.0
  * 獨立 canvas 圖面核心。只繪製有 canonical 幾何或明確測繪座標的資料；
  * 未測繪地點留在索引，不以排版座標冒充地理位置。
@@ -8,7 +8,7 @@
 if(typeof DB!=="object"||!DB)return;
 
 const REV="MAP-SCENE-2.1";
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.2")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.2";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.3")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.3";
 const A=v=>Array.isArray(v)?v:[];
 const find=(key,id)=>A(DB[key]).find(x=>x?.id===id)||null;
 const loc=id=>find("locations",id);

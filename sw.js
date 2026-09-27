@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v181";
+const CACHE_NAME=CACHE_PREFIX+"v182";
 const CORE=[
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const CORE=[
   "./manifest.webmanifest",
   "./assets/css/game.css",
   "./assets/art/qunlu-world-hero.webp",
+  "./assets/art/qunlu-sigil.svg",
   "./src/bootstrap.js",
   "./src/game-data.js",
   "./src/data-patches.js",

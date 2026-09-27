@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">群陸旅誌徽記</title>
+  <desc id="desc">以羅盤、山脈與星芒組成的銅金徽記</desc>
+  <circle cx="48" cy="48" r="43" fill="#10252b" stroke="#d7b66f" stroke-width="3"/>
+  <circle cx="48" cy="48" r="35" fill="none" stroke="#78938e" stroke-width="1.5" stroke-dasharray="2 5"/>
+  <path d="M48 16 55 42 80 48 55 54 48 80 41 54 16 48 41 42Z" fill="#d7b66f"/>
+  <path d="m18 63 11-8 9 3 10-10 9 5 8-8 13 12" fill="none" stroke="#e8dec0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="48" cy="48" r="5" fill="#10252b" stroke="#f2dc9b" stroke-width="2"/>
+</svg>

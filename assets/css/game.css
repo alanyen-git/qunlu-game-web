@@ -2518,3 +2518,151 @@ input:focus,select:focus{
   .section-title h3{font-size:15px}
   .action-grid button{min-height:50px}
 }
+
+/* VISUAL-SYSTEM-1.0: dark medieval adventure HUD / parchment atlas / FF4 command frame.
+   Static visual layer only: no game state, geometry, save, or combat rule changes. */
+:root{
+  --vs-ink:#081217;
+  --vs-night:#0d1c22;
+  --vs-surface:#142a30;
+  --vs-surface-2:#1b3740;
+  --vs-brass:#d7b66f;
+  --vs-brass-hi:#f2dc9b;
+  --vs-parchment:#e8dec0;
+  --vs-muted:#9fb3aa;
+  --vs-ember:#c86d55;
+  --vs-moss:#78a28a;
+  --vs-line:rgba(185,205,196,.25);
+  --vs-shadow:0 18px 50px rgba(0,0,0,.46);
+}
+body{
+  color:#dfe9df;
+  background:
+    radial-gradient(ellipse at 50% -12%,rgba(76,122,115,.22),transparent 49%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#081217 0%,#10242b 54%,#0b181e 100%);
+}
+body::before{
+  background:linear-gradient(90deg,rgba(215,182,111,.025),transparent 16%,transparent 84%,rgba(215,182,111,.025));
+  content:"";
+  inset:0;
+  pointer-events:none;
+  position:fixed;
+  z-index:-1;
+}
+.top{
+  background:linear-gradient(180deg,rgba(12,30,36,.98),rgba(9,21,27,.94));
+  border-bottom:1px solid rgba(215,182,111,.36);
+  box-shadow:0 8px 28px rgba(0,0,0,.28);
+}
+.topin{max-width:1080px;min-height:70px}
+.top-brand{align-items:center;display:flex;gap:12px}
+.brand-sigil{display:block;filter:drop-shadow(0 5px 9px rgba(0,0,0,.34));height:45px;width:45px}
+.title{
+  color:var(--vs-brass-hi);
+  font-family:ui-serif,"Noto Serif TC","Songti TC",serif;
+  letter-spacing:.18em;
+  text-shadow:0 2px 12px rgba(0,0,0,.55);
+}
+.top-subtitle{color:#9fb3aa;letter-spacing:.08em}
+.panel{
+  background:linear-gradient(145deg,rgba(20,42,48,.97),rgba(10,25,31,.98));
+  border:1px solid var(--vs-line);
+  box-shadow:var(--vs-shadow),inset 0 1px rgba(255,255,255,.045);
+}
+.panel h2,.panel h3,.section-title h3{
+  color:var(--vs-parchment);
+  font-family:ui-serif,"Noto Serif TC","Songti TC",serif;
+  letter-spacing:.06em;
+}
+.creation-shell,.game-shell{border-top:2px solid rgba(215,182,111,.62)}
+.journey-hero{
+  border:1px solid rgba(215,182,111,.3);
+  box-shadow:inset 0 0 0 1px rgba(8,18,23,.45),0 16px 32px rgba(0,0,0,.27);
+  filter:saturate(.82) contrast(1.04);
+}
+.journey-hero::after{background:linear-gradient(90deg,rgba(8,18,23,.8),rgba(8,18,23,.08) 68%,rgba(8,18,23,.5))}
+.journey-hero-caption{color:#f2e5c7;text-shadow:0 3px 15px #081217}
+.journey-hero-note{color:#d1bd8b;letter-spacing:.16em}
+.hud-meta-item,.hud-section,.journal-section,.play-section{
+  background:linear-gradient(145deg,rgba(27,55,64,.78),rgba(13,31,37,.86));
+  border:1px solid var(--vs-line);
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.hud-meta-item .small{color:var(--vs-muted)}
+.hud-meta-item:nth-child(1)::before{color:var(--vs-brass);content:"⌛";float:right;font-size:15px}
+.hud-meta-item:nth-child(2)::before{color:var(--vs-brass);content:"⌖";float:right;font-size:16px}
+.hud-meta-item:nth-child(3)::before{color:var(--vs-brass);content:"✦";float:right;font-size:14px}
+.section-title{border-bottom-color:rgba(215,182,111,.28)}
+.section-title::before{background:linear-gradient(90deg,var(--vs-brass),rgba(215,182,111,0))}
+.resource-card,.card{
+  background:linear-gradient(155deg,rgba(27,55,64,.88),rgba(13,30,36,.94));
+  border-color:rgba(159,182,173,.23);
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.card>b,.resource-card>b{color:#e8dec0}
+button{
+  background:linear-gradient(180deg,#24434a,#172e35);
+  border-color:rgba(159,182,173,.36);
+  border-radius:8px;
+  color:#e4eee5;
+  font-weight:700;
+  letter-spacing:.02em;
+}
+button:hover{background:linear-gradient(180deg,#315761,#1d3b43);border-color:rgba(215,182,111,.7)}
+button.primary{background:linear-gradient(180deg,#b89250,#806337);border-color:#f2dc9b;color:#101a1c;text-shadow:none}
+button.primary:hover{background:linear-gradient(180deg,#d1ae68,#987844)}
+input,select,textarea{background:#0b1d23;border-color:rgba(159,182,173,.34);color:#ecf1e8}
+input:focus,select:focus,textarea:focus{border-color:var(--vs-brass);outline:2px solid rgba(215,182,111,.18)}
+.action-grid button{min-height:48px;box-shadow:inset 0 1px rgba(255,255,255,.05),0 4px 12px rgba(0,0,0,.18)}
+.nav{
+  background:linear-gradient(180deg,rgba(18,42,48,.96),rgba(7,18,23,.98));
+  border-top:1px solid rgba(215,182,111,.35);
+  box-shadow:0 -10px 30px rgba(0,0,0,.35);
+}
+.nav button{background:transparent;border:1px solid transparent;color:#91a9a2}
+.nav button.active{background:rgba(215,182,111,.11);border-color:rgba(215,182,111,.34);color:var(--vs-brass-hi)}
+.nav button.active::after{background:var(--vs-brass);content:"";height:2px;left:18%;position:absolute;right:18%;top:0}
+.navico{filter:drop-shadow(0 1px 4px rgba(0,0,0,.5))}
+.mapscene-shell{
+  background:linear-gradient(145deg,#10242a,#0a171d);
+  border-color:rgba(215,182,111,.36);
+  box-shadow:var(--vs-shadow),inset 0 1px rgba(255,255,255,.05);
+}
+.mapscene-tabs{background:rgba(6,15,19,.75);border-bottom-color:rgba(215,182,111,.25)}
+.mapscene-tab{color:#a8b9ae}
+.mapscene-tab.is-active{background:linear-gradient(180deg,#d7b66f,#927342);color:#102025;box-shadow:0 3px 12px rgba(0,0,0,.25)}
+.mapscene-header{background:linear-gradient(135deg,#263e3c,#172b31);border-color:rgba(215,182,111,.34)}
+.mapscene-header h3,.mapscene-sidebar h4{color:var(--vs-parchment);font-family:ui-serif,"Noto Serif TC","Songti TC",serif}
+.mapscene-sidebar{background:linear-gradient(180deg,rgba(232,222,192,.97),rgba(205,194,159,.97));color:#26352f;border-color:#a58f61;box-shadow:inset 0 0 28px rgba(110,79,39,.12)}
+.mapscene-sidebar button{background:rgba(255,248,222,.55);border-color:rgba(91,72,41,.3);color:#34443a}
+.mapscene-legend,.mapscene-index{border-color:rgba(91,72,41,.24)}
+.modalback,.battleback{background:rgba(2,9,12,.78)}
+.modal,.battlebox{
+  background:linear-gradient(155deg,#192f35,#0e2026);
+  border-color:rgba(215,182,111,.52);
+  box-shadow:0 30px 90px rgba(0,0,0,.68),inset 0 1px rgba(255,255,255,.06);
+}
+.modal::before,.battlebox::before{background:linear-gradient(90deg,transparent,var(--vs-brass),transparent);content:"";display:block;height:2px;left:10%;position:absolute;right:10%;top:0}
+.modalhead,.battlehead{background:linear-gradient(180deg,#203d42,rgba(32,61,66,0));border-bottom-color:rgba(215,182,111,.25)}
+.modalhead h2,#battleTitle{color:var(--vs-brass-hi);font-family:ui-serif,"Noto Serif TC","Songti TC",serif;letter-spacing:.08em}
+.modalicon{background:#10252b;border-color:rgba(215,182,111,.55);color:var(--vs-brass-hi)}
+.battleunit{background:linear-gradient(155deg,rgba(31,61,67,.94),rgba(13,29,35,.96));border-color:rgba(159,182,173,.3)}
+.battleunit.enemy{border-color:rgba(200,109,85,.5)}
+.battleunit.ally{border-color:rgba(120,162,138,.52)}
+.battleactions,.battlechoices{background:#0b1a20;border-top-color:rgba(215,182,111,.25)}
+.battlechoice{background:linear-gradient(180deg,#203e46,#142b32);border-color:rgba(159,182,173,.34)}
+.battlechoice:hover{border-color:var(--vs-brass);color:var(--vs-brass-hi)}
+.badge,.tier{background:rgba(215,182,111,.14);border-color:rgba(215,182,111,.45);color:var(--vs-brass-hi)}
+.log{background:rgba(5,14,18,.78);border-color:rgba(159,182,173,.25)}
+@media(max-width:720px){
+  .topin{min-height:62px;padding-left:12px;padding-right:12px}
+  .brand-sigil{height:38px;width:38px}
+  .title{font-size:19px;letter-spacing:.12em}
+  .top-subtitle{font-size:10px}
+  .panel{border-radius:12px}
+  .journey-hero{border-radius:10px}
+  .nav{padding-bottom:env(safe-area-inset-bottom)}
+  .nav button.active::after{left:12%;right:12%}
+  .mapscene-sidebar{box-shadow:inset 0 0 18px rgba(110,79,39,.12)}
+}

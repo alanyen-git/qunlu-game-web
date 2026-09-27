@@ -36,7 +36,7 @@ assert.match(runtime,/<div class="battleunit companion">/);
 assert.match(runtime,/battleunit party-mini/);
 assert.match(version.version,/^CURRENT-\d+\.\d+\.\d+$/);
 assert.match(version.pwa_cache_revision,/^v\d+$/);
-assert.ok(html.includes("assets/css/game.css?v="+version.version+"-ENEMY-ROSTER1"));
+assert.ok(html.includes("assets/css/game.css?v="+version.version+"-VISUAL-SYSTEM1"));
 assert.ok(sw.includes('CACHE_PREFIX+"'+version.pwa_cache_revision+'"'));
 assert.match(tail,/\.battle-enemy-grid/);
 assert.match(tail,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
