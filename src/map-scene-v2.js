@@ -1,4 +1,4 @@
-/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.0
+/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.1
  * MAP-SCENE-2.1 / CARTOGRAPHIC-SCENE-1.0
  * 獨立 canvas 圖面核心。只繪製有 canonical 幾何或明確測繪座標的資料；
  * 未測繪地點留在索引，不以排版座標冒充地理位置。
@@ -8,7 +8,7 @@
 if(typeof DB!=="object"||!DB)return;
 
 const REV="MAP-SCENE-2.1";
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.1";
 const A=v=>Array.isArray(v)?v:[];
 const find=(key,id)=>A(DB[key]).find(x=>x?.id===id)||null;
 const loc=id=>find("locations",id);
@@ -35,6 +35,21 @@ function provinceLocations(id){return A(DB.locations).filter(l=>l?.province_regi
 function locationTier(l){return l?.kind==="town"?(l.settlement_world_tier||l.tier||"F"):(l?.world_tier||l?.tier||"F")}
 function settlementMap(id){return find("settlement_region_maps",id)}
 function provinceAtlasEntry(id){return A(DB.world_map_province_atlas?.entries).find(x=>x?.id===id)||null}
+function provinceForLocation(l){
+ if(!l)return null;
+ const direct=province(l.province_region_id);if(direct)return direct;
+ const realmId=l.realm_region_map_id||l.realm_id;
+ const parent=realm(realmId);
+ return A(DB.province_region_maps).find(p=>(parent?p.parent_realm_map_id===parent.id:p.political_entity_id===l.political_entity_id)&&(
+   p.capital_location_id===l.id||A(p.subordinate_settlement_ids).includes(l.id)||A(p.location_ids).includes(l.id)
+ ))||null;
+}
+function realmForLocation(l){
+ if(!l)return null;
+ const direct=realm(l.realm_region_map_id||l.realm_id);if(direct)return direct;
+ const p=provinceForLocation(l),byProvince=realm(p?.parent_realm_map_id);if(byProvince)return byProvince;
+ return realmForPolity(l.political_entity_id||region(l.world_region_id||l.region_id)?.political_entity_id);
+}
 function localLocations(id){
  const center=loc(id);if(!center)return [];
  const ids=new Set([center.id,...A(center.links).map(e=>e?.to).filter(Boolean)]);
@@ -102,15 +117,12 @@ function title(){
  return loc(state.id)?.name||"當地地圖";
 }
 function hierarchyIds(){
- const current=currentLocation();let l=state.level==="local"?loc(state.id):current;
- let p=state.level==="province"?province(state.id):province(l?.province_region_id);
- let r=state.level==="realm"?realm(state.id):realm(p?.parent_realm_map_id||l?.realm_region_map_id);
- return {local:l,province:p,realm:r};
+ const l=currentLocation();return {local:l,province:provinceForLocation(l),realm:realmForLocation(l)};
 }
 function tabs(){
  const h=hierarchyIds();
- const item=(level,label,id,enabled)=>'<button type="button" class="mapscene-tab '+(state.level===level?'is-active':'')+'" '+(enabled?'onclick="openMapScene(\''+level+'\''+(id?',\''+safe(id)+'\'':'')+')"':'disabled')+'><small>'+({world:"01",realm:"02",province:"03",local:"04"})[level]+'</small><span>'+label+'</span></button>';
- return '<nav class="mapscene-tabs" aria-label="地圖層級">'+item("world","世界",null,true)+item("realm","政治體",h.realm?.id,!!h.realm)+item("province","行省",h.province?.id,!!h.province)+item("local","當地",h.local?.id,!!h.local)+'</nav>';
+ const item=(level,label,enabled)=>'<button type="button" class="mapscene-tab '+(state.level===level?'is-active':'')+'" '+(enabled?'onclick="openMapScene(\''+level+'\')"':'disabled')+'><small>'+({world:"01",realm:"02",province:"03",local:"04"})[level]+'</small><span>'+label+'</span></button>';
+ return '<nav class="mapscene-tabs" aria-label="角色所在位置地圖層級">'+item("world","世界",true)+item("realm","所在政治體",!!h.realm)+item("province","所在行省",!!h.province)+item("local","所在當地",!!h.local)+'</nav>';
 }
 function filterButtons(){
  const values=state.level==="world"||state.level==="realm"?["all","capital","pass"]:["all","town","wild","dungeon"];
@@ -234,6 +246,10 @@ function mount(){
 function show(){if(typeof globalThis.showModal!=="function")return false;globalThis.showModal(title(),render());if(typeof requestAnimationFrame==="function")requestAnimationFrame(mount);else if(typeof setTimeout==="function")setTimeout(mount,0);return true}
 function open(level,id){
  const valid=["world","realm","province","local"].includes(level)?level:"world";
+ const current=currentLocation();
+ if(valid==="realm"&&!id)id=realmForLocation(current)?.id||null;
+ if(valid==="province"&&!id)id=provinceForLocation(current)?.id||null;
+ if(valid==="local"&&!id)id=current?.id||null;
  if(valid==="world"){state.level="world";state.id=null}
  else if(valid==="realm"&&(realm(id)||realmForPolity(id))){state.level=valid;state.id=realm(id)?.id||realmForPolity(id)?.id}
  else if(valid==="province"&&province(id)){state.level=valid;state.id=id}
