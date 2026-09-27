@@ -6,7 +6,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="EQUIPMENT-NAMING-REFERENCE-1.3";
+const REV="EQUIPMENT-NAMING-REFERENCE-1.4";
 const RELEASE="CURRENT-1.74.0";
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const CATEGORY_ALIASES={
@@ -52,6 +52,7 @@ const GRAND_TOKENS=Object.freeze({
   "永恆":"A","魔王":"A","神諭":"A","創世":"S","滅世":"S","終極":"S","時光逆轉":"S","萬物樞紐":"S"
 });
 const STRUCTURAL_TOKENS=Object.freeze(["傳承裝","誓徽","兄弟會","黑市","深井","戰吼","寶庫限定","組織裝備","流派裝備"]);
+const LOW_TIER_MOTIFS=Object.freeze([...new Set([...MOTIFS,...EASTERN_MOTIFS,...Object.values(ELEMENT_MOTIFS).flat()])]);
 
 function clean(v){return String(v||"").trim()}
 function tierOf(v){const t=clean(v).toUpperCase();return TIER_RANK[t]!=null?t:"F"}
@@ -72,6 +73,18 @@ function semanticWords(ctx={}){
   if(Number(m.blockRate||m.block_rate||m.blockValue||m.block_value||0)>0)out.push("壁壘");
   if(Number(m.perception||0)>0)out.push("鷹眼");
   if(Number(m.statusResist||m.status_resist||0)>0)out.push("不屈");
+  return out;
+}
+function lowSemanticWords(ctx={}){
+  const m=mergedMechanics(ctx),out=[];
+  if(Number(m.armorPenPct||m.armor_pen_pct||0)>0)out.push("破甲");
+  if(Number(m.magicPenPct||m.magic_pen_pct||0)>0)out.push("破法");
+  if(Number(m.lifeSteal||m.life_steal||m.manaSteal||m.mana_steal||0)>0)out.push("吸取");
+  if(Number(m.healingPower||m.healing_power||0)>0)out.push("治療");
+  if(Number(m.moveSpeed||m.move_speed||0)>0||Number(m.evasion||0)>0)out.push("迅捷");
+  if(Number(m.blockRate||m.block_rate||m.blockValue||m.block_value||0)>0)out.push("格擋");
+  if(Number(m.statusResist||m.status_resist||0)>0)out.push("抗性");
+  if(Number(m.perception||0)>0)out.push("感知");
   return out;
 }
 function motifPool(ctx={}){
@@ -100,6 +113,7 @@ function validateEquipmentName(name,category="武器",tier="F",context={}){
   if(/[A-Za-z_]{3,}/.test(s))issues.push("含英文識別字");
   if(/[・·／/]/.test(s))issues.push("不得以中點或斜線串接來源名稱");
   for(const token of STRUCTURAL_TOKENS)if(s.includes(token))issues.push("不得把組織／來源詞直接塞進裝備名:"+token);
+  if(TIER_RANK[t]<=TIER_RANK.C&&LOW_TIER_MOTIFS.some(token=>s.includes(token)))issues.push("C級以下不得加入意象:"+LOW_TIER_MOTIFS.find(token=>s.includes(token)));
   for(const token of EXTERNAL_TOKENS)if(s.includes(token))issues.push("外部作品專名:"+token);
   if(!context.allowExisting&&itemNameSet().has(s))issues.push("與CURRENT物品名稱重複");
   for(const [token,minTier] of Object.entries(GRAND_TOKENS)){
@@ -113,14 +127,12 @@ function validateEquipmentName(name,category="武器",tier="F",context={}){
 function generateEquipmentName(category="武器",tier="F",context={}){
   const cat=categoryOf(category),t=tierOf(tier),subtype=subtypeFor(cat,context),used=new Set([...(context.usedNames||[]),...itemNameSet()]);
   const title=clean(context.uniqueTitle);
-  const semantic=semanticWords(context);
+  const semantic=tierRank(t)<=tierRank("C")?lowSemanticWords(context):semanticWords(context);
   for(let attempt=0;attempt<80;attempt++){
     const material=materialFor(t,context),motif=choose(motifPool(context)),effect=semantic.length?choose(semantic):"";
     let base="";
-    if(t==="F"){
-      base=(attempt%2===0?material:(clean(context.role)||"旅人"))+subtype;
-    }else if(t==="E"){
-      base=(attempt%2===0?motif:material)+subtype;
+    if(t==="F"||t==="E"){
+      base=material+subtype;
     }else if(t==="D"||t==="C"){
       const head=material||motif;
       base=head+(effect&&!head.includes(effect)?effect:"")+subtype;
@@ -133,7 +145,7 @@ function generateEquipmentName(category="武器",tier="F",context={}){
     const checked=validateEquipmentName(base,cat,t,context);
     if(checked.ok)return base;
   }
-  const fallback=(materialFor(t,context)||"精製")+subtype;
+  const fallback=(materialFor(t,context)||"精製")+(tierRank(t)<=tierRank("C")?((semantic[0]||"")):"")+subtype;
   const checked=validateEquipmentName(fallback,cat,t,{...context,allowExisting:false});
   return checked.ok?fallback:(materialFor(t,context)+subtype);
 }
@@ -155,10 +167,10 @@ DB.equipment_naming_reference={
   source_policy:"依CURRENT文化圈使用通用奇幻RPG命名文法；武士刀使用獨立東方自然／師承語彙，外部作品專名不得進入可生成詞庫。",
   categories:CATEGORIES,tier_materials:TIER_MATERIALS,motifs:MOTIFS,eastern_motifs:EASTERN_MOTIFS,element_motifs:ELEMENT_MOTIFS,
   tier_rules:{
-    F:"實用品：材質／職能＋裝備類型，避免史詩稱號。",
-    E:"可加入單一自然意象、地域習慣或明確用途。",
-    D:"可組合地域／材質＋一項功能或意象。",
-    C:"使用材質／自然意象＋一項實際功能；不把組織、地區或流派名稱串入裝備全名。",
+    F:"實用品：材質＋裝備類型，不加入意象。",
+    E:"材質＋裝備類型，不加入意象；必要時保留明確用途。",
+    D:"材質＋一項實際功能＋裝備類型，不加入意象。",
+    C:"材質＋一項實際功能＋裝備類型，不加入意象；不把組織、地區或流派名稱串入裝備全名。",
     B:"稀有高階裝備；以單一強烈意象或已實裝效果命名，取得來源放在描述與資料欄位。",
     A:"傳奇級；可使用簡潔題名，但必須有正史與實裝效果，不使用來源長串。",
     S:"世界級唯一／極少數裝備；名稱保持短而有辨識度，創世、滅世、時光等詞只允許在有正史與實裝效果時使用。"

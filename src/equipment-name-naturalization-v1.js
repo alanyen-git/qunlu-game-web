@@ -1,7 +1,7 @@
-/* 群陸旅誌：裝備名稱自然化 CURRENT-2.25.8
- * EQUIPMENT-NAME-NATURALIZATION-1.0
+/* 群陸旅誌：裝備名稱自然化 CURRENT-2.25.9
+ * EQUIPMENT-NAME-NATURALIZATION-1.1
  *
- * 參考傳統RPG常見的命名層次：低階看材質與部位，中階看單一意象或用途，
+ * 參考傳統RPG常見的命名層次：F～E級看材質與部位，D～C級看材質與用途，
  * 高階以短題名搭配裝備類型。組織、地區、流派與取得方式保留在資料欄位，
  * 不再直接串入每一件裝備的名稱。
  */
@@ -9,7 +9,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="EQUIPMENT-NAME-NATURALIZATION-1.0";
+const REV="EQUIPMENT-NAME-NATURALIZATION-1.1";
 const TIERS={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const TIER_MATERIALS={
   F:["鐵製","木製","皮革","青銅"],E:["黑鐵","硬化皮革","精製木","銀紋"],
@@ -17,6 +17,7 @@ const TIER_MATERIALS={
   B:["精金","龍鱗","高階魔晶"],A:["殞鐵","星銀"],S:["恆金"]
 };
 const MOTIFS=["晨曦","暮影","灰燼","霜痕","雷紋","潮痕","裂風","月泉","赤岩","深林","銀穗","星砂","靜心","守望","巡獵","松風","秋水","遠雷","白鷺","薄雲","楓痕","夕潮","蒼雷","曙光","長夜","星河","白虹","月蝕","照夜","逐星"];
+const LOW_TIER_MOTIFS=Object.freeze([...MOTIFS]);
 const VARIANTS=["精工","改製","輕量","重鑄","軍規","術式","古式","新製","特製","定製","改良","標準"];
 const BAD=/(?:傳承裝|誓徽|兄弟會|黑市|深井|戰吼|寶庫限定|組織裝備|流派裝備)/;
 
@@ -25,7 +26,13 @@ function hash(v){let h=2166136261;for(const ch of String(v||"")){h^=ch.charCodeA
 function pick(list,seed,step=0){return list[(hash(seed)+step)%list.length]}
 function tierOf(v){const t=text(v).toUpperCase();return TIERS[t]!=null?t:"F"}
 function mechanics(d){return {...(d?.combat||{}),...(d?.advanced_combat||{}),...(d?.mechanics||{})}}
-function isEquipment(d){return !!d&&(d.kind==="equipment"||["武器","防具","飾品"].includes(d.catalog_group)||["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type))}
+function isEquipment(d){return !!d&&(d.kind==="equipment"||["武器","防具","飾品"].includes(d.catalog_group)||["主武器","副武器","頭盔","盔甲","手套","鞋子","披風","飾品","戒指","耳環","項鍊","護符","護身符","腰帶","徽章","晶珠","盾牌"].includes(text(d.type))||d.weapon_profile||d.equipment_slot)}
+function sourceName(d){return text((Array.isArray(d?.previous_names)&&d.previous_names[0])||d?.name)}
+function plainSourceName(d){
+  const s=sourceName(d);
+  if(!s||BAD.test(s)||LOW_TIER_MOTIFS.some(token=>s.includes(token))||/[・·／/]/.test(s))return "";
+  return s;
+}
 
 function slotOf(d){
   const raw=text(d?.type||d?.equipment_slot||"");
@@ -41,7 +48,7 @@ function materialLabel(raw){
     [/恆金/,"恆金"],[/星銀/,"星銀"],[/殞鐵/,"殞鐵"],[/精金/,"精金"],[/秘銀/,"秘銀"],
     [/黑曜/,"黑曜"],[/龍鱗/,"龍鱗"],[/龍骨/,"龍骨"],[/符文鋼/,"符文鋼"],[/精鋼|鋼製|鋼/,"精鋼"],
     [/黑鐵|鐵質|鐵/,"黑鐵"],[/青銅|銅/,"青銅"],[/木|木材/,"木製"],[/皮|革|獸皮/,"皮革"],
-    [/布|絲|織物|法衣/,"布質"],[/水晶|晶/,"水晶"],[/銀/,"銀紋"]
+    [/布|絲|織物|法衣/,"布質"],[/水晶|晶/,"水晶"],[/銀/,"白銀"]
   ];
   for(const [re,value] of map)if(re.test(raw))return value;
   return "";
@@ -67,7 +74,20 @@ function materialOf(d,slot){
 }
 
 function weaponType(d){
-  const old=text(d?.name),group=text(d?.weapon_profile?.group||d?.weapon_type||"");
+  const old=sourceName(d),group=text(d?.weapon_profile?.group||d?.weapon_type||d?.catalog_subcategory||"");
+  if(d?.offhand_profile?.kind==="shield"||d?.equip_slot==="offhand"||/盾/.test(old+" "+group+" "+text(d?.description)))return "盾牌";
+  if(group&&group!=="盾牌"&&d?.catalog_group==="武器"){
+    if(/武士刀/.test(group))return "武士刀";
+    if(/法杖|魔杖|權杖|咒杖|術杖|法器/.test(group))return "法杖";
+    if(/弓/.test(group))return "長弓";
+    if(/弩/.test(group))return "弩";
+    if(/槍|矛/.test(group))return "長槍";
+    if(/斧錘|鎚|錘/.test(group))return "戰鎚";
+    if(/斧/.test(group))return "戰斧";
+    if(/匕首|短刃/.test(group))return "短刃";
+    if(/鞭/.test(group))return "長鞭";
+    if(/劍/.test(group))return "長劍";
+  }
   if(Number(mechanics(d).blockRate||0)>Number(mechanics(d).attack||0)&&Number(mechanics(d).defense||0)>0)return "盾牌";
   if(/武士刀/.test(old)||/武士刀/.test(group))return "武士刀";
   if(/法杖|魔杖|權杖|咒杖|術杖|法器/.test(old)||/法杖/.test(group))return "法杖";
@@ -83,7 +103,7 @@ function weaponType(d){
 }
 
 function armorType(d,slot){
-  const old=text(d?.name);
+  const old=sourceName(d);
   const profession=text(d?.craft_recipe?.profession);
   if(profession==="鍛造"){
     if(slot==="頭盔")return "面盔";
@@ -100,7 +120,7 @@ function armorType(d,slot){
 }
 
 function accessoryType(d){
-  const old=text(d?.name),m=mechanics(d);
+  const old=sourceName(d),m=mechanics(d);
   if(/戒|環/.test(old)||Number(m.critRate||0)>0&&Number(m.defense||0)===0)return "戒指";
   if(/項鍊|項鏈|吊墜/.test(old))return "項鍊";
   if(/徽|徽章|印/.test(old))return "徽章";
@@ -132,24 +152,44 @@ function effectOf(d,slot){
   return "";
 }
 
+function lowEffectOf(d){
+  const m=mechanics(d);
+  if(Number(m.armorPenPct||m.armor_pen_pct||0)>0)return "破甲";
+  if(Number(m.magicPenPct||m.magic_pen_pct||0)>0)return "破法";
+  if(Number(m.attack||0)>0&&Number(m.accuracy||0)>4)return "精準";
+  if(Number(m.blockRate||m.block_rate||m.blockValue||m.block_value||0)>5)return "格擋";
+  if(Number(m.statusResist||m.status_resist||0)>3)return "抗性";
+  if(Number(m.magicPower||0)>5||Number(m.castSpeed||m.cast_speed||0)>0.08)return "魔力";
+  if(Number(m.moveSpeed||m.move_speed||0)>1||Number(m.evasion||0)>3)return "迅捷";
+  if(Number(m.defense||0)>8||Number(m.magicDefense||0)>8)return "防禦";
+  return "";
+}
+
 function makeCandidate(d,slot,idx,used){
-  const tier=tierOf(d?.tier),rank=TIERS[tier],seed=String(d?.id||idx),mat=materialOf(d,slot)||"",kind=typeOf(d,slot),motif=pick(MOTIFS,seed),effect=effectOf(d,slot),variant=pick(VARIANTS,seed,3);
+  const tier=tierOf(d?.tier),rank=TIERS[tier],seed=String(d?.id||idx),mat=materialOf(d,slot)||"",kind=typeOf(d,slot),motif=pick(MOTIFS,seed),effect=effectOf(d,slot),lowEffect=lowEffectOf(d),variant=pick(VARIANTS,seed,3);
   const candidates=[];
-  if(rank<=1)candidates.push(mat&&mat+kind,motif+kind);
-  else if(rank<=3)candidates.push((effect?motif+effect:motif)+kind,mat&&mat+kind,motif+kind);
-  else candidates.push((effect?motif+effect:motif)+kind,motif+kind,mat&&mat+kind);
-  candidates.push(mat&&mat+motif+kind,motif+variant+kind,variant+motif+kind,mat&&mat+variant+kind,motif+variant+(effect||"")+kind,variant+(effect||"")+kind);
+  const source=plainSourceName(d);
+  if(rank<=1)candidates.push(source,source&&variant+source,mat&&mat+kind,mat&&mat+variant+kind,variant+mat+kind);
+  else if(rank<=3)candidates.push(source,source&&variant+source,mat&&mat+(lowEffect||"")+kind,mat&&mat+kind,lowEffect&&lowEffect+kind,mat&&mat+variant+kind,variant+mat+kind);
+  else candidates.push((effect?motif+effect:motif)+kind,motif+kind,mat&&mat+kind,mat&&mat+motif+kind,motif+variant+kind,variant+motif+kind,mat&&mat+variant+kind,motif+variant+(effect||"")+kind,variant+(effect||"")+kind);
   for(const c of candidates){
     const name=c.replace(/之(?=劍|弓|杖|甲|靴|戒|符|披風|盾)/g,"");
-    if(!name||name.length>24||used.has(name)||BAD.test(name))continue;
+    if(!name||name.length>24||used.has(name)||BAD.test(name)||(rank<=3&&LOW_TIER_MOTIFS.some(token=>name.includes(token))))continue;
     const checked=typeof validateEquipmentName==="function"?validateEquipmentName(name,"武器",tier,{...d,allowExisting:true}):{ok:true};
     if(checked.ok)return name;
   }
   for(let n=0;n<VARIANTS.length*4;n++){
-    const v=VARIANTS[(hash(seed)+n)%VARIANTS.length],name=n<VARIANTS.length?motif+v+kind:n<VARIANTS.length*2?v+motif+kind:motif+v+(n%2?"式":"款")+kind;
-    if(!used.has(name)&&name.length<=24&&!BAD.test(name))return name;
+    const v=VARIANTS[(hash(seed)+n)%VARIANTS.length];
+    const name=rank<=3?(n<VARIANTS.length?mat+v+kind:n<VARIANTS.length*2?v+mat+kind:mat+v+(n%2?"式":"款")+kind):(n<VARIANTS.length?motif+v+kind:n<VARIANTS.length*2?v+motif+kind:motif+v+(n%2?"式":"款")+kind);
+    if(!used.has(name)&&name.length<=24&&!BAD.test(name)&&(rank>3||!LOW_TIER_MOTIFS.some(token=>name.includes(token))))return name;
   }
-  return motif+kind;
+  const base=rank<=3?mat+kind:motif+kind;
+  if(!used.has(base))return base;
+  for(let n=2;n<1000;n++){
+    const numbered=base+"（"+n+"）";
+    if(!used.has(numbered)&&numbered.length<=24)return numbered;
+  }
+  return base+"（"+hash(seed)%997+"）";
 }
 
 function naturalize(){
@@ -166,7 +206,7 @@ function naturalize(){
   }
   DB.meta=DB.meta||{};
   DB.meta.equipment_name_naturalization_revision=REV;
-  DB.equipment_name_naturalization={version:REV,changed:changes.length,total:rows.length,rule:"材質／單一意象／已實裝效果＋裝備部位；來源組織、地區、流派不進裝備全名",changed_ids:changes.slice(0,24).map(x=>x.id)};
+  DB.equipment_name_naturalization={version:REV,changed:changes.length,total:rows.length,rule:"F～E級材質＋部位；D～C級材質＋實際功能＋部位；B級以上才可使用單一意象；來源組織、地區、流派不進裝備全名",changed_ids:changes.slice(0,24).map(x=>x.id)};
   return DB.equipment_name_naturalization;
 }
 
@@ -177,6 +217,7 @@ function audit(){
     if(!name)issues.push("空白裝備名稱:"+d.id);
     if(BAD.test(name))issues.push("來源硬拼詞:"+d.id+":"+name);
     if(/[・·／/]/.test(name))issues.push("來源串接符號:"+d.id+":"+name);
+    if(TIERS[tierOf(d?.tier)]<=3&&LOW_TIER_MOTIFS.some(token=>name.includes(token)))issues.push("C級以下不得使用意象:"+d.id+":"+name);
     if(seen.has(name))issues.push("裝備名稱重複:"+name);
     seen.add(name);
   }
@@ -186,9 +227,14 @@ function audit(){
 const result=naturalize();
 DB.equipment_naming_reference=DB.equipment_naming_reference||{};
 DB.equipment_naming_reference.naturalization_revision=REV;
-DB.equipment_naming_reference.naming_source_policy="一般裝備採材質與部位；高階裝備採單一意象或已實裝效果；組織、地區、流派與取得方式不直接串入名稱。";
+DB.equipment_naming_reference.naming_source_policy="F～E級採材質與部位；D～C級採材質、已實裝功能與部位；B級以上才採單一意象或已實裝效果；組織、地區、流派與取得方式不直接串入名稱。";
 globalThis.naturalizeEquipmentName=(d)=>makeCandidate(d,slotOf(d),0,new Set());
+globalThis.runEquipmentNameNaturalization=naturalize;
 globalThis.runEquipmentNameNaturalizationAudit=audit;
-globalThis.QUNLU_EQUIPMENT_NAME_NATURALIZATION=Object.freeze({revision:REV,result,audit:audit()});
+globalThis.QUNLU_EQUIPMENT_NAME_NATURALIZATION={revision:REV,result,audit:audit()};
+if(typeof addEventListener==="function")addEventListener("load",()=>setTimeout(()=>{
+  const refreshed=naturalize();
+  globalThis.QUNLU_EQUIPMENT_NAME_NATURALIZATION={revision:REV,result:refreshed,audit:audit()};
+},0));
 globalThis.QUNLU_CORE?.registerModule?.("src/equipment-name-naturalization-v1.js",{domain:"equipment",revision:REV,release:globalThis.QUNLU_CORE?.release?.()});
 })();

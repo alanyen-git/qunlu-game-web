@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.8",
-  "previous_version": "CURRENT-2.25.7",
+  "version": "CURRENT-2.25.9",
+  "previous_version": "CURRENT-2.25.8",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
   "summary": "UPDATE-GITHUB-MANUAL-1.0：遊戲內手動連線 GitHub 檢查版本，確認後才下載並套用更新；保留 PWA、Android OTA、穩定簽章、版號遞增與舊存檔相容。",
   "changelog": [
+    "ITEM-EQUIPMENT-NAMING-2.0：F～C級裝備、道具與藥劑移除晨曦、星河、照夜等意象，只保留材質、部位、功能與用途；藥劑依效果、料理依食材、卷軸依功能，修正低階候選撞名與組織秘製名稱，保留ID、數值、效果、配方、持有量與舊存檔相容。PWA v187，Android versionCode 2025009。",
     "ITEM-NAME-NATURALIZATION-1.0：重新整理藥劑、料理、補給、卷軸、符文、工具、鑰匙與各類素材名稱；藥劑依效果、料理依主要食材、卷軸依功能命名，移除組織／地區／流派硬拼詞，保留物品ID、效果、配方、持有量與舊存檔相容。PWA v186，Android versionCode 2025008。",
     "EQUIPMENT-NAME-NATURALIZATION-1.0：重新命名全部2312件裝備，採材質／單一意象／已實裝效果＋裝備部位的自然RPG命名；移除組織、地區、流派、黑市、深井、兄弟會、傳承裝與誓徽等硬拼來源詞，保留裝備ID、數值、效果、取得條件與舊存檔相容。",
     "MAP-SURVEY-COMPLETION-1.0：完成目前83個現行圖冊地點的固定區域路網測繪座標，接入世界／政治體／行省／當地連續圖面；座標依 canonical links、既有世界地形錨點與 settlement 路線逐點編製，不使用隨機／平均／排版散點，不改旅行 hours、存檔或解鎖規則。移除目前可玩圖面中的「待測繪」缺口；PWA v185，Android versionCode 2025006。",
@@ -482,7 +483,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v186",
+  "pwa_cache_revision": "v187",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -560,7 +561,8 @@
   },
   "release_integrity_revision": "RELEASE-INTEGRITY-2.27",
   "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.3",
-  "equipment_name_naturalization_revision": "EQUIPMENT-NAME-NATURALIZATION-1.0",
+  "equipment_name_naturalization_revision": "EQUIPMENT-NAME-NATURALIZATION-1.1",
+  "item_name_naturalization_revision": "ITEM-NAME-NATURALIZATION-1.1",
   "equipment_naming_reference": {
     "weapon_types": 26,
     "armor_types": 21,
@@ -570,10 +572,16 @@
     "external_proper_name_blocking": true,
     "save_compatible": true,
     "revision": "EQUIPMENT-NAMING-REFERENCE-1.3",
-    "naturalization_revision": "EQUIPMENT-NAME-NATURALIZATION-1.0",
+    "naturalization_revision": "EQUIPMENT-NAME-NATURALIZATION-1.1",
     "naturalization_total": 2312,
     "culture_aware": true,
     "eastern_katana_lexicon": true
+  },
+  "item_name_naturalization": {
+    "revision": "ITEM-NAME-NATURALIZATION-1.1",
+    "naturalization_total": 2724,
+    "low_tier_imagery_blocked_through": "C",
+    "save_compatible": true
   },
   "class_naming_reference_revision": "CLASS-NAMING-REFERENCE-1.0",
   "class_naming_reference": {
@@ -851,8 +859,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.25.8：全量裝備與非裝備物品名稱自然化；91個正式src模組與PWA v186同步，Android版號由版本檔遞增；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.25.8",
+    "note": "CURRENT-2.25.9：F～C級裝備、道具與藥劑名稱去除意象並依材質／部位／功能重整；91個正式src模組與PWA v187同步，Android版號由版本檔遞增；舊存檔相容。",
+    "last_verified_release": "CURRENT-2.25.9",
     "notes": [
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
@@ -918,7 +926,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.8",
+    "last_verified_release": "CURRENT-2.25.9",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -926,7 +934,7 @@
     "audited_src_programs": 91,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v186",
+    "pwa_cache": "v187",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",

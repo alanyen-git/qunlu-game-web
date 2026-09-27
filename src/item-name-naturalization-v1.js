@@ -1,5 +1,5 @@
-/* 群陸旅誌：道具與藥劑名稱自然化 CURRENT-2.25.8
- * ITEM-NAME-NATURALIZATION-1.0
+/* 群陸旅誌：道具與藥劑名稱自然化 CURRENT-2.25.9
+ * ITEM-NAME-NATURALIZATION-1.1
  *
  * 非裝備物品依用途分流命名：藥劑看效果，料理看主要食材，
  * 卷軸看功能，工具／鑰匙／素材保留可辨識的實物名稱。
@@ -9,11 +9,12 @@
 "use strict";
 if(typeof DB!=="object"||!Array.isArray(DB.items))return;
 
-const REV="ITEM-NAME-NATURALIZATION-1.0";
+const REV="ITEM-NAME-NATURALIZATION-1.1";
 const TIERS={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const BAD=/(?:傳承裝|誓徽|兄弟會|黑市|深井|戰吼|寶庫限定|組織裝備|流派裝備|勢力寶庫|組織／流派|組織／地區)/;
 const SEPARATORS=/[・·／/]/;
 const MOTIFS=["晨露","月泉","白棘","星砂","楓痕","霜痕","雷紋","潮痕","裂風","深林","銀穗","赤岩","靜心","守望","巡獵","松風","秋水","遠雷","白鷺","薄雲","曙光","長夜","星河","白虹","照夜","逐星","青燈","暮影","灰燼"];
+const LOW_TIER_MOTIFS=Object.freeze([...MOTIFS]);
 const TIER_PREFIX={F:"小型",E:"標準",D:"強效",C:"高效",B:"濃縮",A:"精製",S:"至純"};
 
 function text(v){return String(v==null?"":v).normalize("NFKC").trim()}
@@ -21,6 +22,11 @@ function hash(v){let h=2166136261;for(const ch of String(v||"")){h^=ch.charCodeA
 function pick(list,seed,step=0){return list[(hash(seed)+step)%list.length]}
 function tierOf(v){const t=text(v).toUpperCase();return TIERS[t]!=null?t:"F"}
 function tierRank(v){return TIERS[tierOf(v)]}
+function stripLowTierMotifs(value){
+  let s=text(value);
+  for(const token of LOW_TIER_MOTIFS)s=s.split(token).join("");
+  return s.replace(/\s+/g," ").trim();
+}
 function allText(d){return [d?.name,d?.description,d?.desc,d?.feature,d?.consumable_group,d?.material_group,d?.utility_effect].map(text).join(" ")}
 function effectText(d){return JSON.stringify(d?.use||d?.effect||d?.effects||d?.mechanics||"")+" "+allText(d)}
 function isEquipment(d){
@@ -29,7 +35,7 @@ function isEquipment(d){
 }
 function isItem(d){return !!d&&!isEquipment(d)}
 function familyOf(d){
-  const type=text(d?.type),group=text(d?.catalog_group),inventory=text(d?.inventory_group),sub=text(d?.consumable_group||d?.material_group),raw=allText(d);
+  const type=text(d?.type),group=text(d?.catalog_group),inventory=text(d?.inventory_group),sub=text(d?.consumable_group||d?.material_group),rawName=text(d?.name);
   if(type==="藥劑")return "potion";
   if(type==="料理"||inventory==="食物")return "food";
   if(type==="食材")return "ingredient";
@@ -47,7 +53,8 @@ function familyOf(d){
   if(type==="消耗品")return "consumable";
   if(type==="任務道具")return "quest";
   if(type==="寶藏")return "treasure";
-  if(/藥|藥水|藥劑|靈藥/.test(raw))return "potion";
+  if(text(d?.craft_recipe?.profession)==="藥劑")return "potion";
+  if(/藥水|藥油|藥劑|靈藥|煎藥/.test(rawName))return "potion";
   if(group==="消耗品")return "consumable";
   return "other";
 }
@@ -132,7 +139,7 @@ function scrollBase(d){
   return /符文/.test(s)?"符文石":"空白卷軸";
 }
 function simpleBase(d,family){
-  const old=oldSemantic(d),s=effectText(d),id=text(d?.id);
+  const oldRaw=oldSemantic(d),old=tierRank(d?.tier)<=3?stripLowTierMotifs(oldRaw):oldRaw,s=effectText(d),id=text(d?.id);
   if(family==="key")return /骷髏|骨/.test(old)?"骷髏鑰匙":/魔法|秘/.test(old)?"魔法鑰匙":/金/.test(old)?"金鑰匙":/銀/.test(old)?"銀鑰匙":/鐵/.test(old)?"鐵鑰匙":"舊鑰匙";
   if(family==="tool")return /鎬|採礦|mining/i.test(old+id)?"鐵鎬":/伐木|木材|wood/i.test(old+id)?"伐木斧":/釣|魚|fish/i.test(old+id)?"釣竿":/火把|torch/i.test(old+id)?"火把":/油燈|燈油|lantern/i.test(old+id)?"油燈":/開鎖|lockpick/i.test(old+id)?"開鎖工具組":old||"旅用工具";
   if(family==="supply")return /補水|水袋|飲水|thirst/i.test(old+s+id)?"行旅水袋":/柴|木柴|firewood/i.test(old+id)?"乾柴束":/燈油|lantern/i.test(old+id)?"燈油":/鹽/.test(old+id)?"旅用鹽包":/蠟布|防雨/.test(old+id)?"防雨蠟布":/弓弦/.test(old+id)?"備用弓弦":/帳/.test(old+id)?"簡易帳布":/炭/.test(old+id)?"小型炭包":/護足/.test(old+id)?"護足布條":"行旅補給包";
@@ -148,7 +155,12 @@ function simpleBase(d,family){
   return old||"旅用道具";
 }
 function candidate(d,family,index){
-  const tier=tierOf(d?.tier),seed=String(d?.id||index),motif=pick(MOTIFS,seed),motif2=pick(MOTIFS,seed,7);
+  const tier=tierOf(d?.tier),rank=tierRank(tier),seed=String(d?.id||index),motif=pick(MOTIFS,seed),motif2=pick(MOTIFS,seed,7);
+  if(rank<=3){
+    const base=family==="potion"?potionBase(d):family==="food"?foodBase(d):family==="scroll"||family==="book"?scrollBase(d):simpleBase(d,family);
+    const cleanBase=stripLowTierMotifs(base)||base;
+    return [cleanBase,"標準"+cleanBase,"改良"+cleanBase,"精製"+cleanBase,"輕量"+cleanBase,"普通"+cleanBase];
+  }
   if(family==="potion"){
     const base=potionBase(d);return [base,motif+base.replace(/^小型|^標準|^強效|^高效|^濃縮|^精製|^至純/,""),motif+pick(["清","和","露","精華"],seed,3)+base.replace(/^小型|^標準|^強效|^高效|^濃縮|^精製|^至純/,""),motif+motif2+base.replace(/^小型|^標準|^強效|^高效|^濃縮|^精製|^至純/,"")];
   }
@@ -177,9 +189,12 @@ function naturalize(){
     let name=candidates.find(x=>validate(x,family,used).ok);
     if(!name){
       const suffix=family==="potion"?"靈藥":family==="food"?"旅人餐":family==="scroll"?"卷軸":family==="rune"?"符文":family==="key"?"鑰匙":family==="tool"?"工具":family==="supply"?"補給":family==="monster_material"?"素材":"道具";
-      const base=pick(MOTIFS,String(d.id||""))+suffix;
+      const fallbackBase=family==="potion"?potionBase(d):simpleBase(d,family);
+      const lowTier=tierRank(d?.tier)<=3,base=lowTier?(stripLowTierMotifs(fallbackBase)||suffix):(pick(MOTIFS,String(d.id||""))+suffix);
       name=base;
-      let n=2;while(used.has(name))name=base+n++;
+      const variants=lowTier?["標準","改良","精製","輕量","普通"]:[];
+      let n=0;while(used.has(name)&&n<variants.length)name=variants[n++]+base;
+      while(used.has(name))name=base+"（"+(n++ +2)+"）";
     }
     used.add(name);
     if(old!==name){
@@ -191,7 +206,7 @@ function naturalize(){
   }
   DB.meta=DB.meta||{};
   DB.meta.item_name_naturalization_revision=REV;
-  DB.item_name_naturalization={version:REV,changed:changes.length,total:rows.length,families,rule:"藥劑依效果、料理依食材、卷軸依功能、工具與素材依實物；來源組織／地區／流派不進正式名稱",changed_ids:changes.slice(0,32).map(x=>x.id)};
+  DB.item_name_naturalization={version:REV,changed:changes.length,total:rows.length,families,rule:"F～C級藥劑、料理、卷軸、工具與素材不加入意象；藥劑依效果、料理依食材、卷軸依功能、工具與素材依實物；B級以上才可使用單一意象；來源組織／地區／流派不進正式名稱",changed_ids:changes.slice(0,32).map(x=>x.id)};
   return DB.item_name_naturalization;
 }
 function audit(){
@@ -201,6 +216,7 @@ function audit(){
     if(!name)issues.push("空白物品名稱:"+d.id);
     if(BAD.test(name))issues.push("來源硬拼詞:"+d.id+":"+name);
     if(SEPARATORS.test(name))issues.push("來源串接符號:"+d.id+":"+name);
+    if(tierRank(d?.tier)<=3&&LOW_TIER_MOTIFS.some(token=>name.includes(token)))issues.push("C級以下不得使用意象:"+d.id+":"+name);
     if(seen.has(name))issues.push("非裝備名稱重複:"+name);
     seen.add(name);
     if(familyOf(d)==="potion"&&!/(藥水|藥油|靈藥)/.test(name))issues.push("藥劑類型詞異常:"+d.id+":"+name);
@@ -211,13 +227,13 @@ function audit(){
 const result=naturalize();
 DB.name_generator_system=DB.name_generator_system||{};
 DB.name_generator_system.item_naturalization_revision=REV;
-DB.name_generator_system.item_name_source_policy="藥劑依效果、料理依主要食材、卷軸依功能、工具／鑰匙／素材保留實物辨識度；來源名稱不直接串接。";
+DB.name_generator_system.item_name_source_policy="F～C級不加入意象；藥劑依效果、料理依主要食材、卷軸依功能、工具／鑰匙／素材保留實物辨識度；B級以上才可使用單一意象；來源名稱不直接串接。";
 globalThis.runItemNameNaturalization=naturalize;
 globalThis.runItemNameNaturalizationAudit=audit;
 globalThis.QUNLU_ITEM_NAME_NATURALIZATION={revision:REV,result,audit:audit()};
-if(typeof addEventListener==="function")addEventListener("load",()=>{
+if(typeof addEventListener==="function")addEventListener("load",()=>setTimeout(()=>{
   const refreshed=naturalize();
   globalThis.QUNLU_ITEM_NAME_NATURALIZATION={revision:REV,result:refreshed,audit:audit()};
-});
+},0));
 globalThis.QUNLU_CORE?.registerModule?.("src/item-name-naturalization-v1.js",{domain:"item",revision:REV,release:globalThis.QUNLU_CORE?.release?.()});
 })();
