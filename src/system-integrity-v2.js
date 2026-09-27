@@ -57,6 +57,7 @@
   }
 
   function runAudit(repair=true){
+    const repairResult=repair?repairWorldState():{changed:false,repairs:[]};
     const g=game(),checks=[];const add=(id,pass,value=null,detail="")=>checks.push({id,pass:!!pass,value,detail});
     add("db_version",DB.meta?.current_version===RELEASE,DB.meta?.current_version,"資料庫版本需與發布版一致");
     add("market_revision",DB.meta?.market_economy_revision==="MARKET-PRICE-SYNC-2.0",DB.meta?.market_economy_revision);
@@ -83,7 +84,6 @@
     const at=typeof globalThis.runAffiliationTreasuryDepthAudit==="function"?globalThis.runAffiliationTreasuryDepthAudit():null;add("affiliation_treasury_selfcheck",!at||at.pass===true,at?.revision||null,at?.issues?.slice(0,5).join("；")||"");
     const ai=typeof globalThis.runAffiliationIntegrityAudit==="function"?globalThis.runAffiliationIntegrityAudit():null;add("affiliation_integrity_selfcheck",!ai||ai.pass===true,ai?.revision||null,ai?.issues?.slice(0,5).join("；")||"");
 
-    const repairResult=repair?repairWorldState():{changed:false,repairs:[]};
     const result={revision:REVISION,release:RELEASE,mode:"full-audit",pass:checks.every(x=>x.pass),checks,repair:repairResult,time:Date.now(),classSkill:cs,affiliationContribution:ac,affiliationTreasury:at,affiliationIntegrity:ai};
     const gg=game();if(gg?.worldState)gg.worldState.systemIntegrity=result;
     if(repairResult.changed&&CFG.persist_after_repair&&typeof originalPersist==="function")try{originalPersist()}catch(e){}
