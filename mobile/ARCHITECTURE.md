@@ -13,7 +13,7 @@ The mobile build packages the existing text game as an Android app. The web/PWA 
 3. **Local save — existing storage layer**  
    Saves stay on the player's device in IndexedDB, with the current localStorage fallback. Android and browser storage are separate. Use the in-game save export/import flow to move a save between them.
 4. **Over-the-air game updates**  
-   GitHub Pages publishes a versioned web bundle and `mobile/update-manifest.json`. The Android app checks the manifest at startup, downloads a newer HTML/CSS/JavaScript bundle, and activates it when the app backgrounds or starts again. A failed network check does not prevent play. The normal web/PWA page is not modified by the native updater.
+   GitHub publishes `version.json` as the authoritative version source, while GitHub Pages publishes the matching versioned web bundle and `mobile/update-manifest.json`. From the in-game settings, the player manually checks GitHub, reviews the release information, and confirms the download. Android stages the newer HTML/CSS/JavaScript bundle and activates it when the app backgrounds or starts again; a failed check or cancelled download does not prevent play. The normal web/PWA page is not modified by the native updater.
 5. **Native app updates**  
    Changes to native plugins, Android permissions, or other Android project code require a new APK. The OTA updater only updates the web game bundle.
 
@@ -44,8 +44,8 @@ The Pages workflow runs the same steps after the web game passes its existing va
 
 ## Update behavior and save safety
 
-- On a network connection, a native launch checks for a newer game version. If available, it downloads the bundle in the background.
-- The app switches to the downloaded bundle when it enters the background or on its next launch, without interrupting an active session.
+- `設定 → 檢查遊戲更新` manually connects to GitHub and checks the authoritative version. It does not run an automatic polling loop or interrupt an active session.
+- After the player confirms, Android downloads and stages the bundle; it switches to that bundle when it enters the background or on its next launch. The web/PWA build refreshes the GitHub Pages release after confirmation.
 - Offline launches continue using the last installed bundle.
 - App and browser saves are separate local stores. Export the save before moving between installations.
 - The initial APK containing the updater plugin must be installed once. Future text/game-content updates use OTA; changes to native code need an APK update.

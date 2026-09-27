@@ -2,6 +2,7 @@ import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { CapacitorUpdater } from "@capgo/capacitor-updater";
 
 const UPDATE_MANIFEST_URL = "https://alanyen-git.github.io/qunlu-game-web/mobile/update-manifest.json";
+const GITHUB_VERSION_URL = "https://raw.githubusercontent.com/alanyen-git/qunlu-game-web/main/version.json";
 const BUNDLE_PREFIX = new URL("./bundles/", UPDATE_MANIFEST_URL).href;
 
 async function readJson(response) {
@@ -23,27 +24,44 @@ function compareVersions(left, right) {
 }
 
 async function checkForGameUpdate() {
-  const [localResponse, remoteResponse] = await Promise.all([
+  const [localResponse, remoteVersionResponse, remoteManifestResponse] = await Promise.all([
     CapacitorHttp.get({ url: new URL("version.json", document.baseURI).href, connectTimeout: 10000, readTimeout: 10000 }),
-    CapacitorHttp.get({ url: UPDATE_MANIFEST_URL, connectTimeout: 10000, readTimeout: 10000 })
+    CapacitorHttp.get({ url: `${GITHUB_VERSION_URL}?t=${Date.now()}`, connectTimeout: 10000, readTimeout: 10000 }),
+    CapacitorHttp.get({ url: `${UPDATE_MANIFEST_URL}?t=${Date.now()}`, connectTimeout: 10000, readTimeout: 10000 })
   ]);
   const local = await readJson(localResponse);
-  const latest = await readJson(remoteResponse);
-  if (!local?.version || !latest?.version || !latest?.bundleUrl) return;
-  if (compareVersions(latest.version, local.version) <= 0) return;
+  const latest = await readJson(remoteVersionResponse);
+  const manifest = await readJson(remoteManifestResponse);
+  if (!local?.version || !latest?.version) throw new Error("GitHub version metadata is incomplete.");
+  if (compareVersions(latest.version, local.version) <= 0) {
+    return { ...latest, available: false, localVersion: local.version, source: "GitHub" };
+  }
+  if (!manifest?.bundleUrl) throw new Error("GitHub Pages update manifest is incomplete.");
 
-  const bundleUrl = new URL(latest.bundleUrl, UPDATE_MANIFEST_URL).href;
+  const bundleUrl = new URL(manifest.bundleUrl, UPDATE_MANIFEST_URL).href;
   if (!bundleUrl.startsWith(BUNDLE_PREFIX)) {
     throw new Error("Update bundle URL is outside the trusted GitHub Pages bundle path.");
   }
+  return { ...latest, ...manifest, available: true, localVersion: local.version, bundleUrl, source: "GitHub" };
+}
 
+async function applyGameUpdate(info) {
+  const latest = info?.available ? info : await checkForGameUpdate();
+  if (!latest?.available) return latest;
   const bundle = await CapacitorUpdater.download({
-    url: bundleUrl,
+    url: latest.bundleUrl,
     version: latest.version
   });
   await CapacitorUpdater.next({ id: bundle.id });
   console.info(`群陸旅誌已下載遊戲更新 ${latest.version}；將於 App 進入背景或下次啟動時套用。`);
+  return { ...latest, downloaded: true };
 }
+
+globalThis.QUNLU_NATIVE_UPDATE = {
+  isNative: true,
+  check: checkForGameUpdate,
+  apply: applyGameUpdate
+};
 
 async function startNativeUpdates() {
   if (!Capacitor.isNativePlatform()) return;
@@ -51,13 +69,6 @@ async function startNativeUpdates() {
     await CapacitorUpdater.notifyAppReady();
   } catch (error) {
     console.warn("Native updater readiness notification failed", error);
-  }
-  if (Capacitor.getPlatform() !== "android") return;
-  try {
-    await checkForGameUpdate();
-  } catch (error) {
-    // A missing connection or a failed download must never block the game.
-    console.info("Game update check skipped", error);
   }
 }
 
