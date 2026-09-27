@@ -428,19 +428,27 @@ async function init(){
  let legacyRaw=null;
  try{legacyRaw=window.localStorage?localStorage.getItem(SAVE_MAIN_KEY):null}catch(e){}
  if(legacyRaw){
+   let restored=false;
    try{
      G=JSON.parse(legacyRaw);
      lastPersistSerialized="";
      migrateSave();
-     enterGame(true)
-   }catch(e){console.warn(e);return}
-   try{
-     await requestExpandedSaveStorage();
-     await migrateLegacySaveBackups();
-     persist();
-     await flushPersistWrites()
-   }catch(e){console.warn("legacy save migration failed",e)}
-   return
+     if(!G||typeof G!=="object"||!G.meta||!G.character||!G.worldTime)throw new Error("legacy save is incomplete");
+     enterGame(true);
+     restored=true
+   }catch(e){
+     console.warn("legacy save restore failed; trying expanded storage",e);
+     G=null
+   }
+   if(restored){
+     try{
+       await requestExpandedSaveStorage();
+       await migrateLegacySaveBackups();
+       persist();
+       await flushPersistWrites()
+     }catch(e){console.warn("legacy save migration failed",e)}
+     return
+   }
  }
  let raw=null;
  try{
@@ -453,8 +461,9 @@ async function init(){
      G=JSON.parse(raw);
      lastPersistSerialized=raw;
      migrateSave();
+     if(!G||typeof G!=="object"||!G.meta||!G.character||!G.worldTime)throw new Error("expanded save is incomplete");
      enterGame(true)
-   }catch(e){console.warn(e)}
+   }catch(e){console.warn("expanded save restore failed",e);G=null}
  }
 }
 function migrateSave(){
