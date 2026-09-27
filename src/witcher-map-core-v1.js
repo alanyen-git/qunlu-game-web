@@ -1,4 +1,4 @@
-/* 群陸旅誌：全新世界地圖核心 CURRENT-2.23.0
+/* 群陸旅誌：全新世界地圖核心 CURRENT-2.23.1
  * WITCHER-MAP-CORE-1.0 / FOUR-LAYER-ATLAS-1.0
  * 這是全新的地圖 UI、渲染器與互動核心；舊地圖資料仍由既有資料模組提供，
  * 不刪除 canonical ID、不改旅行權限、不改存檔 schema。
@@ -7,7 +7,7 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 const REV="WITCHER-MAP-CORE-1.0";
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.23.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.23.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.23.1")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.23.1";
 const A=v=>Array.isArray(v)?v:[];
 const db=()=>DB;
 const find=(key,id)=>A(db()[key]).find(x=>x?.id===id)||null;
@@ -128,6 +128,18 @@ globalThis.openRegionMapGraphic=(level,id)=>open(level,id);
 globalThis.openRealmRegionMap=id=>open("realm",id);
 globalThis.openProvinceRegionMap=id=>open("province",id);
 globalThis.openSettlementRegionMap=id=>{const l=loc(id);return l?.province_region_id?open("province",l.province_region_id):open("local",id)};
+// 遊戲主畫面的「移動」與舊世界誌仍使用這些名稱；全部轉接到新核心，
+// 避免只替換圖面入口，卻讓實際遊戲操作回到舊 runtime renderer。
+globalThis.openMap=()=>{const l=currentLocation();return l?open("local",l.id):open("world")};
+globalThis.openMapLocationDetail=id=>open("local",id);
+globalThis.openProvinceCategoryMap=(id,kind)=>{const ok=open("province",id);return ok&&(["town","wild","dungeon"].includes(kind)?setFilter(kind):ok)};
+globalThis.openProvinceTerrainMap=(id,kind)=>globalThis.openProvinceCategoryMap(id,kind);
+globalThis.openWorldMapProvinceAtlas=()=>open("world");
+globalThis.openWorldMapProvinceDetails=id=>open("province",id);
+globalThis.openWorldMapWilderness=id=>loc(id)?open("local",id):open("world");
+globalThis.openWorldMapPass=()=>open("world");
+globalThis.openWorldMapPolityTerritory=pid=>{const r=realmRows().find(x=>x.political_entity_id===pid);return r?open("realm",r.id):open("world")};
+globalThis.openWorldMapNonStateRegion=rid=>{const r=realmRows().find(x=>x.world_region_id===rid||A(x.world_region_ids).includes(rid));return r?open("realm",r.id):open("world")};
 DB.meta=DB.meta||{};DB.meta.witcher_map_core_revision=REV;DB.meta.witcher_map_old_entrypoints_replaced=true;
 globalThis.QUNLU_CORE?.registerModule?.("src/witcher-map-core-v1.js",{domain:"world",revision:REV,release:RELEASE,old_entrypoints_replaced:true});
 globalThis.QUNLU_CORE?.registerAudit?.("runWitcherMapCoreAudit",audit);
