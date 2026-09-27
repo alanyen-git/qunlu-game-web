@@ -199,6 +199,7 @@ jobs:
           node tools/test-region-map-graphics.js
           node tools/test-world-mosaic.js
           node tools/test-polity-province-depth.js
+          node tools/test-monster-behavior-depth.js
           node tools/test-polity-database-completion.js
 
       - name: Detect Pages publishing source

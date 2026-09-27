@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.19.0",
-  "previous_version": "CURRENT-2.18.0",
+  "version": "CURRENT-2.20.0",
+  "previous_version": "CURRENT-2.19.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "各政治體行省級資料擴充：補齊城鎮、野外、地下城與 NPC 索引，並為金衡自由都市建立六省專屬內容。",
+  "summary": "野獸、魔物、菁英與 Boss 行為深化：依物種與構造接入獨特技能、攻擊模式、狀態效果與階段轉換。",
   "changelog": [
+    "MONSTER-BEHAVIOR-DEPTH-1.0：587隻怪物各自建立物種行為簽章與專屬動作；野獸／魔物依獵食、群襲、毒素、元素、構裝、不死等特性行動，菁英新增狂性解放，Boss新增低血量領域轉相；不改存檔格式。",
     "POLITY-PROVINCE-DEPTH-1.0：建立16個現行政治體／非主權區的行省級覆蓋索引；阿斯戴爾補齊四個王領省級區，金衡自由都市新增六省、八城鎮、十二野外、八地下城與十八名固定NPC。每省依治理、經濟、地形、危險、地下遺構與NPC資訊邊界獨立設計，不共用模板。既有政治體深化模組統一納入行省圖與所在地圖索引，舊存檔相容。",
     "GAMEPLAY-FIXES-2.17.0：教會可付費為全隊恢復滿血並清除異常狀態；遭遇怪物數量依地圖階級與危險度於1至6隻間抽選，首領隊伍另行限制；同鎮探索／巡查委託完成後冷卻48小時，避免立即重複。存檔結構相容。",
     "UI-ART-SYSTEM-2.1：新增原創世界橫幅插畫並完成介面視覺整理；統一字色、表面材質、框線、圓角、陰影、狀態卡、按鍵與行動導覽。手機觸控尺寸、底部導覽、地圖羊皮紙畫面、戰鬥編排、遊戲規則與存檔格式維持相容。",
@@ -812,10 +813,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.32",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.33",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 85,
+    "active_src_programs": 86,
     "groups": [
       "core",
       "data",
@@ -835,9 +836,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.15.1：84個正式src模組，新增裝備單雙手與盾牌防禦正規化，交易類別明確，舊存檔相容。",
-    "last_verified_release": "CURRENT-2.19.0",
+    "note": "CURRENT-2.20.0：新增怪物行為深化模組，86個正式src模組與PWA v173同步；舊存檔相容。",
+    "last_verified_release": "CURRENT-2.20.0",
     "notes": [
+      "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
       "CURRENT-2.18.0：POLITY-PROVINCE-DEPTH-1.0補齊16個現行政治體／非主權區的行省級覆蓋索引；金衡六省與阿斯戴爾四個細分省級區接入王國／行省／當地圖面；PWA v171。",
       "CURRENT-2.17.0：修正教會全隊治療、依地圖危險度隨機生成1至6隻敵人、探索／巡查委託同鎮48小時冷卻；PWA v170。",
@@ -873,12 +875,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 85,
-    "programs_loaded": 85,
+    "programs_total": 86,
+    "programs_loaded": 86,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 68,
-    "full_audits_passed": 68,
+    "full_audits_executed": 69,
+    "full_audits_passed": 69,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -901,15 +903,15 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.19.0",
+    "last_verified_release": "CURRENT-2.20.0",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 85,
+    "audited_src_programs": 86,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v172",
+    "pwa_cache": "v173",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -2016,5 +2018,18 @@
     "unique_authored_profiles": 16,
     "save_compatible": true,
     "revision": "POLITY-DATABASE-COMPLETION-1.0"
+  },
+  "monster_behavior_depth_revision": "MONSTER-BEHAVIOR-DEPTH-1.0",
+  "monster_behavior_depth": {
+    "version": "MONSTER-BEHAVIOR-DEPTH-1.0",
+    "release": "CURRENT-2.20.0",
+    "monsters": 587,
+    "profiles": 587,
+    "normal": 438,
+    "elite": 118,
+    "boss": 31,
+    "special_skills": 1323,
+    "unique_signatures": 587,
+    "save_compatible": true
   }
 }

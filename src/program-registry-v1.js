@@ -6,7 +6,7 @@
 "use strict";
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-2.12.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.0";
-const REV="PROGRAM-REGISTRY-1.32";
+const REV="PROGRAM-REGISTRY-1.33";
 
 const GROUPS=Object.freeze({
   core:["src/bootstrap.js"],
@@ -16,7 +16,7 @@ const GROUPS=Object.freeze({
     "src/crafting-recipe-semantic-v2.js","src/equipment-recipe-balance-v1.js","src/recipe-economy-balance-v1.js","src/trade-venues-data-v1.js","src/equipment-eligibility-v2.js"
   ],
   runtime:[
-    "src/runtime.js","src/asdail-narrative-runtime-v1.js","src/companion-growth-v1.js","src/crafting-success-v2.js","src/market-economy-v2.js","src/trade-venues-runtime-v1.js",
+    "src/runtime.js","src/monster-behavior-depth-v1.js","src/asdail-narrative-runtime-v1.js","src/companion-growth-v1.js","src/crafting-success-v2.js","src/market-economy-v2.js","src/trade-venues-runtime-v1.js",
     "src/world-autonomy-v1.js","src/runtime-patches.js"
   ],
   world:[
@@ -132,7 +132,8 @@ function audit(){
     ["高階勢力接觸門檻",()=>typeof globalThis.runAffiliationEntryGateAudit==="function"],
     ["發布完整性",()=>typeof globalThis.runReleaseIntegrityAudit==="function"],
     ["阿斯戴爾劇情深化",()=>typeof globalThis.runAsdailNarrativeAudit==="function"&&globalThis.runAsdailNarrativeAudit().pass],
-    ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass]
+    ["活世界循環",()=>typeof globalThis.runLiveWorldAudit==="function"&&globalThis.runLiveWorldAudit().pass],
+    ["怪物行為深化",()=>typeof globalThis.runMonsterBehaviorAudit==="function"&&globalThis.runMonsterBehaviorAudit().pass]
   ];
   for(const [name,test] of critical){let ok=false;try{ok=!!test()}catch(error){}if(!ok)issues.push("關鍵程序不可用:"+name)}
 
