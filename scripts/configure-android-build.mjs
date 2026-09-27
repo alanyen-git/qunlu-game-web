@@ -17,7 +17,7 @@ const match = String(versionData.version || "").match(/^CURRENT-(\d+)\.(\d+)\.(\
 if (!match) throw new Error(`Invalid release version: ${versionData.version}`);
 const [, major, minor, patch] = match.map(Number);
 const versionName = `${major}.${minor}.${patch}`;
-// Monotonic Android version code: CURRENT-2.23.1 -> 2023001.
+// Monotonic Android version code: CURRENT-2.24.0 -> 2024000.
 const versionCode = major * 1_000_000 + minor * 1_000 + patch;
 const stableKeystore = join(androidRoot, "app", "qunlu-update.keystore");
 if (!existsSync(stableKeystore)) throw new Error("Stable Android update keystore is missing.");

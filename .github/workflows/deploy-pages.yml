@@ -200,7 +200,7 @@ jobs:
           node tools/test-region-map-graphics.js
           node tools/test-world-mosaic.js
           node tools/test-world-map-province-atlas.js
-          node tools/test-witcher-map-core.js
+          node tools/test-map-scene-v2.js
           node tools/test-polity-province-depth.js
           node tools/test-monster-behavior-depth.js
           node tools/test-polity-database-completion.js
