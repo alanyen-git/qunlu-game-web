@@ -1,6 +1,6 @@
 {
-  "version": "CURRENT-2.18.0",
-  "previous_version": "CURRENT-2.17.0",
+  "version": "CURRENT-2.19.0",
+  "previous_version": "CURRENT-2.18.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
@@ -469,7 +469,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v171",
+  "pwa_cache_revision": "v172",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -812,10 +812,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.30",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.32",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 84,
+    "active_src_programs": 85,
     "groups": [
       "core",
       "data",
@@ -836,8 +836,9 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.15.1：84個正式src模組，新增裝備單雙手與盾牌防禦正規化，交易類別明確，舊存檔相容。",
-    "last_verified_release": "CURRENT-2.18.0",
+    "last_verified_release": "CURRENT-2.19.0",
     "notes": [
+      "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
       "CURRENT-2.18.0：POLITY-PROVINCE-DEPTH-1.0補齊16個現行政治體／非主權區的行省級覆蓋索引；金衡六省與阿斯戴爾四個細分省級區接入王國／行省／當地圖面；PWA v171。",
       "CURRENT-2.17.0：修正教會全隊治療、依地圖危險度隨機生成1至6隻敵人、探索／巡查委託同鎮48小時冷卻；PWA v170。",
       "CURRENT-2.15.1：新增裝備分類正規化模組，84個程序與PWA v164同步，五回合稽核與交易分類測試接線。",
@@ -872,12 +873,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 84,
-    "programs_loaded": 84,
+    "programs_total": 85,
+    "programs_loaded": 85,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 67,
-    "full_audits_passed": 67,
+    "full_audits_executed": 68,
+    "full_audits_passed": 68,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -900,15 +901,15 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.18.0",
+    "last_verified_release": "CURRENT-2.19.0",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 84,
+    "audited_src_programs": 85,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v171",
+    "pwa_cache": "v172",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -2002,5 +2003,18 @@
     "governance": "首席商監／商約法院／港務與救難共同治理",
     "tier_model": "E～C一般海島內容＋受控B級風暴預報庫",
     "save_compatible": true
+  },
+  "polity_database_completion_revision": "POLITY-DATABASE-COMPLETION-1.0",
+  "polity_database_completion": {
+    "political_entities": 16,
+    "province_maps": 108,
+    "towns": 155,
+    "wilderness": 248,
+    "dungeons": 171,
+    "fixed_npcs": 48,
+    "legacy_locations_repaired": 6,
+    "unique_authored_profiles": 16,
+    "save_compatible": true,
+    "revision": "POLITY-DATABASE-COMPLETION-1.0"
   }
 }
