@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v175";
+const CACHE_NAME=CACHE_PREFIX+"v176";
 const CORE=[
   "./",
   "./index.html",
@@ -58,6 +58,7 @@ const CORE=[
   "./src/region-map-graphics-v1.js",
   "./src/world-map-tile-atlas-v1.js",
   "./src/world-map-province-atlas-v1.js",
+  "./src/witcher-map-core-v1.js",
   "./src/npc-depth-v1.js",
   "./src/npc-depth-v2.js",
   "./src/dungeon-depth-v2.js",

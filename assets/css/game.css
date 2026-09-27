@@ -489,6 +489,51 @@ body.modal-open,body.battle-open{overflow:hidden;overscroll-behavior:none}
   .atlas-art-ribbon{gap:6px;padding:7px 8px}.atlas-art-ribbon b{font-size:15px}.atlas-art-ribbon i{flex-basis:100%}
   .atlas-province-world-map{max-height:58vh;padding:5px}.atlas-province-world-map .world-province-atlas-svg{min-width:700px}
 }
+
+/* CURRENT-2.23.0：全新巫師式地圖核心，不沿用舊地圖畫面。 */
+.witcher-map-shell{
+  --wm-ink:#382d20;--wm-ink-soft:#776342;--wm-gold:#c18b45;--wm-paper:#cdbf8d;--wm-deep:#17231f;
+  color:#eee5cd;background:linear-gradient(145deg,#25372f,#121b19 72%);border:1px solid #987b4c;border-radius:16px;padding:12px;box-shadow:0 20px 60px #0009,inset 0 1px #e8d09922;
+}
+.witcher-breadcrumbs{display:flex;align-items:center;gap:7px;overflow:auto;padding:2px 2px 9px;border-bottom:1px solid #a8875066;color:#c9b985;white-space:nowrap}
+.witcher-breadcrumbs button{border:0;background:transparent;color:#d9bd7b;padding:4px 3px;min-height:30px;font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.witcher-breadcrumbs b{color:#f0ddb0;font-size:12px}
+.witcher-map-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px 9px}
+.witcher-map-kicker{color:#d0a35a;font:800 10px/1.3 system-ui;letter-spacing:.18em}
+.witcher-map-heading h2{margin:4px 0;color:#f1dfb0;font:700 clamp(22px,4vw,34px)/1.12 Georgia,"Noto Serif TC",serif;letter-spacing:.04em}
+.witcher-map-heading p{margin:5px 0 0;color:#b6c0ac;font-size:12px;line-height:1.55}
+.witcher-map-controls{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.witcher-map-controls button{min-width:38px;min-height:38px;border-color:#907346;background:#293d34;color:#efd28c;font-size:21px}
+.witcher-map-controls output{min-width:52px;text-align:center;color:#f0d99d;font-weight:800}
+.witcher-layer-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:4px 0 11px}
+.witcher-layer-tab{display:flex;align-items:center;gap:7px;justify-content:flex-start;min-height:42px;padding:7px 9px;border:1px solid #556656;border-radius:8px;background:linear-gradient(180deg,#314238,#202c27);color:#c9d0bf;text-align:left}
+.witcher-layer-tab span{display:grid;place-items:center;width:23px;height:23px;border:1px solid currentColor;border-radius:50%;font:800 10px/1 system-ui;opacity:.8}
+.witcher-layer-tab.active{border-color:#d6ae68;background:linear-gradient(180deg,#735635,#443622);color:#fff0bd;box-shadow:inset 0 0 0 1px #d2a85e}
+.witcher-map-layout{display:grid;grid-template-columns:minmax(0,1fr) 275px;gap:11px;align-items:stretch}
+.witcher-map-stage{min-width:0;padding:8px;border:1px solid #a0804f;border-radius:11px;background:linear-gradient(145deg,#3c4838,#1c2823);box-shadow:inset 0 0 28px #0005}
+.witcher-map-scroll{max-height:min(70vh,740px);min-height:390px;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;border:2px solid #9e8151;border-radius:7px;padding:7px;background-color:#c8b982;background-image:radial-gradient(ellipse at 25% 17%,#fff1bd88,transparent 50%),radial-gradient(ellipse at 78% 86%,#66533366,transparent 58%),repeating-linear-gradient(4deg,#5a4a3218 0 1px,#fff3cc1a 1px 5px);scrollbar-color:#9d7b47 #534a35}
+.witcher-map-svg{display:block;width:100%;min-width:760px;height:auto;filter:sepia(.28) saturate(.75) contrast(1.08) drop-shadow(1px 3px 3px #3d2f1c66)}
+.witcher-map-marker{cursor:pointer;outline:none}
+.witcher-map-marker text{fill:#3d3021;font:700 16px Georgia,"Noto Serif TC",serif;paint-order:stroke;stroke:#eadbb0;stroke-width:4px;stroke-opacity:.62}
+.witcher-map-marker .witcher-marker-sub{font:600 12px system-ui,"Noto Sans TC",sans-serif;stroke-width:3px}
+.witcher-map-marker:hover,.witcher-map-marker:focus{filter:brightness(1.14) drop-shadow(0 0 7px #d5a95d99)}
+.witcher-map-column-title{fill:#4b3b25;font:800 22px Georgia,"Noto Serif TC",serif;letter-spacing:.08em;paint-order:stroke;stroke:#dfcea0;stroke-width:5px}
+.witcher-map-sidebar{display:flex;flex-direction:column;min-width:0;padding:12px;border:1px solid #93794d;border-radius:11px;background:linear-gradient(160deg,#d4c394,#a99970);color:#362d22;box-shadow:inset 0 0 26px #fff5d244}
+.witcher-sidebar-title{padding-bottom:9px;border-bottom:1px solid #79633f88;color:#55452d;font:800 12px/1.3 system-ui;letter-spacing:.12em}
+.witcher-index-list{display:grid;gap:6px;overflow:auto;margin:9px 0;max-height:55vh}
+.witcher-index-row{display:grid;gap:3px;width:100%;padding:9px 10px;border:1px solid #806a4788;border-radius:7px;background:#eee1b9aa;color:#342b20;text-align:left;box-shadow:0 2px 5px #52412622}
+.witcher-index-row:hover,.witcher-index-row:focus{border-color:#a76d32;background:#fff0c8;transform:translateY(-1px)}
+.witcher-index-row b{overflow-wrap:anywhere}.witcher-index-row small{color:#68583c;line-height:1.35}
+.witcher-empty{padding:12px;color:#66563a;font-size:12px;line-height:1.65}
+.witcher-filter-row{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:auto;padding-top:9px;border-top:1px solid #79633f88}
+.witcher-filter-row button{min-height:36px;padding:6px;border:1px solid #806a47;background:#c1ae7e;color:#483a27;border-radius:6px}
+.witcher-filter-row button.active{background:#60482d;color:#fff0c2;border-color:#d6ac63}
+.witcher-map-footer{margin-top:9px;padding:8px 3px 0;border-top:1px solid #a8875066;color:#b7c2ad;font-size:11px;line-height:1.6}
+@media(max-width:760px){
+  .witcher-map-shell{padding:9px;border-radius:12px}.witcher-map-heading{align-items:flex-start}.witcher-map-heading h2{font-size:22px}.witcher-map-heading p{font-size:11px}
+  .witcher-layer-tabs{grid-template-columns:repeat(4,minmax(116px,1fr));overflow:auto;padding-bottom:3px}.witcher-layer-tab{font-size:12px}
+  .witcher-map-layout{grid-template-columns:minmax(0,1fr)}.witcher-map-sidebar{max-height:250px}.witcher-index-list{max-height:145px}.witcher-map-scroll{min-height:330px;max-height:58vh;padding:4px}.witcher-map-svg{min-width:720px}
+}
 @media(max-width:430px){
   .modal{max-height:95dvh}
   .modal[data-kind="character"] .grid2{grid-template-columns:1fr}
