@@ -81,6 +81,7 @@ const CORE=[
   "./src/world-naming-v2.js",
   "./src/world-naming-protection-v1.js",
   "./src/equipment-naming-reference-v1.js",
+  "./src/equipment-name-naturalization-v1.js",
   "./src/name-generator-v2.js",
   "./src/water-source-v1.js",
   "./src/companion-aura-v1.js",

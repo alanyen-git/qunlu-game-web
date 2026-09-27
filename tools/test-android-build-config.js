@@ -18,5 +18,5 @@ assert(fs.existsSync(path.join("mobile","qunlu-update.keystore")));
 const match=version.version.match(/^CURRENT-(\d+)\.(\d+)\.(\d+)$/);
 assert(match);
 const code=Number(match[1])*1000000+Number(match[2])*1000+Number(match[3]);
-assert.equal(code,2025006);
+assert.equal(code,2025007);
 console.log(`Android upgrade configuration OK: ${version.version} -> versionCode ${code}, stable signature, OTA preserved`);
