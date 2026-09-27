@@ -20,7 +20,7 @@ const GROUPS=Object.freeze({
     "src/world-autonomy-v1.js","src/runtime-patches.js"
   ],
   world:[
-    "src/affiliation-contribution-v1.js","src/affiliation-entry-gate-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js","src/world-map-geopolitics-v1.js","src/polity-database-completion-v1.js","src/region-map-graphics-v1.js","src/world-map-tile-atlas-v1.js","src/world-map-province-atlas-v1.js","src/map-scene-v2.js",
+    "src/affiliation-contribution-v1.js","src/affiliation-entry-gate-v1.js","src/affiliation-treasury-depth-v2.js","src/world-autonomy-v2.js","src/world-map-geopolitics-v1.js","src/polity-database-completion-v1.js","src/region-map-graphics-v1.js","src/world-map-tile-atlas-v1.js","src/world-map-province-atlas-v1.js","src/map-survey-completion-v1.js","src/map-scene-v2.js",
     "src/npc-depth-v1.js","src/npc-depth-v2.js","src/dungeon-depth-v2.js"
   ],
   progression:[

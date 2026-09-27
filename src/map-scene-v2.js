@@ -1,14 +1,14 @@
-/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.5
- * MAP-SCENE-2.1 / CARTOGRAPHIC-SCENE-1.0
+/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.6
+ * MAP-SCENE-2.2 / CARTOGRAPHIC-SCENE-1.0
  * 獨立 canvas 圖面核心。只繪製有 canonical 幾何或明確測繪座標的資料；
- * 未測繪地點留在索引，不以排版座標冒充地理位置。
+ * 目前可玩地點由 MAP-SURVEY-COMPLETION-1.0 補齊固定區域路網測繪稿。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="MAP-SCENE-2.1";
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.5")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.5";
+const REV="MAP-SCENE-2.2";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.6")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.6";
 const A=v=>Array.isArray(v)?v:[];
 const find=(key,id)=>A(DB[key]).find(x=>x?.id===id)||null;
 const loc=id=>find("locations",id);
@@ -134,23 +134,23 @@ function indexRows(){
  let rows=[];
  if(state.level==="world")rows=A(DB.realm_region_maps).filter(r=>r?.political_entity_id).map(r=>({id:r.id,name:r.name,meta:polity(r.political_entity_id)?.name||"政治體",action:"openMapScene('realm','"+safe(r.id)+"')"}));
  if(state.level==="realm")rows=A(DB.province_region_maps).filter(p=>p?.parent_realm_map_id===state.id).map(p=>({id:p.id,name:p.name,meta:(p.world_tier||p.tier||"—")+"級｜"+(p.map_status||"資料區"),action:"openMapScene('province','"+safe(p.id)+"')"}));
- if(state.level==="province")rows=provinceLocations(state.id).filter(l=>state.filter==="all"||l.kind===state.filter).map(l=>({id:l.id,name:l.name,meta:(kinds[l.kind]||"地點")+"｜"+locationTier(l)+"級"+(explicitPoint(l)?"｜已測繪":"｜待測繪"),action:"openMapScene('local','"+safe(l.id)+"')"}));
+ if(state.level==="province")rows=provinceLocations(state.id).filter(l=>state.filter==="all"||l.kind===state.filter).map(l=>({id:l.id,name:l.name,meta:(kinds[l.kind]||"地點")+"｜"+locationTier(l)+"級"+(explicitPoint(l)?"｜已測繪":"｜資料待補"),action:"openMapScene('local','"+safe(l.id)+"')"}));
  if(state.level==="local")rows=A(loc(state.id)?.links).map(e=>({edge:e,row:loc(e.to)})).filter(x=>x.row).map(x=>({id:x.row.id,name:x.row.name,meta:(kinds[x.row.kind]||"地點")+"｜"+num(x.edge.hours).toFixed(1)+" 小時",action:"openMapScene('local','"+safe(x.row.id)+"')",travel:roadRoute(currentLocation()?.id,x.row.id)}));
  return rows.map(x=>'<div class="mapscene-index-row"><button type="button" onclick="'+x.action+'"><b>'+esc(x.name)+'</b><small>'+esc(x.meta)+'</small></button>'+(x.travel?'<button type="button" class="mapscene-travel" onclick="mapSceneTravel(\''+safe(x.id)+'\')">前往</button>':'')+'</div>').join("")||'<div class="mapscene-empty">目前層級沒有可驗證資料。</div>';
 }
 function layerSummary(){
  if(state.level==="world")return '<span>世界正史圖庫</span><b>'+A(DB.realm_region_maps).filter(x=>x?.political_entity_id).length+' 個政治體索引</b><i>點選中樞進入政治體級</i>';
  if(state.level==="realm"){const r=realm(state.id),ps=A(DB.province_region_maps).filter(x=>x?.parent_realm_map_id===r?.id);return '<span>政治體疆域圖面</span><b>'+ps.length+' 個行省索引</b><i>行省錨點只作行政定位，不代表精確測量</i>'}
- if(state.level==="province"){const p=province(state.id),ls=provinceLocations(p?.id),mapped=ls.filter(x=>explicitPoint(x)).length;return '<span>行省地形圖面</span><b>'+ls.length+' 個地點 · '+mapped+' 個已測繪</b><i>未測繪地點保留於側欄索引</i>'}
- const l=loc(state.id),links=A(l?.links).filter(x=>loc(x.to)),surveyed=localLocations(state.id).filter(x=>explicitPoint(x)).length;return '<span>當地測繪圖面</span><b>'+links.length+' 條已建道路連線 · '+surveyed+' 個已測繪節點</b><i>沒有可靠座標的節點不繪製假位置</i>';
+ if(state.level==="province"){const p=province(state.id),ls=provinceLocations(p?.id),mapped=ls.filter(x=>explicitPoint(x)).length;return '<span>行省地形圖面</span><b>'+ls.length+' 個地點 · '+mapped+' 個已測繪</b><i>座標採 canonical／區域路網測繪稿</i>'}
+ const l=loc(state.id),links=A(l?.links).filter(x=>loc(x.to)),surveyed=localLocations(state.id).filter(x=>explicitPoint(x)).length;return '<span>當地測繪圖面</span><b>'+links.length+' 條已建道路連線 · '+surveyed+' 個已測繪節點</b><i>所有目前可玩直連節點均有固定測繪座標</i>';
 }
 function legend(){
- return '<div class="mapscene-legend"><h3>圖例</h3><div><i class="ms-key ms-town"></i>城鎮／中樞</div><div><i class="ms-key ms-wild"></i>野外</div><div><i class="ms-key ms-dungeon"></i>地下城</div><div><i class="ms-line ms-road"></i>已建道路</div><div><i class="ms-line ms-river"></i>河川／湖泊</div><div><i class="ms-line ms-border"></i>疆域界線</div><p>只有 canonical 幾何或有來源的測繪座標會畫上圖面。索引中的「待測繪」不代表不存在。</p></div>';
+ return '<div class="mapscene-legend"><h3>圖例</h3><div><i class="ms-key ms-town"></i>城鎮／中樞</div><div><i class="ms-key ms-wild"></i>野外</div><div><i class="ms-key ms-dungeon"></i>地下城</div><div><i class="ms-line ms-road"></i>已建道路</div><div><i class="ms-line ms-river"></i>河川／湖泊</div><div><i class="ms-line ms-border"></i>疆域界線</div><p>可玩地點已完成固定區域路網測繪；座標用於連續圖面與點擊，不宣稱現實測地學精度。</p></div>';
 }
 function render(){
  const unknown=unmappedLocations().length;
- const note=state.level==="world"||state.level==="realm"?"疆域、河湖、山脈、道路與關隘均讀取世界正史圖庫。":"圖面不使用自動散點；未有可靠座標的地點保留於待測繪索引。";
- return '<div class="mapscene-shell" data-map-scene="2.1" data-map-level="'+state.level+'">'+tabs()+'<header class="mapscene-header"><div><span class="mapscene-kicker">CARTOGRAPHIC FIELD ATLAS · MAP‑SCENE 2.1</span><h2>'+esc(title())+'</h2><p>'+esc(note)+'</p></div><div class="mapscene-zoom"><button type="button" aria-label="縮小" onclick="zoomMapScene(-1)">−</button><output id="mapsceneZoom">'+Math.round(state.zoom*100)+'%</output><button type="button" aria-label="放大" onclick="zoomMapScene(1)">＋</button><button type="button" onclick="resetMapSceneView()">置中</button></div></header><div class="mapscene-layer-summary" data-map-layer-summary="'+state.level+'">'+layerSummary()+'</div><div class="mapscene-filter" role="group" aria-label="地標篩選">'+filterButtons()+'</div><div class="mapscene-layout"><section class="mapscene-stage" id="mapsceneStage"><canvas id="mapsceneCanvas" aria-label="'+esc(title())+'互動圖面"></canvas><div class="mapscene-compass" aria-hidden="true"><b>N</b><i></i></div><div class="mapscene-scale" id="mapsceneScale">拖曳平移・滾輪／雙指縮放</div></section><aside class="mapscene-sidebar">'+legend()+'<div class="mapscene-index-head"><h3>'+({world:"已知政治體",realm:"所轄行省",province:"行省地點",local:"相鄰道路"})[state.level]+'</h3>'+(unknown?'<span>'+unknown+' 待測繪</span>':'')+'</div><div class="mapscene-index">'+indexRows()+'</div></aside></div><footer class="mapscene-footer">旅行權限仍為 reachable_only：只有目前地點 links 中存在的直連道路可移動，並使用原始 hours。地圖顯示不會解鎖路線。</footer></div>';
+ const note=state.level==="world"||state.level==="realm"?"疆域、河湖、山脈、道路與關隘均讀取世界正史圖庫。":"目前可玩地點均已納入固定區域路網測繪稿；道路連線仍完全依 canonical links。";
+ return '<div class="mapscene-shell" data-map-scene="2.2" data-map-level="'+state.level+'">'+tabs()+'<header class="mapscene-header"><div><span class="mapscene-kicker">CARTOGRAPHIC FIELD ATLAS · MAP‑SCENE 2.2</span><h2>'+esc(title())+'</h2><p>'+esc(note)+'</p></div><div class="mapscene-zoom"><button type="button" aria-label="縮小" onclick="zoomMapScene(-1)">−</button><output id="mapsceneZoom">'+Math.round(state.zoom*100)+'%</output><button type="button" aria-label="放大" onclick="zoomMapScene(1)">＋</button><button type="button" onclick="resetMapSceneView()">置中</button></div></header><div class="mapscene-layer-summary" data-map-layer-summary="'+state.level+'">'+layerSummary()+'</div><div class="mapscene-filter" role="group" aria-label="地標篩選">'+filterButtons()+'</div><div class="mapscene-layout"><section class="mapscene-stage" id="mapsceneStage"><canvas id="mapsceneCanvas" aria-label="'+esc(title())+'互動圖面"></canvas><div class="mapscene-compass" aria-hidden="true"><b>N</b><i></i></div><div class="mapscene-scale" id="mapsceneScale">拖曳平移・滾輪／雙指縮放</div></section><aside class="mapscene-sidebar">'+legend()+'<div class="mapscene-index-head"><h3>'+({world:"已知政治體",realm:"所轄行省",province:"行省地點",local:"相鄰道路"})[state.level]+'</h3>'+(unknown?'<span>'+unknown+' 資料待補</span>':'')+'</div><div class="mapscene-index">'+indexRows()+'</div></aside></div><footer class="mapscene-footer">旅行權限仍為 reachable_only：只有目前地點 links 中存在的直連道路可移動，並使用原始 hours。地圖顯示不會解鎖路線。</footer></div>';
 }
 
 function seeded(seed){let x=seed|0;return ()=>{x=(x*1664525+1013904223)|0;return (x>>>0)/4294967296}}
@@ -265,7 +265,9 @@ function reset(){state.zoom=1;state.panX=0;state.panY=0;paint();return true}
 function audit(){
  const issues=[];if(!worldGeometries().length)issues.push("canonical world geometry missing");if(!A(DB.realm_region_maps).length)issues.push("realm data missing");if(!A(DB.province_region_maps).length)issues.push("province data missing");
  const unsafe=A(DB.locations).filter(l=>explicitPoint(l)&&(!Number.isFinite(explicitPoint(l).x)||!Number.isFinite(explicitPoint(l).y)));if(unsafe.length)issues.push("invalid surveyed coordinates");
- return {revision:REV,pass:!issues.length,issues,renderer:"continuous-canvas",hierarchy:"world→realm→province→local",coordinate_policy:"canonical_or_sourced_only",travel_visibility:"reachable_only",save_compatible:true,legacy_renderer_active:false};
+ const survey=DB.map_survey_completion||{};if(survey.status!=="complete_for_current_playable_locations")issues.push("playable location survey completion missing");
+ if((survey.unresolved_location_ids||[]).length)issues.push("unresolved surveyed location ids:"+survey.unresolved_location_ids.slice(0,200).join(","));
+ return {revision:REV,pass:!issues.length,issues,renderer:"continuous-canvas",hierarchy:"world→realm→province→local",coordinate_policy:"canonical_or_sourced_or_authored_regional_route_survey",survey_revision:survey.version||null,surveyed_location_count:Number(survey.location_count||0),travel_visibility:"reachable_only",save_compatible:true,legacy_renderer_active:false};
 }
 
 globalThis.openMapScene=open;globalThis.setMapSceneFilter=setFilter;globalThis.zoomMapScene=zoom;globalThis.resetMapSceneView=reset;globalThis.mapSceneTravel=travelTo;globalThis.runMapSceneV2Audit=audit;
@@ -276,7 +278,7 @@ globalThis.openWorldMapProvinceAtlas=()=>open("world");globalThis.openWorldMapPr
 globalThis.openWorldMapPolityTerritory=pid=>{const r=realmForPolity(pid);return r?open("realm",r.id):open("world")};globalThis.openWorldMapNonStateRegion=rid=>{const r=A(DB.realm_region_maps).find(x=>x.world_region_id===rid||A(x.world_region_ids).includes(rid));return r?open("realm",r.id):open("world")};
 // 舊版函式只保留為相容轉接名稱；正式載入不再包含舊 renderer。
 globalThis.openWitcherMap=open;globalThis.witcherMapTravel=travelTo;globalThis.setWitcherMapFilter=setFilter;globalThis.changeWitcherMapZoom=zoom;
-DB.meta=DB.meta||{};DB.meta.map_scene_revision=REV;DB.meta.map_renderer="continuous-canvas";DB.meta.witcher_map_core_active=false;DB.meta.map_scene_coordinate_policy="canonical_or_sourced_only";
+DB.meta=DB.meta||{};DB.meta.map_scene_revision=REV;DB.meta.map_renderer="continuous-canvas";DB.meta.witcher_map_core_active=false;DB.meta.map_scene_coordinate_policy="canonical_or_sourced_or_authored_regional_route_survey";
 globalThis.QUNLU_CORE?.registerModule?.("src/map-scene-v2.js",{domain:"world",revision:REV,release:RELEASE,renderer:"continuous-canvas",legacy_renderer_active:false});
 globalThis.QUNLU_CORE?.registerAudit?.("runMapSceneV2Audit",audit);
 })();
