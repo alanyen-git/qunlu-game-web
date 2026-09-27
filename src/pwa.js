@@ -55,7 +55,7 @@
   window.addEventListener("load",()=>{
     if(!("serviceWorker" in navigator))return;
     if(!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=CURRENT-2.20.0-REFRESH-1-POLITYDB-MONSTERAI",{scope:"./"})
+    navigator.serviceWorker.register("sw.js?v=CURRENT-2.21.0-REFRESH-1-PROVINCE-ATLAS",{scope:"./"})
       .then(registration=>registration.update().catch(()=>null))
       .catch(error=>console.warn("Service worker registration failed",error));
   },{once:true});

@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.20.0",
-  "previous_version": "CURRENT-2.19.0",
+  "version": "CURRENT-2.21.0",
+  "previous_version": "CURRENT-2.20.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "野獸、魔物、菁英與 Boss 行為深化：依物種與構造接入獨特技能、攻擊模式、狀態效果與階段轉換。",
+  "summary": "世界地圖補上行省級定位：114張行省圖回接政治體、政體圖、世界大區、首都與下層地點索引。",
   "changelog": [
+    "WORLD-MAP-PROVINCE-ATLAS-1.0：世界圖新增行省定位層與可點選索引，覆蓋16個政治體／非主權區、114張行省圖；每省回接王國／政體圖、世界大區、首都／中樞、城鎮／野外／地下城數量、固定NPC數量與資料鄰接行省。座標使用既有世界大區幾何中心與明確方位文字推導，不新增主權、精確邊界、旅行解鎖或存檔欄位。",
     "MONSTER-BEHAVIOR-DEPTH-1.0：587隻怪物各自建立物種行為簽章與專屬動作；野獸／魔物依獵食、群襲、毒素、元素、構裝、不死等特性行動，菁英新增狂性解放，Boss新增低血量領域轉相；不改存檔格式。",
     "POLITY-PROVINCE-DEPTH-1.0：建立16個現行政治體／非主權區的行省級覆蓋索引；阿斯戴爾補齊四個王領省級區，金衡自由都市新增六省、八城鎮、十二野外、八地下城與十八名固定NPC。每省依治理、經濟、地形、危險、地下遺構與NPC資訊邊界獨立設計，不共用模板。既有政治體深化模組統一納入行省圖與所在地圖索引，舊存檔相容。",
     "GAMEPLAY-FIXES-2.17.0：教會可付費為全隊恢復滿血並清除異常狀態；遭遇怪物數量依地圖階級與危險度於1至6隻間抽選，首領隊伍另行限制；同鎮探索／巡查委託完成後冷卻48小時，避免立即重複。存檔結構相容。",
@@ -470,7 +471,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v173",
+  "pwa_cache_revision": "v174",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -813,10 +814,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.33",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.34",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 86,
+    "active_src_programs": 87,
     "groups": [
       "core",
       "data",
@@ -836,8 +837,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.20.0：新增怪物行為深化模組，86個正式src模組與PWA v173同步；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.20.0",
+    "note": "CURRENT-2.21.0：世界圖新增114張行省定位索引，87個正式src模組與PWA v174同步；舊存檔相容。",
+    "last_verified_release": "CURRENT-2.21.0",
     "notes": [
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
@@ -875,12 +876,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 86,
-    "programs_loaded": 86,
+    "programs_total": 87,
+    "programs_loaded": 87,
     "stateful_tests": 9,
     "stateful_tests_passed": 9,
-    "full_audits_executed": 69,
-    "full_audits_passed": 69,
+    "full_audits_executed": 70,
+    "full_audits_passed": 70,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -903,19 +904,19 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.20.0",
+    "last_verified_release": "CURRENT-2.21.0",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 86,
+    "audited_src_programs": 87,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v173",
+    "pwa_cache": "v174",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
-    "canonical_world_content_changed": false,
+    "canonical_world_content_changed": true,
     "gameplay_rules_changed": true,
     "save_schema_changed": false,
     "save_compatible": true,
@@ -2018,6 +2019,27 @@
     "unique_authored_profiles": 16,
     "save_compatible": true,
     "revision": "POLITY-DATABASE-COMPLETION-1.0"
+  },
+  "world_map_province_atlas_revision": "WORLD-MAP-PROVINCE-ATLAS-1.0",
+  "world_map_province_atlas": {
+    "entries": 114,
+    "political_entities": 16,
+    "world_layer": "world",
+    "hierarchy": "world→political_entity→province→settlement",
+    "indexed_fields": [
+      "parent_realm_map_id",
+      "world_region_id",
+      "capital_location_id",
+      "world_tier",
+      "towns",
+      "wilds",
+      "dungeons",
+      "npc_records",
+      "neighbor_province_ids"
+    ],
+    "coordinate_policy": "既有世界大區幾何中心＋資料方位文字＋同行省穩定間距",
+    "save_compatible": true,
+    "revision": "WORLD-MAP-PROVINCE-ATLAS-1.0"
   },
   "monster_behavior_depth_revision": "MONSTER-BEHAVIOR-DEPTH-1.0",
   "monster_behavior_depth": {
