@@ -1,12 +1,12 @@
 /* 群陸旅誌：裝備命名參考規則 CURRENT-1.74.0
- * EQUIPMENT-NAMING-REFERENCE-1.1
+ * EQUIPMENT-NAMING-REFERENCE-1.3
  * 由傳統西方奇幻／RPG命名語彙萃取通用文法，不保存或生成外部作品角色、神祇、地名等專有名稱。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="EQUIPMENT-NAMING-REFERENCE-1.2";
+const REV="EQUIPMENT-NAMING-REFERENCE-1.3";
 const RELEASE="CURRENT-1.74.0";
 const TIER_RANK={F:0,E:1,D:2,C:3,B:4,A:5,S:6};
 const CATEGORY_ALIASES={
@@ -51,6 +51,7 @@ const CLAIMS=Object.freeze([
 const GRAND_TOKENS=Object.freeze({
   "永恆":"A","魔王":"A","神諭":"A","創世":"S","滅世":"S","終極":"S","時光逆轉":"S","萬物樞紐":"S"
 });
+const STRUCTURAL_TOKENS=Object.freeze(["傳承裝","誓徽","兄弟會","黑市","深井","戰吼","寶庫限定","組織裝備","流派裝備"]);
 
 function clean(v){return String(v||"").trim()}
 function tierOf(v){const t=clean(v).toUpperCase();return TIER_RANK[t]!=null?t:"F"}
@@ -97,6 +98,8 @@ function validateEquipmentName(name,category="武器",tier="F",context={}){
   if(s.length>24)issues.push("名稱過長");
   if(/(晨曦|暮影|灰燼|霜痕|雷紋|潮痕|裂風|月泉|赤岩|深林|銀穗|星砂|靜心|鷹眼|不屈|守望|巡獵|祈誓|熔脈)\1/.test(s))issues.push("修飾詞重複堆疊");
   if(/[A-Za-z_]{3,}/.test(s))issues.push("含英文識別字");
+  if(/[・·／/]/.test(s))issues.push("不得以中點或斜線串接來源名稱");
+  for(const token of STRUCTURAL_TOKENS)if(s.includes(token))issues.push("不得把組織／來源詞直接塞進裝備名:"+token);
   for(const token of EXTERNAL_TOKENS)if(s.includes(token))issues.push("外部作品專名:"+token);
   if(!context.allowExisting&&itemNameSet().has(s))issues.push("與CURRENT物品名稱重複");
   for(const [token,minTier] of Object.entries(GRAND_TOKENS)){
@@ -109,7 +112,6 @@ function validateEquipmentName(name,category="武器",tier="F",context={}){
 }
 function generateEquipmentName(category="武器",tier="F",context={}){
   const cat=categoryOf(category),t=tierOf(tier),subtype=subtypeFor(cat,context),used=new Set([...(context.usedNames||[]),...itemNameSet()]);
-  const provenance=clean(context.provenance||context.regionName||context.factionName);
   const title=clean(context.uniqueTitle);
   const semantic=semanticWords(context);
   for(let attempt=0;attempt<80;attempt++){
@@ -120,10 +122,10 @@ function generateEquipmentName(category="武器",tier="F",context={}){
     }else if(t==="E"){
       base=(attempt%2===0?motif:material)+subtype;
     }else if(t==="D"||t==="C"){
-      const head=provenance||motif;
+      const head=material||motif;
       base=head+(effect&&!head.includes(effect)?effect:"")+subtype;
     }else{
-      const head=provenance||material||motif;
+      const head=motif||material;
       base=head+(effect&&!head.includes(effect)?effect:"")+subtype;
       if(title&&context.canonApproved===true)base+=`「${title}」`;
     }
@@ -131,7 +133,7 @@ function generateEquipmentName(category="武器",tier="F",context={}){
     const checked=validateEquipmentName(base,cat,t,context);
     if(checked.ok)return base;
   }
-  const fallback=(clean(context.provenance)||materialFor(t,context))+subtype;
+  const fallback=(materialFor(t,context)||"精製")+subtype;
   const checked=validateEquipmentName(fallback,cat,t,{...context,allowExisting:false});
   return checked.ok?fallback:(materialFor(t,context)+subtype);
 }
@@ -156,10 +158,10 @@ DB.equipment_naming_reference={
     F:"實用品：材質／職能＋裝備類型，避免史詩稱號。",
     E:"可加入單一自然意象、地域習慣或明確用途。",
     D:"可組合地域／材質＋一項功能或意象。",
-    C:"可出現組織、流派、地域特色，但名稱仍須對應實際資料。",
-    B:"稀有高階裝備；可使用較強烈意象，必須符合取得門檻與世界來源。",
-    A:"傳奇級；稱號需有正史、組織、人物或事件來源。",
-    S:"世界級唯一／極少數裝備；創世、滅世、時光等詞只允許在有正史與實裝效果時使用。"
+    C:"使用材質／自然意象＋一項實際功能；不把組織、地區或流派名稱串入裝備全名。",
+    B:"稀有高階裝備；以單一強烈意象或已實裝效果命名，取得來源放在描述與資料欄位。",
+    A:"傳奇級；可使用簡潔題名，但必須有正史與實裝效果，不使用來源長串。",
+    S:"世界級唯一／極少數裝備；名稱保持短而有辨識度，創世、滅世、時光等詞只允許在有正史與實裝效果時使用。"
   },
   semantic_rule:"破甲、破法、汲魂、祈療、匿形、浮空、反射、免疫等功能詞必須有對應可執行效果，名稱不得虛構能力。",
   unique_item_rule:"B級以上可使用題名；只有context.canonApproved=true且提供uniqueTitle時才生成引號題名。",
@@ -178,7 +180,7 @@ if(ai){
 const gen=(DB.generators||[]).find(x=>x?.id==="GEN-NAME");
 if(gen){
   gen.inputs=Array.from(new Set([...(gen.inputs||[]),REV]));
-  gen.constraints=Array.from(new Set([...(gen.constraints||[]),"裝備名稱依tier、材質、類型、地域與已實裝效果生成。","裝備不得直接照搬外部作品專名；功能詞需通過語義驗證。"]));
+  gen.constraints=Array.from(new Set([...(gen.constraints||[]),"裝備名稱依tier、材質、部位與已實裝效果生成；來源組織、地區、流派只放在描述與取得欄位。","裝備不得直接照搬外部作品專名；不得以中點串接組織／傳承／黑市等來源詞；功能詞需通過語義驗證。"]));
   gen.equipment_runtime_function="generateEquipmentName";
   gen.equipment_validation_function="validateEquipmentName";
 }

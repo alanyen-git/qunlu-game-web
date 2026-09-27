@@ -139,7 +139,7 @@ function treasury(type,a){
  const group=magical?"法杖":(a?.requirements?.weapon_types?.[0]||(/弓|射手/.test(a.name||"")?"弓":"長劍"));
  const common={tier:t,value:1,affiliation_treasury_owner:{type,id:a.id},acquisition_sources:["affiliation_treasury"],wild_gather_eligible:false};
  const signatureType=(type==="organization"&&a.category==="冒險與探索")?"披風":(type==="organization"&&a.category==="王權／種族／職人")?"盔甲":"主武器";
- const sig={...common,id:`AT-${prefix}-SIG`,name:`${a.name}・傳承裝`,type:signatureType,weight:signatureType==="盔甲"?3.2:signatureType==="披風"?.5:1.7,durability:90+r*10,
+ const sig={...common,id:`AT-${prefix}-SIG`,name:`特製${signatureType}`,type:signatureType,weight:signatureType==="盔甲"?3.2:signatureType==="披風"?.5:1.7,durability:90+r*10,
   combat:magical?{magicPower:base+5,magicDefense:Math.max(2,Math.round(base*.5)),statusResist:Math.max(1,Math.round(base*.3))}:{attack:base+5,defense:Math.max(1,Math.round(base*.35)),accuracy:Math.max(1,Math.round(base*.35))},
   advanced_combat:magical?{manaRegen:.2+r*.05,statusAccuracy:2+r}:{initiative:2+r,armorPenPct:2+r},
   catalog_group:signatureType==="主武器"?"武器":signatureType==="披風"?"飾品":"防具",catalog_subcategory:"勢力／流派寶庫特有",equipment_slot:signatureType,required_level:{F:1,E:8,D:20,C:35,B:50}[t]||1,rarity:"寶庫限定",feature:`${a.name}內部寶庫限定裝備。`,treasury_rank:4,treasury_cost:650,treasury_limit:1};
@@ -147,7 +147,7 @@ function treasury(type,a){
  return [
   {...common,id:`AT-${prefix}-SUP`,name:`${a.name}・行旅補給`,type:"補給",weight:.25,use:{stamina:8+r*3,hunger:-8,thirst:-10},treasury_rank:0,treasury_cost:20,treasury_limit:999,description:`${a.name}成員標準補給。`},
   {...common,id:`AT-${prefix}-POT`,name:`${a.name}・秘製藥劑`,type:"藥劑",weight:.12,use:magical?{mana:18+r*8,hp:8+r*4}:{hp:20+r*8,stamina:8+r*3},toxicity:4,treasury_rank:1,treasury_cost:55,treasury_limit:999,description:`${a.name}內部配方藥劑。`},
-  {...common,id:`AT-${prefix}-ACC`,name:`${a.name}・誓徽`,type:"飾品",weight:.06,durability:100,combat:magical?{magicDefense:3+r*2,statusResist:2+r}:{defense:3+r*2,statusResist:2+r},advanced_combat:{perception:1+r},catalog_group:"飾品",catalog_subcategory:"勢力／流派寶庫特有",equipment_slot:"飾品",required_level:{F:1,E:8,D:20,C:35,B:50}[t]||1,rarity:"寶庫限定",treasury_rank:2,treasury_cost:220,treasury_limit:1},
+  {...common,id:`AT-${prefix}-ACC`,name:"識別徽章",type:"飾品",weight:.06,durability:100,combat:magical?{magicDefense:3+r*2,statusResist:2+r}:{defense:3+r*2,statusResist:2+r},advanced_combat:{perception:1+r},catalog_group:"飾品",catalog_subcategory:"勢力／流派寶庫特有",equipment_slot:"飾品",required_level:{F:1,E:8,D:20,C:35,B:50}[t]||1,rarity:"寶庫限定",treasury_rank:2,treasury_cost:220,treasury_limit:1},
   {...common,id:`AT-${prefix}-SCR`,name:`${a.name}・研修教範卷`,type:"卷軸",weight:.05,utility_effect:"skill_xp_scroll",skill_xp:32+r*12,knowledge_tag:`${a.name}研修`,treasury_rank:3,treasury_cost:360,treasury_limit:3,description:"使用後可選擇一項未滿Lv10技能獲得技能XP。"},
   sig
  ]

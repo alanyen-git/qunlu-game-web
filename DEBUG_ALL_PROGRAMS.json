@@ -1,18 +1,18 @@
 {
-  "version": "CURRENT-2.25.6",
-  "programs": 89,
-  "loaded": 89,
+  "version": "CURRENT-2.25.7",
+  "programs": 90,
+  "loaded": 90,
   "failed": 0,
-  "audits": 71,
+  "audits": 72,
   "stateful_tests": 9,
   "stateful_passed": 9,
   "stateful_report": [
     {
       "name": "official_character_creation",
       "pass": true,
-      "ms": 7.83,
+      "ms": 9.78,
       "detail": {
-        "characterId": "CHAR-MUJTVISR-BB5E",
+        "characterId": "CHAR-MUJV00JW-BB5E",
         "classId": "C-WAR",
         "raceId": "R-HUM",
         "originId": "O-FARM",
@@ -22,19 +22,19 @@
     {
       "name": "save_roundtrip",
       "pass": true,
-      "ms": 0.61,
+      "ms": 0.6,
       "detail": {
         "bytes": 6522,
         "turn": 0,
-        "version": "CURRENT-2.25.6"
+        "version": "CURRENT-2.25.7"
       }
     },
     {
       "name": "legacy_save_migration",
       "pass": true,
-      "ms": 1.1,
+      "ms": 2.45,
       "detail": {
-        "version": "CURRENT-2.25.6",
+        "version": "CURRENT-2.25.7",
         "level": 1,
         "inventory": 4
       }
@@ -42,7 +42,7 @@
     {
       "name": "five_turn_full_audit",
       "pass": true,
-      "ms": 841.7,
+      "ms": 916.6,
       "detail": {
         "turn": 5,
         "auditIssues": 0,
@@ -52,7 +52,7 @@
     {
       "name": "battle_lifecycle",
       "pass": true,
-      "ms": 3.77,
+      "ms": 3.47,
       "detail": {
         "enemy": "MON-ASD-001",
         "alive": true
@@ -61,7 +61,7 @@
     {
       "name": "death_revival_cycle",
       "pass": true,
-      "ms": 3.13,
+      "ms": 2.45,
       "detail": {
         "before": 3,
         "after": 2,
@@ -72,7 +72,7 @@
     {
       "name": "crafting_transaction",
       "pass": true,
-      "ms": 6.49,
+      "ms": 4.84,
       "detail": {
         "item": "EQ-IRON-SWORD",
         "profession": "鍛造",
@@ -84,7 +84,7 @@
     {
       "name": "market_buy_sell_transaction",
       "pass": true,
-      "ms": 2.71,
+      "ms": 2.67,
       "detail": {
         "facility": "guild",
         "item": "I-SKILL-INSIGHT-F",
@@ -97,7 +97,7 @@
     {
       "name": "carry_capacity_penalty_consistency",
       "pass": true,
-      "ms": 22.67,
+      "ms": 10.29,
       "detail": {
         "weight": 8.8,
         "dynamicCap": 61.4,
@@ -117,550 +117,550 @@
     {
       "file": "src/world-naming-v1.js",
       "ok": true,
-      "ms": 1279.25,
-      "dbVersion": "CURRENT-2.25.6"
-    },
-    {
-      "file": "src/world-naming-v2.js",
-      "ok": true,
-      "ms": 543.98,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1175.09,
+      "dbVersion": "CURRENT-2.25.7"
     }
   ],
   "load_report": [
     {
       "file": "src/bootstrap.js",
       "ok": true,
-      "ms": 1.23,
+      "ms": 0.81,
       "dbVersion": null
     },
     {
       "file": "src/game-data.js",
       "ok": true,
-      "ms": 141.65,
+      "ms": 136.2,
       "dbVersion": "CURRENT-1.50.0"
     },
     {
       "file": "src/data-patches.js",
       "ok": true,
-      "ms": 46.71,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 39.16,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/origin-depth-v1.js",
       "ok": true,
-      "ms": 9.92,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 10.08,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/combat-class-identity-depth-v1.js",
       "ok": true,
-      "ms": 51.1,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 60.85,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/talent-identity-depth-v1.js",
       "ok": true,
-      "ms": 3.48,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 4.08,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/asdail-depth-v2.js",
       "ok": true,
-      "ms": 5.18,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.47,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/asdail-narrative-depth-v1.js",
       "ok": true,
-      "ms": 1.86,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.34,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/asdail-integration-v1.js",
       "ok": true,
-      "ms": 24.18,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 33.39,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/affiliation-identity-depth-v1.js",
       "ok": true,
-      "ms": 147.43,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 155.3,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/political-consolidation-v1.js",
       "ok": true,
-      "ms": 84.05,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 91.65,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/political-hierarchy-depth-v1.js",
       "ok": true,
-      "ms": 3.96,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.41,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/starter-settlements-v1.js",
       "ok": true,
-      "ms": 10.34,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 7.08,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/anweir-seruvia-depth-v1.js",
       "ok": true,
-      "ms": 53.95,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 23.88,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/black-moon-depth-v1.js",
       "ok": true,
-      "ms": 14.2,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 14.23,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/black-tide-depth-v1.js",
       "ok": true,
-      "ms": 15.94,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 14.79,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/tyervalon-depth-v1.js",
       "ok": true,
-      "ms": 22.09,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 16.12,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/blue-tower-depth-v1.js",
       "ok": true,
-      "ms": 28.77,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 23.03,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/vanrek-depth-v1.js",
       "ok": true,
-      "ms": 25.33,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 30.08,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/gray-blade-depth-v1.js",
       "ok": true,
-      "ms": 13.7,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 16.95,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/frost-horn-depth-v1.js",
       "ok": true,
-      "ms": 18.01,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 33.54,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/white-felt-depth-v1.js",
       "ok": true,
-      "ms": 17.06,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 19.6,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/holy-radiance-depth-v1.js",
       "ok": true,
-      "ms": 20.31,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 51.18,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/dawn-casavelle-depth-v1.js",
       "ok": true,
-      "ms": 44.15,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 42.21,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/boundary-dragonspine-depth-v1.js",
       "ok": true,
-      "ms": 36.65,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 58.39,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/alchemy-healing-recipe-v1.js",
       "ok": true,
-      "ms": 4.52,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.65,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/equipment-depth-v1.js",
       "ok": true,
-      "ms": 2.99,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.43,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/crafting-recipe-semantic-v1.js",
       "ok": true,
-      "ms": 48.82,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 43.04,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/crafting-recipe-semantic-v2.js",
       "ok": true,
-      "ms": 38.43,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 43.09,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/equipment-recipe-balance-v1.js",
       "ok": true,
-      "ms": 38.51,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 38.79,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/recipe-economy-balance-v1.js",
       "ok": true,
-      "ms": 82.53,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 76.1,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/trade-venues-data-v1.js",
       "ok": true,
-      "ms": 2.93,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 2.67,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/equipment-eligibility-v2.js",
       "ok": true,
-      "ms": 0.58,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.67,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/runtime.js",
       "ok": true,
-      "ms": 27.09,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 29.84,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/monster-behavior-depth-v1.js",
       "ok": true,
-      "ms": 11.34,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 17.14,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/asdail-narrative-runtime-v1.js",
       "ok": true,
-      "ms": 3.39,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.82,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/companion-growth-v1.js",
       "ok": true,
-      "ms": 0.56,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 31.48,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/crafting-success-v2.js",
       "ok": true,
-      "ms": 1.33,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.59,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/market-economy-v2.js",
       "ok": true,
-      "ms": 0.64,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.1,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/trade-venues-runtime-v1.js",
       "ok": true,
-      "ms": 1.58,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 2.07,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-autonomy-v1.js",
       "ok": true,
-      "ms": 0.72,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.98,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/runtime-patches.js",
       "ok": true,
-      "ms": 2.25,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 4.68,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/affiliation-contribution-v1.js",
       "ok": true,
-      "ms": 65.48,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 80.87,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/affiliation-entry-gate-v1.js",
       "ok": true,
-      "ms": 3.01,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 4.04,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/affiliation-treasury-depth-v2.js",
       "ok": true,
-      "ms": 172.33,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 255.08,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-autonomy-v2.js",
       "ok": true,
-      "ms": 1.37,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.45,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-map-geopolitics-v1.js",
       "ok": true,
-      "ms": 26.04,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 22.75,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/polity-database-completion-v1.js",
       "ok": true,
-      "ms": 13.45,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 14.02,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/region-map-graphics-v1.js",
       "ok": true,
-      "ms": 1.21,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.74,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-map-tile-atlas-v1.js",
       "ok": true,
-      "ms": 1.44,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.21,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-map-province-atlas-v1.js",
       "ok": true,
-      "ms": 16.39,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 24.67,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/map-survey-completion-v1.js",
       "ok": true,
-      "ms": 2.05,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.94,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/map-scene-v2.js",
       "ok": true,
-      "ms": 1.36,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.22,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/npc-depth-v1.js",
       "ok": true,
-      "ms": 2.36,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.44,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/npc-depth-v2.js",
       "ok": true,
-      "ms": 2.85,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.3,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/dungeon-depth-v2.js",
       "ok": true,
-      "ms": 1.99,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.66,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/combat-class-progression-v1.js",
       "ok": true,
-      "ms": 0.94,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.96,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/class-skill-optimization-v1.js",
       "ok": true,
-      "ms": 6.84,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 7.65,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/class-skill-passive-compat-v1.js",
       "ok": true,
-      "ms": 1.33,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 2.25,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/class-naming-reference-v1.js",
       "ok": true,
-      "ms": 4.69,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 5.73,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/skill-naming-reference-v1.js",
       "ok": true,
-      "ms": 48.99,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 43.89,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/class-tier-skill-expansion-v1.js",
       "ok": true,
-      "ms": 15.19,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 18.95,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/skill-mechanics-depth-v1.js",
       "ok": true,
-      "ms": 32.03,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 39.52,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/skill-targeting-v1.js",
       "ok": true,
-      "ms": 2.38,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 2.84,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/combat-role-formation-v1.js",
       "ok": true,
-      "ms": 14.59,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 19.31,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/trade-skill-manuscripts-v1.js",
       "ok": true,
-      "ms": 122.44,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 99.64,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/system-integrity-v2.js",
       "ok": true,
-      "ms": 1.85,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.99,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/affiliation-integrity-v1.js",
       "ok": true,
-      "ms": 99.97,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 132.89,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/player-experience-guidance-v1.js",
       "ok": true,
-      "ms": 8.5,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1.48,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-naming-v1.js",
       "ok": true,
-      "ms": 1279.25,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 1175.09,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-naming-v2.js",
       "ok": true,
-      "ms": 543.98,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 482.51,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/world-naming-protection-v1.js",
       "ok": true,
-      "ms": 175.55,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 156.81,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/equipment-naming-reference-v1.js",
       "ok": true,
-      "ms": 9.12,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 8.32,
+      "dbVersion": "CURRENT-2.25.7"
+    },
+    {
+      "file": "src/equipment-name-naturalization-v1.js",
+      "ok": true,
+      "ms": 141.49,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/name-generator-v2.js",
       "ok": true,
-      "ms": 19.99,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 25.51,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/water-source-v1.js",
       "ok": true,
-      "ms": 54.11,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 41.27,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/companion-aura-v1.js",
       "ok": true,
-      "ms": 6.73,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 10.08,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/companion-unique-skill-v1.js",
       "ok": true,
-      "ms": 5.97,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.02,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/companion-identity-depth-v1.js",
       "ok": true,
-      "ms": 4.42,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.56,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/companion-species-identity-v1.js",
       "ok": true,
-      "ms": 11.07,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 6.2,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/adventure-party-teammate-depth-v1.js",
       "ok": true,
-      "ms": 6.99,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 3.45,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/rpg-reference-synthesis-v1.js",
       "ok": true,
-      "ms": 32.28,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 19.85,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/quest-regional-ecology-v1.js",
       "ok": true,
-      "ms": 1.26,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.9,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/profession-recipe-differentiation-v1.js",
       "ok": true,
-      "ms": 38.97,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 54.11,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/recipe-finalization-v1.js",
       "ok": true,
-      "ms": 138.76,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 182.38,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/equipment-taxonomy-v1.js",
       "ok": true,
-      "ms": 14.3,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 23.58,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/release-integrity-v1.js",
       "ok": true,
-      "ms": 378.13,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 433.2,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/release-version-sync-v1.js",
       "ok": true,
-      "ms": 0.44,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.36,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/pwa.js",
       "ok": true,
-      "ms": 0.29,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.28,
+      "dbVersion": "CURRENT-2.25.7"
     },
     {
       "file": "src/program-registry-v1.js",
       "ok": true,
-      "ms": 1.53,
-      "dbVersion": "CURRENT-2.25.6"
+      "ms": 0.7,
+      "dbVersion": "CURRENT-2.25.7"
     }
   ],
   "audit_report": [
@@ -1134,6 +1134,15 @@
       }
     },
     {
+      "name": "runEquipmentNameNaturalizationAudit",
+      "pass": true,
+      "issues": [],
+      "stats": {
+        "total": 2312,
+        "unique": 2312
+      }
+    },
+    {
       "name": "runEquipmentNamingReferenceAudit",
       "pass": true,
       "issues": [],
@@ -1151,7 +1160,7 @@
       "stats": {
         "equipment": 354,
         "changed_unique": 162,
-        "change_events": 234
+        "change_events": 237
       }
     },
     {
@@ -1159,7 +1168,7 @@
       "pass": true,
       "issues": [],
       "stats": {
-        "single": 429,
+        "single": 432,
         "double": 104,
         "shields": 19
       }
@@ -1277,7 +1286,7 @@
       "pass": true,
       "issues": [],
       "stats": {
-        "canonical_names": 7711,
+        "canonical_names": 7734,
         "protected_names": 5,
         "supported_types": 11,
         "fixed_fallback_removed": true,
@@ -1357,15 +1366,15 @@
       "pass": true,
       "issues": [],
       "stats": {
-        "expected": 89,
-        "loaded": 89,
+        "expected": 90,
+        "loaded": 90,
         "groups": {
           "core": 1,
           "data": 32,
           "runtime": 9,
           "world": 14,
           "progression": 13,
-          "naming": 5,
+          "naming": 6,
           "survival": 7,
           "finalization": 8
         }
@@ -1634,5 +1643,5 @@
       }
     }
   ],
-  "final_db_version": "CURRENT-2.25.6"
+  "final_db_version": "CURRENT-2.25.7"
 }

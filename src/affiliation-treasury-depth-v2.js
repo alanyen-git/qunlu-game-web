@@ -146,7 +146,7 @@ function equipStats(slot,arc,tier){
 }
 function makeEquip(type,a,profile,slot,i){
  const tier=tierAt(i,profile.equip,profile.index),arc=archetype(type,a),g=weaponGroup(type,a,arc),stats=equipStats(slot,arc,tier),prefix=`ATD-${type==="organization"?"ORG":"DISC"}-${safe(a.id)}`;
- const out={id:`${prefix}-EQ-${i+1}`,name:`${a.name}・${equipName(slot,arc)}`,tier,type:slot,weight:slot==="盔甲"?3.4:slot==="主武器"?1.8:slot==="鞋子"?.8:slot==="頭盔"?.7:slot==="披風"?.5:slot==="手套"?.4:.08,value:1,durability:85+rk(tier)*12,
+ const out={id:`${prefix}-EQ-${i+1}`,name:equipName(slot,arc),tier,type:slot,weight:slot==="盔甲"?3.4:slot==="主武器"?1.8:slot==="鞋子"?.8:slot==="頭盔"?.7:slot==="披風"?.5:slot==="手套"?.4:.08,value:1,durability:85+rk(tier)*12,
   ...stats,catalog_group:slot==="主武器"?"武器":slot==="飾品"||slot==="披風"?"飾品":"防具",catalog_subcategory:"組織／流派獨有裝備",equipment_slot:slot,required_level:LEVEL[tier],rarity:"寶庫限定",
   feature:`${a.name}依自身規模與傳承製作的內部限定裝備。`,affiliation_treasury_owner:{type,id:a.id},affiliation_scale_tier:profile.tier,scale_managed:true,acquisition_sources:["affiliation_treasury"],wild_gather_eligible:false,
   treasury_rank:RANK_REQ[tier],treasury_cost:ITEM_COST[tier]+i*35,treasury_limit:1};

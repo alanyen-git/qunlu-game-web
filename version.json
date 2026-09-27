@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.6",
-  "previous_version": "CURRENT-2.25.5",
+  "version": "CURRENT-2.25.7",
+  "previous_version": "CURRENT-2.25.6",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
   "summary": "UPDATE-GITHUB-MANUAL-1.0：遊戲內手動連線 GitHub 檢查版本，確認後才下載並套用更新；保留 PWA、Android OTA、穩定簽章、版號遞增與舊存檔相容。",
   "changelog": [
+    "EQUIPMENT-NAME-NATURALIZATION-1.0：重新命名全部2312件裝備，採材質／單一意象／已實裝效果＋裝備部位的自然RPG命名；移除組織、地區、流派、黑市、深井、兄弟會、傳承裝與誓徽等硬拼來源詞，保留裝備ID、數值、效果、取得條件與舊存檔相容。",
     "MAP-SURVEY-COMPLETION-1.0：完成目前83個現行圖冊地點的固定區域路網測繪座標，接入世界／政治體／行省／當地連續圖面；座標依 canonical links、既有世界地形錨點與 settlement 路線逐點編製，不使用隨機／平均／排版散點，不改旅行 hours、存檔或解鎖規則。移除目前可玩圖面中的「待測繪」缺口；PWA v185，Android versionCode 2025006。",
     "MAP-TRAVEL-FIX-1.0：修正當地地圖的野外／地下城直連旅行誤套用僅限城鎮的 mapRoute 模式；「前往」現在依所在地 canonical links 正常移動，保留原始 hours、遭遇判定、存檔與舊版相容。PWA v184，Android versionCode 2025005。",
     "MAP-NAV-BRIDGE-1.0：修正地圖場景與主 runtime 的遊戲狀態橋接；政治體、行省級、所在當地三個角色位置按鍵恢復可點選，保留四層地圖、道路旅行權限、存檔與舊版相容。只修正狀態讀取，不改戰鬥規則與地圖資料。PWA v183，Android versionCode 2025004。",
@@ -557,7 +558,8 @@
     "save_compatible": true
   },
   "release_integrity_revision": "RELEASE-INTEGRITY-2.27",
-  "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.2",
+  "equipment_naming_reference_revision": "EQUIPMENT-NAMING-REFERENCE-1.3",
+  "equipment_name_naturalization_revision": "EQUIPMENT-NAME-NATURALIZATION-1.0",
   "equipment_naming_reference": {
     "weapon_types": 26,
     "armor_types": 21,
@@ -566,7 +568,9 @@
     "semantic_effect_validation": true,
     "external_proper_name_blocking": true,
     "save_compatible": true,
-    "revision": "EQUIPMENT-NAMING-REFERENCE-1.1",
+    "revision": "EQUIPMENT-NAMING-REFERENCE-1.3",
+    "naturalization_revision": "EQUIPMENT-NAME-NATURALIZATION-1.0",
+    "naturalization_total": 2312,
     "culture_aware": true,
     "eastern_katana_lexicon": true
   },
