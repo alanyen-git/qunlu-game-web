@@ -1,18 +1,18 @@
 {
   "version": "CURRENT-2.25.10",
-  "programs": 91,
-  "loaded": 91,
+  "programs": 92,
+  "loaded": 92,
   "failed": 0,
-  "audits": 73,
+  "audits": 74,
   "stateful_tests": 9,
   "stateful_passed": 9,
   "stateful_report": [
     {
       "name": "official_character_creation",
       "pass": true,
-      "ms": 10.51,
+      "ms": 13.13,
       "detail": {
-        "characterId": "CHAR-MUJXTWZ4-BB5E",
+        "characterId": "CHAR-MUK1XUST-BB5E",
         "classId": "C-WAR",
         "raceId": "R-HUM",
         "originId": "O-FARM",
@@ -22,7 +22,7 @@
     {
       "name": "save_roundtrip",
       "pass": true,
-      "ms": 1.01,
+      "ms": 0.67,
       "detail": {
         "bytes": 6527,
         "turn": 0,
@@ -32,7 +32,7 @@
     {
       "name": "legacy_save_migration",
       "pass": true,
-      "ms": 1.81,
+      "ms": 1.71,
       "detail": {
         "version": "CURRENT-2.25.10",
         "level": 1,
@@ -42,7 +42,7 @@
     {
       "name": "five_turn_full_audit",
       "pass": true,
-      "ms": 823.75,
+      "ms": 809.04,
       "detail": {
         "turn": 5,
         "auditIssues": 0,
@@ -52,7 +52,7 @@
     {
       "name": "battle_lifecycle",
       "pass": true,
-      "ms": 3.35,
+      "ms": 6.23,
       "detail": {
         "enemy": "MON-ASD-001",
         "alive": true
@@ -61,7 +61,7 @@
     {
       "name": "death_revival_cycle",
       "pass": true,
-      "ms": 4.95,
+      "ms": 4.33,
       "detail": {
         "before": 3,
         "after": 2,
@@ -72,7 +72,7 @@
     {
       "name": "crafting_transaction",
       "pass": true,
-      "ms": 4.1,
+      "ms": 9.82,
       "detail": {
         "item": "EQ-IRON-SWORD",
         "profession": "鍛造",
@@ -84,7 +84,7 @@
     {
       "name": "market_buy_sell_transaction",
       "pass": true,
-      "ms": 1.99,
+      "ms": 6.08,
       "detail": {
         "facility": "guild",
         "item": "I-SKILL-INSIGHT-F",
@@ -97,7 +97,7 @@
     {
       "name": "carry_capacity_penalty_consistency",
       "pass": true,
-      "ms": 8.4,
+      "ms": 18.54,
       "detail": {
         "weight": 8.8,
         "dynamicCap": 61.4,
@@ -117,7 +117,13 @@
     {
       "file": "src/world-naming-v1.js",
       "ok": true,
-      "ms": 1102.79,
+      "ms": 1196.42,
+      "dbVersion": "CURRENT-2.25.10"
+    },
+    {
+      "file": "src/release-integrity-v1.js",
+      "ok": true,
+      "ms": 555.97,
       "dbVersion": "CURRENT-2.25.10"
     }
   ],
@@ -125,551 +131,562 @@
     {
       "file": "src/bootstrap.js",
       "ok": true,
-      "ms": 1.1,
+      "ms": 1.73,
       "dbVersion": null
     },
     {
       "file": "src/game-data.js",
       "ok": true,
-      "ms": 157.94,
+      "ms": 156.53,
       "dbVersion": "CURRENT-1.50.0"
     },
     {
       "file": "src/data-patches.js",
       "ok": true,
-      "ms": 37.23,
+      "ms": 36.12,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/origin-depth-v1.js",
       "ok": true,
-      "ms": 11.52,
+      "ms": 5.75,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/combat-class-identity-depth-v1.js",
       "ok": true,
-      "ms": 56.01,
+      "ms": 54.11,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/talent-identity-depth-v1.js",
       "ok": true,
-      "ms": 3.48,
+      "ms": 4.37,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/asdail-depth-v2.js",
       "ok": true,
-      "ms": 2.96,
+      "ms": 3.69,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/asdail-narrative-depth-v1.js",
       "ok": true,
-      "ms": 1.43,
+      "ms": 1.38,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/asdail-integration-v1.js",
       "ok": true,
-      "ms": 25.67,
+      "ms": 26.21,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/affiliation-identity-depth-v1.js",
       "ok": true,
-      "ms": 147.78,
+      "ms": 163.71,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/political-consolidation-v1.js",
       "ok": true,
-      "ms": 83.32,
+      "ms": 106.71,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/political-hierarchy-depth-v1.js",
       "ok": true,
-      "ms": 4.25,
+      "ms": 5.37,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/starter-settlements-v1.js",
       "ok": true,
-      "ms": 7.84,
+      "ms": 7.98,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/anweir-seruvia-depth-v1.js",
       "ok": true,
-      "ms": 21.61,
+      "ms": 41.71,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/black-moon-depth-v1.js",
       "ok": true,
-      "ms": 10.36,
+      "ms": 11.56,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/black-tide-depth-v1.js",
       "ok": true,
-      "ms": 11.64,
+      "ms": 20.17,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/tyervalon-depth-v1.js",
       "ok": true,
-      "ms": 15.31,
+      "ms": 26.76,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/blue-tower-depth-v1.js",
       "ok": true,
-      "ms": 24.53,
+      "ms": 37.77,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/vanrek-depth-v1.js",
       "ok": true,
-      "ms": 21.51,
+      "ms": 25.02,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/gray-blade-depth-v1.js",
       "ok": true,
-      "ms": 12.99,
+      "ms": 15.48,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/frost-horn-depth-v1.js",
       "ok": true,
-      "ms": 15.81,
+      "ms": 28.53,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/white-felt-depth-v1.js",
       "ok": true,
-      "ms": 19.32,
+      "ms": 26.6,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/holy-radiance-depth-v1.js",
       "ok": true,
-      "ms": 21.69,
+      "ms": 21.45,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/dawn-casavelle-depth-v1.js",
       "ok": true,
-      "ms": 39.68,
+      "ms": 40.27,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/boundary-dragonspine-depth-v1.js",
       "ok": true,
-      "ms": 32.21,
+      "ms": 34.46,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/alchemy-healing-recipe-v1.js",
       "ok": true,
-      "ms": 4.51,
+      "ms": 5.85,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/equipment-depth-v1.js",
       "ok": true,
-      "ms": 3.07,
+      "ms": 3.47,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/crafting-recipe-semantic-v1.js",
       "ok": true,
-      "ms": 40.2,
+      "ms": 41.26,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/crafting-recipe-semantic-v2.js",
       "ok": true,
-      "ms": 35.13,
+      "ms": 41.73,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/equipment-recipe-balance-v1.js",
       "ok": true,
-      "ms": 48.32,
+      "ms": 60.06,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/recipe-economy-balance-v1.js",
       "ok": true,
-      "ms": 70.32,
+      "ms": 85.51,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/trade-venues-data-v1.js",
       "ok": true,
-      "ms": 3.57,
+      "ms": 3.18,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/equipment-eligibility-v2.js",
       "ok": true,
-      "ms": 0.67,
+      "ms": 0.58,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/runtime.js",
       "ok": true,
-      "ms": 35.49,
+      "ms": 25.45,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/monster-behavior-depth-v1.js",
       "ok": true,
-      "ms": 10.98,
+      "ms": 13.82,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/asdail-narrative-runtime-v1.js",
       "ok": true,
-      "ms": 3.39,
+      "ms": 3.58,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/companion-growth-v1.js",
       "ok": true,
-      "ms": 0.56,
+      "ms": 0.67,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/crafting-success-v2.js",
       "ok": true,
-      "ms": 0.94,
+      "ms": 1.26,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/market-economy-v2.js",
       "ok": true,
-      "ms": 1.01,
+      "ms": 0.84,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/trade-venues-runtime-v1.js",
       "ok": true,
-      "ms": 2.13,
+      "ms": 2.08,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-autonomy-v1.js",
       "ok": true,
-      "ms": 1.19,
+      "ms": 0.91,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/runtime-patches.js",
       "ok": true,
-      "ms": 2.74,
+      "ms": 2.79,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/affiliation-contribution-v1.js",
       "ok": true,
-      "ms": 65.54,
+      "ms": 61.59,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/affiliation-entry-gate-v1.js",
       "ok": true,
-      "ms": 4.58,
+      "ms": 2.68,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/affiliation-treasury-depth-v2.js",
       "ok": true,
-      "ms": 185.72,
+      "ms": 196.47,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-autonomy-v2.js",
       "ok": true,
-      "ms": 2.49,
+      "ms": 1.64,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-map-geopolitics-v1.js",
       "ok": true,
-      "ms": 25.22,
+      "ms": 22.33,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/polity-database-completion-v1.js",
       "ok": true,
-      "ms": 12,
+      "ms": 13.75,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/region-map-graphics-v1.js",
       "ok": true,
-      "ms": 1.28,
+      "ms": 1.09,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-map-tile-atlas-v1.js",
       "ok": true,
-      "ms": 1.59,
+      "ms": 1.65,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-map-province-atlas-v1.js",
       "ok": true,
-      "ms": 20.27,
+      "ms": 25.73,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/map-survey-completion-v1.js",
       "ok": true,
-      "ms": 2.39,
+      "ms": 1.65,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/map-scene-v2.js",
       "ok": true,
-      "ms": 2.06,
+      "ms": 1.17,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/npc-depth-v1.js",
       "ok": true,
-      "ms": 1.51,
+      "ms": 1.53,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/npc-depth-v2.js",
       "ok": true,
-      "ms": 1.3,
+      "ms": 1.4,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/dungeon-depth-v2.js",
       "ok": true,
-      "ms": 2.01,
+      "ms": 1.36,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/combat-class-progression-v1.js",
       "ok": true,
-      "ms": 0.84,
+      "ms": 1.07,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/class-skill-optimization-v1.js",
       "ok": true,
-      "ms": 7.84,
+      "ms": 8.44,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/class-skill-passive-compat-v1.js",
       "ok": true,
-      "ms": 1.84,
+      "ms": 1.39,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/class-naming-reference-v1.js",
       "ok": true,
-      "ms": 6.41,
+      "ms": 5.23,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/skill-naming-reference-v1.js",
       "ok": true,
-      "ms": 47.46,
+      "ms": 58.3,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/class-tier-skill-expansion-v1.js",
       "ok": true,
-      "ms": 11.67,
+      "ms": 22.08,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/skill-mechanics-depth-v1.js",
       "ok": true,
-      "ms": 33.85,
+      "ms": 42.54,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/skill-targeting-v1.js",
       "ok": true,
-      "ms": 4.25,
+      "ms": 2.45,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/combat-role-formation-v1.js",
       "ok": true,
-      "ms": 19,
+      "ms": 14.1,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/trade-skill-manuscripts-v1.js",
       "ok": true,
-      "ms": 70.32,
+      "ms": 110.43,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/system-integrity-v2.js",
       "ok": true,
-      "ms": 1.68,
+      "ms": 2.42,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/affiliation-integrity-v1.js",
       "ok": true,
-      "ms": 96.66,
+      "ms": 113.82,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/player-experience-guidance-v1.js",
       "ok": true,
-      "ms": 1,
+      "ms": 1.13,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-naming-v1.js",
       "ok": true,
-      "ms": 1102.79,
+      "ms": 1196.42,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-naming-v2.js",
       "ok": true,
-      "ms": 495.81,
+      "ms": 463.84,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/world-naming-protection-v1.js",
       "ok": true,
-      "ms": 135.4,
+      "ms": 140.62,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/equipment-naming-reference-v1.js",
       "ok": true,
-      "ms": 8.94,
+      "ms": 9.89,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/equipment-name-naturalization-v1.js",
       "ok": true,
-      "ms": 227.06,
+      "ms": 296.99,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/item-name-naturalization-v1.js",
       "ok": true,
-      "ms": 172.5,
+      "ms": 201.29,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/name-generator-v2.js",
       "ok": true,
-      "ms": 14.67,
+      "ms": 15.83,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/water-source-v1.js",
       "ok": true,
-      "ms": 35.82,
+      "ms": 39.99,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/companion-aura-v1.js",
       "ok": true,
-      "ms": 8.59,
+      "ms": 5.97,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/companion-unique-skill-v1.js",
       "ok": true,
-      "ms": 2.65,
+      "ms": 4.43,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/companion-identity-depth-v1.js",
       "ok": true,
-      "ms": 4.35,
+      "ms": 3.9,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/companion-species-identity-v1.js",
       "ok": true,
-      "ms": 5.82,
+      "ms": 6.18,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/adventure-party-teammate-depth-v1.js",
       "ok": true,
-      "ms": 3.1,
+      "ms": 3.34,
+      "dbVersion": "CURRENT-2.25.10"
+    },
+    {
+      "file": "src/adventure-party-formation-v1.js",
+      "ok": true,
+      "ms": 0.82,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/rpg-reference-synthesis-v1.js",
       "ok": true,
-      "ms": 29.63,
+      "ms": 27.94,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/quest-regional-ecology-v1.js",
       "ok": true,
-      "ms": 0.93,
+      "ms": 0.8,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/profession-recipe-differentiation-v1.js",
       "ok": true,
-      "ms": 40.14,
+      "ms": 36.97,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/recipe-finalization-v1.js",
       "ok": true,
-      "ms": 129.94,
+      "ms": 159.51,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/equipment-taxonomy-v1.js",
       "ok": true,
-      "ms": 18.81,
+      "ms": 19.52,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/release-integrity-v1.js",
       "ok": true,
-      "ms": 421.03,
+      "ms": 555.97,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/release-version-sync-v1.js",
       "ok": true,
-      "ms": 0.36,
+      "ms": 0.44,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/pwa.js",
       "ok": true,
-      "ms": 0.33,
+      "ms": 1.13,
       "dbVersion": "CURRENT-2.25.10"
     },
     {
       "file": "src/program-registry-v1.js",
       "ok": true,
-      "ms": 0.53,
+      "ms": 1.13,
       "dbVersion": "CURRENT-2.25.10"
     }
   ],
   "audit_report": [
+    {
+      "name": "runAdventurePartyFormationAudit",
+      "pass": true,
+      "issues": []
+    },
     {
       "name": "runAdventurePartyTeammateDepthAudit",
       "pass": true,
@@ -881,804 +898,3 @@
         "physical": 38,
         "magic": 42,
         "hybrid": 13,
-        "families": 23,
-        "progression_linked": 52,
-        "progression_repairs": 13
-      }
-    },
-    {
-      "name": "runClassSkillOptimizationAudit",
-      "pass": true,
-      "issues": [
-        {
-          "severity": "low",
-          "name": "決勝斷空斬",
-          "text": "倍率129%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "奧術衝擊",
-          "text": "倍率102%超出105–185%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "秘紋連鎖",
-          "text": "倍率109%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "星芒洪流",
-          "text": "倍率93%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "追獵連射",
-          "text": "倍率109%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "終獵穿心箭",
-          "text": "倍率115%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "毒刃破甲",
-          "text": "倍率100%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "影襲處決",
-          "text": "倍率115%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "破甲三連拳",
-          "text": "倍率100%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "崩岳斷脈掌",
-          "text": "倍率126%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "決勝斷空斬",
-          "text": "倍率129%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "三連重斧",
-          "text": "倍率100%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "崩山處決",
-          "text": "倍率126%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "聖輝裁決",
-          "text": "倍率126%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "附刃連擊",
-          "text": "倍率109%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "魔武裁決",
-          "text": "倍率126%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "追獵連射",
-          "text": "倍率109%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "壁壘裁斷",
-          "text": "倍率115%超出130–230%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "附刃連擊",
-          "text": "倍率109%超出115–205%建議範圍"
-        },
-        {
-          "severity": "low",
-          "name": "魔武裁決",
-          "text": "倍率126%超出130–230%建議範圍"
-        }
-      ],
-      "stats": {
-        "classes": 93,
-        "skills": 1248,
-        "signature": 29
-      }
-    },
-    {
-      "name": "runClassSkillPassiveCompatAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runClassTierSkillExpansionAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "classes": 93,
-        "added": 830,
-        "evolutions": 86,
-        "fPromoted": 33,
-        "sharedPromoted": 276,
-        "byGrade": {
-          "E": 272,
-          "D": 186,
-          "C": 186,
-          "B": 186
-        },
-        "total_pool_records": 1248,
-        "save_compatible": true
-      }
-    },
-    {
-      "name": "runCombatClassIdentityDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "legacy_classes": 100,
-        "canonical_classes": 93,
-        "merged_classes": 7,
-        "physical": 38,
-        "magic": 42,
-        "hybrid": 13,
-        "identities": 93
-      }
-    },
-    {
-      "name": "runCombatRoleFormationAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "classes": 93,
-        "skills_enriched": 769,
-        "roles": {
-          "duelist": 7,
-          "mage": 7,
-          "ranger": 2,
-          "skirmisher": 6,
-          "monk": 2,
-          "lancer": 3,
-          "berserker": 2,
-          "battle_healer": 1,
-          "spellblade": 9,
-          "scout": 1,
-          "guardian": 5,
-          "assassin": 3,
-          "support": 8,
-          "curse": 5,
-          "sniper": 1,
-          "healer": 5,
-          "summoner": 7,
-          "hunter": 2,
-          "heavy": 2,
-          "marksman": 1,
-          "trapper": 2,
-          "fire": 1,
-          "frost": 1,
-          "storm": 2,
-          "geo": 1,
-          "controller": 4,
-          "paladin": 3
-        },
-        "attack_patterns": {
-          "single": 120,
-          "row": 88,
-          "cross": 47,
-          "random": 45,
-          "all": 36,
-          "column": 36
-        }
-      }
-    },
-    {
-      "name": "runCompanionIdentityDepthAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runCompanionSpeciesIdentityAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runCompanionUniqueSkillAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runCraftingRecipeSemanticAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runCraftingRecipeSemanticAuditV2",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runDawnLawDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "zones": 7,
-        "towns": 10,
-        "wilds": 14,
-        "dungeons": 9,
-        "locations_total": 33,
-        "monsters": 24,
-        "materials": 16,
-        "npcs": 22,
-        "organizations": 9,
-        "b_tier_dungeons": 2
-      }
-    },
-    {
-      "name": "runDragonspineDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "zones": 6,
-        "settlements": 8,
-        "wilds": 14,
-        "dungeons": 10,
-        "monsters": 24,
-        "npcs": 18,
-        "organizations": 8,
-        "materials": 16
-      }
-    },
-    {
-      "name": "runEquipmentNameNaturalizationAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "total": 2312,
-        "unique": 2312
-      }
-    },
-    {
-      "name": "runEquipmentNamingReferenceAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "weapon_types": 26,
-        "armor_types": 21,
-        "accessory_types": 14,
-        "external_tokens_blocked": 11
-      }
-    },
-    {
-      "name": "runEquipmentRecipeBalanceAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "equipment": 354,
-        "changed_unique": 162,
-        "change_events": 234
-      }
-    },
-    {
-      "name": "runEquipmentTaxonomyAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "single": 428,
-        "double": 105,
-        "shields": 20
-      }
-    },
-    {
-      "name": "runFrostHornDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "major_fire_seats": 6,
-        "zones": 6,
-        "towns": 8,
-        "wilds": 12,
-        "dungeons": 8,
-        "monsters": 22,
-        "npcs": 18,
-        "organizations": 8,
-        "materials": 14
-      }
-    },
-    {
-      "name": "runGeneratorAudit",
-      "pass": true,
-      "issues": [],
-      "stateful": true
-    },
-    {
-      "name": "runGrayBladeDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "zones": 6,
-        "towns": 8,
-        "wilds": 12,
-        "dungeons": 8,
-        "monsters": 22,
-        "npcs": 18,
-        "organizations": 8,
-        "materials": 14,
-        "c_tier_dungeons": 3
-      }
-    },
-    {
-      "name": "runHealingPotionDifferentiationAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runHolyRadianceDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "zones": 8,
-        "towns": 11,
-        "wilds": 16,
-        "dungeons": 10,
-        "monsters": 26,
-        "npcs": 24,
-        "organizations": 10,
-        "materials": 18,
-        "b_tier_dungeons": 2
-      }
-    },
-    {
-      "name": "runItemNameNaturalizationAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "total": 2724,
-        "unique": 2724,
-        "potions": 513,
-        "changed": 666,
-        "families": {
-          "supply": 275,
-          "food": 62,
-          "ingredient": 47,
-          "herb": 54,
-          "other": 1049,
-          "ore": 30,
-          "consumable": 17,
-          "potion": 513,
-          "monster_material": 275,
-          "craft": 39,
-          "gem": 20,
-          "scroll": 284,
-          "rune": 12,
-          "book": 10,
-          "key": 10,
-          "tool": 18,
-          "treasure": 7,
-          "quest": 2
-        }
-      }
-    },
-    {
-      "name": "runLiveWorldAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "chains": 7,
-        "quests": 86,
-        "events": 94,
-        "monsters": 587,
-        "towns": 0,
-        "rumors": 0,
-        "hooks": 0,
-        "investigations": 0
-      }
-    },
-    {
-      "name": "runMapSceneV2Audit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runMercenaryCityAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "zones": 6,
-        "towns": 8,
-        "wilds": 12,
-        "dungeons": 8,
-        "monsters": 22,
-        "npcs": 18,
-        "organizations": 8,
-        "materials": 14,
-        "c_tier_dungeons": 3
-      }
-    },
-    {
-      "name": "runMonsterBehaviorAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "monsters": 587,
-        "profiles": 587,
-        "special_skills": 1323,
-        "elite": 118,
-        "boss": 31,
-        "families": 21
-      }
-    },
-    {
-      "name": "runNameGeneratorAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "canonical_names": 8341,
-        "protected_names": 5,
-        "supported_types": 11,
-        "fixed_fallback_removed": true,
-        "specialized_routes": 3
-      }
-    },
-    {
-      "name": "runOriginDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "previous_count": 50,
-        "canonical_count": 44,
-        "merged_count": 6,
-        "weight_before": 286.2,
-        "weight_after": 286.2,
-        "categories": {
-          "平民與鄉野": 11,
-          "貴族與騎士": 7,
-          "軍事與傭兵": 6,
-          "信仰與魔法": 10,
-          "詛咒與命運": 10
-        }
-      }
-    },
-    {
-      "name": "runPlayerExperienceAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runPoliticalConsolidationAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "political_entities": 16,
-        "authority_profiles": 16,
-        "realm_maps": 19
-      }
-    },
-    {
-      "name": "runPoliticalHierarchyDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "polities": 16,
-        "covered_profiles": 16,
-        "government_types": 17,
-        "rank_classes": 15
-      }
-    },
-    {
-      "name": "runPolityDatabaseCompletionAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "political_entities": 16,
-        "profiles": 16,
-        "province_maps": 108,
-        "towns": 155,
-        "wilds": 248,
-        "dungeons": 171,
-        "npc_dossiers": 48,
-        "orphan_locations": 0
-      }
-    },
-    {
-      "name": "runProductionCraftingSuccessAudit"
-    },
-    {
-      "name": "runProfessionRecipeDifferentiationAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runProgramRegistryAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "expected": 91,
-        "loaded": 91,
-        "groups": {
-          "core": 1,
-          "data": 32,
-          "runtime": 9,
-          "world": 14,
-          "progression": 13,
-          "naming": 7,
-          "survival": 7,
-          "finalization": 8
-        }
-      }
-    },
-    {
-      "name": "runRecipeEconomyBalanceAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "professional": 595,
-        "cooking": 59,
-        "changed_unique": 241,
-        "change_events": 271
-      }
-    },
-    {
-      "name": "runRecipeFinalizationAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runRegionMapGraphicsAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runRegionalQuestEcologyAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runReleaseIntegrityAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "items": 5036,
-        "monsters": 587,
-        "locations": 606,
-        "companions": 200,
-        "static_issue_count": 0
-      }
-    },
-    {
-      "name": "runRpgReferenceSynthesisAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "skills": 2473,
-        "classes": 93,
-        "npcs": 526,
-        "quests": 94,
-        "locations": 606,
-        "party_templates": 200
-      }
-    },
-    {
-      "name": "runSeruviaDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "zones": 7,
-        "towns": 9,
-        "wilds": 15,
-        "dungeons": 10,
-        "monsters": 24,
-        "npcs": 20,
-        "organizations": 8,
-        "materials": 16,
-        "b_tier_dungeons": 2
-      }
-    },
-    {
-      "name": "runSkillManuscriptAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runSkillMechanicsDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "unique_skills": 2318,
-        "attack_skills": 993,
-        "support_skills": 1039,
-        "passive_skills": 286,
-        "mechanic_traits": 21,
-        "attack_profiles": {
-          "guard_break": 109,
-          "combo": 88,
-          "precision": 184,
-          "guard_strike": 66,
-          "elemental_focus": 125,
-          "multi_hit": 139,
-          "status_mastery": 27,
-          "arcane_pressure": 56,
-          "execute": 48,
-          "opener": 33,
-          "force": 38,
-          "mobile": 17,
-          "summon_echo": 40,
-          "drain": 11,
-          "delayed_trap": 9,
-          "hexed": 1,
-          "sanctified": 1,
-          "hybrid_balance": 1
-        },
-        "max_clone_group_before": 217,
-        "max_clone_group_after": 49,
-        "save_compatible": true
-      }
-    },
-    {
-      "name": "runSkillNamingReferenceAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "skills": 2473,
-        "families": 17,
-        "duplicate_name_tier_groups": 239,
-        "canonical_ids": 878
-      }
-    },
-    {
-      "name": "runStarterSettlementsAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "starter_villages": 6,
-        "external_villages": 5,
-        "surrounding_areas": 30,
-        "external_polities": 5,
-        "willow_baseline": {
-          "town": 1,
-          "wild": 3,
-          "dungeon": 3
-        }
-      }
-    },
-    {
-      "name": "runSystemIntegrityAudit",
-      "pass": true
-    },
-    {
-      "name": "runTalentIdentityDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "previous_count": 100,
-        "canonical_count": 86,
-        "merged_count": 14,
-        "starter_count": 51,
-        "categories": {
-          "角色能力": 25,
-          "戰鬥專精": 25,
-          "戰鬥素質": 14,
-          "副職業專精": 22
-        },
-        "identity_coverage": 86
-      }
-    },
-    {
-      "name": "runTradeVenueDataAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runTyervalonDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "great_totem_seats": 12,
-        "zones": 6,
-        "towns": 8,
-        "wilds": 12,
-        "dungeons": 8,
-        "monsters": 20,
-        "npcs": 18,
-        "organizations": 8,
-        "materials": 13
-      }
-    },
-    {
-      "name": "runVanrekDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "zones": 7,
-        "towns": 10,
-        "wilds": 14,
-        "dungeons": 10,
-        "monsters": 24,
-        "npcs": 22,
-        "organizations": 9,
-        "materials": 16,
-        "b_tier_dungeons": 2
-      }
-    },
-    {
-      "name": "runWaterSourceAudit",
-      "pass": true
-    },
-    {
-      "name": "runWhiteFeltDepthAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "major_banners": 5,
-        "zones": 6,
-        "towns": 8,
-        "wilds": 12,
-        "dungeons": 8,
-        "monsters": 22,
-        "npcs": 20,
-        "organizations": 8,
-        "materials": 14
-      }
-    },
-    {
-      "name": "runWorldGeopoliticalMapAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "political_entities": 16,
-        "surface_regions": 20,
-        "surface_polygons": 34,
-        "subterranean_polities": 1,
-        "fixed_capitals": 14,
-        "mobile_courts": 1,
-        "no_capital_zones": 1,
-        "coastlines": 13,
-        "mountain_ranges": 7,
-        "rivers": 6,
-        "lakes": 3,
-        "climate_bands": 7,
-        "major_roads": 7,
-        "border_passes": 7,
-        "border_logic": 15,
-        "wilderness_maps": 8,
-        "wilderness_nodes": 40,
-        "polity_tier_model": "POLITY-WORLD-TIER-1.0",
-        "polity_tier_distribution": {
-          "F": 0,
-          "E": 0,
-          "D": 0,
-          "C": 5,
-          "B": 6,
-          "A": 5,
-          "S": 0
-        }
-      }
-    },
-    {
-      "name": "runWorldMapProvinceAtlasAudit",
-      "pass": true,
-      "issues": []
-    },
-    {
-      "name": "runWorldMosaicAudit",
-      "pass": true,
-      "issues": [],
-      "stats": {
-        "regions": 20,
-        "tiles": 660,
-        "land_tiles": 436
-      }
-    }
-  ],
-  "final_db_version": "CURRENT-2.25.10"
-}
