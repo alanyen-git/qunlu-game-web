@@ -1,4 +1,4 @@
-/* 群陸旅誌：裝備名稱自然化 CURRENT-2.25.7
+/* 群陸旅誌：裝備名稱自然化 CURRENT-2.25.8
  * EQUIPMENT-NAME-NATURALIZATION-1.0
  *
  * 參考傳統RPG常見的命名層次：低階看材質與部位，中階看單一意象或用途，
@@ -157,7 +157,11 @@ function naturalize(){
   for(const d of rows){
     const old=text(d.name),slot=slotOf(d),name=makeCandidate(d,slot,changes.length,used);
     used.add(name);
-    if(old!==name){changes.push({id:d.id,from:old,to:name});d.name=name}
+    if(old!==name){
+      d.previous_names=Array.isArray(d.previous_names)?d.previous_names:[];
+      if(old&&!d.previous_names.includes(old))d.previous_names.push(old);
+      changes.push({id:d.id,from:old,to:name});d.name=name
+    }
     d.name_style=REV;
   }
   DB.meta=DB.meta||{};

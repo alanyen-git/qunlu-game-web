@@ -12,6 +12,7 @@ const ALIAS={person:"person",npc:"person",character:"person",settlement:"settlem
 const MAX={person:12,settlement:14,location:18,organization:20,discipline:18,monster:18,quest:26,skill:16,equipment:24,item:24,class:12,generic:20};
 const MODERN=["專案","模組","系統AI","人工智慧","研究所","處理器","伺服器","API","CPU","GPU","TODO","TBD","TEMP","測試名稱","暫定名稱","未命名"];
 const BLOCKED=["升龍拳","strike","Strike","STRIKE"];
+const ITEM_STRUCTURAL=["傳承裝","誓徽","兄弟會","黑市","深井","戰吼","寶庫限定","組織裝備","流派裝備"];
 const GRAND={"無雙":"B","裁決":"B","降世":"B","天幕":"B","絕對零度":"B","終極":"A","極致":"A","萬法":"A","萬刃":"A","萬拳":"A","萬箭":"A","萬槍":"A","萬火":"A","萬冰":"A","主宰":"S","毀滅":"S"};
 const SPECIALIZED={skill:{validator:"validateSkillName",generator:"suggestSkillName"},equipment:{validator:"validateEquipmentName",generator:"generateEquipmentName"},class:{validator:"validateCombatClassName",generator:"suggestCombatClassName"}};
 const CULTURE=Object.freeze({
@@ -64,6 +65,7 @@ function validateGeneratedNameV2(name,type="person",culture="asdale_west",contex
  if(/[\/／]/.test(s))r.issues.push("名稱不得使用斜線並列多個候選");
  for(const x of MODERN)if(s.includes(x))r.issues.push("含不合世界觀的現代／占位術語:"+x);
  for(const x of BLOCKED)if(s.includes(x))r.issues.push("不納入CURRENT生成詞庫:"+x);
+ if(t==="item")for(const x of ITEM_STRUCTURAL)if(s.includes(x))r.issues.push("道具名稱不得直接串接來源詞:"+x);
  if(/(.)\1\1/.test(s))r.issues.push("出現三連重字");
  if(/(城城|鎮鎮|村村|港港|堡堡|塔塔|會會|團團|盟盟|術術|擊擊|斬斬|坑坑|熔熔|地下地牢|要塞城|之門城)/.test(s))r.issues.push("名稱存在重複詞或重複後綴");
  if(t==="person"){
@@ -101,7 +103,7 @@ function organizationCandidate(culture,context){const p=cultureProfile(culture),
 function disciplineCandidate(culture,context){const p=cultureProfile(culture),lex=CULTURE[culture]||CULTURE.asdale_west,rs=uniq([...roots(context,p,culture),...list(context.motifs),...list(lex.discipline)]),root=clean(context.institutionName||context.regionName)||choose(rs),weapon=clean(context.weapon||context.weaponGroup),track=clean(context.track).toLowerCase(),eastern=culture==="eastern_sword"||context.easternTradition===true;let ss=["戰技","武技學派","戰法"];if(/劍|刀/.test(weapon))ss=eastern?["劍術","刀術","流"]:["劍術","劍學派","護手劍術"];else if(/槍|矛|戟/.test(weapon))ss=["槍術","長兵戰技","槍陣戰法"];else if(/弓|弩/.test(weapon))ss=["弓術","射術學派","獵射戰技"];else if(/拳|徒手|格鬥/.test(weapon))ss=["格鬥術","拳術","武鬥戰技"];if(/magic|魔法|hybrid|魔武/.test(track))ss=["術法","秘術學派","元素戰技","符文學派"];return join(root,choose(ss))}
 function monsterCandidate(context){const e=clean(context.element),h=clean(context.habitat||context.terrain),trait=clean(context.trait||context.feature),species=clean(context.speciesName||context.species||context.familyName||context.family)||choose(["狼","熊","蜥","蛛","蠍","鷹","獸"]);if(context.unique===true||context.boss===true){const title=clean(context.epithet||context.title);if(title)return title+"・"+species}if(!e&&!trait)return h?join(h,species):species;const map={火:["熾痕","燼皮","炎脊"],水:["霜背","潮紋","冰晶"],風:["裂風","蒼翼","風翎"],地:["岩脊","石甲","砂背"],雷:["雷角","電紋","鳴雷"],生命:["翠葉","森靈","生息"],死亡:["枯骨","灰墓","亡息"],光明:["曙光","白耀"],黑暗:["黯影","夜紋","黑霧"]};return join(trait||choose(map[e]||[])||h,species)}
 function questCandidate(context){const tier=tierOf(context.tier||"F"),loc=clean(context.locationName||context.regionName),target=clean(context.targetName||context.objectiveName),action=clean(context.action||context.questType)||"調查",story=clean(context.storyTitle||context.eventName);if(story&&TIER[tier]>=TIER.C)return story;if(target)return action+target;if(loc)return action+loc;return action+"委託"}
-function itemCandidate(context){const material=clean(context.material),provenance=clean(context.regionName||context.provenance),purpose=clean(context.purpose||context.effectName),kind=clean(context.itemType||context.category)||"道具";if(material)return material+(purpose||"")+kind;if(provenance)return provenance+(purpose||"")+kind;return (purpose||"旅用")+kind}
+function itemCandidate(context){const material=clean(context.material),purpose=clean(context.purpose||context.effectName),kind=clean(context.itemType||context.category)||"道具";if(material)return material+(purpose||"")+kind;return (purpose||"旅用")+kind}
 function specializedCandidate(type,culture,context){const tier=tierOf(context.tier||"F");if(type==="skill"&&typeof globalThis.suggestSkillName==="function")return globalThis.suggestSkillName(context.familyId||context.family||"blade",tier,{...context,rejectNearDuplicate:true});if(type==="equipment"&&typeof globalThis.generateEquipmentName==="function")return globalThis.generateEquipmentName(context.category||context.catalogGroup||"武器",tier,{...context,culture});if(type==="class"&&typeof globalThis.suggestCombatClassName==="function")return globalThis.suggestCombatClassName(context.track||"physical",context.familyId||context.family||null,tier,context);return null}
 function generateWorldNameV2(type="person",culture="asdale_west",context={}){
  const t=typeOf(type),used=usedSet(t,context),tries=Math.max(20,Math.min(160,Number(context.maxAttempts)||80));
