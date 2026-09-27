@@ -1,5 +1,5 @@
-/* 群陸旅誌：世界層行省圖冊 CURRENT-2.21.0
- * WORLD-MAP-PROVINCE-ATLAS-1.0
+/* 群陸旅誌：世界層行省圖冊 CURRENT-2.22.0
+ * WORLD-MAP-PROVINCE-ATLAS-1.1 / DARK-MEDIEVAL-ATLAS-1.0
  * 將既有行省資料投影回世界層：每個行省都有可追溯的政治體、王國級地圖、
  * 世界大區、首都、所在地點統計與鄰接行省。座標是世界圖上的「位置錨點」，
  * 不是新增的精確測量，也不改旅行解鎖、主權或存檔 schema。
@@ -8,8 +8,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.21.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.21.0";
-const REV="WORLD-MAP-PROVINCE-ATLAS-1.0";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.22.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.22.0";
+const REV="WORLD-MAP-PROVINCE-ATLAS-1.1";
 const TIER_COLOR={F:"#78a879",E:"#9ebd77",D:"#c4b276",C:"#d79a62",B:"#d87e70",A:"#c77fa4",S:"#ad86d6"};
 const array=v=>Array.isArray(v)?v:[];
 const find=(key,id)=>array(DB[key]).find(x=>x?.id===id)||null;
@@ -95,7 +95,8 @@ const ATLAS=buildAtlas();
 function entry(id){return ATLAS.entries.find(x=>x.id===id)||null}
 function geometryForRegion(regionId){return array(DB.world_geopolitical_map?.region_geometry).filter(g=>g?.region_id===regionId&&g.layer!=="subterranean")}
 function provinceSvg(){
- const W=num(ATLAS.canvas?.width,1800),H=num(ATLAS.canvas?.height,1100),parts=['<rect width="'+W+'" height="'+H+'" fill="#102027"></rect>'];
+ const W=num(ATLAS.canvas?.width,1800),H=num(ATLAS.canvas?.height,1100),parts=['<defs><pattern id="world-atlas-grain" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M0 11 L38 11 M0 29 L38 29" stroke="#665b3f" stroke-width=".8" opacity=".15"></path><path d="M10 0 L10 38 M28 0 L28 38" stroke="#fff4cf" stroke-width=".8" opacity=".18"></path></pattern></defs><rect width="'+W+'" height="'+H+'" fill="#c9bc8d"></rect><rect width="'+W+'" height="'+H+'" fill="url(#world-atlas-grain)" opacity=".7"></rect>'];
+ for(let i=1;i<9;i++){const y=H*(i/9),wave=W*.06;parts.push('<path d="M 0 '+Math.round(y)+' Q '+Math.round(W*.22)+' '+Math.round(y-wave)+' '+Math.round(W*.48)+' '+Math.round(y)+' T '+W+' '+Math.round(y)+'" fill="none" stroke="#756946" stroke-width="2" opacity=".22"></path>')}
  const palette=new Map(),colors=["#6d8492","#927b69","#667f70","#8c7890","#887d57","#6e738e","#9b6f68","#5f8581"];
  for(const e of ATLAS.entries){if(!palette.has(e.political_entity_id))palette.set(e.political_entity_id,colors[palette.size%colors.length])}
  for(const g of geometryForRegion()){const pts=array(g.points).map(p=>p.join(",")).join(" ");const e=ATLAS.entries.find(x=>x.world_region_id===g.region_id);parts.push('<polygon points="'+pts+'" fill="'+(e?palette.get(e.political_entity_id):"#293739")+'" fill-opacity=".36" stroke="#73858a" stroke-width="3"><title>'+esc(worldRegionName(g.region_id))+'</title></polygon>')}
@@ -104,7 +105,7 @@ function provinceSvg(){
  const current=typeof G!=="undefined"?find("locations",G?.character?.locationId)?.province_region_id:null;
  for(const e of ATLAS.entries){const here=current===e.id,c=tierColor(e.world_tier);parts.push('<g class="world-province-marker" role="link" tabindex="0" onclick="openWorldMapProvinceDetails(\''+sid(e.id)+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openWorldMapProvinceDetails(\''+sid(e.id)+'\')}"><title>'+esc(e.name+"｜"+e.political_entity_name+"｜"+e.world_tier+"級")+'</title><circle cx="'+e.anchor.x+'" cy="'+e.anchor.y+'" r="'+(here?17:12)+'" fill="'+c+'" stroke="'+(here?"#fff1b2":"#1c292b")+'" stroke-width="'+(here?6:3)+'"></circle><text x="'+e.anchor.x+'" y="'+(e.anchor.y-18)+'" text-anchor="middle" fill="#f4e7bb" font-size="14" font-weight="900" pointer-events="none">'+esc(e.name)+'</text><text x="'+e.anchor.x+'" y="'+(e.anchor.y+29)+'" text-anchor="middle" fill="#d6e1dc" font-size="11" pointer-events="none">'+esc(e.political_entity_name+" · "+e.world_tier+"級")+'</text></g>')}
  parts.push('<g pointer-events="none"><path d="M1680 145 L1680 70" stroke="#f0eee6" stroke-width="6"></path><polygon points="1680,48 1665,82 1695,82" fill="#f0eee6"></polygon><text x="1680" y="178" text-anchor="middle" fill="#f0eee6" font-size="22" font-weight="900">北 N</text></g>');
- return '<div style="overflow:auto;border:1px solid #36423d;border-radius:14px;background:#111714;padding:8px"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="群陸旅誌世界行省定位圖" style="width:100%;min-width:760px;height:auto;display:block">'+parts.join("")+'</svg></div>';
+ return '<div class="atlas-province-world-map regionmap-scroll" tabindex="0" aria-label="群陸旅誌世界行省定位圖"><svg class="regionmap-svg world-province-atlas-svg" data-map-art="dark-medieval-cartography" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="群陸旅誌世界行省定位圖" style="width:100%;min-width:760px;height:auto;display:block">'+parts.join("")+'</svg></div>';
 }
 function provinceRows(){
  const groups=new Map();for(const e of ATLAS.entries){if(!groups.has(e.political_entity_id))groups.set(e.political_entity_id,[]);groups.get(e.political_entity_id).push(e)}
@@ -112,7 +113,7 @@ function provinceRows(){
 }
 function openProvinceAtlas(){
  const current=typeof G!=="undefined"?find("locations",G?.character?.locationId)?.province_region_id:null;
- const body='<div class="actions"><button type="button" class="primary" onclick="openWorldMapAtlas(\'province\')">行省定位圖</button><button type="button" onclick="openWorldMapAtlas(\'surface\')">回政治＋地形</button>'+(current?'<button type="button" onclick="openWorldMapProvinceDetails(\''+sid(current)+'\')">目前所在行省</button>':"")+'</div>'+provinceSvg()+'<div class="card small"><b>定位規則</b>：行省標記回指既有政治體、王國／政體圖與行省資料；座標是世界圖定位錨點，不代表新增精確邊界。金線虛線表示資料上的鄰接關係。</div><h3>世界行省索引（'+ATLAS.entries.length+'）</h3>'+provinceRows();
+ const body='<div class="atlas-art-ribbon"><span>WORLD PROVINCES</span><b>行省疆域定位圖</b><i>只顯示已建檔資料，不虛構邊界</i></div><div class="actions"><button type="button" class="primary" onclick="openWorldMapAtlas(\'province\')">行省定位圖</button><button type="button" onclick="openWorldMapAtlas(\'surface\')">回政治＋地形</button>'+(current?'<button type="button" onclick="openWorldMapProvinceDetails(\''+sid(current)+'\')">目前所在行省</button>':"")+'</div>'+provinceSvg()+'<div class="card small"><b>定位規則</b>：行省標記回指既有政治體、王國／政體圖與行省資料；座標是世界圖定位錨點，不代表新增精確邊界。金線虛線表示資料上的鄰接關係。</div><h3>世界行省索引（'+ATLAS.entries.length+'）</h3>'+provinceRows();
  if(typeof showModal==="function")showModal("世界地圖・行省定位",body);
 }
 function openWorldMapProvinceDetails(id){

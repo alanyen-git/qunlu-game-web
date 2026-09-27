@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.21.0",
-  "previous_version": "CURRENT-2.20.0",
+  "version": "CURRENT-2.22.0",
+  "previous_version": "CURRENT-2.21.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "世界地圖補上行省級定位：114張行省圖回接政治體、政體圖、世界大區、首都與下層地點索引。",
+  "summary": "各層級世界地圖改為深境手繪圖誌：墨線地形、羊皮紙、銅金標記與可下鑽四層導覽。",
   "changelog": [
+    "DARK-MEDIEVAL-ATLAS-1.0：世界、政治體／王國、行省與當地四層圖面統一為原創深色中世紀手繪地圖風格；加入羊皮紙紋理、等高線、墨線道路、銅金標記、地圖圖誌標頭與手機窄版適配。不改地理資料、旅行權限或存檔格式。",
     "WORLD-MAP-PROVINCE-ATLAS-1.0：世界圖新增行省定位層與可點選索引，覆蓋16個政治體／非主權區、114張行省圖；每省回接王國／政體圖、世界大區、首都／中樞、城鎮／野外／地下城數量、固定NPC數量與資料鄰接行省。座標使用既有世界大區幾何中心與明確方位文字推導，不新增主權、精確邊界、旅行解鎖或存檔欄位。",
     "MONSTER-BEHAVIOR-DEPTH-1.0：587隻怪物各自建立物種行為簽章與專屬動作；野獸／魔物依獵食、群襲、毒素、元素、構裝、不死等特性行動，菁英新增狂性解放，Boss新增低血量領域轉相；不改存檔格式。",
     "POLITY-PROVINCE-DEPTH-1.0：建立16個現行政治體／非主權區的行省級覆蓋索引；阿斯戴爾補齊四個王領省級區，金衡自由都市新增六省、八城鎮、十二野外、八地下城與十八名固定NPC。每省依治理、經濟、地形、危險、地下遺構與NPC資訊邊界獨立設計，不共用模板。既有政治體深化模組統一納入行省圖與所在地圖索引，舊存檔相容。",
@@ -471,7 +472,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v174",
+  "pwa_cache_revision": "v175",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -837,8 +838,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.21.0：世界圖新增114張行省定位索引，87個正式src模組與PWA v174同步；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.21.0",
+    "note": "CURRENT-2.22.0：四層世界地圖套用深境手繪圖誌美術，87個正式src模組與PWA v175同步；舊存檔相容。",
+    "last_verified_release": "CURRENT-2.22.0",
     "notes": [
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
@@ -904,7 +905,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.21.0",
+    "last_verified_release": "CURRENT-2.22.0",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -912,7 +913,7 @@
     "audited_src_programs": 87,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v174",
+    "pwa_cache": "v175",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -2020,7 +2021,7 @@
     "save_compatible": true,
     "revision": "POLITY-DATABASE-COMPLETION-1.0"
   },
-  "world_map_province_atlas_revision": "WORLD-MAP-PROVINCE-ATLAS-1.0",
+  "world_map_province_atlas_revision": "WORLD-MAP-PROVINCE-ATLAS-1.1",
   "world_map_province_atlas": {
     "entries": 114,
     "political_entities": 16,
@@ -2039,7 +2040,7 @@
     ],
     "coordinate_policy": "既有世界大區幾何中心＋資料方位文字＋同行省穩定間距",
     "save_compatible": true,
-    "revision": "WORLD-MAP-PROVINCE-ATLAS-1.0"
+    "revision": "WORLD-MAP-PROVINCE-ATLAS-1.1"
   },
   "monster_behavior_depth_revision": "MONSTER-BEHAVIOR-DEPTH-1.0",
   "monster_behavior_depth": {

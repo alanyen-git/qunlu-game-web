@@ -55,7 +55,7 @@
   window.addEventListener("load",()=>{
     if(!("serviceWorker" in navigator))return;
     if(!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=CURRENT-2.21.0-REFRESH-1-PROVINCE-ATLAS",{scope:"./"})
+    navigator.serviceWorker.register("sw.js?v=CURRENT-2.22.0-REFRESH-1-DARK-ATLAS",{scope:"./"})
       .then(registration=>registration.update().catch(()=>null))
       .catch(error=>console.warn("Service worker registration failed",error));
   },{once:true});

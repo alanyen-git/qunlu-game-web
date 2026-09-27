@@ -1,5 +1,5 @@
-/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.16.0
- * REGION-MAP-GRAPHICS-1.4
+/* 群陸旅誌：王國／行省／當地三級圖面 CURRENT-2.22.0
+ * REGION-MAP-GRAPHICS-1.5 / DARK-MEDIEVAL-ATLAS-1.0
  * 王國使用既有正史疆域座標；未建立地理座標的行省與地方使用實際links路網示意，
  * 不推造城鎮方位、不改旅行權限、不寫入存檔。
  */
@@ -52,9 +52,17 @@ const shell=(svg,note,info="")=>{
  return '<div class="atlas-map-layout"><section class="atlas-map-stage"><div class="regionmap-toolbar actions" role="group" aria-label="地圖縮放"><button type="button" onclick="changeRegionMapZoom(-1)" aria-label="縮小地圖">－</button><button type="button" class="regionmap-zoom-level" id="regionmapZoomLevel" onclick="resetRegionMapView()" title="點按還原100%縮放" aria-label="目前縮放比例，點按還原100%">100%</button><button type="button" onclick="changeRegionMapZoom(1)" aria-label="放大地圖">＋</button><button type="button" class="regionmap-fit" onclick="fitRegionMapView()" aria-label="將整張地圖縮放至可完整顯示">適合視窗</button></div><div class="regionmap-scroll atlas-paper-map" tabindex="0" aria-label="地圖可上下左右捲動">'+svg+'</div></section><aside class="atlas-map-dossier">'+info+'<div class="atlas-map-note">'+note+'</div></aside></div>';
 };
 function atlasPage(level,selectedId,content){
- return '<div class="atlas-screen atlas-screen--'+level+'">'+levelNavigation(level,selectedId)+'<div class="atlas-screen-content">'+content+'</div></div>';
+ return '<div class="atlas-screen atlas-screen--'+level+' atlas-witcher3-style"><div class="atlas-art-ribbon"><span>FIELD ATLAS</span><b>深境手繪圖誌</b><i>墨線地形・銅金標記・可考證道路</i></div>'+levelNavigation(level,selectedId)+'<div class="atlas-screen-content">'+content+'</div></div>';
 }
-const svgStart=(w,h,label,view)=>'<svg class="regionmap-svg" viewBox="'+(view||"0 0 "+w+" "+h)+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><rect x="'+(view?view.split(" ")[0]:"0")+'" y="'+(view?view.split(" ")[1]:"0")+'" width="'+(view?view.split(" ")[2]:w)+'" height="'+(view?view.split(" ")[3]:h)+'" fill="#d9cfaa"></rect>';
+const svgStart=(w,h,label,view)=>{
+ const box=(view||"0 0 "+w+" "+h).trim().split(/\s+/).map(Number),x=Number.isFinite(box[0])?box[0]:0,y=Number.isFinite(box[1])?box[1]:0,vw=Number.isFinite(box[2])?box[2]:w,vh=Number.isFinite(box[3])?box[3]:h;
+ const contour=[];
+ for(let i=1;i<6;i++){
+  const yy=y+vh*(i/6),wave=vw*.08;
+  contour.push('<path d="M '+coord(x)+' '+coord(yy)+' Q '+coord(x+vw*.23)+' '+coord(yy-wave)+' '+coord(x+vw*.48)+' '+coord(yy)+' T '+coord(x+vw)+' '+coord(yy)+'" fill="none" stroke="#776b4d" stroke-width="1.4" opacity=".23"></path>');
+ }
+ return '<svg class="regionmap-svg" data-map-art="dark-medieval-cartography" viewBox="'+[x,y,vw,vh].join(" ")+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="atlas-paper-grain" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M0 8 L34 8 M0 25 L34 25" stroke="#6f6245" stroke-width=".7" opacity=".13"></path><path d="M8 0 L8 34 M26 0 L26 34" stroke="#fff6d3" stroke-width=".7" opacity=".12"></path></pattern></defs><rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" fill="#d9cfaa"></rect><rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" fill="url(#atlas-paper-grain)" opacity=".75"></rect><g class="atlas-topographic-lines">'+contour.join("")+'</g>';
+};
 const poly=points=>array(points).filter(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(+p[0])&&Number.isFinite(+p[1])).map(p=>coord(p[0])+","+coord(p[1])).join(" ");
 const label=(x,y,value,size=15)=>'<text x="'+coord(x)+'" y="'+coord(y)+'" text-anchor="middle" fill="#3e382b" font-size="'+size+'" font-weight="700" pointer-events="none">'+esc(value)+'</text>';
 const pointName=(text,max=13)=>Array.from(String(text||"")).slice(0,max).join("")+(Array.from(String(text||"")).length>max?"…":"");
