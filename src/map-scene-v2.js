@@ -1,5 +1,5 @@
-/* 群陸旅誌：連續世界地圖場景 CURRENT-2.24.0
- * MAP-SCENE-2.0 / CARTOGRAPHIC-SCENE-1.0
+/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.0
+ * MAP-SCENE-2.1 / CARTOGRAPHIC-SCENE-1.0
  * 獨立 canvas 圖面核心。只繪製有 canonical 幾何或明確測繪座標的資料；
  * 未測繪地點留在索引，不以排版座標冒充地理位置。
  */
@@ -7,8 +7,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const REV="MAP-SCENE-2.0";
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.24.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.24.0";
+const REV="MAP-SCENE-2.1";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.0";
 const A=v=>Array.isArray(v)?v:[];
 const find=(key,id)=>A(DB[key]).find(x=>x?.id===id)||null;
 const loc=id=>find("locations",id);
@@ -33,6 +33,13 @@ function polityIdOfGeometry(g){return g?.political_entity_id||region(g?.region_i
 function realmForPolity(pid){return A(DB.realm_region_maps).find(r=>r?.political_entity_id===pid)||null}
 function provinceLocations(id){return A(DB.locations).filter(l=>l?.province_region_id===id)}
 function locationTier(l){return l?.kind==="town"?(l.settlement_world_tier||l.tier||"F"):(l?.world_tier||l?.tier||"F")}
+function settlementMap(id){return find("settlement_region_maps",id)}
+function provinceAtlasEntry(id){return A(DB.world_map_province_atlas?.entries).find(x=>x?.id===id)||null}
+function localLocations(id){
+ const center=loc(id);if(!center)return [];
+ const ids=new Set([center.id,...A(center.links).map(e=>e?.to).filter(Boolean)]);
+ return [...ids].map(loc).filter(Boolean);
+}
 function pointList(points){return A(points).filter(p=>Array.isArray(p)&&Number.isFinite(+p[0])&&Number.isFinite(+p[1])).map(p=>[+p[0],+p[1]])}
 function centroid(points){const ps=pointList(points);return ps.length?{x:ps.reduce((s,p)=>s+p[0],0)/ps.length,y:ps.reduce((s,p)=>s+p[1],0)/ps.length}:null}
 function boundsFor(geoms){
@@ -66,13 +73,15 @@ function visibleFeatures(key,geoms=sceneGeometries()){
 }
 function unmappedLocations(){
  if(state.level!=="province"&&state.level!=="local")return [];
- const p=state.level==="province"?province(state.id):province(loc(state.id)?.province_region_id);
- return provinceLocations(p?.id).filter(l=>!explicitPoint(l));
+ if(state.level==="province"){
+  const p=province(state.id);return provinceLocations(p?.id).filter(l=>!explicitPoint(l));
+ }
+ return localLocations(state.id).filter(l=>!explicitPoint(l));
 }
 function mappedLocations(){
  if(state.level!=="province"&&state.level!=="local")return [];
- const p=state.level==="province"?province(state.id):province(loc(state.id)?.province_region_id);
- return provinceLocations(p?.id).map(l=>({row:l,point:explicitPoint(l)})).filter(x=>x.point);
+ const rows=state.level==="province"?provinceLocations(state.id):localLocations(state.id);
+ return rows.map(l=>({row:l,point:explicitPoint(l)})).filter(x=>x.point);
 }
 function featureAllowed(kind){return state.filter==="all"||state.filter===kind}
 function roadRoute(fromId,toId){
@@ -115,13 +124,19 @@ function indexRows(){
  if(state.level==="local")rows=A(loc(state.id)?.links).map(e=>({edge:e,row:loc(e.to)})).filter(x=>x.row).map(x=>({id:x.row.id,name:x.row.name,meta:(kinds[x.row.kind]||"地點")+"｜"+num(x.edge.hours).toFixed(1)+" 小時",action:"openMapScene('local','"+safe(x.row.id)+"')",travel:roadRoute(currentLocation()?.id,x.row.id)}));
  return rows.map(x=>'<div class="mapscene-index-row"><button type="button" onclick="'+x.action+'"><b>'+esc(x.name)+'</b><small>'+esc(x.meta)+'</small></button>'+(x.travel?'<button type="button" class="mapscene-travel" onclick="mapSceneTravel(\''+safe(x.id)+'\')">前往</button>':'')+'</div>').join("")||'<div class="mapscene-empty">目前層級沒有可驗證資料。</div>';
 }
+function layerSummary(){
+ if(state.level==="world")return '<span>世界正史圖庫</span><b>'+A(DB.realm_region_maps).filter(x=>x?.political_entity_id).length+' 個政治體索引</b><i>點選中樞進入政治體級</i>';
+ if(state.level==="realm"){const r=realm(state.id),ps=A(DB.province_region_maps).filter(x=>x?.parent_realm_map_id===r?.id);return '<span>政治體疆域圖面</span><b>'+ps.length+' 個行省索引</b><i>行省錨點只作行政定位，不代表精確測量</i>'}
+ if(state.level==="province"){const p=province(state.id),ls=provinceLocations(p?.id),mapped=ls.filter(x=>explicitPoint(x)).length;return '<span>行省地形圖面</span><b>'+ls.length+' 個地點 · '+mapped+' 個已測繪</b><i>未測繪地點保留於側欄索引</i>'}
+ const l=loc(state.id),links=A(l?.links).filter(x=>loc(x.to)),surveyed=localLocations(state.id).filter(x=>explicitPoint(x)).length;return '<span>當地測繪圖面</span><b>'+links.length+' 條已建道路連線 · '+surveyed+' 個已測繪節點</b><i>沒有可靠座標的節點不繪製假位置</i>';
+}
 function legend(){
  return '<div class="mapscene-legend"><h3>圖例</h3><div><i class="ms-key ms-town"></i>城鎮／中樞</div><div><i class="ms-key ms-wild"></i>野外</div><div><i class="ms-key ms-dungeon"></i>地下城</div><div><i class="ms-line ms-road"></i>已建道路</div><div><i class="ms-line ms-river"></i>河川／湖泊</div><div><i class="ms-line ms-border"></i>疆域界線</div><p>只有 canonical 幾何或有來源的測繪座標會畫上圖面。索引中的「待測繪」不代表不存在。</p></div>';
 }
 function render(){
  const unknown=unmappedLocations().length;
  const note=state.level==="world"||state.level==="realm"?"疆域、河湖、山脈、道路與關隘均讀取世界正史圖庫。":"圖面不使用自動散點；未有可靠座標的地點保留於待測繪索引。";
- return '<div class="mapscene-shell" data-map-scene="2.0" data-map-level="'+state.level+'">'+tabs()+'<header class="mapscene-header"><div><span class="mapscene-kicker">CARTOGRAPHIC FIELD ATLAS · MAP‑SCENE 2.0</span><h2>'+esc(title())+'</h2><p>'+esc(note)+'</p></div><div class="mapscene-zoom"><button type="button" aria-label="縮小" onclick="zoomMapScene(-1)">−</button><output id="mapsceneZoom">'+Math.round(state.zoom*100)+'%</output><button type="button" aria-label="放大" onclick="zoomMapScene(1)">＋</button><button type="button" onclick="resetMapSceneView()">置中</button></div></header><div class="mapscene-filter" role="group" aria-label="地標篩選">'+filterButtons()+'</div><div class="mapscene-layout"><section class="mapscene-stage" id="mapsceneStage"><canvas id="mapsceneCanvas" aria-label="'+esc(title())+'互動圖面"></canvas><div class="mapscene-compass" aria-hidden="true"><b>N</b><i></i></div><div class="mapscene-scale" id="mapsceneScale">拖曳平移・滾輪／雙指縮放</div></section><aside class="mapscene-sidebar">'+legend()+'<div class="mapscene-index-head"><h3>'+({world:"已知政治體",realm:"所轄行省",province:"行省地點",local:"相鄰道路"})[state.level]+'</h3>'+(unknown?'<span>'+unknown+' 待測繪</span>':'')+'</div><div class="mapscene-index">'+indexRows()+'</div></aside></div><footer class="mapscene-footer">旅行權限仍為 reachable_only：只有目前地點 links 中存在的直連道路可移動，並使用原始 hours。地圖顯示不會解鎖路線。</footer></div>';
+ return '<div class="mapscene-shell" data-map-scene="2.1" data-map-level="'+state.level+'">'+tabs()+'<header class="mapscene-header"><div><span class="mapscene-kicker">CARTOGRAPHIC FIELD ATLAS · MAP‑SCENE 2.1</span><h2>'+esc(title())+'</h2><p>'+esc(note)+'</p></div><div class="mapscene-zoom"><button type="button" aria-label="縮小" onclick="zoomMapScene(-1)">−</button><output id="mapsceneZoom">'+Math.round(state.zoom*100)+'%</output><button type="button" aria-label="放大" onclick="zoomMapScene(1)">＋</button><button type="button" onclick="resetMapSceneView()">置中</button></div></header><div class="mapscene-layer-summary" data-map-layer-summary="'+state.level+'">'+layerSummary()+'</div><div class="mapscene-filter" role="group" aria-label="地標篩選">'+filterButtons()+'</div><div class="mapscene-layout"><section class="mapscene-stage" id="mapsceneStage"><canvas id="mapsceneCanvas" aria-label="'+esc(title())+'互動圖面"></canvas><div class="mapscene-compass" aria-hidden="true"><b>N</b><i></i></div><div class="mapscene-scale" id="mapsceneScale">拖曳平移・滾輪／雙指縮放</div></section><aside class="mapscene-sidebar">'+legend()+'<div class="mapscene-index-head"><h3>'+({world:"已知政治體",realm:"所轄行省",province:"行省地點",local:"相鄰道路"})[state.level]+'</h3>'+(unknown?'<span>'+unknown+' 待測繪</span>':'')+'</div><div class="mapscene-index">'+indexRows()+'</div></aside></div><footer class="mapscene-footer">旅行權限仍為 reachable_only：只有目前地點 links 中存在的直連道路可移動，並使用原始 hours。地圖顯示不會解鎖路線。</footer></div>';
 }
 
 function seeded(seed){let x=seed|0;return ()=>{x=(x*1664525+1013904223)|0;return (x>>>0)/4294967296}}
@@ -154,6 +169,15 @@ function drawTerrainFeatures(ctx){
  for(const f of visibleFeatures("mountain_ranges")){drawPolyline(ctx,f,"rgba(45,39,29,.6)",9);drawPolyline(ctx,f,"#c3b28e",2)}
  for(const f of visibleFeatures("major_roads")){drawPolyline(ctx,f,"rgba(48,35,21,.75)",7);drawPolyline(ctx,f,"#d7b47a",2.4,[7,5])}
 }
+function drawLocalRoutes(ctx){
+ if(state.level!=="local")return;
+ const center=loc(state.id),from=explicitPoint(center);if(!center||!from)return;
+ for(const edge of A(center.links)){
+  const target=loc(edge?.to),to=explicitPoint(target);if(!target||!to)continue;
+  drawPolyline(ctx,{points:[[from.x,from.y],[to.x,to.y]]},"rgba(47,35,22,.82)",6);
+  drawPolyline(ctx,{points:[[from.x,from.y],[to.x,to.y]]},"#e2c27d",2.2,[9,6]);
+ }
+}
 function label(ctx,text,x,y,size=13,align="center"){
  const s=Math.max(.05,state.paintScale||1);ctx.save();ctx.font=`700 ${size/s}px Georgia, serif`;ctx.textAlign=align;ctx.textBaseline="middle";ctx.lineWidth=3.5/s;ctx.strokeStyle="rgba(29,24,18,.78)";if(ctx.strokeText)ctx.strokeText(String(text),x,y);ctx.fillStyle="#f0e7cc";ctx.fillText(String(text),x,y);ctx.restore();
 }
@@ -179,9 +203,9 @@ function drawMarkers(ctx,geoms){
  if(state.level==="world"){
   const seen=new Set();for(const r of A(DB.realm_region_maps)){const pid=r?.political_entity_id;if(!pid||seen.has(pid))continue;const gs=geoms.filter(g=>polityIdOfGeometry(g)===pid),c=centroid(gs.flatMap(g=>g.points));if(!c)continue;seen.add(pid);drawMarker(ctx,r,c,"capital","realm")}
  }else if(state.level==="realm"){
-  const r=realm(state.id);for(const p of A(DB.province_region_maps).filter(x=>x.parent_realm_map_id===r?.id)){const gs=geoms.filter(g=>g.region_id===(p.world_region_id||p.region_id)),c=centroid(gs.flatMap(g=>g.points));if(c)drawMarker(ctx,p,c,"capital","province")}
+  const r=realm(state.id);for(const p of A(DB.province_region_maps).filter(x=>x.parent_realm_map_id===r?.id)){const atlas=provinceAtlasEntry(p.id),gs=geoms.filter(g=>g.region_id===(p.world_region_id||p.region_id)),c=atlas?.anchor?{x:+atlas.anchor.x,y:+atlas.anchor.y}:centroid(gs.flatMap(g=>g.points));if(c)drawMarker(ctx,p,c,"capital","province")}
  }
- for(const c of visibleFeatures("capitals",geoms)){if(Number.isFinite(+c.x)&&Number.isFinite(+c.y))drawMarker(ctx,c,{x:+c.x,y:+c.y},"capital","realm")}
+ if(state.level==="world"||state.level==="realm")for(const c of visibleFeatures("capitals",geoms)){if(Number.isFinite(+c.x)&&Number.isFinite(+c.y))drawMarker(ctx,c,{x:+c.x,y:+c.y},"capital","realm")}
  for(const p of visibleFeatures("border_passes",geoms)){const q=explicitPoint(p)||Number.isFinite(+p.x)&&Number.isFinite(+p.y)&&{x:+p.x,y:+p.y};if(q)drawMarker(ctx,p,q,"pass",state.level)}
  for(const x of mappedLocations())drawMarker(ctx,x.row,x.point,x.row.kind,"local");
 }
@@ -191,7 +215,7 @@ function paint(){
  if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas.style.width=w+"px";canvas.style.height=h+"px"}
  if(ctx.setTransform)ctx.setTransform(dpr,0,0,dpr,0,0);else if(ctx.scale)ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
  const geoms=sceneGeometries(),b=boundsFor(geoms),fit=Math.min(w/b.w,h/b.h)*.92,scale=fit*state.zoom,ox=(w-b.w*scale)/2-b.x*scale+state.panX,oy=(h-b.h*scale)/2-b.y*scale+state.panY;
- state.paintScale=scale;ctx.save();if(ctx.translate)ctx.translate(ox,oy);if(ctx.scale)ctx.scale(scale,scale);drawTerrain(ctx,b,geoms);drawWater(ctx);drawTerrainFeatures(ctx);drawFeatureLabels(ctx,geoms);drawMarkers(ctx,geoms);ctx.restore();
+ state.paintScale=scale;ctx.save();if(ctx.translate)ctx.translate(ox,oy);if(ctx.scale)ctx.scale(scale,scale);drawTerrain(ctx,b,geoms);drawWater(ctx);drawTerrainFeatures(ctx);drawLocalRoutes(ctx);drawFeatureLabels(ctx,geoms);drawMarkers(ctx,geoms);ctx.restore();
  state.transform={scale,ox,oy,w,h};const out=document.getElementById("mapsceneZoom");if(out)out.textContent=Math.round(state.zoom*100)+"%";return true;
 }
 function activateHit(clientX,clientY){
@@ -211,7 +235,7 @@ function show(){if(typeof globalThis.showModal!=="function")return false;globalT
 function open(level,id){
  const valid=["world","realm","province","local"].includes(level)?level:"world";
  if(valid==="world"){state.level="world";state.id=null}
- else if(valid==="realm"&&realm(id)){state.level=valid;state.id=id}
+ else if(valid==="realm"&&(realm(id)||realmForPolity(id))){state.level=valid;state.id=realm(id)?.id||realmForPolity(id)?.id}
  else if(valid==="province"&&province(id)){state.level=valid;state.id=id}
  else if(valid==="local"&&loc(id)){state.level=valid;state.id=id}
  else return false;
@@ -228,7 +252,7 @@ function audit(){
 
 globalThis.openMapScene=open;globalThis.setMapSceneFilter=setFilter;globalThis.zoomMapScene=zoom;globalThis.resetMapSceneView=reset;globalThis.mapSceneTravel=travelTo;globalThis.runMapSceneV2Audit=audit;
 globalThis.openWorldMapAtlas=()=>open("world");globalThis.openWorldMapHierarchy=()=>open("world");globalThis.openRegionMapGraphic=(level,id)=>open(level,id);globalThis.openRealmRegionMap=id=>open("realm",id);globalThis.openProvinceRegionMap=id=>open("province",id);
-globalThis.openSettlementRegionMap=id=>{const l=loc(id);return l?open("local",l.id):false};globalThis.openMap=()=>{const l=currentLocation();return l?open("local",l.id):open("world")};globalThis.openMapLocationDetail=id=>open("local",id);
+globalThis.openSettlementRegionMap=id=>{const sm=settlementMap(id);if(sm?.center_location_id&&loc(sm.center_location_id))return open("local",sm.center_location_id);if(sm?.parent_province_region_id)return open("province",sm.parent_province_region_id);const l=loc(id);return l?open("local",l.id):false};globalThis.openMap=()=>{const l=currentLocation();return l?open("local",l.id):open("world")};globalThis.openMapLocationDetail=id=>open("local",id);
 globalThis.openProvinceCategoryMap=(id,kind)=>{const ok=open("province",id);if(ok&&["town","wild","dungeon"].includes(kind)){state.filter=kind;return show()}return ok};globalThis.openProvinceTerrainMap=globalThis.openProvinceCategoryMap;
 globalThis.openWorldMapProvinceAtlas=()=>open("world");globalThis.openWorldMapProvinceDetails=id=>open("province",id);globalThis.openWorldMapWilderness=id=>loc(id)?open("local",id):open("world");globalThis.openWorldMapPass=()=>open("world");
 globalThis.openWorldMapPolityTerritory=pid=>{const r=realmForPolity(pid);return r?open("realm",r.id):open("world")};globalThis.openWorldMapNonStateRegion=rid=>{const r=A(DB.realm_region_maps).find(x=>x.world_region_id===rid||A(x.world_region_ids).includes(rid));return r?open("realm",r.id):open("world")};
