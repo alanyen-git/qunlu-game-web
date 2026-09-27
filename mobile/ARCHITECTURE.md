@@ -49,3 +49,4 @@ The Pages workflow runs the same steps after the web game passes its existing va
 - Offline launches continue using the last installed bundle.
 - App and browser saves are separate local stores. Export the save before moving between installations.
 - The initial APK containing the updater plugin must be installed once. Future text/game-content updates use OTA; changes to native code need an APK update.
+- The CI APK uses a stable beta signing identity and derives a monotonically increasing Android `versionCode` from `version.json`, so later APKs can be installed over the previous CI APK. If an older APK was built before this identity was introduced, Android may reject the first replacement because its signature is different; export the save, remove that one old APK, install the new upgrade-compatible APK once, and future APK upgrades will work in place.

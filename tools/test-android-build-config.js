@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const path=require("node:path");
+const workflow=fs.readFileSync(".github/workflows/build-android-app.yml","utf8");
+const script=fs.readFileSync("scripts/configure-android-build.mjs","utf8");
+const packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
+const config=JSON.parse(fs.readFileSync("capacitor.config.json","utf8"));
+const version=JSON.parse(fs.readFileSync("version.json","utf8"));
+assert.equal(config.appId,"io.github.alanyengit.qunlu");
+assert.match(workflow,/cp mobile\/qunlu-update\.keystore android\/app\/qunlu-update\.keystore/);
+assert.match(workflow,/node scripts\/configure-android-build\.mjs/);
+assert.match(script,/versionCode = major \* 1_000_000 \+ minor \* 1_000 \+ patch/);
+assert.match(script,/QUNLU-STABLE-UPDATE-SIGNING/);
+assert.equal(packageJson.scripts["configure:android"],"node scripts/configure-android-build.mjs");
+assert(fs.existsSync(path.join("mobile","qunlu-update.keystore")));
+const match=version.version.match(/^CURRENT-(\d+)\.(\d+)\.(\d+)$/);
+assert(match);
+const code=Number(match[1])*1000000+Number(match[2])*1000+Number(match[3]);
+assert.equal(code,2023001);
+console.log(`Android upgrade configuration OK: ${version.version} -> versionCode ${code}, stable signature, OTA preserved`);

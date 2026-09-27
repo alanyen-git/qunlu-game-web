@@ -55,6 +55,11 @@ jobs:
       - name: Sync Android project
         run: npm run cap:sync:android
 
+      - name: Configure upgrade-compatible Android APK
+        run: |
+          cp mobile/qunlu-update.keystore android/app/qunlu-update.keystore
+          node scripts/configure-android-build.mjs
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug

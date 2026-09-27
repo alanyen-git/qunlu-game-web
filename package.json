@@ -5,6 +5,7 @@
   "description": "群陸旅誌 mobile application build",
   "scripts": {
     "build:mobile": "node scripts/build-mobile.mjs",
+    "configure:android": "node scripts/configure-android-build.mjs",
     "cap:sync:android": "cap sync android",
     "build:mobile:update": "node scripts/publish-mobile-update.mjs"
   },
