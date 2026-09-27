@@ -50,6 +50,9 @@ DB.integration_registry.optimization_notes.push("CURRENT-2.11.0／SUBJOB-PROGRES
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
+// 跨模組狀態橋接：地圖、勢力與其他獨立程序透過 globalThis.G 讀取目前遊戲狀態。
+// 保留 runtime 內部 G 的既有引用與存檔流程，只補上同一個 live reference。
+Object.defineProperty(globalThis,"G",{configurable:true,get:()=>G,set:value=>{G=value}});
 let creation={race:null,raceSubtype:null,origin:null,originFacet:null,element:null,classId:null,randomLeft:10};
 const DOM_CACHE=new Map(),UI_HTML_CACHE=new WeakMap();
 const $=s=>{

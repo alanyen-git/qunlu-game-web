@@ -19,7 +19,7 @@ assert.doesNotMatch(visual,/@keyframes|animation\s*:|transition\s*:/,"visual lay
 assert.match(html,/assets\/art\/qunlu-sigil\.svg/);
 assert.match(html,/VISUAL-SYSTEM-1/);
 assert.match(sw,/\.\/assets\/art\/qunlu-sigil\.svg/);
-assert.equal(version.version,"CURRENT-2.25.3");
-assert.equal(version.pwa_cache_revision,"v182");
-assert.match(version.changelog[0],/VISUAL-SYSTEM-1\.0/);
+assert.equal(version.version,"CURRENT-2.25.4");
+assert.equal(version.pwa_cache_revision,"v183");
+assert.ok(version.changelog.some(x=>/VISUAL-SYSTEM-1\.0/.test(x)));
 console.log(`Visual system regression OK: ${version.version}, static HUD/atlas/battle layer, PWA ${version.pwa_cache_revision}`);
