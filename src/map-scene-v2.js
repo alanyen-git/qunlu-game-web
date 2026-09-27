@@ -1,4 +1,4 @@
-/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.4
+/* 群陸旅誌：連續世界地圖場景 CURRENT-2.25.5
  * MAP-SCENE-2.1 / CARTOGRAPHIC-SCENE-1.0
  * 獨立 canvas 圖面核心。只繪製有 canonical 幾何或明確測繪座標的資料；
  * 未測繪地點留在索引，不以排版座標冒充地理位置。
@@ -8,7 +8,7 @@
 if(typeof DB!=="object"||!DB)return;
 
 const REV="MAP-SCENE-2.1";
-const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.4")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.4";
+const RELEASE=globalThis.QUNLU_CORE?.release?.("CURRENT-2.25.5")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.5";
 const A=v=>Array.isArray(v)?v:[];
 const find=(key,id)=>A(DB[key]).find(x=>x?.id===id)||null;
 const loc=id=>find("locations",id);
@@ -107,7 +107,9 @@ function travelTo(id){
  const from=currentLocation(),target=loc(id);if(!from||!target||from.id===target.id)return false;
  const route=roadRoute(from.id,target.id);if(!route)return false;
  if(typeof globalThis.travel!=="function")return false;
- return globalThis.travel(target.id,route.hours,{mapRoute:true,path:route.path,mapRevision:REV});
+ // 當地圖的路線已由所在地 links 驗證；野外／地下城不能套用只給城鎮跨段旅行的 mapRoute 模式。
+ // 交回一般 travel 入口，讓主 runtime 依同一條 canonical 直連道路完成移動與存檔。
+ return globalThis.travel(target.id,route.hours);
 }
 
 function title(){

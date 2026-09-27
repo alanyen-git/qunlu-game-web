@@ -10,16 +10,16 @@ const html=fs.readFileSync("index.html","utf8");
 const sw=fs.readFileSync("sw.js","utf8");
 const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 
-assert.equal(version.version,"CURRENT-2.25.4");
-assert.equal(version.previous_version,"CURRENT-2.25.3");
-assert.equal(version.pwa_cache_revision,"v183");
+assert.equal(version.version,"CURRENT-2.25.5");
+assert.equal(version.previous_version,"CURRENT-2.25.4");
+assert.equal(version.pwa_cache_revision,"v184");
 assert.match(runtime,/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json/);
 assert.match(runtime,/checkForGameUpdate\(true\)/);
 assert.match(runtime,/QUNLU_NATIVE_UPDATE/);
 assert.doesNotMatch(runtime,/checkForGameUpdate\(false\)/);
 assert.doesNotMatch(runtime,/setInterval\(\(\)=>checkForGameUpdate/);
 assert.match(runtime,/連線 GitHub 檢查更新/);
-assert.match(sw,/CACHE_NAME=CACHE_PREFIX\+"v183"/);
+assert.match(sw,/CACHE_NAME=CACHE_PREFIX\+"v184"/);
 
 assert.match(ota,/GITHUB_VERSION_URL\s*=\s*"https:\/\/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json"/);
 assert.match(ota,/globalThis\.QUNLU_NATIVE_UPDATE/);
@@ -29,4 +29,4 @@ const startup=ota.slice(ota.indexOf("async function startNativeUpdates()"),ota.i
 assert.doesNotMatch(startup,/checkForGameUpdate/);
 assert.match(architecture,/manually connects to GitHub/);
 assert.match(architecture,/interrupt an active session/);
-console.log(`Manual GitHub update flow OK: ${version.version}, PWA ${version.pwa_cache_revision}, Android versionCode 2025004`);
+console.log(`Manual GitHub update flow OK: ${version.version}, PWA ${version.pwa_cache_revision}, Android versionCode 2025005`);
