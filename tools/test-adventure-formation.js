@@ -9,5 +9,5 @@ assert.match(runtime,/position:formationPositionOf\(inst,"party"\)/);
 assert.match(runtime,/position:formationPositionOf\(inst,"companion"\)/);
 assert.match(runtime,/移至\$\{formationPositionLabel\(next\)\}/);
 assert.match(runtime,/近戰敵人優先接觸前排/);
-assert.match(runtime,/const meleeTargets=rawTargets\\.filter/);
+assert.match(runtime,/const meleeTargets=rawTargets\.filter/);
 console.log("adventure formation regression OK: player, teammates, active companion positions persist into battle");
