@@ -381,17 +381,30 @@
   window.loadManualSlot=loadManualSlot;
   window.deleteManualSlot=deleteManualSlot;
 
-  const originalResetGame=window.resetGame;
-  window.resetGame=function(){
+  let resetInProgress=false;
+  window.resetGame=async function(){
+    if(resetInProgress)return;
     const current=(typeof G!=="undefined")?G:null;
     const currentId=current?.meta?.characterId||current?.character?.id||null;
     const protectedByManual=hasManualSaveForCharacter(currentId);
     const message=protectedByManual
-      ?"確定建立新角色嗎？\n目前自動恢復進度會清除，但三個手動存檔槽都會保留。"
-      :"目前角色尚未保存到任何手動存檔槽。\n建立新角色後，目前自動恢復進度會被清除。\n建議先取消並使用「手動存檔」。\n\n仍要建立新角色嗎？";
+      ?"確定建立新角色嗎？\\n目前自動恢復進度會清除，但三個手動存檔槽都會保留。"
+      :"目前角色尚未保存到任何手動存檔槽。\\n建立新角色後，目前自動恢復進度會被清除。\\n建議先取消並使用「手動存檔」。\\n\\n仍要建立新角色嗎？";
     if(!confirm(message))return;
-    try{localStorage.removeItem(AUTOSAVE_KEY)}catch(e){}
-    location.reload();
+    resetInProgress=true;
+    try{
+      if(typeof flushPersistWrites==="function")await flushPersistWrites();
+      if(typeof saveDbClear==="function")await saveDbClear();
+      else if(typeof saveDbDelete==="function")await saveDbDelete(AUTOSAVE_KEY);
+      pendingPersistSerialized=null;
+      lastPersistSerialized="";
+      try{localStorage.removeItem(AUTOSAVE_KEY)}catch(e){}
+      location.reload();
+    }catch(error){
+      resetInProgress=false;
+      console.error("reset automatic save failed",error);
+      alert("無法清除自動存檔；為避免回到舊進度，請先匯出存檔後再重試。");
+    }
   };
 
   window.QUNLU_SAVE_SLOT_SYSTEM={

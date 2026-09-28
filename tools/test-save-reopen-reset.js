@@ -1,0 +1,11 @@
+"use strict";
+const fs=require("node:fs");
+const assert=require("node:assert/strict");
+const patch=fs.readFileSync("src/runtime-patches.js","utf8");
+assert.match(patch,/window\.resetGame=async function\(\)/);
+assert.match(patch,/await flushPersistWrites\(\)/);
+assert.match(patch,/await saveDbClear\(\)/);
+assert.match(patch,/localStorage\.removeItem\(AUTOSAVE_KEY\)/);
+assert.match(patch,/location\.reload\(\)/);
+assert.doesNotMatch(patch,/window\.resetGame=function\(\)/);
+console.log("save reopen reset regression OK: IndexedDB autosave is awaited and cleared before reload");

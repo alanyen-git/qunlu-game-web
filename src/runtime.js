@@ -4596,12 +4596,12 @@ function renderBattle(sharedCombatStats=null){
  <div class="battleunit enemy battle-enemy-row"><b>${e.name} <span class="tier">${e.tier}</span></b><div class="small">${e.category||"敵人"}｜戰鬥回合 ${b.round}</div>
  <div>HP ${Math.max(0,Math.round(e.hp))}/${e.maxHp}</div><div class="small">先攻${Math.round(e.initiative||0)}｜移速${Math.round(e.moveSpeed||100)}｜韌性${Math.round(e.poise||0)}</div><div class="hpbar"><i style="width:${ehp}%"></i></div></div>
  <div class="battle-allies">
-   <div class="battleunit player"><b>${c.name}</b><div class="small">Lv${c.level}｜${cls(c.classId).name}</div>
+   <div class="battleunit player"><b>${c.name}</b><div class="small">Lv${c.level}｜${cls(c.classId).name}｜${formationPositionLabel(formationPositionOf(c,"player"))}</div>
    <div>HP ${Math.round(c.hp)}/${c.maxHp}　SP ${Math.round(c.stamina)}/${c.maxStamina}　MP ${Math.round(c.mana)}/${c.maxMana}</div>
    <div class="small battle-unit-stats">先攻${cs.initiative}｜移速${cs.moveSpeed}｜射程${cs.range}m｜格擋${cs.blockRate}%/${cs.blockValue}%${b.playerStaggered?"｜硬直":""}</div>
    <div class="hpbar"><i style="width:${php}%"></i></div></div>
-   ${b.party?.map(m=>`<div class="battleunit party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><div class="small">${m.roleLabel}｜AI</div><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")||""}
-   ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div><div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
+   ${b.party?.map(m=>`<div class="battleunit party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><div class="small">${m.roleLabel}｜${formationPositionLabel(formationPositionOf(m,"party"))}｜AI</div><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")||""}
+   ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜${formationPositionLabel(formationPositionOf(b.companion,"companion"))}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div><div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
  </div></div>
  <div class="battlelog" role="log" aria-live="polite" aria-relevant="additions text">${b.log.map(x=>`<div>・${x}</div>`).join("")}</div>
  <div class="battleactions">
@@ -4835,8 +4835,15 @@ function enemyBattleTurn(){
  if(b.awaitingCompanion){b.awaitingCompanion=false;resolvePartyTurns();if(e.hp<=0){finishBattle("勝利");return}resolveCompanionTurn();if(e.hp<=0){finishBattle("勝利");return}}
  if(processEnemyStatuses()){battleLog(`${e.name}因狀態影響無法正常行動。`);tickBattleEffects();b.round++;persist();renderAll();return}
  if(e.hp<=0){finishBattle("勝利");return}
- const r=rollD20(),targets=[{type:"player",weight:combatStats().threat||100},...partyThreatTargets()];
- if(b.companion&&!b.companion.knockedOut&&b.companion.hp>0)targets.push({type:"companion",unit:b.companion,weight:b.companion.guarding?180:70});
+ const r=rollD20();
+ const playerWeight=(combatStats().threat||100)*(formationPositionOf(G.character,"player")==="front"?1.35:.72);
+ const rawTargets=[{type:"player",unit:G.character,weight:playerWeight},...partyThreatTargets()];
+ if(b.companion&&!b.companion.knockedOut&&b.companion.hp>0){
+   const companionFactor=formationPositionOf(b.companion,"companion")==="front"?1.25:.78;
+   rawTargets.push({type:"companion",unit:b.companion,weight:Math.round((b.companion.guarding?180:70)*companionFactor)});
+ }
+ const meleeTargets=rawTargets.filter(x=>formationPositionOf(x.unit,x.type)==="front");
+ const targets=Number(e.range||1)<=1&&meleeTargets.length?meleeTargets:rawTargets;
  let pick=weightedPick(targets.map(x=>[x,x.weight])),targetCompanion=pick?.type==="companion",targetParty=pick?.type==="party";
  if(targetCompanion){
    const c=pick.unit;c.guarding=false;
@@ -5145,7 +5152,8 @@ function companionXpToNext(level){return Math.round(30+level*18+level*level*2.5)
 function makeCompanionInstance(speciesId,source="未知"){
  const sp=companionSpecies(speciesId);if(!sp)return null;
  const level=Math.max(1,Math.min(G.character.level||1,sp.min_owner_level||1));
- return {uid:`CP-${Date.now().toString(36)}-${rand(99999)}`,speciesId:sp.id,level,xp:0,bond:0,source,obtainedTurn:G.turn||0}
+ return {uid:`CP-${Date.now().toString(36)}-${rand(99999)}`,speciesId:sp.id,level,xp:0,bond:0,source,
+   battlefieldPosition:defaultCompanionFormationPosition(sp),obtainedTurn:G.turn||0}
 }
 function canAcquireCompanion(sp){
  if(!sp)return {ok:false,reason:"資料不存在"};
@@ -5224,7 +5232,7 @@ function battleCompanionSnapshot(){
  const inst=activeCompanionInstance();if(!inst)return null;
  const sp=companionSpecies(inst.speciesId),cs=companionCombatStats(inst);
  return {uid:inst.uid,speciesId:sp.id,name:sp.name,tier:sp.tier,kind:sp.companion_kind,kindLabel:sp.companion_kind_label,
-   ai:sp.ai_profile,aiLabel:sp.ai_label,element:sp.element,maxHp:cs.hp,hp:cs.hp,attack:cs.attack,magic:cs.magic,defense:cs.defense,
+   ai:sp.ai_profile,aiLabel:sp.ai_label,element:sp.element,position:formationPositionOf(inst,"companion"),maxHp:cs.hp,hp:cs.hp,attack:cs.attack,magic:cs.magic,defense:cs.defense,
    accuracy:cs.accuracy,evasion:cs.evasion,speed:cs.speed,statusEffects:[],guarding:false,knockedOut:false}
 }
 function companionRosterSummary(){
@@ -5307,6 +5315,45 @@ function partyTemplate(id){return IDX.partyTemplate.get(id)}
 function adventureParty(){return G?.character?.adventureParty||null}
 function partyMembers(){return adventureParty()?.members||[]}
 function partySize(){return 1+partyMembers().length}
+function defaultFormationPosition(role){
+ const s=String(role||"").toLowerCase();
+ return /healer|ranged|caster|support|scout|sniper|curse|治療|遠程|施法|支援|斥候|狙擊|詛咒/.test(s)?"back":"front";
+}
+function defaultCompanionFormationPosition(species){
+ const s=[species?.name,species?.family,species?.ai_profile,species?.companion_kind].filter(Boolean).join(" ");
+ return species?.companion_kind==="summon"||/鳥|鷹|隼|狐|貓|兔|蛇|元素|精靈|靈|caster|support|施法/i.test(s)?"back":"front";
+}
+function formationPositionLabel(position){return position==="back"?"後排":"前排"}
+function formationPositionOf(unit,type="party"){
+ if(type==="player")return G?.character?.battlefieldPosition==="back"?"back":"front";
+ return unit?.battlefieldPosition==="back"||unit?.position==="back"?"back":defaultFormationPosition(unit?.role||unit?.roleLabel);
+}
+function ensureAdventureFormation(){
+ const c=G?.character;if(!c)return null;
+ if(!["front","back"].includes(c.battlefieldPosition))c.battlefieldPosition=defaultFormationPosition(playerRoleFamily());
+ for(const m of (adventureParty()?.members||[]))if(!["front","back"].includes(m.battlefieldPosition))m.battlefieldPosition=defaultFormationPosition(m.role||m.role_label);
+ for(const inst of (c.companions||[])){
+   const sp=companionSpecies(inst.speciesId);
+   if(!["front","back"].includes(inst.battlefieldPosition))inst.battlefieldPosition=defaultCompanionFormationPosition(sp);
+ }
+ return c;
+}
+function formationUnitHtml(kind,uid,name,position,detail,extra=""){
+ const next=position==="back"?"front":"back";
+ return `<div class="itemrow"><span><b>${esc(name)}</b> <span class="tier">${formationPositionLabel(position)}</span><br><span class="small">${detail}</span></span><span class="actions"><button type="button" onclick="setAdventureFormationPosition('${kind}','${uid}','${next}')">移至${formationPositionLabel(next)}</button>${extra}</span></div>`;
+}
+function setAdventureFormationPosition(kind,uid,position){
+ if(!["front","back"].includes(position))return;
+ const c=ensureAdventureFormation();if(!c)return;
+ let target=null;
+ if(kind==="player"&&uid==="player")target=c;
+ else if(kind==="party")target=(c.adventureParty?.members||[]).find(x=>x.uid===uid);
+ else if(kind==="companion")target=(c.companions||[]).find(x=>x.uid===uid);
+ if(!target)return;
+ target.battlefieldPosition=position;
+ persist();
+ openAdventureParty();
+}
 function partyLeaderName(){
  const p=adventureParty();if(!p)return G.character.name;
  if(p.leader==="player")return G.character.name;
@@ -5372,6 +5419,7 @@ function makePartyMember(templateId,source="招募"){
  const t=partyTemplate(templateId),level=teammateLevel(t),scale=1+(level-1)*.035,b=t.base_stats;
  const maxHp=Math.round(b.hp*scale);
  return {uid:`PMI-${Date.now().toString(36)}-${rand(99999)}`,templateId:t.id,level,xp:0,bond:0,source,
+   battlefieldPosition:defaultFormationPosition(t.role),
    maxHp,hp:maxHp,joinedTurn:G.turn||0}
 }
 function createSelfLedParty(member){
@@ -5400,10 +5448,20 @@ function dismissPartyMember(uid){
 function openAdventureParty(){
  const p=adventureParty();
  if(!p){showModal("冒險團",`<div class="card"><b>目前沒有正式冒險團</b><br><span class="small">前往冒險者公會或酒館招募至少1名隊友，或在公會加入既有冒險團。正式編制包含你本人共2–5人。</span></div>`);return}
- const rows=p.members.map(m=>{const t=partyTemplate(m.templateId);return `<div class="card"><b>${t.name}</b> <span class="tier">${t.tier}</span>［${t.race}／${t.role_label}］${p.leader===m.uid?" <span class='tier'>領隊</span>":""}<br><span class="small">Lv${m.level}｜HP ${Math.round(m.hp)}/${m.maxHp}｜羈絆${(m.bond||0).toFixed(1)}%｜${t.background}<br>戰鬥：${DB.adventure_party_system.ai_profiles[t.role]}</span>${p.mode==="self-led"?`<div class="actions"><button class="bad" onclick="dismissPartyMember('${m.uid}')">請其離隊</button></div>`:""}</div>`}).join("");
- showModal("冒險團",`<div class="card"><b>${p.name}</b><br>${p.mode==="self-led"?"你是領隊":`領隊：${partyLeaderName()}`}｜編制 ${partySize()}/5<br><span class="small">NPC隊友戰鬥皆由AI自動操作；玩家本人也計入冒險團人數。</span></div>${rows}<div class="actions"><button class="bad" onclick="leaveAdventureParty()">離開／解散冒險團</button></div>`)
-}
-function candidateLegal(t){
+ ensureAdventureFormation();
+ const playerPosition=formationPositionOf(G.character,"player");
+ const playerRow=formationUnitHtml("player","player",G.character.name,playerPosition,`玩家角色｜${cls(G.character.classId)?.name||"未知職業"}｜可手動操作`);
+ const rows=p.members.map(m=>{
+   const t=partyTemplate(m.templateId),position=formationPositionOf(m,"party");
+   const extra=p.mode==="self-led"?`<button type="button" class="bad" onclick="dismissPartyMember('${m.uid}')">請其離隊</button>`:"";
+   return `<div class="card"><b>${esc(t.name)}</b> <span class="tier">${esc(t.tier)}</span>［${esc(t.race)}／${esc(t.role_label)}］${p.leader===m.uid?" <span class='tier'>領隊</span>":""}<br><span class="small">Lv${m.level}｜HP ${Math.round(m.hp)}/${m.maxHp}｜羈絆${(m.bond||0).toFixed(1)}%｜${esc(t.background)}<br>戰鬥：${esc(DB.adventure_party_system.ai_profiles[t.role]||"AI自動操作")}</span>${formationUnitHtml("party",m.uid,t.name,position,`隊友｜${t.role_label}｜戰鬥由AI自動操作`,extra)}</div>`;
+ }).join("");
+ const active=activeCompanionInstance(),activeSpecies=active?companionSpecies(active.speciesId):null;
+ const companionRows=active&&activeSpecies
+   ?`<div class="card"><b>${esc(activeSpecies.name)}</b> <span class="tier">${esc(activeSpecies.tier)}</span>［${esc(activeSpecies.companion_kind_label||"夥伴")}］<br><span class="small">出戰夥伴｜${esc(activeSpecies.ai_label||"AI自動操作")}｜光環與專屬技能依戰況生效</span>${formationUnitHtml("companion",active.uid,activeSpecies.name,formationPositionOf(active,"companion"),`寵物／契約獸／召喚獸｜戰鬥由AI自動操作`)}</div>`
+   :`<div class="card small">目前沒有出戰寵物／契約獸／召喚獸；待機夥伴不占用戰鬥站位。</div>`;
+ showModal("冒險團",`<div class="card"><b>${esc(p.name)}</b><br>${p.mode==="self-led"?"你是領隊":`領隊：${esc(partyLeaderName())}`}｜編制 ${partySize()}/5<br><span class="small">前後排會保存到存檔，並同步到下一場戰鬥。近戰敵人優先接觸前排；遠程／魔法仍可壓制後排。</span></div><h3>目前隊形</h3>${playerRow}${rows}${companionRows}<div class="actions"><button type="button" class="bad" onclick="leaveAdventureParty()">離開／解散冒險團</button></div>`)
+}function candidateLegal(t){
  if(!t?.recruitable)return false;
  if(G.character.level<t.min_player_level)return false;
  if(tierOrder(t.tier)>tierOrder(recruitMaxTier()))return false;
@@ -5483,7 +5541,7 @@ function partyMemberCombatStats(inst){
 }
 function partyBattleSnapshots(){
  return partyMembers().map(inst=>{const t=partyTemplate(inst.templateId),s=partyMemberCombatStats(inst),ratio=clamp((inst.hp??inst.maxHp)/Math.max(1,inst.maxHp||s.maxHp),0.05,1);
-   return {uid:inst.uid,templateId:t.id,name:t.name,tier:t.tier,role:t.role,roleLabel:t.role_label,maxHp:s.maxHp,hp:Math.max(1,Math.round(s.maxHp*ratio)),
+   return {uid:inst.uid,templateId:t.id,name:t.name,tier:t.tier,role:t.role,roleLabel:t.role_label,position:formationPositionOf(inst,"party"),maxHp:s.maxHp,hp:Math.max(1,Math.round(s.maxHp*ratio)),
      attack:s.attack,magic:s.magic,defense:s.defense,accuracy:s.accuracy,evasion:s.evasion,speed:s.speed,statusEffects:[],knockedOut:false,guarding:false}
  })
 }
@@ -5521,7 +5579,8 @@ function partyThreatTargets(){
  for(const m of (G.battle?.party||[])){
    if(m.knockedOut||m.hp<=0)continue;
    const w={tank:185,frontline:125,ranged:75,scout:65,caster:72,hybrid:105,healer:82,support:68,specialist:55}[m.role]||70;
-   out.push({type:"party",unit:m,weight:w+(m.guarding?100:0)})
+   const positionFactor=formationPositionOf(m,"party")==="front"?1.35:.72;
+   out.push({type:"party",unit:m,weight:Math.round((w+(m.guarding?100:0))*positionFactor)})
  }
  return out
 }

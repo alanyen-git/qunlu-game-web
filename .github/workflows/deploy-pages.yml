@@ -169,6 +169,8 @@ jobs:
           node tools/test-audit-metadata.js
           node tools/test-service-worker-refresh.js
           node tools/test-version-update-system.js
+          node tools/test-save-reopen-reset.js
+          node tools/test-adventure-formation.js
           node tools/test-android-build-config.js
           node tools/test-battle-formation.js
           node tools/test-gameplay-balance-fixes.js
