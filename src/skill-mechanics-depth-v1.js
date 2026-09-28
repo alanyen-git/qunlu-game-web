@@ -127,6 +127,10 @@ function syncSavedSkills(){
  return changed
 }
 function mechanicsFor(s){if(!s)return null;if(!s.mechanics)enrichSkill(s);return s.mechanics||deriveMechanics(s)}
+function skillResourceInfo(s){
+ const mana=typeof skillUsesMana==="function"?skillUsesMana(s):(s?.resource||"stamina")==="mana";
+ return mana?{key:"mana",maxKey:"maxMana",short:"MP",maxLabel:"最大MP"}:{key:"stamina",maxKey:"maxStamina",short:"體力",maxLabel:"最大體力"}
+}
 function playerPassiveMechanics(){
  const out=[];for(const s of game()?.character?.skills||[])if((s.kind==="被動"||s.display_type==="被動"||s.damage_type==="passive")&&s.mechanics)out.push(s.mechanics);return out
 }
@@ -194,7 +198,7 @@ function supportMechanicText(s,m){
  if(m.traits?.includes("instant_control"))out.push(`煙幕控制：立即嘗試附加${m.instant_status}（${m.instant_status_chance}%）`);
  if(m.traits?.includes("imbue_status"))out.push(`狀態附魔：下一個命中技能嘗試附加${m.next_status}（${m.next_status_chance}%）`);
  if(m.traits?.includes("focus"))out.push(`專注：下一個攻擊技能命中+${m.next_skill_accuracy}、爆擊率+${m.next_skill_crit}%、傷害+${m.next_skill_damage_pct}%`);
- if(m.traits?.includes("resource_recovery"))out.push(`調息：立即回復最大資源${m.resource_recovery_pct}%`);
+ if(m.traits?.includes("resource_recovery")){const r=skillResourceInfo(s);out.push(`調息：立即回復${r.maxLabel}${m.resource_recovery_pct}%`)}
  if(m.traits?.includes("party_aura"))out.push(`團隊支援：本場戰鬥同步強化隊友與出戰夥伴（強度${m.party_aura}）`);
  if(m.traits?.includes("imbue_focus"))out.push(`附魔準備：下一個攻擊技能傷害額外+${m.next_skill_damage_pct}%`);
  if(m.traits?.includes("battle_preparation"))out.push(`戰術準備：下一個攻擊技能傷害+${m.next_skill_damage_pct}%、命中+${m.next_skill_accuracy}`);
@@ -223,8 +227,7 @@ function applyPartyAura(m){
 }
 function recoverResource(m,s){
  const c=game()?.character;if(!c||!m?.resource_recovery_pct)return;
- const magic=/冥想|祈禱|安息|魔力|奧術|星/.test(skillText(s))||skillUsesMana(s),k=magic?"mana":"stamina",mk=magic?"maxMana":"maxStamina";
- const amount=Math.max(1,Math.round(num(c[mk])*m.resource_recovery_pct/100));c[k]=Math.min(num(c[mk]),num(c[k])+amount);battleLog(`${s.name}使${magic?"MP":"體力"}回復 ${amount}。`)
+ const r=skillResourceInfo(s),amount=Math.max(1,Math.round(num(c[r.maxKey])*m.resource_recovery_pct/100));c[r.key]=Math.min(num(c[r.maxKey]),num(c[r.key])+amount);battleLog(`${s.name}使${r.short}回復 ${amount}。`)
 }
 function applySupportMechanics(s,m){
  const b=game()?.battle,st=mechanicState();if(!b||!st||!m)return;
@@ -380,7 +383,18 @@ function audit(){
  for(const s of attacks){for(const [re,trait] of semanticChecks){if(!re.test(skillText(s)))continue;if(trait&&!(s.mechanics?.traits||[]).includes(trait))issues.push(`${s.name}:名稱語義未實裝${trait}`)}}
  const oldSig=new Map(),newSig=new Map();for(const s of attacks){const old=[s.damage_type,s.tier,s.scaling_stat,s.base_power_percent,s.power_growth_percent_per_level,s.resource_cost,s.accuracy,s.status].join("|");const nw=old+"|"+[s.mechanics?.profile,(s.mechanics?.traits||[]).join(","),s.mechanics?.hits,s.mechanics?.defense_coefficient,s.mechanics?.penetration_bonus_pct,s.mechanics?.conditional_bonus_pct].join("|");oldSig.set(old,(oldSig.get(old)||0)+1);newSig.set(nw,(newSig.get(nw)||0)+1)}
  const oldMax=Math.max(0,...oldSig.values()),newMax=Math.max(0,...newSig.values());if(newMax>=oldMax&&oldMax>2)warnings.push(`最大同質群未下降:${oldMax}→${newMax}`);
- return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],warnings:[...new Set(warnings)],stats:{unique_skills:unique.length,attack_skills:attacks.length,support_skills:supports.length,passive_skills:passives.length,mechanic_traits:traitSet.size,attack_profiles:Object.fromEntries(attackProfiles),max_clone_group_before:oldMax,max_clone_group_after:newMax,save_compatible:true}}
+ const resourceTerminology=[];
+ for(const s of unique){
+   const m=s.mechanics||deriveMechanics(s),text=mechanicText(s);
+   if(m?.traits?.includes("resource_recovery")&&/最大資源|回復資源|恢復資源/.test(text))resourceTerminology.push(`${s.name}:技能恢復資源未明確`)
+   for(const field of ["effect_text","desc"])if(/最大資源|回復資源|恢復資源/.test(String(s?.[field]||"")))resourceTerminology.push(`${s.name}:${field}使用籠統資源`)
+ }
+ for(const d of DB.items||[]){
+   const effectFields=[d.description,d.desc,d.effect_text,d.feature].filter(Boolean).join("｜");
+   if(/最大資源|回復資源|恢復資源/.test(effectFields))resourceTerminology.push(`${d.name||d.id}:道具效果使用籠統資源`)
+ }
+ if(resourceTerminology.length)issues.push(...resourceTerminology);
+ return {revision:REV,release:RELEASE,pass:issues.length===0,issues:[...new Set(issues)],warnings:[...new Set(warnings)],stats:{unique_skills:unique.length,attack_skills:attacks.length,support_skills:supports.length,passive_skills:passives.length,mechanic_traits:traitSet.size,attack_profiles:Object.fromEntries(attackProfiles),resource_terminology_issues:resourceTerminology.length,max_clone_group_before:oldMax,max_clone_group_after:newMax,save_compatible:true}}
 }
 
 const changed=enrichAll();

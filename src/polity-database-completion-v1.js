@@ -87,14 +87,14 @@ globalThis.runPolityDatabaseCompletionAudit=audit;
 CORE.registerModule?.("src/polity-database-completion-v1.js",{domain:"data",revision:REVISION,release:RELEASE});
 })();
 
-/* 群陸旅誌：地理行省擴充 CURRENT-2.25.12
+/* 群陸旅誌：地理行省擴充 CURRENT-2.25.11
  * PROVINCE-GEOGRAPHIC-EXPANSION-1.0
  * 只新增背景行政分區與推演細節，不新增主權、不刪除既有ID、不自動開放旅行。
  */
 (()=>{
 "use strict";
 if(typeof DB!=="object"||!DB)return;
-const CORE=globalThis.QUNLU_CORE||{},REVISION="PROVINCE-GEOGRAPHIC-EXPANSION-1.0",RELEASE=String(globalThis.QUNLU_RELEASE_VERSION||DB.meta?.current_version||"CURRENT-2.25.12");
+const CORE=globalThis.QUNLU_CORE||{},REVISION="PROVINCE-GEOGRAPHIC-EXPANSION-1.0",RELEASE=String(globalThis.QUNLU_RELEASE_VERSION||DB.meta?.current_version||"CURRENT-2.25.11");
 const rows=[
  {id:"PROV-ASD-WESTHILL",pid:"POL-001",realm:"RMAP-POL-001",region:"REG-18",tier:"C",name:"西冠丘陵省",type:"西境丘陵省",position:"西境河谷東北側與西冠大道南段",orientation:"西接斷境灰河，東連中央王原，北靠安威爾南門方向",terrain:"河谷外緣、低丘、碎石坡與古道路台地",climate:"冷溫帶雨影，春季融雪洪水明顯",water:"維薩河支流、山麓泉與人工堤渠",transport:"西冠大道支線、橋頭驛站與王室糧車道",governance:"由西境邊侯與王室水務官共同管理，渡口與糧道不得由單一封邑私封",economy:["石材","羊毛","河谷糧食","驛運"],risks:["洪水改道","山崩","邊境誤認","舊路塌陷"],identity:"這裡不是單純的西境延伸，而是王國把山口、河谷與中央糧道接起來的過渡省。",planned:{towns:["橋頭行政鎮","丘陵牧業鎮"],wilds:["西冠碎石坡","維薩支流草谷"],dungeons:["舊王道涵洞","邊侯封存糧窖"],npcs:["測水官","驛路總管","邊侯文書" ]},neighbors:["PROV-018-WEST","PROV-ASD-CROWN"]},
  {id:"PROV-ASD-SOUTHFEN",pid:"POL-001",realm:"RMAP-POL-001",region:"REG-05",tier:"D",name:"南河口省",type:"南境河口省",position:"瑟倫河下游與南曜海北岸的內陸河口",orientation:"北連王原，南接卡薩維爾商路，西側靠近瑟露維亞林海",terrain:"河口平原、蘆葦濕地、堤田與低矮海岸丘",climate:"溫暖濕潤，雨季河水暴漲",water:"瑟倫河分流、潮汐水道與灌溉堤網",transport:"三港商路北段、河運與堤上驛道",governance:"王室水務與地方堤社分權；堤防維修義務先於封邑徵收",economy:["稻穀","蘆葦","魚貨","河運"],risks:["洪潮倒灌","疫水","堤防失修","水路走私"],identity:"南河口是阿斯戴爾把中央糧食送往南方港口的調節器，產量受水位而非單純土地面積決定。",planned:{towns:["河口糧務城","堤社集鎮"],wilds:["南河口蘆澤","潮汐堤田"],dungeons:["沉水舊渠","王室水門庫"],npcs:["堤社代表","河運稅吏","疫水醫師"]},neighbors:["PROV-ASD-RIVER","PROV-ASD-CROWN"]},

@@ -1722,6 +1722,136 @@
 
 })();
 
+/* CURRENT-2.25.13｜四領域生成器／管理AI配對完成
+ * GEN-AI-COVERAGE-1.0
+ * 角色與戰鬥、世界動態、存檔與稽核、角色生成四個領域均補上專屬生成器與管理AI。
+ * 僅新增治理與runtime契約，不改既有角色存檔欄位與canonical資料ID。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+  const REV="GEN-AI-COVERAGE-1.0";
+  const RELEASE=globalThis.QUNLU_RELEASE_VERSION||DB.meta?.current_version||"CURRENT-2.25.13";
+  const unique=list=>[...new Set((Array.isArray(list)?list:[]).filter(Boolean))];
+  const upsert=(list,row)=>{
+    const arr=Array.isArray(DB[list])?DB[list]:[];
+    const i=arr.findIndex(x=>x?.id===row.id);
+    if(i>=0)arr[i]={...arr[i],...row};else arr.push(row);
+    DB[list]=arr;
+  };
+
+  const generators=[
+    {
+      id:"GEN-COMBAT-CHARACTER",name:"戰鬥角色檔案生成器",runtime_status:"IMPLEMENTED",runtime_function:"generateCombatCharacterProfile",
+      inputs:["race","race_subtype","origin","origin_facet","combat_class","element","talent_candidates","skill_pool","starter_equipment"],
+      constraints:["種族、出身與戰鬥職業ID必須存在","能力值只能由CURRENT種族／出身／職業資料合成","天賦最多使用角色上限且不得重複互斥群組","技能與裝備必須引用現有canonical ID","創角初始裝備不得因生成器直接越過階級與封印規則"],
+      fallback:"無法通過引用或平衡檢查時回傳無結果，不建立半成品角色。",metrics:["無效引用率=0","天賦重複率=0","創角越階率=0"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"runtime_query"
+    },
+    {
+      id:"GEN-WORLD-SIMULATION",name:"世界動態決策生成器",runtime_status:"IMPLEMENTED",runtime_function:"generateWorldSimulationDecision",
+      inputs:["world_turn","world_region","regional_life_events","adventure_hooks","regional_rumors","recent_integrated_events","political_and_organization_state"],
+      constraints:["只使用目前地區可追溯的地方素材","同一回合不得重複生成世界動態","傳聞不可直接改寫canonical正史","沒有合法候選時回傳無結果","跨資料庫變動只能交由既有世界調度與persist流程"],
+      fallback:"維持既有世界狀態並回傳no_result，不跨區硬塞事件或放寬歷史規則。",metrics:["跨區事件率=0","單回合重複率=0","傳聞越權率=0"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"runtime_query"
+    },
+    {
+      id:"GEN-SAVE-AUDIT-SNAPSHOT",name:"存檔稽核快照生成器",runtime_status:"IMPLEMENTED",runtime_function:"generateSaveAuditSnapshot",
+      inputs:["game_state","meta","character","world_time","world_state","quests","inventory","save_version"],
+      constraints:["快照只讀取目前遊戲狀態，不修改角色與世界資料","核心欄位缺失時不得產生可寫入快照","版本與角色ID必須存在且格式可追蹤","快照稽核結果必須可回溯到當次狀態"],
+      fallback:"拒絕不完整快照並保留最後一次有效存檔，不以空物件覆蓋玩家進度。",metrics:["核心欄位遺失率=0","無效覆寫率=0","快照可追溯率=100%"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"runtime_query"
+    },
+    {
+      id:"GEN-CHARACTER-PROFILE",name:"新角色完整檔案生成器",runtime_status:"IMPLEMENTED",runtime_function:"generateCharacterProfile",
+      inputs:["character_name","race","origin","origin_facet","element","combat_class","talents","starter_skills","starter_items","starter_settlement"],
+      constraints:["姓名、種族、出身與職業必須符合CURRENT資料","出生地只能由既有starter settlement分配器決定","起始技能、道具、知識與副職業必須有合法來源","不建立不存在的地點、技能、物品或高階起始裝備","生成結果先通過角色管理AI才可交給正式建角流程"],
+      fallback:"回傳無結果並要求重新完成必要角色條件，不使用固定高階角色或虛構出生地補位。",metrics:["建角引用完整率=100%","虛構出生地率=0","起始高階內容率=0"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"runtime_query"
+    }
+  ];
+  const managementAIs=[
+    {
+      id:"AI-COMBAT-CHARACTER",name:"戰鬥角色平衡管理AI",responsibility:"管理角色戰鬥檔案的能力值、職業定位、天賦、技能與起始裝備一致性。",runtime_status:"IMPLEMENTED",runtime_function:"manageCombatCharacterProfile",
+      inputs:["generated_combat_profile","race","origin","combat_class","talents","skills","equipment"],validations:["所有引用可解析","能力值不可低於合法下限","天賦不超過角色上限且互斥群組不重複","技能與裝備符合職業及起始階級規則","戰鬥數值只能由合法CURRENT效果來源提供"],output_contract:"回傳可交給正式建角流程的戰鬥角色檔案，或明確拒絕原因。",fallback:"拒絕不一致檔案並回傳缺失欄位，不自動提高階級或補造效果。",performance_metrics:["非法角色率=0","職業定位衝突率=0","runtime未接入效果=0"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"orchestrated_policy"
+    },
+    {
+      id:"AI-WORLD-SIMULATION",name:"世界動態一致性管理AI",responsibility:"管理地方世界事件的因果尺度、來源、回合去重與canonical資料邊界。",runtime_status:"IMPLEMENTED",runtime_function:"manageWorldSimulation",
+      inputs:["world_simulation_decision","world_turn","world_region","history","regional_materials","orchestrator_state"],validations:["事件來源可追溯到目前地區","同回合只允許一次世界動態流程","局部事件不得無故升級為世界危機","傳聞與生活素材不得直接覆寫正史","所有狀態變動保留事件來源與回合"],output_contract:"回傳可由世界調度器採用的決策稽核結果；無合法候選時回傳no_result。",fallback:"保留原世界狀態並記錄稽核結果，不跨區、不升級、不覆寫canonical。",performance_metrics:["單回合重複觸發率=0","事件來源缺失率=0","canonical漂移率=0"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"orchestrated_policy"
+    },
+    {
+      id:"AI-SAVE-AUDIT-GOVERNANCE",name:"存檔寫回治理管理AI",responsibility:"管理存檔快照的核心欄位、版本、角色ID、世界時間與寫回安全閘門。",runtime_status:"IMPLEMENTED",runtime_function:"manageSaveAudit",
+      inputs:["save_audit_snapshot","save_version","character_id","world_time","storage_status","last_valid_save"],validations:["快照核心欄位完整","版本符合CURRENT格式","角色ID與世界時間存在","序列化結果可建立且不是空資料","失敗時保留最後有效存檔"],output_contract:"只有通過治理閘門的快照才可進入既有IndexedDB／localStorage寫回佇列。",fallback:"拒絕本次寫回並保留最後有效存檔，顯示既有存檔錯誤提示。",performance_metrics:["無效覆蓋率=0","存檔核心欄位遺失率=0","最後有效存檔保留率=100%"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"orchestrated_policy"
+    },
+    {
+      id:"AI-CHARACTER-GENERATION",name:"角色生成流程管理AI",responsibility:"管理新角色從姓名、出身、職業、天賦、技能、物資到出生地的完整來源與順序。",runtime_status:"IMPLEMENTED",runtime_function:"manageCharacterGeneration",
+      inputs:["character_profile","name_validation","starter_settlement_assignment","combat_profile_audit","origin_data","class_data","save_initialization"],validations:["姓名通過命名檢核或由玩家提供可讀名稱","種族、出身、職業與元素皆可解析","起始技能與道具均有CURRENT來源","出生地由既有分配器回傳且可玩","角色建檔前先完成戰鬥角色管理AI驗證"],output_contract:"回傳可建立的完整角色草稿，或保留缺失條件與拒絕原因。",fallback:"停止建立角色並提示缺少條件，不建立部分角色或虛構資料。",performance_metrics:["部分建角率=0","來源斷鏈率=0","出生地錯配率=0"],audit_status:"PASS",audit_version:"SYSTEM-AUDIT-3.0",execution_mode:"orchestrated_policy"
+    }
+  ];
+  for(const row of generators)upsert("generators",row);
+  for(const row of managementAIs)upsert("management_ai",row);
+
+  const domainLinks={
+    combat_character:{generator_ids:["GEN-COMBAT-CHARACTER"],management_ai_ids:["AI-COMBAT-CHARACTER"]},
+    world_simulation:{generator_ids:["GEN-WORLD-SIMULATION"],management_ai_ids:["AI-WORLD-SIMULATION"]},
+    persistence_audit:{generator_ids:["GEN-SAVE-AUDIT-SNAPSHOT"],management_ai_ids:["AI-SAVE-AUDIT-GOVERNANCE"]},
+    character_generation:{generator_ids:["GEN-CHARACTER-PROFILE"],management_ai_ids:["AI-CHARACTER-GENERATION"]}
+  };
+  for(const domain of DB.system_orchestrator?.domains||[]){
+    const link=domainLinks[domain.id];if(!link)continue;
+    domain.generator_ids=unique([...(domain.generator_ids||[]),...link.generator_ids]);
+    domain.management_ai_ids=unique([...(domain.management_ai_ids||[]),...link.management_ai_ids]);
+    domain.coverage_revision=REV;
+  }
+  DB.generator_ai_coverage_system={
+    version:REV,release:RELEASE,required_domain_pairing:true,
+    domains:Object.fromEntries(Object.entries(domainLinks).map(([id,row])=>[id,{...row}])),
+    rules:["每個資料庫領域至少有一個專屬生成器與一個專屬管理AI。","每個生成器與管理AI只能有一個主領域。","世界總管理AI仍由AI-SYSTEM-ORCHESTRATOR跨領域調度。","所有新增模組均遵守GEN-PIPE-2.0、ORCHESTRATOR-3.0與SYSTEM-AUDIT-3.0。"],
+    save_compatible:true
+  };
+  DB.meta=DB.meta||{};
+  DB.meta.generator_ai_coverage_revision=REV;
+  DB.system_audit_registry=DB.system_audit_registry||{};
+  DB.system_audit_registry.fixes=DB.system_audit_registry.fixes||{};
+  DB.system_audit_registry.fixes.generator_ai_domain_pairing=4;
+  DB.system_audit_registry.hard_targets=DB.system_audit_registry.hard_targets||{};
+  DB.system_audit_registry.hard_targets.empty_generator_domains=0;
+  DB.system_audit_registry.hard_targets.empty_management_ai_domains=0;
+})();
+
+/* CURRENT-2.25.12｜奇遇推演擴充
+ * ADVENTURE-EVENT-DYNAMICS-1.0
+ * 事件選擇不只看地點與階級；由季節、天候、地方時段、勢力熟悉度與已取得情報共同加權。
+ * 所有模板沿用既有事件結算，不改存檔 schema；去重紀錄由 runtime 懶建立並可向前相容。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+  const add=(rows)=>{
+    DB.adventure_event_templates=Array.isArray(DB.adventure_event_templates)?DB.adventure_event_templates:[];
+    const ids=new Set(DB.adventure_event_templates.map(x=>x?.id).filter(Boolean));
+    for(const row of rows)if(row?.id&&!ids.has(row.id)){DB.adventure_event_templates.push(row);ids.add(row.id)}
+  };
+  add([
+    {id:"AE260-MIST-MORNING-BELL",name:"霧杉晨鐘少了一聲",tier:"D",kinds:["town"],zones:["deep_forest"],location_ids:["ASD-MISTPINE"],seasons:["初春","春"],weather:["薄霧","細雨"],time_windows:[[5,9]],organization_ids:["ORG-ASD-MISTWARDENS"],intel_tags:["霧杉","鐘聲"],event_weight:2,stat:"感知",dc:14,text:"林務會的晨間記錄只寫了兩聲鐘，林徑上卻留下第三段新鮮繩痕。",success:"你沿公開林徑比對鐘聲與繩標，確認是巡林人提前改線，不追入封閉林區。",fail:"霧勢遮住繩標，你把異常時刻與位置交給林務會。",reward:{reputation:1,event_clock:1},failure:{fatigue:2},repeat_policy:"unique_per_location"},
+    {id:"AE260-LOWFIELD-SPRING-DITCH",name:"春雨後的第二條水溝",tier:"F",kinds:["wild"],zones:["town_outskirts"],location_ids:["L-LOWFIELD"],seasons:["初春","春"],weather:["細雨","陣雨","陰天"],time_windows:[[6,18]],organization_ids:["ORG-ASD-GRAIN-COMPACT"],intel_tags:["水溝","低田"],event_weight:3,stat:"體力",dc:10,text:"春雨把田埂沖出第二條細溝，水流正繞過原本的分水口。",success:"你用土袋與枯枝導回水流，並把新的沖刷點標進農務記錄。",fail:"泥土持續滑動，你先通知農戶封住低窪田角。",reward:{item_pool:["I-HERB","I-BERRY"],item_qty:[1,1]},failure:{fatigue:2},repeat_policy:"cooldown_72h"},
+    {id:"AE260-DAWNPORT-TIDE-MARK",name:"黎明港退潮前的繫船記號",tier:"E",kinds:["town"],location_ids:["ASD-DAWNPORT"],weather:["強風","細雨","陰天"],time_windows:[[4,8]],organization_ids:["ORG-ASD-ROAD-LEAGUE"],intel_tags:["潮汐","繫船", "港口"],event_weight:2,stat:"敏捷",dc:12,text:"退潮前，外側木樁多出一條未登記的繫船繩，繩結方向指向避風渠。",success:"你依潮位先固定鬆脫的纜繩，再把船號與時間交給港務記錄。",fail:"浪頭太快，你只來得及切斷危險繩段並呼叫救難隊。",reward:{money:[4,8],reputation:1},failure:{fatigue:2},repeat_policy:"unique_per_location"},
+    {id:"AE260-MOONMILL-NIGHT-WHEEL",name:"月磨夜班空轉水輪",tier:"D",kinds:["town"],location_ids:["ASD2-MOONMILL"],weather:["細雨","陰天","多雲"],time_windows:[[20,24],[0,2]],organization_ids:["ORG-ASD2-RIVERWORKS","ORG-ASD-GRAIN-COMPACT"],intel_tags:["水閘","水磨","夜班"],event_weight:2,stat:"智力",dc:14,text:"夜班水輪在沒有排定磨麥時空轉，渠務簿卻沒有對應的維修時刻。",success:"你比對水位與軸承聲，確認是臨時試轉，並補上可追查的時間記錄。",fail:"兩份夜班說法不一致，你先要求暫停該輪並保留現場。",reward:{reputation:1,event_clock:1},failure:{fatigue:2},repeat_policy:"unique_per_location"},
+    {id:"AE260-IRONTRAIL-AXLE",name:"赤鐵商道上的空車軸",tier:"D",kinds:["wild"],location_ids:["ASD2-WILD-IRONTRAIL"],weather:["晴朗","晴冷","強風"],time_windows:[[8,18]],organization_ids:["ORG-ASD2-MINING-ASSAY","ORG-ASD-ROAD-LEAGUE"],intel_tags:["礦車","車軸","赤鐵"],event_weight:2,stat:"力量",dc:13,text:"商道邊留著一根剛斷的重車軸，車輪印卻在坡上突然消失。",success:"你沿安全側找到翻覆車板，先固定貨物再標出斷軸位置。",fail:"坡面不穩，你只把危險區封成單向通行。",reward:{money:[6,12],reputation:1},failure:{fatigue:3},repeat_policy:"cooldown_96h"},
+    {id:"AE260-NIGHTMARSH-REFLECTION",name:"夜鏡沼的第二個月影",tier:"B",kinds:["wild"],zones:["mirror_marsh"],location_ids:["ASD2-WILD-NIGHTMARSH"],seasons:["初春","春","秋"],weather:["薄霧","多雲"],time_windows:[[18,24],[0,4]],organization_ids:["ORG-ASD2-RIVERWORKS"],intel_tags:["夜鏡","倒影","封鎖區"],required_intel_tags:["夜鏡"],event_weight:1,stat:"意志",dc:20,text:"基準繩外的水面出現第二個月影，位置與已記錄的倒影偏差不一致。",success:"你只依岸樁與繩距完成短距離重測，記下異常持續時間後撤回。",fail:"視覺誤差擴大，你提早回到白樁岸並保留未確定結果。",reward:{event_clock:2},failure:{fatigue:4},repeat_policy:"unique_per_location"},
+    {id:"AE260-SEABREAK-ROPE-WINDOW",name:"碎浪鎮的救難繩窗",tier:"D",kinds:["town"],location_ids:["ASD2-SEABREAK"],weather:["強風","細雨"],time_windows:[[5,11]],organization_ids:["ORG-ASD2-SEABREAK-RESCUE"],intel_tags:["救難","礁岸","繩索"],event_weight:2,stat:"敏捷",dc:14,text:"潮線提前上升，救難隊只剩一個短暫窗口能替外礁換上新繩。",success:"你依隊長口令完成固定、回收與撤離，沒有為撿回漂物延長停留。",fail:"風浪封住外礁，你把新繩與標記交給下一個窗口。",reward:{item_pool:["ITEM-ASD2-ROPE-KIT"],item_qty:[1,1],reputation:1},failure:{fatigue:3},repeat_policy:"cooldown_120h"},
+    {id:"AE260-FROSTLINE-THAW",name:"霜線春融的第一個裂口",tier:"D",kinds:["wild"],location_ids:["ASD2-WILD-FROSTLINE"],seasons:["初春","春"],weather:["晴冷","寒風"],time_windows:[[6,12]],organization_ids:["ORG-ASD2-FRONTIER-RELIEF"],intel_tags:["春融","撤離","冰裂"],event_weight:2,stat:"意志",dc:14,text:"春融使避風路旁的冰層先裂開一道窄口，撤離車輛仍可能誤入。",success:"你先設置繩標與繞行路線，再把裂口位置交給救護聯隊。",fail:"裂縫持續擴大，你帶隊退回固定路線並要求暫停通行。",reward:{item_pool:["ITEM-ASD2-FROST-SPIKES"],item_qty:[1,1],reputation:1},failure:{fatigue:2},repeat_policy:"unique_per_location"},
+    {id:"AE260-CROWNROOT-COLD-DRAFT",name:"封庫內側不該有的冷風",tier:"B",kinds:["dungeon"],location_ids:["ASD2-DUNGEON-CROWNROOT"],weather:["寒風","多雲"],time_windows:[[22,24],[0,3]],organization_ids:["ORG-ASD2-WHITE-TOWER","ORG-ASD2-CROWN-NOTARIES"],intel_tags:["根脈","封庫","冷風"],required_intel_tags:["根脈"],event_weight:1,stat:"智力",dc:19,text:"第二道鎖旁有穩定冷風，方向與已知排水孔不一致。",success:"你用薄紙與測深燈確認牆後有通氣縫，留下測點但沒有拆牆。",fail:"氣流來源無法定位，你依程序標記禁碰區並撤離。",reward:{item_pool:["ITEM-ASD2-CROWNROOT-KEY"],item_qty:[1,1],reputation:1},failure:{fatigue:2},repeat_policy:"unique_per_location"},
+    {id:"AE260-MOONFOG-POLLEN-WINDOW",name:"月霧外環的短季花粉",tier:"C",kinds:["wild"],location_ids:["L-SER-MOONFOG"],seasons:["春","初夏"],weather:["薄霧","多雲"],time_windows:[[6,10]],organization_ids:["ORG-SER-SANCTUARY","ORG-SER-RANGERS"],intel_tags:["月霧","花粉","巡林"],event_weight:2,stat:"感知",dc:16,text:"月霧外環只在晨霧散開前露出一小片花粉，採多會傷到根網。",success:"你依巡林標記取下少量樣本，留下未採區供後續觀察。",fail:"霧線提前合攏，你只記下花期與位置，不強行採集。",reward:{item_pool:["SER-MAT-012"],item_qty:[1,1],reputation:1},failure:{fatigue:2},repeat_policy:"unique_per_location"},
+    {id:"AE260-KIRIURA-FOG-WATER",name:"霧浦町晨霧裡的泉囊",tier:"E",kinds:["town"],location_ids:["L-BT-KIRIURA"],weather:["薄霧"],time_windows:[[5,8]],organization_ids:["ORG-BT-PILOTS"],intel_tags:["霧浦","淡水","水先"],event_weight:2,stat:"感知",dc:12,text:"晨霧裡有人把霧泉囊掛到錯誤的航標樁上，可能讓水手誤判淡水補給點。",success:"你依水先人的標記重新掛回正確樁位，並把錯誤位置記進航路簿。",fail:"霧太厚無法確認樁位，你先請水先人封住該段標記。",reward:{item_pool:["BT-MAT-009"],item_qty:[1,1],reputation:1},failure:{fatigue:2},repeat_policy:"unique_per_location"},
+    {id:"AE260-ICEFORD-WINTER-ROPE",name:"冰河引路人的第一個空樁",tier:"D",kinds:["town"],location_ids:["L-FH-ICEFORD"],seasons:["初春","冬"],weather:["晴冷","寒風","薄霧"],time_windows:[[6,12]],organization_ids:["ORG-FH-ICEGUIDES"],intel_tags:["冰河","繩路","雪崩"],event_weight:2,stat:"敏捷",dc:14,text:"冰河繩路少了一支固定樁，春融前的替代路線還沒有完成。",success:"你沿安全側補上反光標記並把空樁位置交給引路人，不直接進入裂帶。",fail:"冰面開始轉滑，你只在岸邊立下警示旗。",reward:{money:[8,16],reputation:1},failure:{fatigue:2},repeat_policy:"unique_per_location"}
+  ]);
+  DB.meta=DB.meta||{};
+  DB.meta.adventure_event_expansion_revision="ADVENTURE-EVENT-DYNAMICS-1.0";
+  DB.adventure_event_expansion_system={
+    version:"ADVENTURE-EVENT-DYNAMICS-1.0",
+    release:globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version,
+    added_templates:12,
+    dimensions:["地點","季節","天候","地方時段","勢力熟悉度","已取得情報"],
+    repeat_policy:"unique_per_location事件在同一地點結算一次後不再重複；cooldown事件依模板冷卻時間再次出現。",
+    save_compatible:true
+  };
+})();
+
 
 /* CURRENT-1.65.5｜日常飲水與高含水料理擴充
  * HYDRATION-EXPANSION-1.0

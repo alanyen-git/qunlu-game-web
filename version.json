@@ -1,12 +1,13 @@
 {
-  "version": "CURRENT-2.25.12",
-  "previous_version": "CURRENT-2.25.11",
+  "version": "CURRENT-2.25.13",
+  "previous_version": "CURRENT-2.25.12",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "STARTER-QUEST-LOCALIZATION-1.2：新角色從晨穗村等新手村開始時，公會／設施委託與巡查點同步改用該村周邊野外與地下城；保留canonical模板、地點ID與既有存檔。",
+  "summary": "GEN-AI-COVERAGE-1.0：補齊角色與戰鬥、世界動態、存檔與稽核、角色生成四個資料庫領域的生成器與管理AI配對，並接入生成、世界調度、存檔治理與完整稽核。",
   "changelog": [
-    "STARTER-QUEST-LOCALIZATION-1.2：修正新手村委託只更新可執行地點、卻仍把objective.location_id與巡查點留在柳橋鎮／舊野外的問題。新生成委託會依出生村落的starter_cluster_id改用當地地圖；既有委託、canonical模板、地點ID與存檔不改寫。PWA v190，Android versionCode 2025012。",
+    "GEN-AI-COVERAGE-1.0：四個原本缺少配對的資料庫領域各自新增專屬生成器與管理AI；新增角色戰鬥檔案、世界動態決策、存檔稽核快照與完整角色檔案生成流程，全部接入GEN-PIPE-2.0、ORCHESTRATOR-3.0與SYSTEM-AUDIT-3.0。每個資料庫領域現在都必須具備至少一個生成器與一個管理AI；既有AI-SYSTEM-ORCHESTRATOR仍負責世界總調度。存檔schema相容，PWA v191，Android versionCode 2025013。",
+    "RESOURCE-TERMINOLOGY-1.0：技能恢復效果依resource欄位明確顯示最大MP或最大體力，實際回復不再依技能名稱猜測；全面檢查技能、道具與藥劑效果，保留ID、數值、配方、持有量、存檔與戰鬥規則相容。PWA v190，Android versionCode 2025012。",
     "PROVINCE-GEOGRAPHIC-EXPANSION-1.0：依山脈、河流、海岸、群島、草原與地下垂直主權，為16個現行政治體新增35個背景行省／區帶；同步推演地形、氣候、水系、交通、治理、資源、風險、預計城鎮／野外／地下城與NPC邊界。只新增背景資料，不新增主權、地點ID、精確座標、旅行解鎖或存檔欄位。總行省圖冊149，PWA v189，Android versionCode 2025011。",
     "SAVE-REOPEN-FALLBACK-1.0：修正舊版 localStorage 存檔讀取失敗時會阻斷 IndexedDB 備援恢復的問題；讀取存檔前驗證核心欄位，失敗時繼續嘗試另一個儲存層，不改存檔格式、物品ID、數值、效果、配方與持有量。PWA v188，Android versionCode 2025010。",
     "ITEM-EQUIPMENT-NAMING-2.0：F～C級裝備、道具與藥劑移除晨曦、星河、照夜等意象，只保留材質、部位、功能與用途；藥劑依效果、料理依食材、卷軸依功能，修正低階候選撞名與組織秘製名稱，保留ID、數值、效果、配方、持有量與舊存檔相容。PWA v187，Android versionCode 2025009。",
@@ -486,7 +487,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v190",
+  "pwa_cache_revision": "v191",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -839,10 +840,10 @@
     "deployment_headless_audit": true,
     "save_compatible": true
   },
-  "program_registry_revision": "PROGRAM-REGISTRY-1.37",
+  "program_registry_revision": "PROGRAM-REGISTRY-1.36",
   "program_refactor": {
     "revision": "QUNLU-CORE-1.0",
-    "active_src_programs": 92,
+    "active_src_programs": 91,
     "groups": [
       "core",
       "data",
@@ -862,8 +863,8 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.25.12：依地理環境新增35個背景行省／區帶與同步推演細節；92個正式src模組與PWA v190同步，Android版號由版本檔遞增；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.25.12",
+    "note": "CURRENT-2.25.13：補齊四個資料庫領域的生成器／管理AI配對與runtime治理閘門；91個正式src模組與PWA v191同步，Android版號由版本檔遞增；舊存檔相容。",
+    "last_verified_release": "CURRENT-2.25.13",
     "notes": [
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
@@ -901,12 +902,12 @@
   },
   "full_program_debug_revision": "FULL-PROGRAM-DEBUG-2.2",
   "full_program_debug": {
-    "programs_total": 92,
-    "programs_loaded": 92,
-    "stateful_tests": 9,
-    "stateful_tests_passed": 9,
-    "full_audits_executed": 75,
-    "full_audits_passed": 75,
+    "programs_total": 91,
+    "programs_loaded": 91,
+    "stateful_tests": 11,
+    "stateful_tests_passed": 11,
+    "full_audits_executed": 74,
+    "full_audits_passed": 74,
     "state_required_audits_skipped": [],
     "stateful_audits_now_included": [
       "runAudit",
@@ -921,7 +922,9 @@
       "死亡與教會復活",
       "製作交易",
       "市場買賣交易",
-      "同行負重懲罰一致性"
+      "同行負重懲罰一致性",
+      "奇遇動態條件與去重",
+      "生成器／管理AI領域配對與runtime治理"
     ],
     "release_drift_guard": true,
     "readonly_mutation_guard": true,
@@ -929,15 +932,15 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.12",
+    "last_verified_release": "CURRENT-2.25.13",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
   "program_optimization": {
-    "audited_src_programs": 92,
+    "audited_src_programs": 91,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v190",
+    "pwa_cache": "v191",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -978,6 +981,20 @@
     "prerequisite_gating": true,
     "legacy_history_recovery": true,
     "outcome_journal": true,
+    "save_compatible": true
+  },
+  "adventure_event_dynamics_revision": "ADVENTURE-EVENT-DYNAMICS-1.0",
+  "adventure_event_dynamics": {
+    "added_templates": 12,
+    "dimensions": [
+      "地點",
+      "季節",
+      "天候",
+      "地方時段",
+      "勢力熟悉度",
+      "已取得情報"
+    ],
+    "repeat_policy": "unique_per_location事件在同一地點結算一次後不再重複；cooldown事件依模板冷卻時間再次出現。",
     "save_compatible": true
   },
   "world_naming": {
@@ -1994,7 +2011,7 @@
     "mobile_first": true,
     "save_compatible": true
   },
-  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.2",
+  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.1",
   "polity_province_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "goldbalance_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "province_geographic_expansion_revision": "PROVINCE-GEOGRAPHIC-EXPANSION-1.0",

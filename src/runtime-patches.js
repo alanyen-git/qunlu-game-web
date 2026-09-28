@@ -251,7 +251,7 @@
     showModal(mode==="save"?"手動存檔":"讀取存檔",`<div class="card small">${intro}</div>${cards}${footer}`);
   }
 
-  async function saveToManualSlot(slot){
+  function saveToManualSlot(slot){
     slot=Number(slot);
     if(!validSlot(slot)||!(typeof G!=="undefined")||!G?.character){alert("目前沒有可儲存的遊戲進度。");return}
     const existing=readManualSlot(slot);
@@ -293,12 +293,11 @@
     if(G.meta.saveIndex.length>180)G.meta.saveIndex=G.meta.saveIndex.slice(-180);
     if(typeof log==="function")log("存檔",`已儲存至手動存檔槽 ${slot}。`,"save");
     if(typeof persist==="function")persist();
-    if(typeof flushPersistWrites==="function")await flushPersistWrites();
     if(typeof renderAll==="function")renderAll();
     showSaveSlotModal("save");
   }
 
-  async function loadManualSlot(slot){
+  function loadManualSlot(slot){
     slot=Number(slot);
     if(!validSlot(slot))return;
     const record=readManualSlot(slot);
@@ -312,16 +311,13 @@
       const candidate=deepClone(record.envelope.gameState);
       if(!candidate?.meta||!candidate?.character||!candidate?.worldTime)throw new Error("存檔核心欄位不完整");
       G=candidate;
-      if(typeof lastPersistSerialized!=="undefined")lastPersistSerialized="";
       if(typeof migrateSave==="function")migrateSave();
       if(!G?.meta||!G?.character||!G?.worldTime)throw new Error("存檔轉換後驗證失敗");
-      if(typeof persist==="function"&&!persist())throw new Error("目前無法寫入讀取後的自動恢復存檔");
-      if(typeof flushPersistWrites==="function"&&!await flushPersistWrites())throw new Error("讀取後的自動恢復存檔尚未完成寫入");
+      if(typeof persist==="function")persist();
       if(typeof closeModal==="function")closeModal();
       if(typeof enterGame==="function")enterGame(true);
       if(typeof log==="function")log("存檔",`已讀取手動存檔槽 ${slot}：${name}。`,"save");
       if(typeof persist==="function")persist();
-      if(typeof flushPersistWrites==="function")await flushPersistWrites();
     }catch(e){
       G=previous;
       alert(`此存檔無法讀取。\n目前遊戲進度沒有受到影響。\n${e.message||e}`);
@@ -386,7 +382,7 @@
   window.deleteManualSlot=deleteManualSlot;
 
   const originalResetGame=window.resetGame;
-  window.resetGame=async function(){
+  window.resetGame=function(){
     const current=(typeof G!=="undefined")?G:null;
     const currentId=current?.meta?.characterId||current?.character?.id||null;
     const protectedByManual=hasManualSaveForCharacter(currentId);
@@ -394,18 +390,6 @@
       ?"確定建立新角色嗎？\n目前自動恢復進度會清除，但三個手動存檔槽都會保留。"
       :"目前角色尚未保存到任何手動存檔槽。\n建立新角色後，目前自動恢復進度會被清除。\n建議先取消並使用「手動存檔」。\n\n仍要建立新角色嗎？";
     if(!confirm(message))return;
-    /*
-     * SAVE-STORAGE-2.0：主自動恢復檔已由 localStorage 遷移至 IndexedDB。
-     * 只刪 localStorage 會讓 reload 又從 IndexedDB 恢復舊角色，造成
-     * 「重開新檔短暫出現後跑回原存檔」的錯誤。
-     */
-    try{
-      if(typeof pendingPersistSerialized!="undefined")pendingPersistSerialized=null;
-      if(typeof flushPersistWrites==="function")await flushPersistWrites();
-    }catch(e){console.warn("autosave drain before reset failed",e)}
-    try{
-      if(typeof saveDbDelete==="function")await saveDbDelete(AUTOSAVE_KEY);
-    }catch(e){console.warn("indexeddb autosave delete failed",e)}
     try{localStorage.removeItem(AUTOSAVE_KEY)}catch(e){}
     location.reload();
   };

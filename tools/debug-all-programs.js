@@ -423,6 +423,67 @@ statefulStep("carry_capacity_penalty_consistency",()=>{
   return detail;
 });
 
+statefulStep("adventure_event_dynamic_filters_and_dedup",()=>{
+  if(!baselineState)throw new Error("缺少建角基準狀態");
+  context.__baselineState=structuredClone(baselineState);
+  const detail=ctx(`(()=>{
+    G=structuredClone(__baselineState);
+    const template=(DB.adventure_event_templates||[]).find(x=>x?.id==="AE260-MOONMILL-NIGHT-WHEEL");
+    const place=(DB.locations||[]).find(x=>x?.id==="ASD2-MOONMILL");
+    if(!template||!place)throw new Error("奇遇動態測試資料缺失");
+    G.character.level=20;G.character.locationId=place.id;G.character.organizations={membershipId:"ORG-ASD2-RIVERWORKS",memberships:["ORG-ASD2-RIVERWORKS"],discovered:[],formerMemberships:[]};
+    G.worldTime.season="初春";G.worldTime.hour=21;G.worldTime.minute=0;G.worldState.weather="細雨";G.worldState.adventureEventHistory={};G.pendingAdventureEvent=null;
+    let pool=adventureEventCandidates(place);
+    if(!pool.some(x=>x.id===template.id))throw new Error("符合時段／天候／地點的奇遇未出現");
+    G.worldTime.hour=12;
+    if(adventureEventCandidates(place).some(x=>x.id===template.id))throw new Error("地方時段條件未生效");
+    G.worldTime.hour=21;G.worldState.weather="晴朗";
+    if(adventureEventCandidates(place).some(x=>x.id===template.id))throw new Error("天候條件未生效");
+    G.worldState.weather="細雨";
+    recordAdventureEventOutcome(template,{locationId:place.id,createdTurn:G.turn},"engage",true);
+    if(adventureEventCandidates(place).some(x=>x.id===template.id))throw new Error("成功奇遇仍可在同地點重複出現");
+    const intelTemplate=(DB.adventure_event_templates||[]).find(x=>x?.id==="AE260-NIGHTMARSH-REFLECTION"),marsh=(DB.locations||[]).find(x=>x?.id==="ASD2-WILD-NIGHTMARSH");
+    if(!intelTemplate||!marsh)throw new Error("情報門檻測試資料缺失");
+    G.character.level=55;G.character.locationId=marsh.id;G.worldTime.hour=21;G.worldState.weather="薄霧";G.worldState.adventureEventHistory={};G.knownIntel=[];G.explorationIntel=[];
+    if(adventureEventCandidates(marsh).some(x=>x.id===intelTemplate.id))throw new Error("未取得情報卻生成情報門檻奇遇");
+    G.explorationIntel=[{text:"夜鏡沼外圈的倒影異常紀錄"}];
+    if(!adventureEventCandidates(marsh).some(x=>x.id===intelTemplate.id))throw new Error("取得情報後仍未解鎖情報門檻奇遇");
+    return {dynamicTemplate:template.id,filteredByTime:true,filteredByWeather:true,successDedup:true,intelGate:true};
+  })()`);
+  ctx("G=structuredClone(__baselineState)");
+  return detail;
+});
+
+statefulStep("generator_ai_domain_completion",()=>{
+  if(!baselineState)throw new Error("缺少建角基準狀態");
+  context.__baselineState=structuredClone(baselineState);
+  const detail=ctx(`(()=>{
+    G=structuredClone(__baselineState);
+    const required=["combat_character","world_simulation","persistence_audit","character_generation"];
+    const health=systemDomainHealth();
+    if((health.issues||[]).length)throw new Error("資料庫生成器／管理AI覆蓋不完整:"+health.issues.slice(0,12).join("｜"));
+    for(const id of required){
+      const d=(DB.system_orchestrator?.domains||[]).find(x=>x?.id===id);
+      if(!d?.generator_ids?.length||!d?.management_ai_ids?.length)throw new Error("領域配對缺失:"+id);
+    }
+    const race=(DB.races||[])[0],origin=(DB.origins||[])[0],klass=(DB.combat_classes||[]).find(x=>x?.tier==="F")||(DB.combat_classes||[])[0];
+    const draft=generateCharacterProfile({name:"治理測試角色",raceId:race?.id,originId:origin?.id,classId:klass?.id,element:"火"});
+    if(!draft?.ok)throw new Error("角色生成器未產生合法草稿:"+(draft?.issues||[]).map(x=>x.detail||x.code).join("、"));
+    const characterGate=manageCharacterGeneration(draft);
+    if(!characterGate.ok)throw new Error("角色管理AI拒絕合法草稿:"+(characterGate.issues||[]).map(x=>x.detail||x.code).join("、"));
+    const decision=generateWorldSimulationDecision({turn:G.turn});
+    const worldGate=manageWorldSimulation(decision);
+    if(!worldGate.ok)throw new Error("世界動態管理AI失敗:"+(worldGate.issues||[]).map(x=>x.detail||x.code).join("、"));
+    const snapshot=generateSaveAuditSnapshot({gameState:G,includeState:false}),saveGate=manageSaveAudit(snapshot);
+    if(!saveGate.ok)throw new Error("存檔治理管理AI失敗:"+(saveGate.issues||[]).map(x=>x.detail||x.code).join("、"));
+    const combatGate=manageCombatCharacterProfile(draft.combat);
+    if(!combatGate.ok)throw new Error("戰鬥角色管理AI失敗:"+(combatGate.issues||[]).map(x=>x.detail||x.code).join("、"));
+    return {domains:health.domainCount,generators:health.generatorAssigned,management_ai:health.aiAssigned,character:true,world:true,save:true,combat:true};
+  })()`);
+  ctx("G=structuredClone(__baselineState)");
+  return detail;
+});
+
 if(baselineState)ctx("G=structuredClone(__baselineState)");
 
 
