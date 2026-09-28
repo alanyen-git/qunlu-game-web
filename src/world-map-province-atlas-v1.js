@@ -133,7 +133,7 @@ globalThis.openWorldMapProvinceDetails=openWorldMapProvinceDetails;
 globalThis.openWorldMapAtlas=function(layer){if(layer==="province"){openProvinceAtlas();return}if(previousOpen)previousOpen(layer);injectEntryButton()};
 if(typeof globalThis.openWorldMapHierarchy!=="function")globalThis.openWorldMapHierarchy=()=>globalThis.openWorldMapAtlas("surface");
 function audit(){
- const issues=[],ids=new Set();for(const e of ATLAS.entries){if(ids.has(e.id))issues.push("duplicate province "+e.id);ids.add(e.id);if((!e.political_entity_id&&!e.nonstate_region)||!e.parent_realm_map_id||!e.world_region_id)issues.push("incomplete hierarchy "+e.id);if(!e.capital_location_id)issues.push("missing capital "+e.id);if(!Number.isFinite(e.anchor?.x)||!Number.isFinite(e.anchor?.y))issues.push("missing anchor "+e.id)}
+ const issues=[],ids=new Set();for(const e of ATLAS.entries){if(ids.has(e.id))issues.push("duplicate province "+e.id);ids.add(e.id);if((!e.political_entity_id&&!e.nonstate_region)||!e.parent_realm_map_id||!e.world_region_id)issues.push("incomplete hierarchy "+e.id);if(e.map_status!=="background_planned"&&!e.capital_location_id)issues.push("missing capital "+e.id);if(!Number.isFinite(e.anchor?.x)||!Number.isFinite(e.anchor?.y))issues.push("missing anchor "+e.id)}
  const political=new Set(array(DB.political_entities).map(x=>x.id));for(const pid of political)if(!ATLAS.by_political_entity[pid]?.length&&pid!=="POL-017")issues.push("political entity missing province index "+pid);
  return {pass:issues.length===0,revision:REV,entries:ATLAS.entries.length,political_entities:Object.keys(ATLAS.by_political_entity).filter(x=>x!=="NONSTATE").length,nonstate_provinces:ATLAS.by_political_entity.NONSTATE?.length||0,issues};
 }

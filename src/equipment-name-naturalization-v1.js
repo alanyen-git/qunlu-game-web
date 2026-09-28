@@ -1,4 +1,4 @@
-/* 群陸旅誌：裝備名稱自然化 CURRENT-2.25.10
+/* 群陸旅誌：裝備名稱自然化 CURRENT-2.25.11
  * EQUIPMENT-NAME-NATURALIZATION-1.1
  *
  * 參考傳統RPG常見的命名層次：F～E級看材質與部位，D～C級看材質與用途，
