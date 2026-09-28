@@ -1,5 +1,5 @@
 /* 群陸旅誌：角色出身深化 CURRENT-1.78.0
- * ORIGIN-DEPTH-1.0
+ * ORIGIN-DEPTH-1.1
  * 合併高度同質出身，以核心出身＋背景側寫保留差異；補齊特色、代價、動機、人脈與故事鉤子。
  */
 (()=>{
@@ -7,7 +7,7 @@
 if(typeof DB!=="object"||!DB||!Array.isArray(DB.origins))return;
 const CORE=globalThis.QUNLU_CORE;
 const RELEASE=CORE?.release?.("CURRENT-1.78.0")||globalThis.QUNLU_RELEASE_VERSION||"CURRENT-1.78.0";
-const REV="ORIGIN-DEPTH-1.0";
+const REV="ORIGIN-DEPTH-1.1";
 const PRE_COUNT=DB.origins.length;
 const PRE_WEIGHT=DB.origins.reduce((s,x)=>s+Number(x?.weight||1),0);
 
@@ -59,11 +59,11 @@ const PROFILES={
  name:"街巷求生者",description:"在城市邊緣靠觀察、退路與人群縫隙活下來，沒有制度保護就自己學會規則。",
  signature:"進陌生街區時先找出口、視線死角與真正控制秩序的人。",burden:"低社會地位與舊地緣使正式機構更容易先懷疑你。",drive:"想把只能躲開麻煩的本事，變成有能力選擇自己去向。",social_access:"攤販、腳夫、孤兒群、廉價旅店與地下消息圈",distinctive_axis:"視線—出口—人群",hooks:["昔日同伴捲入地下糾紛","熟悉街區被新的勢力接管"],tags:["求生","街巷","底層"]},
 "O-ACOLYTE":{
- name:"神殿養成者",description:"由神殿或修院體系養成，識字、照護與禮儀是生活技能，而非單純宗教標籤。",
+ name:"神殿侍從",previous_names:["神殿養成者"],description:"由神殿或修院體系養成，識字、照護與禮儀是生活技能，而非單純宗教標籤。",
  signature:"熟悉照護、儀式準備與基層宗教機構真正如何運轉。",burden:"制度責任、教義與眼前需要幫助的人不一定永遠一致。",drive:"想確認自己究竟是在守教條、守人，還是能找到兩者共存的方法。",social_access:"修道院、神殿、施粥所、基層神職與病患家屬",distinctive_axis:"照護—禮儀—制度",hooks:["神殿命令與救助需求衝突","舊院舍寄來一封只寫了一半的求援信"],tags:["宗教","照護","識字"],weight:25,silver:26,starter_subjobs:[],learnable_subjobs:["SJ-SCROLL"],tendencies:["照護","禮儀","閱讀"],knowledge:["宗教","基礎照護"],class_bias:["C-CLERIC","C9-PRIEST"],
  facets:[
   {id:"temple_ward",name:"修道院收養",weight:9,note:"把修院當作家，熟悉共同生活、照料與抄寫。",knowledge:["修院生活"],starter_subjobs:["SJ-MEDIC"],flags:["temple_ward"]},
-  {id:"temple_acolyte",name:"神殿侍役",weight:9,note:"從祭儀準備、接待信眾與日常雜務理解神殿制度。",knowledge:["神殿規矩"],flags:["temple_acolyte"]},
+  {id:"temple_acolyte",name:"神殿侍從",previous_names:["神殿侍役"],weight:9,note:"從祭儀準備、接待信眾與日常雜務理解神殿制度。",knowledge:["神殿規矩"],flags:["temple_acolyte"]},
   {id:"cleric_apprentice",name:"牧師見習",weight:7,note:"接受過更直接的祈禱與照護訓練，但仍沒有正式神職資格。",knowledge:["基礎醫療"],starter_subjobs:["SJ-MEDIC"],flags:["cleric_apprentice","not_formal_clergy"]}
  ]},
 "O-HIGHLAND":{
@@ -142,10 +142,10 @@ const PROFILES={
  name:"龍族守養者",description:"極罕見地由具理性的龍族或亞龍守護者照料過一段童年；這是養育經驗，不是血統證明。",
  signature:"熟悉部分龍族禮節、山地生活與在巨大力量面前保持分寸的習慣。",burden:"經驗太罕見，說出口常被當成誇大、異端或可利用的關係；也不因此擁有龍血。",drive:"想弄清楚守護自己的存在究竟留下了責任、債，還是只有記憶。",social_access:"山地守望者、少數龍族研究者、亞龍聚落與隱居者",distinctive_axis:"守養—山地—龍族禮節",hooks:["守養者多年後第一次傳來訊息","有人要求你證明與龍族的關係"],tags:["龍族","養育","山地"],flags:["dragon_raised","no_blood_assumption"]},
 "O-SCHOLAR":{
- name:"典籍家學者",description:"在書房、抄本與文書工作中長大，最擅長的不是記很多，而是知道一條說法從哪裡來。",
+ name:"典籍學者",previous_names:["典籍家學者"],description:"在書房、抄本與文書工作中長大，最擅長的不是記很多，而是知道一條說法從哪裡來。",
  signature:"善於找出典、做索引、比對版本並把『知道』和『猜測』分開。",burden:"書本知識容易落後現地狀況，離開文獻來源後必須承認不知道。",drive:"想把整理別人留下的知識，走到能親自驗證並留下可靠紀錄。",social_access:"抄寫員、學者、檔案庫、書商與私人藏書圈",distinctive_axis:"出典—索引—辨偽",hooks:["一份常用史料被證明有後世增補","老師留下的索引指向不存在的館藏"],tags:["學術","文獻","辨偽"],weight:12,starter_subjobs:["SJ-SCROLL"],learnable_subjobs:["SJ-ENCHANT"],tendencies:["閱讀","抄寫","辨偽"],knowledge:["歷史","文獻"],class_bias:["C9-TACTSCHOLAR","C-MAG"],
  facets:[
-  {id:"scholar_household",name:"學者家學",weight:8,note:"從家庭書房與文書工作建立穩定的閱讀、抄寫與查證習慣。",knowledge:["歷史","文獻"],flags:["scholar_household"]},
+  {id:"scholar_household",name:"典籍學者",previous_names:["學者家學"],weight:8,note:"從家庭書房與文書工作建立穩定的閱讀、抄寫與查證習慣。",knowledge:["歷史","文獻"],flags:["scholar_household"]},
   {id:"sage_disciple",name:"賢者弟子",weight:4,note:"更熟悉一對一指導、魔法理論與把問題拆到原理層處理。",knowledge:["魔法理論","古文"],flags:["sage_disciple"]}
  ]},
 "O-ACADEMY":{
