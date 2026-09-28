@@ -769,11 +769,15 @@ function rollRace(){
  $("#raceResult").innerHTML=`<b>${r.name}${creation.raceSubtype?`（${creation.raceSubtype}）`:""}</b><br><span class="small">${r.group||""}｜${r.description||""}</span>`;
  deriveElement();refreshTalentPreview()
 }
+function originDisplayName(origin,facet){
+ const base=origin?.name||"—",detail=facet?.name;
+ return detail&&detail!==base?`${base}・${detail}`:base;
+}
 function rollOrigin(){
  const o=weightedPick(DB.origins.map(x=>[x,Number(x.weight||1)]));
  const facets=Array.isArray(o.facets)?o.facets:[],facet=facets.length?weightedPick(facets.map(x=>[x,Number(x.weight||1)])):null;
  creation.origin=o.id;creation.originFacet=facet?.id||null;
- $("#originResult").innerHTML=`<b>${o.name}${facet?`・${facet.name}`:""}</b><br><span class="small">${o.category}｜${o.description}<br><b>特色：</b>${o.signature||"—"}<br><b>代價：</b>${o.burden||"—"}${facet?`<br><b>側寫：</b>${facet.note}`:""}</span>`;
+ $("#originResult").innerHTML=`<b>${originDisplayName(o,facet)}</b><br><span class="small">${o.category}｜${o.description}<br><b>特色：</b>${o.signature||"—"}<br><b>代價：</b>${o.burden||"—"}${facet?`<br><b>側寫：</b>${facet.note}`:""}</span>`;
  deriveElement();refreshTalentPreview()
 }
 function deriveElement(){if(!creation.race||!creation.origin){creation.element=null;$("#elementResult").textContent="依種族＋出身自動隨機";return}const r=by(DB.races,creation.race),o=org(creation.origin),pool=[...(r.affinity_bias||[]),...(o.affinities||[]),...(o.affinities||[])];creation.element=pool[rand(pool.length)]||"地";$("#elementResult").textContent=creation.element+"親和";refreshTalentPreview()}
@@ -5478,7 +5482,7 @@ function openCharacter(){
  showModal("角色",`
  <div class="profile-card">
    <div class="profile-name">${c.name}</div>
-   <div class="profile-row"><span class="profile-key">種族／出身</span><span class="profile-value">${displayRace()}｜${origin?.name||c.originId}${originFacet?`・${originFacet.name}`:""}</span></div>
+   <div class="profile-row"><span class="profile-key">種族／出身</span><span class="profile-value">${displayRace()}｜${originDisplayName(origin,originFacet)||c.originId}</span></div>
    <div class="profile-row"><span class="profile-key">戰鬥職業</span><span class="profile-value">${cc.name} <span class="tier">${cc.tier}</span></span></div>
    <div class="profile-row"><span class="profile-key">職業定位</span><span class="profile-value">${roleText}｜${trackText}</span></div>
    <div class="profile-row"><span class="profile-key">職業階級</span><span class="profile-value">${c.combatGrade}${c.classSealed?"｜能力封印中":""}</span></div>
