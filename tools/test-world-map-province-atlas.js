@@ -5,7 +5,7 @@ const source=fs.readFileSync("src/world-map-province-atlas-v1.js","utf8");
 const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8");
 const registry=fs.readFileSync("src/program-registry-v1.js","utf8"),version=JSON.parse(fs.readFileSync("version.json","utf8"));
 assert.match(source,/WORLD-MAP-PROVINCE-ATLAS-1\.1/);
-assert.match(html,/src\/world-map-province-atlas-v1\.js\?v=CURRENT-2.25.13/);
+assert.match(html,/src\/world-map-province-atlas-v1\.js\?v=CURRENT-2.25.14/);
 assert.ok(sw.includes('"./src/world-map-province-atlas-v1.js"'));
 assert.ok(registry.includes('"src/world-map-province-atlas-v1.js"'));
 assert.equal(version.world_map_province_atlas_revision,"WORLD-MAP-PROVINCE-ATLAS-1.1");
