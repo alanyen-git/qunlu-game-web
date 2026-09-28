@@ -228,5 +228,5 @@
     DB.meta.adventure_party_formation_revision=REV;
     DB.adventure_party_formation_system={version:REV,positions:[FRONT,BACK],members:["角色","隊友","寵物／契約獸","召喚獸"],battle_effect:"前後排影響敵方直接鎖定權重",save_compatible:true};
   }
-  globalThis.QUNLU_CORE?.registerModule?.("src/adventure-party-formation-v1.js",{domain:"combat",revision:REV,release:globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.10"});
+  globalThis.QUNLU_CORE?.registerModule?.("src/adventure-party-formation-v1.js",{domain:"combat",revision:REV,release:globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.12"});
 })();

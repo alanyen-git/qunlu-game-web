@@ -1,15 +1,16 @@
-/* 群陸旅誌：地區委託生態／城鎮差異與完成冷卻 CURRENT-2.13.7
- * REGIONAL-QUEST-ECOLOGY-1.1
+/* 群陸旅誌：地區委託生態／城鎮差異與完成冷卻 CURRENT-2.25.12
+ * REGIONAL-QUEST-ECOLOGY-1.2
  * 只從現有正史委託和已建檔可到達地圖發布；不創造不存在的地點／素材／魔物。
  * 保存於既有 G.worldState 下；不重置 G.quests、questHistory 或舊存檔。
  */
 (()=>{
 "use strict";
-const REV="REGIONAL-QUEST-ECOLOGY-1.1";
+const REV="REGIONAL-QUEST-ECOLOGY-1.2";
 const arr=x=>Array.isArray(x)?x:[];
 const game=()=>typeof G!=="undefined"?G:null;
 const db=()=>typeof DB!=="undefined"?DB:null;
 const place=id=>arr(db()?.locations).find(x=>x.id===id)||null;
+const clone=x=>x==null?x:JSON.parse(JSON.stringify(x));
 const hour=()=>typeof totalHours==="function"?Number(totalHours())||0:0;
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const rank=x=>Math.max(0,["F","E","D","C","B","A","S"].indexOf(x||"F"));
@@ -21,6 +22,44 @@ const region=l=>l?.world_region_id||l?.region_id||"";
 const nearby=(a,b)=>{if(!a||!b)return false;if(a.id===b.id)return true;if(province(a)&&province(a)===province(b))return true;if(region(a)&&region(a)===region(b))return true;return false};
 const travel=(a,b)=>typeof shortestTravelHours==="function"?shortestTravelHours(a,b):Infinity;
 const state=()=>{const g=game();if(!g)return null;g.worldState=g.worldState||{};const s=g.worldState.regionalQuestEcology||(g.worldState.regionalQuestEcology={records:[]});s.records=arr(s.records).filter(x=>Number.isFinite(Number(x.completedHour)));s.records=s.records.slice(-160);return s};
+
+// 新手村委託必須使用該村自己的野外／地下城節點；只複製任務實例，不改 canonical 地圖或模板。
+function localRegionLocations(town){
+ if(!town)return [];
+ const cluster=town.starter_cluster_id||null,settlement=town.settlement_region_id||null,p=province(town);
+ return arr(db()?.locations).filter(l=>{
+  if(l.id===town.id)return true;
+  if(cluster)return l.starter_cluster_id===cluster||(settlement&&l.settlement_region_id===settlement);
+  return !!p&&province(l)===p;
+ });
+}
+function localTargetCandidates(t,town){
+ const o=t?.objective||{};
+ if(!town||!["action","patrol"].includes(o.kind))return [];
+ const original=place(o.location_id),wantedKind=original?.kind||"wild",originalTier=rank(original?.tier||t?.tier||"F");
+ const rows=localRegionLocations(town).filter(l=>l.id!==town.id&&l.kind===wantedKind&&Number.isFinite(travel(town.id,l.id)));
+ rows.sort((a,b)=>{
+  const exact=Number(a.id===original?.id)-Number(b.id===original?.id);
+  const tier=Math.abs(rank(a.tier)-originalTier)-Math.abs(rank(b.tier)-originalTier);
+  return exact||tier||travel(town.id,a.id)-travel(town.id,b.id)||a.id.localeCompare(b.id);
+ });
+ return rows;
+}
+function localizedCheckpoints(target,original,targetCount){
+ const local=arr(target?.explore).map(x=>Array.isArray(x)?x[0]:x).filter(Boolean);
+ const old=arr(original?.checkpoints).filter(Boolean);
+ return [...new Set([...local,...old])].slice(0,Math.max(1,Number(targetCount)||old.length||1));
+}
+function localizeTemplate(t,town,locations){
+ const o=clone(t?.objective||{}),original=place(o.location_id),candidates=localTargetCandidates(t,town);
+ const target=candidates[0]||(locations?.[0]&&place(locations[0].id));
+ if(target&&["action","patrol"].includes(o.kind)){
+  o.location_id=target.id;
+  if(o.kind==="patrol")o.checkpoints=localizedCheckpoints(target,o,o.target);
+ }
+ const sites=(target&&["action","patrol"].includes(o.kind)?[target.id]:arr(locations).map(x=>x.id)).filter(Boolean);
+ return {...t,objective:o,recommended_locations:[...new Set(sites.length?sites:arr(t?.recommended_locations))]};
+}
 function history(){
  const s=state();if(!s)return [];
  // 舊存檔若已記錄templateId與完成時間則恢復，避免重讀後立即重複發布。
@@ -44,6 +83,8 @@ function cooldown(t,town){
 }
 function validLocations(t,town){
  if(!town)return [];
+ const localTargets=localTargetCandidates(t,town);
+ if(localTargets.length)return localTargets.map(l=>({id:l.id,hours:travel(town.id,l.id),local:true}));
  const raw=typeof questViableLocations==="function"?questViableLocations(t):arr(t.recommended_locations);
  const seen=new Set(),out=[];
  for(const id of raw){const l=place(id);if(!l||seen.has(id)||!Number.isFinite(travel(town.id,id)))continue;seen.add(id);
@@ -101,16 +142,18 @@ function board(pool,town,facility){
   }
  }
  for(const entry of chosen){
-  // 只為本地發行更改展示文案；正史模板ID及真實目標保持不變。
+  // 只複製一份地方公告；正史模板、canonical 地圖與舊存檔保持不變。
   const local=entry.locations.filter(x=>x.local).slice(0,5);
   const sites=(local.length?local:entry.locations).slice(0,5).map(x=>x.id);
-  const localized={...entry.t,
+  const localized=localizeTemplate(entry.t,town,entry.locations);
+  localized.recommended_locations=sites.length&&!["action","patrol"].includes(localized.objective?.kind)?sites:localized.recommended_locations;
+  Object.assign(localized,{
    name:entry.t.name,
    description:(entry.t.description||entry.t.desc||"")+"（"+town.name+"公會公告；本次依周邊實際可達地圖發布。）",
    desc:(entry.t.desc||entry.t.description||"")+"（"+town.name+"設施公告。）",
-   recommended_locations:sites
-  };
-  selected.set(entry.t.id,{townId:town.id,townName:town.name,provinceId:province(town),places:sites,kind:entry.k,signature:target(entry.t),description:localized.description});
+  });
+  const publishedSites=["action","patrol"].includes(localized.objective?.kind)?arr(localized.recommended_locations):sites;
+  selected.set(entry.t.id,{townId:town.id,townName:town.name,provinceId:province(town),places:publishedSites,kind:entry.k,signature:target(localized),description:localized.description,objective:clone(localized.objective),template:localized});
   kept.push(localized);
  }
  return {list:kept,selected,counts:{eligible:eligible.length,blocked,shown:chosen.length,slots}};
@@ -127,6 +170,7 @@ function intro(town,facility,result){
 }
 function decorateAccepted(q,entry){
  if(!q||!entry)return;
+ if(entry.objective)q.objective=clone(entry.objective);
  q.issuerTownId=entry.townId;q.issuerTownName=entry.townName;
  q.issuerProvinceId=entry.provinceId;q.regionQuestCategory=entry.kind;q.objectiveSignature=entry.signature;
  q.description=entry.description;
