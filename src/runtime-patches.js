@@ -388,8 +388,8 @@
     const currentId=current?.meta?.characterId||current?.character?.id||null;
     const protectedByManual=hasManualSaveForCharacter(currentId);
     const message=protectedByManual
-      ?"確定建立新角色嗎？\\n目前自動恢復進度會清除，但三個手動存檔槽都會保留。"
-      :"目前角色尚未保存到任何手動存檔槽。\\n建立新角色後，目前自動恢復進度會被清除。\\n建議先取消並使用「手動存檔」。\\n\\n仍要建立新角色嗎？";
+      ?"確定建立新角色嗎？\n目前自動恢復進度會清除，但三個手動存檔槽都會保留。"
+      :"目前角色尚未保存到任何手動存檔槽。\n建立新角色後，目前自動恢復進度會被清除。\n建議先取消並使用「手動存檔」。\n\n仍要建立新角色嗎？";
     if(!confirm(message))return;
     resetInProgress=true;
     try{
