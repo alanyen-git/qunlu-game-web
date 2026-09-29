@@ -398,7 +398,7 @@
       else if(typeof saveDbDelete==="function")await saveDbDelete(AUTOSAVE_KEY);
       pendingPersistSerialized=null;
       lastPersistSerialized="";
-      try{localStorage.removeItem(AUTOSAVE_KEY)}catch(e){}
+      try{localStorage.removeItem(AUTOSAVE_KEY)}catch(error){throw new Error(`無法移除自動存檔：${error?.message||error}`)}
       location.reload();
     }catch(error){
       resetInProgress=false;

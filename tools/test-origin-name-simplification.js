@@ -1,0 +1,12 @@
+"use strict";
+const fs=require("node:fs");
+const assert=require("node:assert/strict");
+const origin=fs.readFileSync("src/origin-depth-v1.js","utf8");
+const runtime=fs.readFileSync("src/runtime.js","utf8");
+assert.match(origin,/name:"神殿侍從"/);
+assert.match(origin,/name:"典籍學者"/);
+assert.doesNotMatch(origin,/神殿養成者|神殿侍役|典籍家學者|學者家學/);
+assert.match(runtime,/function originDisplayLabel\(origin,facet\)/);
+assert.match(runtime,/originDisplayLabel\(o,facet\)/);
+assert.match(runtime,/originDisplayLabel\(origin,originFacet\)/);
+console.log("origin naming regression OK: concise temple/scholar names and duplicate-safe display");

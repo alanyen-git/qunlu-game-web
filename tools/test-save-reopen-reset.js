@@ -9,4 +9,5 @@ assert.match(patch,/localStorage\.removeItem\(AUTOSAVE_KEY\)/);
 assert.match(patch,/location\.reload\(\)/);
 assert.doesNotMatch(patch,/window\.resetGame=function\(\)/);
 assert.ok(!patch.includes("\\\\n"),"reset confirmation must use real newlines");
+assert.match(patch,/無法移除自動存檔/);
 console.log("save reopen reset regression OK: IndexedDB autosave is awaited and cleared before reload");
