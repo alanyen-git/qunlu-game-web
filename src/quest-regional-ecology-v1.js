@@ -81,6 +81,7 @@ function localizeFaithMission(q,town){
   if(!places.length)return null;
  }else return q;
  localized.viableLocationIds=[...new Set(places)];
+ localized.places=localized.viableLocationIds.slice();
  localized.issuerTownId=town.id;localized.issuerTownName=town.name;localized.issuerProvinceId=province(town);
  localized.regionQuestCategory="神殿委託";localized.objectiveSignature=target(localized);
  localized.description=(localized.description||"")+"（本次依"+town.name+"周邊可達地圖發布。）";
