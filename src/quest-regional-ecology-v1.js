@@ -61,7 +61,7 @@ function localizeTemplate(t,town,locations){
  return {...t,objective:o,recommended_locations:[...new Set(sites.length?sites:arr(t?.recommended_locations))]};
 }
 function localizeAuthorityRequest(q,town){
- if(!town?.starter_cluster_id)return q;
+ if(!town||town.kind!=="town")return q;
  const o=q?.objective||{};
  if(!["action","patrol"].includes(o.kind))return q;
  const candidate=localTargetCandidates(q,town)[0];
@@ -269,11 +269,11 @@ function patch(){
  };
  if(typeof baseFaithGenerate==="function")globalThis.generateFaithMissions=function(){
   const rows=baseFaithGenerate.apply(this,arguments),town=place(game()?.character?.locationId);
-  return town?.starter_cluster_id?arr(rows).map(q=>localizeFaithMission(q,town)).filter(Boolean):rows;
+  return town?.kind==="town"?arr(rows).map(q=>localizeFaithMission(q,town)).filter(Boolean):rows;
  };
  if(typeof baseFaithAccept==="function")globalThis.acceptFaithMission=function(id){
   const town=place(game()?.character?.locationId);
-  if(!town?.starter_cluster_id)return baseFaithAccept.apply(this,arguments);
+  if(!town||town.kind!=="town")return baseFaithAccept.apply(this,arguments);
   const fresh=arr(globalThis.generateFaithMissions?.()).find(q=>q.id===id);
   if(!fresh){if(typeof alert==="function")alert("此神殿委託目前未在當地公告中，請重新開啟神殿委託清單。");return;}
   const saved=arr(game()?.tempFaithMissions),index=saved.findIndex(q=>q.id===id);
