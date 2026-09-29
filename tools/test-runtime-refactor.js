@@ -34,7 +34,7 @@ const first=core.registerInterval("duplicate-safe",()=>{},30000);
 const second=core.registerInterval("duplicate-safe",()=>{},30000);
 assert.equal(first,second);
 assert.equal(created,1,"duplicate interval keys must create one timer");
-assert.deepEqual(core.intervalSnapshot(),["duplicate-safe"]);
+assert.equal(JSON.stringify(core.intervalSnapshot()),JSON.stringify(["duplicate-safe"]));
 assert.equal(core.unregisterInterval("duplicate-safe"),true);
 assert.equal(core.unregisterInterval("duplicate-safe"),false);
 assert.equal(cleared,1);
