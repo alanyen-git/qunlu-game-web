@@ -1,5 +1,5 @@
 /* 群陸旅誌：地區委託生態／城鎮差異與完成冷卻 CURRENT-2.25.12
- * REGIONAL-QUEST-ECOLOGY-1.3
+ * REGIONAL-QUEST-ECOLOGY-1.4
  * 只從現有正史委託和已建檔可到達地圖發布；不創造不存在的地點／素材／魔物。
  * 保存於既有 G.worldState 下；不重置 G.quests、questHistory 或舊存檔。
  */
@@ -68,6 +68,23 @@ function localizeAuthorityRequest(q,town){
  if(!candidate)return null;
  const localized=localizeTemplate(q,town,[{id:candidate.id}]);
  return {...localized,viableLocationIds:[candidate.id]};
+}
+function localizeFaithMission(q,town){
+ if(!town?.starter_cluster_id)return q;
+ const o=q?.objective||{},localized=clone(q);let places=[];
+ if(["action","patrol"].includes(o.kind)){
+  const candidate=localTargetCandidates(q,town)[0];if(!candidate)return null;
+  Object.assign(localized,localizeTemplate(q,town,[{id:candidate.id}]));places=[candidate.id];
+ }else if(o.kind==="gather"){
+  places=localRegionLocations(town).filter(l=>["wild","dungeon"].includes(l.kind)&&arr(l.gather).includes(o.item_id)&&Number.isFinite(travel(town.id,l.id)))
+   .sort((a,b)=>travel(town.id,a.id)-travel(town.id,b.id)||a.id.localeCompare(b.id)).map(l=>l.id);
+  if(!places.length)return null;
+ }else return q;
+ localized.viableLocationIds=[...new Set(places)];
+ localized.issuerTownId=town.id;localized.issuerTownName=town.name;localized.issuerProvinceId=province(town);
+ localized.regionQuestCategory="神殿委託";localized.objectiveSignature=target(localized);
+ localized.description=(localized.description||"")+"（本次依"+town.name+"周邊可達地圖發布。）";
+ return localized;
 }
 function history(){
  const s=state();if(!s)return [];
@@ -190,6 +207,7 @@ function patch(){
  const baseGuild=globalThis.guildQuests,baseAccept=globalThis.acceptGuildQuest,baseTurnIn=globalThis.turnInQuest;
  const baseFacility=globalThis.facilityQuest,baseFacilityAccept=globalThis.acceptFacilityQuest;
  const baseAuthorityGenerate=globalThis.generateAuthorityRequests,baseAuthorityAccept=globalThis.acceptAuthorityRequest;
+  const baseFaithGenerate=globalThis.generateFaithMissions,baseFaithAccept=globalThis.acceptFaithMission;
  if([baseGuild,baseAccept,baseTurnIn,baseFacility,baseFacilityAccept].some(fn=>typeof fn!=="function"))return;
  globalThis.guildQuests=function(){
   const town=place(game()?.character?.locationId),original=db().quest_templates;
@@ -247,6 +265,23 @@ function patch(){
   archetype.objective=clone(localized.objective);
   try{return baseAuthorityAccept.apply(this,arguments);}
   finally{archetype.objective=original;}
+ };
+ if(typeof baseFaithGenerate==="function")globalThis.generateFaithMissions=function(){
+  const rows=baseFaithGenerate.apply(this,arguments),town=place(game()?.character?.locationId);
+  return town?.starter_cluster_id?arr(rows).map(q=>localizeFaithMission(q,town)).filter(Boolean):rows;
+ };
+ if(typeof baseFaithAccept==="function")globalThis.acceptFaithMission=function(id){
+  const town=place(game()?.character?.locationId);
+  if(!town?.starter_cluster_id)return baseFaithAccept.apply(this,arguments);
+  const fresh=arr(globalThis.generateFaithMissions?.()).find(q=>q.id===id);
+  if(!fresh){if(typeof alert==="function")alert("此神殿委託目前未在當地公告中，請重新開啟神殿委託清單。");return;}
+  const saved=arr(game()?.tempFaithMissions),index=saved.findIndex(q=>q.id===id);
+  if(index>=0)saved[index]=fresh;
+  else game().tempFaithMissions=[...saved,fresh];
+  const before=new Set(arr(game()?.quests).map(q=>q.id)),v=baseFaithAccept.apply(this,arguments);
+  const accepted=arr(game()?.quests).find(q=>!before.has(q.id)&&q.templateId===fresh.templateId&&q.faithPantheonId===fresh.faithPantheonId);
+  if(accepted){decorateAccepted(accepted,fresh);if(typeof persist==="function")persist();}
+  return v;
  };
  globalThis.turnInQuest=function(id){
   const g=game(),q=arr(g?.quests).find(x=>x.id===id),wasReady=q?.status==="ready";

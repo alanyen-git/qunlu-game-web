@@ -24,6 +24,19 @@ ctx.generateAuthorityRequests=function(){
     objective:JSON.parse(JSON.stringify(t.objective))
   }));
 };
+ctx.generateFaithMissions=function(){
+  const town=ctx.DB.locations.find(x=>x.id==="L-START-DAWNGRAIN");
+  const local=ctx.DB.locations.find(x=>x.starter_cluster_id===town.starter_cluster_id&&x.kind==="wild"&&(x.gather||[]).length);
+  return [
+    {id:"FM-TEST-ACTION",templateId:"FAITH-TEST-ACTION",faithPantheonId:"P-TEST",objective:{kind:"action",location_id:"L-WOOD",target:1}},
+    {id:"FM-TEST-GATHER",templateId:"FAITH-TEST-GATHER",faithPantheonId:"P-TEST",objective:{kind:"gather",item_id:local.gather[0],target:1}}
+  ];
+};
+ctx.acceptFaithMission=function(id){
+  const q=(ctx.G.tempFaithMissions||ctx.generateFaithMissions()).find(x=>x.id===id);
+  if(q)ctx.G.quests.push({id:"AQ-FAITH-TEST",templateId:q.templateId,faithPantheonId:q.faithPantheonId,
+    objective:JSON.parse(JSON.stringify(q.objective)),viableLocationIds:q.objective.location_id?[q.objective.location_id]:[],sourceType:"faith"});
+};
 ctx.acceptAuthorityRequest=function(_polityId,_officeId,templateId){
   const t=ctx.DB.authority_request_archetypes.find(x=>x.id===templateId);
   ctx.G.quests.push({id:"AQ-TEST",templateId:t.id,objective:JSON.parse(JSON.stringify(t.objective)),
@@ -54,4 +67,23 @@ const acceptedTarget=ctx.DB.locations.find(x=>x.id===accepted.objective.location
 assert.equal(acceptedTarget&&acceptedTarget.starter_cluster_id,town.starter_cluster_id,"接取時必須保存公告中的當地目標");
 assert.equal(accepted.viableLocationIds[0],acceptedTarget.id);
 assert.equal(JSON.stringify(canonical.map(x=>x.objective)),original,"接取後也不得改寫正史政務模板");
-console.log("STARTER-AUTHORITY-QUEST-LOCALIZATION-1.0 regression OK: 晨穗村政務巡查／道路委託公告與接取均使用本地野外地圖");
+console.log("STARTER-QUEST-LOCALIZATION-1.1 regression OK: 地方政務與神殿公告／接取均使用本地野外地圖");
+
+const faith=ctx.generateFaithMissions(),faithAction=faith.find(x=>x.templateId==="FAITH-TEST-ACTION"),
+  faithGather=faith.find(x=>x.templateId==="FAITH-TEST-GATHER");
+assert.ok(faithAction&&faithGather,"晨穗村應只顯示具本地目標的神殿委託");
+const faithTarget=ctx.DB.locations.find(x=>x.id===faithAction.objective.location_id);
+assert.ok(faithTarget&&faithTarget.starter_cluster_id===town.starter_cluster_id,"神殿巡查須改用晨穗村野外地圖");
+assert.notEqual(faithTarget.id,"L-WOOD","神殿委託不得沿用柳橋鎮灰橡林緣");
+assert.deepEqual(Array.from(faithAction.viableLocationIds),[faithTarget.id]);
+const localGatherIds=Array.from(faithGather.viableLocationIds);
+assert.ok(localGatherIds.length>0,"採集型神殿委託須有本地可採集地圖");
+assert.ok(localGatherIds.every(id=>ctx.DB.locations.find(x=>x.id===id)?.starter_cluster_id===town.starter_cluster_id),
+  "採集型神殿委託不得列入其他新手村地圖");
+ctx.G.tempFaithMissions=faith;
+ctx.acceptFaithMission(faithAction.id);
+const acceptedFaith=ctx.G.quests.find(x=>x.templateId==="FAITH-TEST-ACTION");
+assert.ok(acceptedFaith,"神殿委託應可正常接取");
+assert.equal(acceptedFaith.objective.location_id,faithAction.objective.location_id);
+assert.deepEqual(Array.from(acceptedFaith.viableLocationIds),[faithAction.objective.location_id],
+  "接取後需保存公告中的本地目標");
