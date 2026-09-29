@@ -9,7 +9,7 @@ const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 assert.match(source,/MAP-SCENE-2\.2/);
 assert.match(source,/continuous-canvas/);
 assert.match(runtime,/Object\.defineProperty\(globalThis,"G"/);
-assert.match(html,/src\/map-survey-completion-v1\.js\?v=CURRENT-2\.25\.15/);
+assert.match(html,/src\/map-survey-completion-v1\.js\?v=CURRENT-2\.25\.16/);
 assert.match(html,/src\/map-scene-v2\.js\?v=CURRENT-2\.25\.15/);
 assert.doesNotMatch(html,/src\/witcher-map-core-v1\.js/);
 assert.ok(sw.includes('"./src/map-scene-v2.js"'));
