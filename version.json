@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.16",
-  "previous_version": "CURRENT-2.25.15",
+  "version": "CURRENT-2.25.17",
+  "previous_version": "CURRENT-2.25.16",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "PROGRAM-REFACTOR-1.0：集中生成器runtime契約與可重入定時器註冊，移除eval依賴，保留存檔與資料相容；ORIGIN-NAME-SHORTEN-1.0／SAVE-RESET-SAFETY-1.0：簡化出身顯示名稱、避免雙層名稱重複，並在自動存檔清除失敗時停止重開流程；GEN-AI-COVERAGE-1.0：補齊角色與戰鬥、世界動態、存檔與稽核、角色生成四個資料庫領域的生成器與管理AI配對，並接入生成、世界調度、存檔治理與完整稽核。",
+  "summary": "STARTER-AUTHORITY-QUEST-LOCALIZATION-1.0：地方政務巡查與道路委託依新手村周邊地圖生成，接取時保存同一個本地目標；不改寫全域委託範本或舊存檔格式。",
   "changelog": [
+    "STARTER-AUTHORITY-QUEST-LOCALIZATION-1.0：修正晨穗村地方政務巡查／道路委託沿用柳橋鎮灰橡林緣、長草牧野的問題；公告與接取一致改用本村野外地圖，無合適本地地圖時不發布。PWA v195，Android versionCode 2025017。",
     "PROGRAM-REFACTOR-1.0：將生成器／管理AI runtime函式改為明確白名單，六個世界與自檢心跳改由QUNLU-CORE集中註冊並避免重複計時；不改存檔schema、資料ID、戰鬥規則與既有遊戲結果。PWA v194，Android versionCode 2025016。",
     "GEN-AI-COVERAGE-1.0：四個原本缺少配對的資料庫領域各自新增專屬生成器與管理AI；新增角色戰鬥檔案、世界動態決策、存檔稽核快照與完整角色檔案生成流程，全部接入GEN-PIPE-2.0、ORCHESTRATOR-3.0與SYSTEM-AUDIT-3.0。每個資料庫領域現在都必須具備至少一個生成器與一個管理AI；既有AI-SYSTEM-ORCHESTRATOR仍負責世界總調度。存檔schema相容，PWA v191，Android versionCode 2025013。",
     "RESOURCE-TERMINOLOGY-1.0：技能恢復效果依resource欄位明確顯示最大MP或最大體力，實際回復不再依技能名稱猜測；全面檢查技能、道具與藥劑效果，保留ID、數值、配方、持有量、存檔與戰鬥規則相容。PWA v190，Android versionCode 2025012。",
@@ -488,7 +489,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v194",
+  "pwa_cache_revision": "v195",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -865,7 +866,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.25.13：補齊四個資料庫領域的生成器／管理AI配對與runtime治理閘門；91個正式src模組與PWA v191同步，Android版號由版本檔遞增；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.25.16",
+    "last_verified_release": "CURRENT-2.25.17",
     "notes": [
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
@@ -933,7 +934,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.16",
+    "last_verified_release": "CURRENT-2.25.17",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -941,7 +942,7 @@
     "audited_src_programs": 91,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v194",
+    "pwa_cache": "v195",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -2012,7 +2013,7 @@
     "mobile_first": true,
     "save_compatible": true
   },
-  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.2",
+  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.3",
   "polity_province_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "goldbalance_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "province_geographic_expansion_revision": "PROVINCE-GEOGRAPHIC-EXPANSION-1.0",
@@ -2043,7 +2044,17 @@
     "coordinates_added": 0,
     "location_ids_created": 0,
     "save_compatible": true,
-    "design_axes": ["地形", "氣候", "水系", "交通", "治理", "資源", "風險", "預計城鎮／野外／地下城", "NPC資訊邊界"]
+    "design_axes": [
+      "地形",
+      "氣候",
+      "水系",
+      "交通",
+      "治理",
+      "資源",
+      "風險",
+      "預計城鎮／野外／地下城",
+      "NPC資訊邊界"
+    ]
   },
   "polity_province_depth": {
     "political_entities": 16,
@@ -2121,17 +2132,29 @@
     "version": "MAP-SCENE-2.2",
     "renderer": "continuous-canvas",
     "hierarchy": "world→realm→province→local",
-    "layers": ["terrain", "water", "roads", "borders", "settlements", "poi", "labels", "layer_summary"],
+    "layers": [
+      "terrain",
+      "water",
+      "roads",
+      "borders",
+      "settlements",
+      "poi",
+      "labels",
+      "layer_summary"
+    ],
     "coordinate_policy": "canonical_or_sourced_or_authored_regional_route_survey",
-    "unmapped_policy": "complete_for_current_playable_locations",
+    "unmapped_policy": "no_current_playable_locations_unmapped",
     "travel_visibility": "reachable_only",
-    "touch": ["pan", "pinch_zoom", "44px_targets"],
+    "touch": [
+      "pan",
+      "pinch_zoom",
+      "44px_targets"
+    ],
     "offline": true,
     "save_compatible": true,
     "local_route_policy": "only_draw_edges_when_both_endpoint_coordinates_are_canonical_or_sourced_or_authored_regional_route_survey",
     "survey_revision": "MAP-SURVEY-COMPLETION-1.0",
     "surveyed_location_count": 83,
-    "unmapped_policy": "no_current_playable_locations_unmapped",
     "legacy_renderer_active": false
   },
   "witcher_map_core_revision": "WITCHER-MAP-CORE-1.0",

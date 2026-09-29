@@ -1,11 +1,11 @@
 /* 群陸旅誌：地區委託生態／城鎮差異與完成冷卻 CURRENT-2.25.12
- * REGIONAL-QUEST-ECOLOGY-1.2
+ * REGIONAL-QUEST-ECOLOGY-1.3
  * 只從現有正史委託和已建檔可到達地圖發布；不創造不存在的地點／素材／魔物。
  * 保存於既有 G.worldState 下；不重置 G.quests、questHistory 或舊存檔。
  */
 (()=>{
 "use strict";
-const REV="REGIONAL-QUEST-ECOLOGY-1.2";
+const REV="REGIONAL-QUEST-ECOLOGY-1.3";
 const arr=x=>Array.isArray(x)?x:[];
 const game=()=>typeof G!=="undefined"?G:null;
 const db=()=>typeof DB!=="undefined"?DB:null;
@@ -59,6 +59,15 @@ function localizeTemplate(t,town,locations){
  }
  const sites=(target&&["action","patrol"].includes(o.kind)?[target.id]:arr(locations).map(x=>x.id)).filter(Boolean);
  return {...t,objective:o,recommended_locations:[...new Set(sites.length?sites:arr(t?.recommended_locations))]};
+}
+function localizeAuthorityRequest(q,town){
+ if(!town?.starter_cluster_id)return q;
+ const o=q?.objective||{};
+ if(!["action","patrol"].includes(o.kind))return q;
+ const candidate=localTargetCandidates(q,town)[0];
+ if(!candidate)return null;
+ const localized=localizeTemplate(q,town,[{id:candidate.id}]);
+ return {...localized,viableLocationIds:[candidate.id]};
 }
 function history(){
  const s=state();if(!s)return [];
@@ -180,6 +189,7 @@ function patch(){
  if(globalThis.__REGIONAL_QUEST_ECOLOGY_PATCHED)return;
  const baseGuild=globalThis.guildQuests,baseAccept=globalThis.acceptGuildQuest,baseTurnIn=globalThis.turnInQuest;
  const baseFacility=globalThis.facilityQuest,baseFacilityAccept=globalThis.acceptFacilityQuest;
+ const baseAuthorityGenerate=globalThis.generateAuthorityRequests,baseAuthorityAccept=globalThis.acceptAuthorityRequest;
  if([baseGuild,baseAccept,baseTurnIn,baseFacility,baseFacilityAccept].some(fn=>typeof fn!=="function"))return;
  globalThis.guildQuests=function(){
   const town=place(game()?.character?.locationId),original=db().quest_templates;
@@ -221,6 +231,23 @@ function patch(){
   if(q){decorateAccepted(q,live||issued);if(typeof persist==="function")persist();if(typeof globalThis.facilityQuest==="function")globalThis.facilityQuest(fid);}
   return v;
  };
+ if(typeof baseAuthorityGenerate==="function")globalThis.generateAuthorityRequests=function(polityId){
+  const rows=baseAuthorityGenerate.apply(this,arguments),town=place(game()?.character?.locationId);
+  if(!town?.starter_cluster_id)return rows;
+  return arr(rows).map(q=>localizeAuthorityRequest(q,town)).filter(Boolean);
+ };
+ if(typeof baseAuthorityAccept==="function")globalThis.acceptAuthorityRequest=function(polityId,officeId,templateId){
+  const town=place(game()?.character?.locationId),archetype=arr(db()?.authority_request_archetypes).find(x=>x.id===templateId);
+  if(!town?.starter_cluster_id||!archetype||!["action","patrol"].includes(archetype.objective?.kind))
+   return baseAuthorityAccept.apply(this,arguments);
+  const listed=globalThis.generateAuthorityRequests?.(polityId)?.some(x=>x.templateId===templateId&&x.sourceId===officeId);
+  const localized=localizeAuthorityRequest({templateId,sourceId:officeId,objective:archetype.objective},town);
+  if(!listed||!localized){if(typeof alert==="function")alert("此政務委託目前未在當地公告中，請重新開啟地方政務清單。");return;}
+  const original=archetype.objective;
+  archetype.objective=clone(localized.objective);
+  try{return baseAuthorityAccept.apply(this,arguments);}
+  finally{archetype.objective=original;}
+ };
  globalThis.turnInQuest=function(id){
   const g=game(),q=arr(g?.quests).find(x=>x.id===id),wasReady=q?.status==="ready";
   const v=baseTurnIn.apply(this,arguments);
@@ -245,7 +272,7 @@ function audit(){
   cooldown_hours:{same_template:120,same_target:96,recent_patrol_type:48},save_compatible:true};
 }
 globalThis.runRegionalQuestEcologyAudit=audit;
-globalThis.QUNLU_REGIONAL_QUEST=Object.freeze({revision:REV,board,cooldown,validLocations,kind,target,audit});
+globalThis.QUNLU_REGIONAL_QUEST=Object.freeze({revision:REV,board,cooldown,validLocations,kind,target,localizeAuthorityRequest,audit});
 if(db()?.meta)db().meta.regional_quest_ecology_revision=REV;
 patch();
 globalThis.QUNLU_CORE?.registerModule?.("src/quest-regional-ecology-v1.js",{domain:"finalization",revision:REV});
