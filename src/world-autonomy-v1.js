@@ -232,7 +232,7 @@
   let timer=null;
   function startWorldAutonomy(){
     if(timer)return;
-    timer=setInterval(()=>worldAutonomyHeartbeat("interval"),CFG.heartbeat_ms);
+    timer=globalThis.QUNLU_CORE?.registerInterval?.("world-autonomy-v1-heartbeat",()=>worldAutonomyHeartbeat("interval"),CFG.heartbeat_ms);
     setTimeout(()=>worldAutonomyHeartbeat("startup"),0);
   }
 

@@ -3292,9 +3292,19 @@ function worldEventCandidatePool(regionId){
    ...(DB.regional_rumors||[]).filter(x=>x.region_id===regionId).map(x=>({...x,source_kind:"rumor",canonical_mutation:false}))
  ]
 }
+const GENERATOR_RUNTIME_FUNCTIONS=Object.freeze({
+ generateCombatCharacterProfile,
+ manageCombatCharacterProfile,
+ generateWorldSimulationDecision,
+ manageWorldSimulation,
+ generateSaveAuditSnapshot,
+ manageSaveAudit,
+ generateCharacterProfile,
+ manageCharacterGeneration
+});
 function generatorRuntimeFunctionExists(name){
- if(!name)return false;
- try{return typeof eval(name)==="function"}catch{return false}
+ const key=String(name||"").trim();
+ return Object.prototype.hasOwnProperty.call(GENERATOR_RUNTIME_FUNCTIONS,key)&&typeof GENERATOR_RUNTIME_FUNCTIONS[key]==="function";
 }
 function generationClone(value){
  try{return typeof structuredClone==="function"?structuredClone(value):JSON.parse(JSON.stringify(value))}

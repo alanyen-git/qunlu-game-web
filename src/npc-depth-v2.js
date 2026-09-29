@@ -495,6 +495,6 @@
   initialize();
   if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>npcDepth2Heartbeat("visible"),120)});
   if(typeof window!=="undefined")window.addEventListener("focus",()=>setTimeout(()=>npcDepth2Heartbeat("focus"),120));
-  setInterval(()=>npcDepth2Heartbeat("interval"),CFG.heartbeat_ms);
+  globalThis.QUNLU_CORE?.registerInterval?.("npc-depth-v2-heartbeat",()=>npcDepth2Heartbeat("interval"),CFG.heartbeat_ms);
   setTimeout(()=>npcDepth2Heartbeat("startup"),180);
 })();

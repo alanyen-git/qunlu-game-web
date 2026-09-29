@@ -303,6 +303,6 @@
   globalThis.WORLD_AUTONOMY_PHASE2_CONFIG=Object.freeze({...CFG});
   if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>phase2Heartbeat("visible"),40)});
   if(typeof window!=="undefined")window.addEventListener("focus",()=>setTimeout(()=>phase2Heartbeat("focus"),40));
-  setInterval(()=>phase2Heartbeat("interval"),CFG.heartbeat_ms);
+  globalThis.QUNLU_CORE?.registerInterval?.("world-autonomy-v2-heartbeat",()=>phase2Heartbeat("interval"),CFG.heartbeat_ms);
   setTimeout(()=>phase2Heartbeat("startup"),50);
 })();

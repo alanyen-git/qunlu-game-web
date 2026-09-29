@@ -115,5 +115,5 @@
   patchMoreMenu();syncGameVersion();
   if(typeof window!=="undefined")window.addEventListener("load",()=>setTimeout(()=>runAudit(true),250),{once:true});
   if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>runStateRepair(),180)});
-  setInterval(()=>{if(game()?.character)runStateRepair()},CFG.repair_interval_ms);
+  globalThis.QUNLU_CORE?.registerInterval?.("system-integrity-v2-repair",()=>{if(game()?.character)runStateRepair()},CFG.repair_interval_ms);
 })();

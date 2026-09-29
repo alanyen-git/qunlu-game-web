@@ -167,6 +167,7 @@ jobs:
 
           node tools/debug-all-programs.js
           node tools/test-audit-metadata.js
+          node tools/test-runtime-refactor.js
           node tools/test-service-worker-refresh.js
           node tools/test-version-update-system.js
           node tools/test-save-reopen-reset.js

@@ -12,6 +12,7 @@ const titleRelease=typeof document!=="undefined"
 const RELEASE=String(globalThis.QUNLU_RELEASE_VERSION||titleRelease||FALLBACK_RELEASE);
 const TIER_RANK=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
 const modules=new Map();
+const intervals=new Map();
 
 function array(value){return Array.isArray(value)?value:[]}
 function findById(list,id){return array(list).find(row=>row?.id===id)||null}
@@ -45,6 +46,25 @@ function safeCall(fn,...args){try{return typeof fn==="function"?fn(...args):unde
 function release(fallback=FALLBACK_RELEASE){
   return String(globalThis.QUNLU_RELEASE_VERSION||titleRelease||db()?.meta?.current_version||fallback);
 }
+function registerInterval(key,fn,delay=0){
+  const name=String(key||"").trim();
+  if(!name||typeof fn!=="function"||typeof globalThis.setInterval!=="function")return null;
+  if(intervals.has(name))return intervals.get(name);
+  const wait=Math.max(0,Number(delay)||0);
+  const handle=globalThis.setInterval(fn,wait);
+  intervals.set(name,handle);
+  return handle;
+}
+function unregisterInterval(key){
+  const name=String(key||"").trim();
+  if(!intervals.has(name))return false;
+  const handle=intervals.get(name);
+  if(typeof globalThis.clearInterval==="function")globalThis.clearInterval(handle);
+  intervals.delete(name);
+  return true;
+}
+function intervalSnapshot(){return [...intervals.keys()]}
+
 function registerModule(path,meta={}){
   const key=String(path||"").trim();
   if(!key)return null;
@@ -72,7 +92,7 @@ globalThis.QUNLU_CORE=Object.freeze({
   tierRankMap:TIER_RANK,
   array,findById,itemById,locationById,classById,recipeById,
   tierRank,number,clamp,clone,unique,uniqueStrings,game,safeCall,release,
-  registerModule,moduleSnapshot,audit
+  registerModule,moduleSnapshot,registerInterval,unregisterInterval,intervalSnapshot,audit
 });
 globalThis.QUNLU_CORE.registerModule("src/bootstrap.js",{domain:"core",revision:"QUNLU-CORE-1.0",release:RELEASE});
 })();

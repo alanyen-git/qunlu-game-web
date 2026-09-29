@@ -772,5 +772,5 @@ setTimeout(()=>{
 if(CORE?.registerModule)CORE.registerModule("src/asdail-narrative-runtime-v1.js",{domain:"runtime",revision:REV,release:RELEASE});
 if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>liveWorldTick("visible"),160)});
 if(typeof window!=="undefined")window.addEventListener("focus",()=>setTimeout(()=>liveWorldTick("focus"),160));
-setInterval(()=>liveWorldTick("interval"),CFG.heartbeat_ms);
+CORE?.registerInterval?.("asdail-narrative-runtime-heartbeat",()=>liveWorldTick("interval"),CFG.heartbeat_ms);
 })();
