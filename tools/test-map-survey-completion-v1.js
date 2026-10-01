@@ -27,6 +27,14 @@ assert.equal(JSON.stringify(db.locations.map(x=>[x.id,x.links])),linksBefore,"su
 assert.equal(survey.includes("Math.random("),false);
 assert.equal(survey.includes("seeded("),false);
 assert.equal(typeof ctx.refreshMapSurveyCompletion,"function");
-ctx.refreshMapSurveyCompletion();
+assert.equal(typeof ctx.ensureMapSurveyCompletion,"function");
+const refreshesBefore=ctx.QUNLU_MAP_SURVEY.stats.full_refreshes;
+for(let i=0;i<1000;i++)ctx.ensureMapSurveyCompletion();
+assert.equal(ctx.QUNLU_MAP_SURVEY.stats.full_refreshes,refreshesBefore,"hot-path ensure must not rerun the full survey");
+assert.ok(ctx.QUNLU_MAP_SURVEY.stats.fast_hits>=1000,"repeated map renders should stay on O(1) cache hits");
+ctx.DB.locations.push({id:"L-SURVEY-DYNAMIC",name:"動態新增地點",kind:"wild",tier:"F",province_region_id:"PROV-START-13",world_region_id:"REG-13",links:[{to:"L-START-WINDSPRING",hours:1}]});
+ctx.ensureMapSurveyCompletion();
+assert.equal(ctx.QUNLU_MAP_SURVEY.stats.full_refreshes,refreshesBefore+1,"location-array growth must trigger exactly one full survey");
+assert.ok(ctx.DB.locations.find(x=>x.id==="L-SURVEY-DYNAMIC").cartographic_coordinates);
 assert.equal(ctx.DB.map_survey_completion.unresolved_location_ids.length,0);
-console.log("MAP-SURVEY-COMPLETION-2.0 regression OK: all current locations receive stable route-survey coordinates; canonical links unchanged");
+console.log("MAP-SURVEY-COMPLETION-2.0 regression OK: full coverage, O(1) repeated ensure path, dynamic growth refresh, canonical links unchanged");
