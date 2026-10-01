@@ -192,6 +192,21 @@ for(let i=0;i<programPaths.length;i++){
   }
 }
 
+try{
+  const mapCoverage=vm.runInContext(`(()=>{
+    if(typeof refreshMapSurveyCompletion==="function")refreshMapSurveyCompletion();
+    const rows=Array.isArray(DB?.locations)?DB.locations:[];
+    const unresolved=rows.filter(row=>{
+      const candidates=[row?.map_coordinates,row?.cartographic_coordinates,row?.map_position,row?.coordinates];
+      const ok=candidates.some(value=>Array.isArray(value)&&Number.isFinite(+value[0])&&Number.isFinite(+value[1])||value&&Number.isFinite(+value.x)&&Number.isFinite(+value.y))||Number.isFinite(+row?.map_x)&&Number.isFinite(+row?.map_y);
+      return !ok;
+    }).map(x=>x?.id);
+    return {locations:rows.length,surveyed:DB?.map_survey_completion?.location_count||0,unresolved};
+  })()`,context,{timeout:15000});
+  if(mapCoverage.unresolved.length)problems.push("map survey unresolved locations: "+mapCoverage.unresolved.slice(0,30).join(","));
+  if(mapCoverage.surveyed!==mapCoverage.locations)problems.push(`map survey coverage mismatch: ${mapCoverage.surveyed}/${mapCoverage.locations}`);
+}catch(error){problems.push(`map survey coverage check failed: ${error?.stack||error}`)}
+
 fire(windowListeners,"load",{target:sandbox});
 for(let i=0;i<Math.min(500,queuedTimeouts.length);i++){
   const fn=queuedTimeouts[i];
