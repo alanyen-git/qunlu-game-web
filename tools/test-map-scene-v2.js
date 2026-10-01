@@ -2,12 +2,14 @@
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
 const source=fs.readFileSync("src/map-scene-v2.js","utf8");
+const survey=fs.readFileSync("src/map-survey-completion-v1.js","utf8");
 const runtime=fs.readFileSync("src/runtime.js","utf8");
 const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8"),registry=fs.readFileSync("src/program-registry-v1.js","utf8");
 const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 
 assert.match(source,/MAP-SCENE-2\.2/);
 assert.match(source,/continuous-canvas/);
+assert.match(source,/refreshMapSurveyCompletion/);
 assert.match(runtime,/Object\.defineProperty\(globalThis,"G"/);
 assert.match(html,/src\/map-survey-completion-v1\.js\?v=CURRENT-2\.25\.20/);
 assert.match(html,/src\/map-scene-v2\.js\?v=CURRENT-2\.25\.20/);
@@ -31,13 +33,16 @@ const DB={meta:{current_version:"CURRENT-2.25.20"},world_geopolitical_map:{canva
   {id:"W-1",name:"銀穗野",kind:"wild",tier:"D",province_region_id:"PR-1",realm_region_map_id:"RMAP-1",cartographic_coordinates:{x:390,y:250,basis:"test"},links:[{to:"T-1",hours:2}]},
   {id:"T-2",name:"遠城",kind:"town",tier:"C",province_region_id:"PR-1",realm_region_map_id:"RMAP-1",links:[]}
  ]};
-DB.map_survey_completion={version:"MAP-SURVEY-COMPLETION-1.0",status:"complete_for_current_playable_locations",location_count:3,unresolved_location_ids:[]};
+DB.map_survey_completion={version:"MAP-SURVEY-COMPLETION-2.0",status:"complete_for_all_current_locations",location_count:3,unresolved_location_ids:[]};
 let modal=null,travelled=null,registered=[];
 const ctx=vm.createContext({DB,G:{character:{locationId:"T-1"}},console,
  showModal:(title,body)=>{modal={title,body}},travel:(id,hours,meta)=>{travelled={id,hours,meta};return true},
  setTimeout:()=>0,requestAnimationFrame:()=>0,
  QUNLU_CORE:{release:v=>v,registerModule:(p,m)=>registered.push([p,m]),registerAudit(){}}
 });
+vm.runInContext(survey,ctx,{filename:"src/map-survey-completion-v1.js"});
+assert.equal(DB.map_survey_completion.unresolved_location_ids.length,0);
+assert.ok(DB.locations.every(x=>x.cartographic_coordinates&&Number.isFinite(x.cartographic_coordinates.x)&&Number.isFinite(x.cartographic_coordinates.y)));
 vm.runInContext(source,ctx,{filename:"src/map-scene-v2.js"});
 const call=code=>vm.runInContext(code,ctx);
 assert.equal(call("runMapSceneV2Audit().pass"),true);
@@ -50,7 +55,7 @@ assert.doesNotMatch(modal.body,/witcher-map-shell|regionmap-province|world-mosai
 assert.equal(call("openRegionMapGraphic('province','PR-1')"),true);
 assert.match(modal.body,/河谷城/);
 assert.match(modal.body,/銀穗野/);
-assert.doesNotMatch(modal.body,/待測繪/);
+assert.doesNotMatch(modal.body,/待測繪|資料待補/);
 assert.equal(call("openRegionMapGraphic('realm','RMAP-1')"),true);
 assert.match(modal.body,/data-map-level="realm"/);
 assert.match(modal.body,/所轄行省/);
