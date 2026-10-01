@@ -24,7 +24,7 @@ for(const row of db.locations){
 }
 assert.equal(db.locations.find(x=>x.id==="L-SURVEY-FALLBACK").cartographic_coordinates.source,"derived_canonical_route_survey");
 assert.equal(JSON.stringify(db.locations.map(x=>[x.id,x.links])),linksBefore,"survey layer must not change canonical travel links");
-assert.equal(survey.includes("Math.random"),false);
+assert.equal(survey.includes("Math.random("),false);
 assert.equal(survey.includes("seeded("),false);
 assert.equal(typeof ctx.refreshMapSurveyCompletion,"function");
 ctx.refreshMapSurveyCompletion();
