@@ -938,7 +938,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.19",
+    "last_verified_release": "CURRENT-2.25.20",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -946,7 +946,7 @@
     "audited_src_programs": 91,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v198",
+    "pwa_cache": "v199",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
