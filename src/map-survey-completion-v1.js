@@ -19,6 +19,8 @@ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 const num=(v,d=0)=>Number.isFinite(+v)?+v:d;
 const round1=v=>Math.round(v*10)/10;
 const A=v=>Array.isArray(v)?v:[];
+const PERF={full_refreshes:0,ensures:0,fast_hits:0};
+let lastRowsRef=null,lastRowsLength=-1,lastCompletion=null;
 
 const POINTS=Object.freeze({
   "L-WILLOW":[460,470],"L-PINE":[480,520],"L-LOVEN":[500,510],"L-STONEFORD":[525,535],
@@ -107,12 +109,13 @@ function surveyValue(point,source,basis,verified){
 }
 
 function refreshMapSurveyCompletion(){
- const rows=A(DB.locations),surveyed={},positioned=new Map(),authoredIds=[],preservedIds=[],derivedIds=[];
+ PERF.full_refreshes++;
+ const rows=A(DB.locations),surveyed={},positioned=new Map(),authoredIds=[],preservedIds=[],derivedIds=[],knownByGroup=new Map();
  for(const row of rows){
   const authored=POINTS[row?.id];
   if(authored){
    const value=surveyValue({x:authored[0],y:authored[1]},AUTHORED_SOURCE,AUTHORED_BASIS,true);
-   row.cartographic_coordinates=value;surveyed[row.id]=value;positioned.set(row.id,value);authoredIds.push(row.id);continue;
+   row.cartographic_coordinates=value;surveyed[row.id]=value;positioned.set(row.id,value);authoredIds.push(row.id);const key=groupKey(row);if(!knownByGroup.has(key))knownByGroup.set(key,[]);knownByGroup.get(key).push(value);continue;
   }
   const point=existingPoint(row);
   if(point){
@@ -120,7 +123,7 @@ function refreshMapSurveyCompletion(){
    const value=current&&Number.isFinite(+current.x)&&Number.isFinite(+current.y)
     ?current
     :surveyValue(point,"preserved_canonical_coordinate","existing canonical/sourced coordinate",true);
-   row.cartographic_coordinates=value;surveyed[row.id]=value;positioned.set(row.id,value);preservedIds.push(row.id);
+   row.cartographic_coordinates=value;surveyed[row.id]=value;positioned.set(row.id,value);preservedIds.push(row.id);const key=groupKey(row);if(!knownByGroup.has(key))knownByGroup.set(key,[]);knownByGroup.get(key).push(value);
   }
  }
  const groups=new Map();
@@ -129,7 +132,7 @@ function refreshMapSurveyCompletion(){
  }
  for(const [key,group] of groups){
   const provinceId=key.startsWith("REGION:")?null:key;
-  const knownInGroup=rows.filter(x=>groupKey(x)===key).map(x=>positioned.get(x?.id)).filter(Boolean);
+  const knownInGroup=knownByGroup.get(key)||[];
   const first=group[0],base=mean(knownInGroup)||provinceAnchor(provinceId)||regionAnchor(first?.world_region_id||first?.region_id)||canvasCenter();
   stableRows(group).forEach((row,index)=>{
    const point=derivedPlacement(row,index,base,positioned);
@@ -154,11 +157,19 @@ function refreshMapSurveyCompletion(){
  DB.meta=DB.meta||{};
  DB.meta.map_survey_completion_revision=REV;
  DB.meta.map_survey_coordinate_policy="authored_or_canonical_or_province_anchor_plus_links";
- globalThis.QUNLU_MAP_SURVEY={revision:REV,source:DERIVED_BASIS,points:surveyed,locationCount:Object.keys(surveyed).length,unresolved:[...unresolved]};
+ lastRowsRef=rows;lastRowsLength=rows.length;lastCompletion=DB.map_survey_completion;
+ globalThis.QUNLU_MAP_SURVEY={revision:REV,source:DERIVED_BASIS,points:surveyed,locationCount:Object.keys(surveyed).length,unresolved:[...unresolved],stats:PERF};
  return DB.map_survey_completion;
+}
+function ensureMapSurveyCompletion(){
+ PERF.ensures++;
+ const rows=A(DB.locations),current=DB.map_survey_completion;
+ if(rows===lastRowsRef&&rows.length===lastRowsLength&&current===lastCompletion&&current?.version===REV&&current?.status==="complete_for_all_current_locations"&&current?.location_count===rows.length&&!(current?.unresolved_location_ids||[]).length){PERF.fast_hits++;return current}
+ return refreshMapSurveyCompletion();
 }
 
 globalThis.refreshMapSurveyCompletion=refreshMapSurveyCompletion;
+globalThis.ensureMapSurveyCompletion=ensureMapSurveyCompletion;
 refreshMapSurveyCompletion();
 globalThis.QUNLU_CORE?.registerModule?.("src/map-survey-completion-v1.js",{domain:"world",revision:REV,release:RELEASE,location_count:DB.map_survey_completion.location_count,coordinate_policy:"authored_or_canonical_or_province_anchor_plus_links"});
 })();
