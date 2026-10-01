@@ -8,21 +8,25 @@ const ctx=vm.createContext({console,globalThis:null,QUNLU_CORE:{release:v=>v,reg
 ctx.globalThis=ctx;
 vm.runInContext(data+";globalThis.DB=DB;",ctx,{filename:"src/game-data.js",timeout:20000});
 vm.runInContext(starter,ctx,{filename:"src/starter-settlements-v1.js",timeout:20000});
+ctx.DB.locations.push({id:"L-SURVEY-FALLBACK",name:"測繪測試地",kind:"wild",tier:"F",province_region_id:"PROV-START-13",world_region_id:"REG-13",links:[{to:"L-START-WINDSPRING",hours:1}]});
 const linksBefore=JSON.stringify(ctx.DB.locations.map(x=>[x.id,x.links]));
 vm.runInContext(survey,ctx,{filename:"src/map-survey-completion-v1.js"});
 const db=ctx.DB,completion=db.map_survey_completion;
-assert.equal(completion.status,"complete_for_current_playable_locations");
+assert.equal(completion.version,"MAP-SURVEY-COMPLETION-2.0");
+assert.equal(completion.status,"complete_for_all_current_locations");
 assert.equal(completion.location_count,db.locations.length);
+assert.equal(completion.scope_location_count,db.locations.length);
 assert.equal(JSON.stringify(completion.unresolved_location_ids),"[]");
-assert.equal(completion.location_count,83);
 for(const row of db.locations){
   const p=row.cartographic_coordinates;
   assert.ok(p&&Number.isFinite(p.x)&&Number.isFinite(p.y),"missing survey point "+row.id);
-  assert.equal(p.source,"authored_regional_route_survey");
   assert.equal(p.precision,"regional_route");
 }
+assert.equal(db.locations.find(x=>x.id==="L-SURVEY-FALLBACK").cartographic_coordinates.source,"derived_canonical_route_survey");
 assert.equal(JSON.stringify(db.locations.map(x=>[x.id,x.links])),linksBefore,"survey layer must not change canonical travel links");
 assert.equal(survey.includes("Math.random"),false);
 assert.equal(survey.includes("seeded("),false);
-assert.equal(survey.includes("centroid("),false);
-console.log("MAP-SURVEY-COMPLETION-1.0 regression OK: 83/83 current atlas locations have fixed route-survey coordinates; links and save-compatible travel data unchanged");
+assert.equal(typeof ctx.refreshMapSurveyCompletion,"function");
+ctx.refreshMapSurveyCompletion();
+assert.equal(ctx.DB.map_survey_completion.unresolved_location_ids.length,0);
+console.log("MAP-SURVEY-COMPLETION-2.0 regression OK: all current locations receive stable route-survey coordinates; canonical links unchanged");
