@@ -266,7 +266,7 @@ function reset(){state.zoom=1;state.panX=0;state.panY=0;paint();return true}
 function audit(){
  const issues=[];if(!worldGeometries().length)issues.push("canonical world geometry missing");if(!A(DB.realm_region_maps).length)issues.push("realm data missing");if(!A(DB.province_region_maps).length)issues.push("province data missing");
  const unsafe=A(DB.locations).filter(l=>explicitPoint(l)&&(!Number.isFinite(explicitPoint(l).x)||!Number.isFinite(explicitPoint(l).y)));if(unsafe.length)issues.push("invalid surveyed coordinates");
- const survey=DB.map_survey_completion||{};if(survey.status!=="complete_for_current_playable_locations")issues.push("playable location survey completion missing");
+ const survey=DB.map_survey_completion||{};if(!["complete_for_current_playable_locations","complete_for_all_current_locations"].includes(survey.status))issues.push("playable location survey completion missing");
  if((survey.unresolved_location_ids||[]).length)issues.push("unresolved surveyed location ids:"+survey.unresolved_location_ids.slice(0,200).join(","));
  return {revision:REV,pass:!issues.length,issues,renderer:"continuous-canvas",hierarchy:"world→realm→province→local",coordinate_policy:"canonical_or_sourced_or_authored_regional_route_survey",survey_revision:survey.version||null,surveyed_location_count:Number(survey.location_count||0),travel_visibility:"reachable_only",save_compatible:true,legacy_renderer_active:false};
 }
