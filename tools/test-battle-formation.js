@@ -66,7 +66,7 @@ assert.doesNotMatch(patches,/chosen\.length<6/);
 assert.doesNotMatch(patches,/b\.enemies\.length<6/);
 const tierStep=t=>Math.max(0,["F","E","D","C","B","A","S"].indexOf(t||"F"));
 const rankOf=m=>m?.boss?"boss":"normal";
-const rangeMatch=patches.match(/const encounterSizeRange=(.*?);\n  const rollEncounterGroupSize=(.*?);\n  const scaledEnemy/s);
+const rangeMatch=patches.match(/const encounterSizeRange=(.*?);\n  const rollEncounterGroupSize=(.*?);\n  function encounterGroupKey/s);
 assert.ok(rangeMatch,"danger-scaled policy helpers must be present");
 const rangeFn=Function("tierStep","rankOf","return ("+rangeMatch[1]+")")(tierStep,rankOf);
 const rollFn=Function("encounterSizeRange","return ("+rangeMatch[2]+")")(rangeFn);
