@@ -193,6 +193,7 @@ jobs:
           console.log('93-class E–B skill audit OK:',JSON.stringify(report.stats));
           NODE
           node tools/test-equipment-taxonomy.js
+          node tools/test-item-role-taxonomy.js
           node tools/test-auction-equipment-pricing.js
           node tools/test-black-market-pricing.js
           node tools/test-skill-manuscripts.js

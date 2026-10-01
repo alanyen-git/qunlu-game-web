@@ -287,7 +287,7 @@ function nowId(p){return p+"-"+Date.now().toString(36).toUpperCase()+"-"+Math.ra
 function rollD20(){return 1+rand(20)}
 function weightedPick(pairs){let total=pairs.reduce((s,x)=>s+x[1],0),r=Math.random()*total;for(const x of pairs){r-=x[1];if(r<=0)return x[0]}return pairs.at(-1)[0]}
 function tierOrder(t){return {F:0,E:1,D:2,C:3,B:4,A:5,S:6}[t]??0}
-const ITEM_LIST_CATEGORY_ORDER={"武器":10,"防具":20,"飾品":30,"藥劑":40,"餐飲":50,"素材":60,"補給／工具":70,"卷軸／書籍":80,"其他":90};
+const ITEM_LIST_CATEGORY_ORDER={"武器":10,"防具":20,"飾品":30,"藥劑":40,"餐飲":50,"素材":60,"補給／工具":70,"卷軸／書籍":80,"任務／寶物":85,"其他":90};
 const SHOP_CATEGORY_STATE={};
 const CRAFT_CATEGORY_STATE={};
 function itemListCategoryLabel(d){
@@ -297,9 +297,10 @@ function itemListCategoryLabel(d){
  if(d.catalog_group==="飾品"||["飾品","披風"].includes(d.type))return "飾品";
  if(d.type==="藥劑"||d.consumable_group)return "藥劑";
  if(["料理","食物","食材"].includes(d.type)||d.inventory_group==="食物"||d.inventory_group==="食材")return "餐飲";
- if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.material_group||d.monster_drop_core)return "素材";
  if(["補給","工具","道具"].includes(d.type)||d.tool_effect)return "補給／工具";
  if(["書籍","卷軸","符文"].includes(d.type)||d.knowledge_tag)return "卷軸／書籍";
+ if(["任務","任務道具","寶藏","鑰匙"].includes(d.type)||["quest","key_item","treasure"].includes(d.kind))return "任務／寶物";
+ if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.kind==="material"||d.material_group||d.monster_drop_core)return "素材";
  return "其他"
 }
 function worldTierItemSort(a,b){
@@ -4698,8 +4699,10 @@ function itemStatsText(d,compareTo=null){
  // PLAYER-FACING ITEM DESCRIPTION POLICY:
  // Keep category/material/requirements/rarity and all mechanical effects.
  // Acquisition sources, crafting profession/grade, recipe links and crafting-component metadata remain in DB only.
+ const explicitNonMaterial=["工具","補給","書籍","卷軸","符文","鑰匙","寶藏","任務","任務道具"].includes(d.type)||["tool","key_item","quest","treasure"].includes(d.kind)||!!d.tool_effect||!!d.knowledge_tag;
+ const toolLabels={mining:"採礦",woodcut:"伐木",fishing:"釣魚",gather:"採集",lockpick:"開鎖",light:"照明",navigation:"導航",timekeeping:"計時"};
  if(d.catalog_subcategory)a.push(d.catalog_subcategory);
- if(d.consumable_group)a.push(d.consumable_group);if(d.material_group)a.push(d.material_group);if(d.tool_effect)a.push(`工具：${d.tool_effect}`);if(d.knowledge_tag)a.push(`知識：${d.knowledge_tag}`);if(d.monster_drop_group)a.push(d.monster_drop_group);
+ if(d.consumable_group)a.push(d.consumable_group);if(d.material_group&&!explicitNonMaterial)a.push(d.material_group);if(d.tool_effect)a.push(`工具：${toolLabels[d.tool_effect]||d.tool_effect}`);if(d.knowledge_tag)a.push(`知識：${d.knowledge_tag}`);if(d.monster_drop_group)a.push(d.monster_drop_group);
  if(d.material)a.push(d.material);
  if(d.required_level)a.push(`建議Lv${d.required_level}+`);
   if(globalThis.QUNLU_EQUIPMENT_RULES&&["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(d.type)){const summary=globalThis.QUNLU_EQUIPMENT_RULES.summary(d);if(summary)a.push(summary)}
@@ -6046,7 +6049,7 @@ function inventoryCategory(d){
  if(d.type==="工具"||d.tool_effect)return {key:"工具",order:40};
  if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.material_group||d.monster_drop_core)return {key:"素材",order:50};
  if(["書籍","卷軸","符文"].includes(d.type)||d.knowledge_tag)return {key:"書籍／卷軸／符文",order:60};
- if(["任務","寶藏","鑰匙"].includes(d.type))return {key:"任務／寶物",order:70};
+ if(["任務","任務道具","寶藏","鑰匙"].includes(d.type)||["quest","key_item","treasure"].includes(d.kind))return {key:"任務／寶物",order:70};
  return {key:"其他",order:90}
 }
 function inventorySortCompare(a,b){

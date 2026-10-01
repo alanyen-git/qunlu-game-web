@@ -84,13 +84,14 @@ function kind(d){
  if(d.catalog_group==="飾品"||["飾品","披風"].includes(d.type))return "飾品";
  if(d.type==="藥劑"||d.kind==="consumable"||d.consumable_group)return "藥劑";
  if(["卷軸","符文","書籍"].includes(d.type)||d.knowledge_tag)return "知識";
- if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.kind==="material"||d.material_group)return "素材";
  if(["補給","工具","道具"].includes(d.type)||d.kind==="tool"||d.tool_effect)return "工具";
+ if(["鑰匙","任務","任務道具","寶藏"].includes(d.type)||["key_item","quest","treasure"].includes(d.kind))return "任務／寶物";
+ if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.kind==="material"||d.material_group)return "素材";
  if(["料理","食物","食材"].includes(d.type)||d.kind==="food"||["食物","食材"].includes(d.inventory_group))return "食物";
  return d.type||d.kind||"其他"
 }
 function canDonate(type,a,d){
- if(!d||d.affiliation_treasury_owner||["鑰匙","任務"].includes(d.type)||["key_item","quest"].includes(d.kind))return false;
+ if(!d||d.affiliation_treasury_owner||["鑰匙","任務","任務道具"].includes(d.type)||["key_item","quest"].includes(d.kind))return false;
  const k=kind(d);
  if(type==="discipline")return a?.track==="magic"?["武器","防具","飾品","藥劑","知識","素材","工具"].includes(k):["武器","防具","飾品","藥劑","素材","工具","食物"].includes(k);
  if(a?.category==="商業與貿易")return Number(d.value??d.price??0)>0&&k!=="其他";

@@ -1,7 +1,7 @@
-/* 群陸旅誌：裝備分類與商貿名稱正規化 EQUIPMENT-TAXONOMY-1.0 */
+/* 群陸旅誌：裝備與通用道具分類正規化 EQUIPMENT-TAXONOMY-1.1 */
 (()=>{"use strict";
 if(typeof DB!=="object"||!Array.isArray(DB.items))return;
-const REV="EQUIPMENT-TAXONOMY-1.0",RELEASE=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.15.1";
+const REV="EQUIPMENT-TAXONOMY-1.1",RELEASE=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.25.19";
 const NAME_FIX={"灰門握鐵護手":"灰門鐵護手","灰門駐地戰靴":"灰門戰靴","鷹眼銅鏡墜":"鷹眼鏡墜","赤岩鍛脈戒":"赤岩鍛造戒"};
 const REPEAT=/(晨曦|暮影|灰燼|霜痕|雷紋|潮痕|裂風|月泉|赤岩|深林|銀穗|星砂|靜心|鷹眼|不屈|守望|巡獵|祈誓|熔脈)\1/g;
 const FAMILIES=["劍","斧","鎚","法杖"];
@@ -79,14 +79,17 @@ function typeText(d){
  if(g==="武器"||t==="主武器"||t==="副武器")return "裝備／武器／"+label(s||d.weapon_profile?.group,"其他武器");
  if(g==="防具"||["盔甲","頭盔","手套","鞋子","護腿","護腕"].includes(t))return "裝備／防具／"+label(s&&!/特色/.test(s)?s:t,"其他防具");
  if(g==="飾品"||["飾品","披風","項鍊","戒指"].includes(t))return "裝備／飾品／"+label(s&&!/特色/.test(s)?s:t,"飾品");
- if(t==="食材"||d.inventory_group==="食材")return "素材／食材";
- if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材","藥草"].includes(t)||g==="素材"||d.material_group||d.monster_drop_core)return "素材／"+label(d.material_group||s||t,"一般素材");
  if(t==="藥劑"||d.consumable_group)return "道具／藥劑／"+label(d.consumable_group||s,"藥劑");
+ if(["料理","食物"].includes(t)||d.inventory_group==="食物")return "道具／食物／"+label(t,"料理");
+ if(t==="食材"||d.inventory_group==="食材")return "素材／食材";
  if(/技能.*(?:書|殘本)/.test(String(d.name||""))||/manuscript|skill.?book|skill.?fragment/i.test(String(d.kind||"")))return "道具／"+(/殘本/.test(String(d.name||""))?"技能殘本":"技能書");
  if(["卷軸","書籍","符文"].includes(t)||d.knowledge_tag)return "道具／"+label(t||"書籍","書籍");
- if(["料理","食物"].includes(t)||d.inventory_group==="食物")return "道具／食物／"+label(t,"料理");
  if(t==="憑證"||d.trade_credential)return "道具／交易憑證";
  if(t==="工具"||d.tool_effect)return "道具／工具";
+ if(t==="鑰匙"||d.kind==="key_item")return "道具／鑰匙";
+ if(t==="寶藏"||d.kind==="treasure")return "道具／寶物";
+ if(["任務","任務道具"].includes(t)||d.kind==="quest")return "道具／任務道具";
+ if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材","藥草"].includes(t)||d.kind==="material"||g==="素材"||d.material_group||d.monster_drop_core)return "素材／"+label(d.material_group||s||t,"一般素材");
  return "道具／"+label(t||s||g,"其他");
 }
 function audit(){

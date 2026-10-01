@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.18",
-  "previous_version": "CURRENT-2.25.17",
+  "version": "CURRENT-2.25.19",
+  "previous_version": "CURRENT-2.25.18",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "AUTHORITY-QUEST-LOCALIZATION-1.2：地方政務、神殿與設施委託一律依發布城鎮自身區域生成；瑟倫堡採王都周邊錨點，不再回退到橋灣鎮或柳橋鎮地圖。",
+  "summary": "ITEM-ROLE-TAXONOMY-1.0：工具、補給、卷軸書籍、鑰匙與寶物不再被舊通用素材索引誤標為素材；商店、交易、背包與捐獻分類統一依實際用途。",
   "changelog": [
+    "ITEM-ROLE-TAXONOMY-1.0：修正鐵鎬、伐木斧、釣竿等工具被顯示為素材的問題，並全面修正同源的工具、補給、卷軸、符文、書籍、鑰匙、寶藏與任務道具。舊 material_group/core_material 改存為 common item 追溯欄位；工具不會進入素材委託或野外資源池，採集需求、商店庫存、物品ID、持有量與舊存檔維持相容。PWA v198，Android versionCode 2025019。",
     "AUTHORITY-QUEST-LOCALIZATION-1.2：修正瑟倫堡因沒有 starter_cluster_id 而略過地方政務地圖隔離、沿用橋灣鎮／柳橋鎮全域範本目標的問題。所有城鎮現在依 settlement_region_id 或明確 local_region_anchor_ids 尋找自身野外／地下城；沒有合格本地目標即不公告，接取時保存同一目標。同步將神殿委託套用相同規則，保留既有存檔與全域範本不變。PWA v197，Android versionCode 2025018。",
     "STARTER-AUTHORITY-QUEST-LOCALIZATION-1.0：修正晨穗村地方政務巡查／道路委託沿用柳橋鎮灰橡林緣、長草牧野的問題；公告與接取一致改用本村野外地圖，無合適本地地圖時不發布。PWA v195，Android versionCode 2025017。",
     "PROGRAM-REFACTOR-1.0：將生成器／管理AI runtime函式改為明確白名單，六個世界與自檢心跳改由QUNLU-CORE集中註冊並避免重複計時；不改存檔schema、資料ID、戰鬥規則與既有遊戲結果。PWA v194，Android versionCode 2025016。",
@@ -490,7 +491,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v197",
+  "pwa_cache_revision": "v198",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -867,7 +868,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.25.13：補齊四個資料庫領域的生成器／管理AI配對與runtime治理閘門；91個正式src模組與PWA v191同步，Android版號由版本檔遞增；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.25.18",
+    "last_verified_release": "CURRENT-2.25.19",
     "notes": [
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
@@ -935,7 +936,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.18",
+    "last_verified_release": "CURRENT-2.25.19",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -943,7 +944,7 @@
     "audited_src_programs": 91,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v197",
+    "pwa_cache": "v198",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -1979,7 +1980,25 @@
     "b_mentor_minimum_town_tier": "C",
     "save_compatible": true
   },
-  "equipment_taxonomy_revision": "EQUIPMENT-TAXONOMY-1.0",
+  "equipment_taxonomy_revision": "EQUIPMENT-TAXONOMY-1.1",
+  "item_role_taxonomy_revision": "ITEM-ROLE-TAXONOMY-1.0",
+  "item_role_taxonomy": {
+    "non_material_roles": [
+      "tool",
+      "supply",
+      "scroll",
+      "rune",
+      "book",
+      "key",
+      "treasure",
+      "quest"
+    ],
+    "shop_and_trade_priority_fixed": true,
+    "material_quest_tool_targets": 0,
+    "resource_pool_tool_entries": 0,
+    "legacy_common_item_index_preserved": true,
+    "save_compatible": true
+  },
   "trade_classification_revision": "TRADE-KIND-1.0",
   "equipment_taxonomy": {
     "families": [

@@ -2282,3 +2282,44 @@
   DB.meta=DB.meta||{};
   DB.meta.selenburg_local_region_anchor_revision="SELENBURG-LOCAL-ANCHOR-1.0";
 })();
+
+/* CURRENT-2.25.19｜通用道具與素材分類分離
+ * ITEM-ROLE-TAXONOMY-1.0
+ * 舊版 200 筆「素材／通用道具」共用 material_group/core_material 欄位，導致工具、
+ * 卷軸、書籍、鑰匙、寶藏與任務道具在商店和交易介面被誤判為素材。
+ * 保留舊索引供資料追溯，但改寫為 common item 欄位，遊戲分類以實際用途為準。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB||!Array.isArray(DB.items))return;
+  const REV="ITEM-ROLE-TAXONOMY-1.0";
+  const roles={
+    工具:"tool",補給:"supply",卷軸:"scroll",符文:"rune",書籍:"book",
+    鑰匙:"key",寶藏:"treasure",任務:"quest",任務道具:"quest"
+  };
+  let normalized=0;
+  for(const d of DB.items){
+    const role=roles[d?.type]||(d?.tool_effect?"tool":null);
+    if(!role)continue;
+    d.taxonomy_role=role;
+    if(d.material_group){d.legacy_common_item_group=d.material_group;delete d.material_group}
+    if(d.core_material===true){d.core_common_item=true;delete d.core_material}
+    if(Number.isFinite(d.core_material_index)){d.core_common_item_index=d.core_material_index;delete d.core_material_index}
+    if(role==="tool")d.inventory_group="工具";
+    else if(role==="supply")d.inventory_group="補給";
+    else if(["scroll","rune","book"].includes(role))d.inventory_group="書籍／卷軸／符文";
+    else if(["key","treasure","quest"].includes(role))d.inventory_group="任務／寶物";
+    normalized++;
+  }
+  DB.meta=DB.meta||{};
+  DB.meta.item_role_taxonomy_revision=REV;
+  DB.item_role_taxonomy_system={
+    version:REV,release:globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version,
+    normalized_count:normalized,
+    rules:[
+      "工具與補給不是素材；工具效果只控制採集、照明、導航、維護等用途。",
+      "卷軸、符文與書籍歸知識道具；鑰匙、寶藏與任務道具歸任務／寶物。",
+      "舊 material_group/core_material 索引只作 common item 歷史追溯，不參與玩家分類、素材委託或捐獻判定。"
+    ],
+    save_compatible:true
+  };
+})();

@@ -10,6 +10,11 @@ rows.push({id:"P",name:"生命藥水",type:"藥劑",consumable_group:"生命回�
 rows.push({id:"B",name:"劍術技能殘本",type:"書籍",kind:"skill_fragment"});
 rows.push({id:"F",name:"小麥",type:"食材"});
 rows.push({id:"G",name:"灰門握鐵護手",type:"手套",catalog_group:"防具"});
+rows.push({id:"T",name:"鐵鎬",type:"工具",material_group:"鑰匙工具寶藏任務",tool_effect:"mining"});
+rows.push({id:"R",name:"傳送卷軸",type:"卷軸",material_group:"卷軸符文書籍"});
+rows.push({id:"KY",name:"鐵鑰匙",type:"鑰匙",material_group:"鑰匙工具寶藏任務"});
+rows.push({id:"TR",name:"古錢幣",type:"寶藏",material_group:"鑰匙工具寶藏任務"});
+rows.push({id:"Q",name:"古王徽章",type:"任務道具",material_group:"鑰匙工具寶藏任務"});
 const ctx=vm.createContext({DB:{items:rows,meta:{}},console});
 vm.runInContext(fs.readFileSync("src/equipment-taxonomy-v1.js","utf8"),ctx);
 for(let i=0;i<specs.length;i++){
@@ -22,9 +27,9 @@ assert.equal(shield.catalog_group,"防具");assert.equal(Number(shield.combat.at
 assert(ctx.itemTradeTypeText(shield).includes("裝備／防具／盾牌"));
 assert(!rows.find(x=>x.id==="K").catalog_subcategory?.includes("劍"));
 for(const [id,prefix] of [["M","素材／"],["P","道具／藥劑"],["B","道具／技能殘本"],["F","素材／食材"]])assert(ctx.itemTradeTypeText(rows.find(x=>x.id===id)).startsWith(prefix));
+for(const [id,label] of [["T","道具／工具"],["R","道具／卷軸"],["KY","道具／鑰匙"],["TR","道具／寶物"],["Q","道具／任務道具"]])assert.equal(ctx.itemTradeTypeText(rows.find(x=>x.id===id)),label);
 assert.equal(rows.find(x=>x.id==="G").name,"灰門鐵護手");
 const snapshot=JSON.stringify(rows);ctx.runEquipmentTaxonomyNormalize();
-assert.equal(JSON.stringify(rows),snapshot);assert(ctx.runEquipmentTaxonomyAudit().pass,JSON.stringify(ctx.runEquipmentTaxonomyAudit().issues));
+assert.equal(JSON.stringify(rows),snapshot);assert.equal(ctx.runEquipmentTaxonomyAudit().revision,"EQUIPMENT-TAXONOMY-1.1");assert(ctx.runEquipmentTaxonomyAudit().pass,JSON.stringify(ctx.runEquipmentTaxonomyAudit().issues));
 for(const p of ["src/market-economy-v2.js","src/trade-venues-runtime-v1.js"])assert(fs.readFileSync(p,"utf8").includes("tradeKindHtml(d)"),p);
-console.log("裝備分類／盾牌／命名／交易類別測試通過");
-
+console.log("裝備／工具／知識／任務道具分類與交易類別測試通過");
