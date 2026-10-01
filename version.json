@@ -4,8 +4,9 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "MAP-SURVEY-COMPLETION-2.0：補齊所有現行地圖節點的固定測繪座標，移除當地／行省地圖的「資料待補」；既有手工座標與 canonical links 保持不變。",
+  "summary": "MAP-SURVEY-PERF-1.0：修正全地圖測繪補全被綁在每次地圖按鍵重繪上的效能回歸；改為初始化／地點資料變更時才完整重算，平常按鍵走 O(1) 快取檢查。",
   "changelog": [
+    "MAP-SURVEY-PERF-1.0：修正 MAP-SURVEY-COMPLETION-2.0 的手機效能回歸。地圖 render 不再每次重跑 606 地點完整測繪；正常切層級、篩選、返回等按鍵只做 O(1) 快取檢查。完整測繪僅在初始化或 DB.locations 陣列新增／替換時執行，且群組座標基準改成一次索引，避免重複全表掃描。",
     "MAP-SURVEY-COMPLETION-2.0：將測繪覆蓋從舊核心區與五個新手區擴充到全部現行 DB.locations；保留既有手工／canonical 座標，缺少座標的地點依行省錨點＋canonical links 建立穩定區域路網位置。地圖每次開啟前會做冪等補全，發布除錯也要求未測繪地點為 0；不修改 links、hours、旅行權限或存檔 schema。",
     "ENEMY-ROSTER-1.2：多敵人生成不再只看同地圖候選池；改以第一名敵人為生態群組錨點，依 authored encounter group、勢力、怪物族群與生態類別篩選合理隊友。犬科掠食者不會與羊／鹿等草食群並肩作戰；不死、惡魔、構裝、元素、人型勢力、水生、昆蟲、龍裔與野生動物分群處理。Boss 若沒有合理隨從則保留單體，不硬湊不相關敵人。舊存檔相容。PWA v199，Android versionCode 2025020。",
     "ITEM-ROLE-TAXONOMY-1.0：修正鐵鎬、伐木斧、釣竿等工具被顯示為素材的問題，並全面修正同源的工具、補給、卷軸、符文、書籍、鑰匙、寶藏與任務道具。舊 material_group/core_material 改存為 common item 追溯欄位；工具不會進入素材委託或野外資源池，採集需求、商店庫存、物品ID、持有量與舊存檔維持相容。PWA v198，Android versionCode 2025019。",
@@ -2179,7 +2180,13 @@
     "survey_revision": "MAP-SURVEY-COMPLETION-2.0",
     "surveyed_location_count": 606,
     "legacy_renderer_active": false,
-    "survey_scope": "all_current_DB.locations"
+    "survey_scope": "all_current_DB.locations",
+    "performance": {
+      "revision": "MAP-SURVEY-PERF-1.0",
+      "render_survey_policy": "O(1) cached ensure on normal map renders",
+      "full_refresh_trigger": "initialization or DB.locations array growth/replacement",
+      "full_scan_on_button_click": false
+    }
   },
   "witcher_map_core_revision": "WITCHER-MAP-CORE-1.0",
   "witcher_map_core": {
