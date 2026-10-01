@@ -2269,3 +2269,16 @@
     save_compatible:true
   };
 })();
+
+/* CURRENT-2.25.18｜王都聚落區域錨點
+ * 王都早期地圖沿用 ASD-CAPITAL 作為 parent_id；此欄位將其明確歸屬至瑟倫堡，
+ * 供地方委託、神殿與設施公告採用，禁止以同省地圖作為回退目標。
+ */
+(()=>{
+  if(typeof DB!=="object"||!DB)return;
+  const s=(DB.locations||[]).find(x=>x?.id==="L-SELENBURG");
+  if(!s)return;
+  s.local_region_anchor_ids=[...new Set([...(Array.isArray(s.local_region_anchor_ids)?s.local_region_anchor_ids:[]),"ASD-CAPITAL"])];
+  DB.meta=DB.meta||{};
+  DB.meta.selenburg_local_region_anchor_revision="SELENBURG-LOCAL-ANCHOR-1.0";
+})();

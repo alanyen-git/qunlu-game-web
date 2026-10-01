@@ -63,7 +63,7 @@ assert.deepEqual(Array.from(rangeFn("F",{}, {boss:true})),[1,2]);
 assert.equal(rollFn("F",{}, {},0),1);
 assert.equal(rollFn("F",{}, {},.999),2);
 assert.ok(html.includes("src/runtime-patches.js?v="+version.version+"-ENEMY-ROSTER1"));
-assert.ok(ecology.includes("REGIONAL-QUEST-ECOLOGY-1.3"));
+assert.ok(ecology.includes("REGIONAL-QUEST-ECOLOGY-1.5"));
 assert.match(ecology,/elapsed<48/);
 assert.match(ecology,/recent_patrol_type:48/);
 console.log("danger-scaled battle formation regression OK");

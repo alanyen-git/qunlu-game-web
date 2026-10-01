@@ -11,6 +11,7 @@ ctx.shortestTravelHours=(from,to)=>{
   const a=ctx.DB.locations.find(x=>x.id===from),b=ctx.DB.locations.find(x=>x.id===to);
   if(!a||!b)return Infinity;
   if(a.id===b.id)return 0;
+  if((a.local_region_anchor_ids||[]).includes(b.parent_id))return 1;
   return b.starter_cluster_id===a.starter_cluster_id?1:100;
 };
 ctx.questViableLocations=()=>[];
@@ -87,3 +88,28 @@ assert.ok(acceptedFaith,"神殿委託應可正常接取");
 assert.equal(acceptedFaith.objective.location_id,faithAction.objective.location_id);
 assert.deepEqual(Array.from(acceptedFaith.viableLocationIds),[faithAction.objective.location_id],
   "接取後需保存公告中的本地目標");
+
+/* 瑟倫堡不是新手村，仍必須啟用相同的地圖隔離規則；
+ * 測試王都舊資料以 parent_id 掛接時，不會回退成橋灣鎮／柳橋鎮地圖。 */
+const selenburg=ctx.DB.locations.find(x=>x.id==="L-SELENBURG");
+assert.ok(selenburg,"測試資料必須包含瑟倫堡");
+const capitalWild={id:"TEST-SELENBURG-WILD",name:"王都測試近郊",kind:"wild",tier:"C",parent_id:"ASD-CAPITAL",gather:["I-HERB"]};
+ctx.DB.locations.push(capitalWild);
+ctx.G={character:{locationId:"L-SELENBURG",level:1,currentFacility:"church"},quests:[],questHistory:[],worldState:{}};
+const capitalPublished=ctx.generateAuthorityRequests("POL-001");
+for(const templateId of ["AUTHQ-PATROL","AUTHQ-ROAD"]){
+  const q=capitalPublished.find(x=>x.templateId===templateId);
+  assert.ok(q,"瑟倫堡應保留可在自身近郊完成的"+templateId+"政務委託");
+  const target=ctx.DB.locations.find(x=>x.id===q.objective.location_id);
+  assert.equal(target?.parent_id,"ASD-CAPITAL","瑟倫堡地方政務不得回退成其他城鎮的野外地圖");
+  assert.notEqual(target?.id,"L-WOOD","瑟倫堡地方政務不得發布柳橋鎮灰橡林緣");
+  assert.notEqual(target?.id,"L-MEADOW","瑟倫堡地方政務不得發布橋灣鎮長草牧野");
+  assert.deepEqual(Array.from(q.viableLocationIds),[target.id]);
+}
+ctx.acceptAuthorityRequest("POL-001","OFFICE-TEST","AUTHQ-PATROL");
+const acceptedCapital=ctx.G.quests.find(x=>x.templateId==="AUTHQ-PATROL");
+const acceptedCapitalTarget=ctx.DB.locations.find(x=>x.id===acceptedCapital?.objective?.location_id);
+assert.equal(acceptedCapitalTarget?.parent_id,"ASD-CAPITAL","瑟倫堡接取時必須保存王都近郊目標");
+assert.deepEqual(Array.from(acceptedCapital?.viableLocationIds||[]),[acceptedCapitalTarget.id]);
+assert.equal(JSON.stringify(canonical.map(x=>x.objective)),original,"瑟倫堡公告與接取不得改寫全域政務範本");
+console.log("AUTHORITY-QUEST-LOCALIZATION-1.2 regression OK: 瑟倫堡與新手村均嚴格使用自身聚落地圖");

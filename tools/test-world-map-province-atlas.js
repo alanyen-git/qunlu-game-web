@@ -5,12 +5,12 @@ const source=fs.readFileSync("src/world-map-province-atlas-v1.js","utf8");
 const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8");
 const registry=fs.readFileSync("src/program-registry-v1.js","utf8"),version=JSON.parse(fs.readFileSync("version.json","utf8"));
 assert.match(source,/WORLD-MAP-PROVINCE-ATLAS-1\.1/);
-assert.match(html,/src\/world-map-province-atlas-v1\.js\?v=CURRENT-2.25.17/);
+assert.match(html,/src\/world-map-province-atlas-v1\.js\?v=CURRENT-2.25.18/);
 assert.ok(sw.includes('"./src/world-map-province-atlas-v1.js"'));
 assert.ok(registry.includes('"src/world-map-province-atlas-v1.js"'));
 assert.equal(version.world_map_province_atlas_revision,"WORLD-MAP-PROVINCE-ATLAS-1.1");
 assert.equal(version.world_map_province_atlas.entries,149);
-const DB={meta:{current_version:"CURRENT-2.25.17"},political_entities:[{id:"POL-01",name:"蒼翠王國"}],world_regions:[{id:"REG-01",name:"蒼翠領"}],realm_region_maps:[{id:"RMAP-POL-01",name:"蒼翠王國圖",political_entity_id:"POL-01"}],province_region_maps:[
+const DB={meta:{current_version:"CURRENT-2.25.18"},political_entities:[{id:"POL-01",name:"蒼翠王國"}],world_regions:[{id:"REG-01",name:"蒼翠領"}],realm_region_maps:[{id:"RMAP-POL-01",name:"蒼翠王國圖",political_entity_id:"POL-01"}],province_region_maps:[
  {id:"PR-01",name:"河谷行省",political_entity_id:"POL-01",parent_realm_map_id:"RMAP-POL-01",world_region_id:"REG-01",world_tier:"C",tier:"C",capital_location_id:"T-01",orientation:"中央河谷東側",subordinate_settlement_ids:["T-01"],wild_location_ids:["W-01"],dungeon_location_ids:["D-01"]},
  {id:"PR-02",name:"北林行省",political_entity_id:"POL-01",parent_realm_map_id:"RMAP-POL-01",world_region_id:"REG-01",world_tier:"D",tier:"D",capital_location_id:"T-02",orientation:"王都北方山口",subordinate_settlement_ids:["T-02"],wild_location_ids:[],dungeon_location_ids:[]}
 ],locations:[

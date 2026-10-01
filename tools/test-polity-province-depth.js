@@ -25,7 +25,7 @@ assert.equal(new Set(payload.wilds.map(x=>x.note)).size,payload.wilds.length,"wi
 assert.equal(new Set(payload.dungeons.map(x=>x.note)).size,payload.dungeons.length,"dungeon descriptions must be distinct");
 const active=["POL-001","POL-002","POL-003","POL-004","POL-007","POL-008","POL-009","POL-010","POL-011","POL-012","POL-013","POL-014","POL-015","POL-016","POL-019","POL-020"];
 for(const id of active)for(const field of ["province_model","town_logic","wild_logic","dungeon_logic","npc_logic"])assert(payload.design[id]?.[field],"missing authored design axis: "+id+" / "+field);
-assert.equal(version.version,"CURRENT-2.25.17");
+assert.equal(version.version,"CURRENT-2.25.18");
 assert.equal(version.polity_province_depth_revision,"POLITY-PROVINCE-DEPTH-1.0");
 assert.equal(version.world_geopolitical_map_revision,"WORLD-MAP-GEOPOLITICS-1.8");
 assert(html.includes("src/world-map-geopolitics-v1.js?v="+version.version));

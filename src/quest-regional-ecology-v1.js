@@ -1,11 +1,11 @@
-/* 群陸旅誌：地區委託生態／城鎮差異與完成冷卻 CURRENT-2.25.12
- * REGIONAL-QUEST-ECOLOGY-1.4
+/* 群陸旅誌：地區委託生態／城鎮差異與完成冷卻 CURRENT-2.25.18
+ * REGIONAL-QUEST-ECOLOGY-1.5
  * 只從現有正史委託和已建檔可到達地圖發布；不創造不存在的地點／素材／魔物。
  * 保存於既有 G.worldState 下；不重置 G.quests、questHistory 或舊存檔。
  */
 (()=>{
 "use strict";
-const REV="REGIONAL-QUEST-ECOLOGY-1.3";
+const REV="REGIONAL-QUEST-ECOLOGY-1.5";
 const arr=x=>Array.isArray(x)?x:[];
 const game=()=>typeof G!=="undefined"?G:null;
 const db=()=>typeof DB!=="undefined"?DB:null;
@@ -23,14 +23,17 @@ const nearby=(a,b)=>{if(!a||!b)return false;if(a.id===b.id)return true;if(provin
 const travel=(a,b)=>typeof shortestTravelHours==="function"?shortestTravelHours(a,b):Infinity;
 const state=()=>{const g=game();if(!g)return null;g.worldState=g.worldState||{};const s=g.worldState.regionalQuestEcology||(g.worldState.regionalQuestEcology={records:[]});s.records=arr(s.records).filter(x=>Number.isFinite(Number(x.completedHour)));s.records=s.records.slice(-160);return s};
 
-// 新手村委託必須使用該村自己的野外／地下城節點；只複製任務實例，不改 canonical 地圖或模板。
+// 所有城鎮委託必須使用該城自身的野外／地下城節點；只複製任務實例，不改 canonical 地圖或模板。
+// 部分舊王都資料以歷史 parent_id 建檔，透過 local_region_anchor_ids 明確對應，絕不回退到同省其他城鎮。
 function localRegionLocations(town){
  if(!town)return [];
- const cluster=town.starter_cluster_id||null,settlement=town.settlement_region_id||null,p=province(town);
+ const cluster=town.starter_cluster_id||null,settlement=town.settlement_region_id||null;
+ const anchors=new Set([town.id,...arr(town.local_region_anchor_ids).filter(Boolean)]);
  return arr(db()?.locations).filter(l=>{
   if(l.id===town.id)return true;
-  if(cluster)return l.starter_cluster_id===cluster||(settlement&&l.settlement_region_id===settlement);
-  return !!p&&province(l)===p;
+  if(cluster&&l.starter_cluster_id===cluster)return true;
+  if(settlement&&l.settlement_region_id===settlement)return true;
+  return anchors.has(l.parent_id);
  });
 }
 function localTargetCandidates(t,town){
@@ -70,7 +73,7 @@ function localizeAuthorityRequest(q,town){
  return {...localized,viableLocationIds:[candidate.id]};
 }
 function localizeFaithMission(q,town){
- if(!town?.starter_cluster_id)return q;
+ if(!town||town.kind!=="town")return q;
  const o=q?.objective||{},localized=clone(q);let places=[];
  if(["action","patrol"].includes(o.kind)){
   const candidate=localTargetCandidates(q,town)[0];if(!candidate)return null;
@@ -252,12 +255,11 @@ function patch(){
  };
  if(typeof baseAuthorityGenerate==="function")globalThis.generateAuthorityRequests=function(polityId){
   const rows=baseAuthorityGenerate.apply(this,arguments),town=place(game()?.character?.locationId);
-  if(!town?.starter_cluster_id)return rows;
-  return arr(rows).map(q=>localizeAuthorityRequest(q,town)).filter(Boolean);
+  return town?.kind==="town"?arr(rows).map(q=>localizeAuthorityRequest(q,town)).filter(Boolean):rows;
  };
  if(typeof baseAuthorityAccept==="function")globalThis.acceptAuthorityRequest=function(polityId,officeId,templateId){
   const town=place(game()?.character?.locationId),archetype=arr(db()?.authority_request_archetypes).find(x=>x.id===templateId);
-  if(!town?.starter_cluster_id||!archetype||!["action","patrol"].includes(archetype.objective?.kind))
+  if(!town||town.kind!=="town"||!archetype||!["action","patrol"].includes(archetype.objective?.kind))
    return baseAuthorityAccept.apply(this,arguments);
   const listed=globalThis.generateAuthorityRequests?.(polityId)?.some(x=>x.templateId===templateId&&x.sourceId===officeId);
   const localized=localizeAuthorityRequest({templateId,sourceId:officeId,objective:archetype.objective},town);
