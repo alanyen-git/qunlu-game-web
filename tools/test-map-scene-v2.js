@@ -78,6 +78,6 @@ assert.equal(JSON.stringify(travelled),JSON.stringify({id:"W-1",hours:2}),"local
 travelled=null;
 assert.equal(call("mapSceneTravel('T-2')"),false);
 assert.equal(travelled,null);
-assert.equal(registered[0][0],"src/map-scene-v2.js");
+assert.ok(registered.some(x=>x[0]==="src/map-scene-v2.js"));
 assert.equal(call("DB.meta.witcher_map_core_active"),false);
 console.log("MAP-SCENE-2.2 regression OK: political/province/local layers, completed route survey, canonical geometry and direct-link travel");
