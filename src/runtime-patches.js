@@ -736,12 +736,49 @@
   const tierScale=(m,t)=>{const n=tierStep(t),r=rankOf(m);return r==="boss"?1+.10*n+.035*n*n:r==="elite"?1+.055*n+.02*n*n:1};
   const encounterSizeRange=(tier,location,first)=>{const base=[[1,2],[1,3],[1,3],[1,4],[2,5],[2,6],[3,6]][tierStep(tier)];let min=base[0],max=base[1];const zone=String(location?.zone||location?.type||location?.kind||location?.name||"");const dangerous=/deep|dungeon|underground|wild|深層|地下城|野外|荒野/i.test(zone);const danger=Number(location?.danger||location?.danger_level||location?.threat||0);if(dangerous||danger>=60)max=Math.min(6,max+1);if(danger>=80)min=Math.min(max,min+1);if(rankOf(first)==="boss"){max=tierStep(tier)>=4?3:2;min=1}return [Math.min(min,max),Math.min(6,max)]};
   const rollEncounterGroupSize=(tier,location,first,roll=Math.random())=>{const range=encounterSizeRange(tier,location,first),value=Math.max(0,Math.min(.999999,Number(roll)||0));return range[0]+Math.floor(value*(range[1]-range[0]+1))};
+  function encounterGroupKey(m){
+    const rawName=String(m?.name||""),name=rawName.replace(/^(?:(?:守層首領|菁英|精英)・)+/,""),e=m?.ecology_profile||{},tags=new Set(Array.isArray(e.tags)?e.tags:[]),category=String(m?.category||"");
+    const authored=String(m?.encounter_group||e.encounter_group||m?.pack_id||e.pack_id||"").trim();if(authored)return "authored:"+authored;
+    if(tags.has("undead")||/不死|骷髏|殭屍|食屍鬼|屍妖|木乃伊|幽靈|幽魂|怨靈|死靈/.test(category+" "+name))return "supernatural:undead";
+    if(tags.has("demon")||/惡魔|深淵|地獄|夢魔|魅魔|魔王/.test(category+" "+name))return "supernatural:demon";
+    if(tags.has("construct")||/構裝|魔像|傀儡|石衛|銅衛|活鎧甲|活盔甲/.test(category+" "+name))return "supernatural:construct";
+    if(tags.has("elemental")||/元素/.test(category+" "+name))return "supernatural:elemental:"+(String(m?.element||m?.primary_element||"generic"));
+    if(tags.has("slime")||/史萊姆|軟泥|黏獸|腐蝕團/.test(category+" "+name))return "supernatural:slime";
+    if(/吸血鬼|狼人|血族/.test(name))return "supernatural:blood";
+    if(tags.has("humanoid_squatter")||/人型|哥布林|狗頭人|豺狼人|蜥蜴人|蛇人|獸人|半獸人|強盜|劫匪|逃兵|傭兵/.test(category+" "+name)){
+      const faction=String(m?.faction_id||m?.tribe_id||m?.organization_id||"").trim();if(faction)return "humanoid:faction:"+faction;
+      if(/哥布林|狗頭人/.test(name))return "humanoid:goblinoid";
+      if(/豺狼人/.test(name))return "humanoid:gnoll";
+      if(/蜥蜴人|蛇人/.test(name))return "humanoid:reptilian";
+      if(/獸人|半獸人/.test(name))return "humanoid:orcish";
+      if(/強盜|劫匪|逃兵|傭兵/.test(name))return "humanoid:outlaw";
+      return "humanoid:"+name;
+    }
+    if(tags.has("aquatic")||/魚|鯊|鰻|水母|章魚|海怪|克拉肯|人魚|娜迦/.test(name))return "beast:aquatic";
+    if(tags.has("invertebrate")||/蜘蛛|蛛|蠍|甲蟲|獨角仙|蜂|蟻|蛾|蜈蚣|蟲/.test(name))return "beast:invertebrate";
+    if(tags.has("dragonkin")||/飛龍|亞龍|龍|蛇怪|海德拉/.test(name))return "beast:dragonkin";
+    if(/鱷|蜥|蛇|蟒|龜/.test(name))return "beast:reptile";
+    if(/鷹|鴉|鳥|隼|鷲|貓頭鷹|蝙蝠/.test(name))return "beast:avian";
+    if(/狼|座狼|犬|豺|鬣狗/.test(name))return "beast:canine";
+    if(/獅|虎|豹|貓/.test(name))return "beast:feline";
+    if(/熊/.test(name))return "beast:ursine";
+    if(/羊|鹿|羚|牛|馬|駝|象|犀/.test(name))return "beast:herd";
+    if(/豬|野豬|豪豬/.test(name))return "beast:boar";
+    if(/猿|猩猩/.test(name))return "beast:primate";
+    if(/兔|鼠|松鼠|鼬|貂|獾|蛙|蠑螈/.test(name))return "beast:small";
+    if(tags.has("fey_plant")||/樹人|古樹|荊棘|蘑菇|花仙|妖精|仙女/.test(name))return "supernatural:fey-plant";
+    if(tags.has("wildlife")||tags.has("large_wildlife")||/野獸|野生動物/.test(category))return "wildlife:"+name;
+    const ecological=[...tags].filter(x=>!["wildlife","large_wildlife","small_intruder","magical","mounted","giant"].includes(x)).sort();
+    if(ecological.length)return "ecology:"+ecological[0];
+    return "category:"+(category||name||m?.id||"unknown");
+  }
+  function encounterGroupCompatible(anchor,candidate){if(!anchor||!candidate)return false;if(anchor.id&&candidate.id&&anchor.id===candidate.id)return true;return encounterGroupKey(anchor)===encounterGroupKey(candidate)}
   const scaledEnemy=(m,t,i)=>{const e={...m,battleId:"enemy-"+Date.now().toString(36)+"-"+i+"-"+Math.random().toString(36).slice(2,7),maxHp:m.hp,hp:m.hp,enemyBuff:{},enemyStatuses:[],battleRank:rankOf(m)},scale=tierScale(m,t);for(const k of ["hp","attack","damage","defense","magicDefense","poise"])if(Number.isFinite(Number(e[k])))e[k]=Math.max(1,Math.round(Number(e[k])*scale));e.maxHp=e.hp;if(i>0&&e.battleRank==="normal"){e.hp=e.maxHp=Math.max(1,Math.round(e.maxHp*.55));for(const k of ["attack","damage"])if(Number.isFinite(Number(e[k])))e[k]=Math.max(1,Math.round(e[k]*.58))}e.worldScale=scale;return e};
   function selectRosterEnemy(id,paint=true){const b=G?.battle;if(!b?.enemies)return;const e=b.enemies.find(x=>x.battleId===id)||b.enemies.find(x=>x.hp>0);if(!e)return;b.enemy=e;b.enemyBuff=e.enemyBuff||(e.enemyBuff={});b.enemyStatuses=e.enemyStatuses||(e.enemyStatuses=[]);if(paint&&typeof renderAll==="function")renderAll()}
   function rosterNormalize(){const b=G?.battle;if(!b?.active)return;if(!Array.isArray(b.enemies)||!b.enemies.length)b.enemies=[{...b.enemy,battleId:b.enemy?.battleId||"enemy-legacy-0",enemyBuff:b.enemyBuff||{},enemyStatuses:b.enemyStatuses||[]}];b.enemies=b.enemies.slice(0,6);const e=b.enemies.find(x=>x.battleId===b.enemy?.battleId)||b.enemies.find(x=>x.hp>0);if(e)selectRosterEnemy(e.battleId,false)}
   window.selectBattleEnemy=selectRosterEnemy;
-  window.QUNLU_BATTLE_FORMATION_POLICY={sizeRange:encounterSizeRange,rollSize:rollEncounterGroupSize};
-  function encounterFormation(first){const loc=(DB.locations||DB.places||[]).find(x=>x.id===G?.character?.locationId)||null,tier=loc?.tier||first.tier||"F",pool=typeof encounterCandidates==="function"?encounterCandidates(loc).filter(m=>rankOf(m)!=="boss"):[],count=pool.length?rollEncounterGroupSize(tier,loc,first):1,chosen=[first];while(chosen.length<count)chosen.push(typeof weightedPick==="function"?weightedPick(pool.map(m=>[m,Math.max(1,Number(m.encounter_weight||m.weight||1))])):pool[0]);const bi=chosen.findIndex(m=>rankOf(m)==="boss");if(bi>1)[chosen[1],chosen[bi]]=[chosen[bi],chosen[1]];const seen={};return chosen.map((m,i)=>{const e=scaledEnemy(m,tier,i);seen[m.id]=(seen[m.id]||0)+1;if(seen[m.id]>1)e.name=m.name+"（"+seen[m.id]+"）";return e})}
+  window.QUNLU_BATTLE_FORMATION_POLICY={sizeRange:encounterSizeRange,rollSize:rollEncounterGroupSize,groupKey:encounterGroupKey,groupCompatible:encounterGroupCompatible};
+  function encounterFormation(first){const loc=(DB.locations||DB.places||[]).find(x=>x.id===G?.character?.locationId)||null,tier=loc?.tier||first.tier||"F",pool=typeof encounterCandidates==="function"?encounterCandidates(loc).filter(m=>rankOf(m)!=="boss"):[],compatible=pool.filter(m=>encounterGroupCompatible(first,m)),count=pool.length?rollEncounterGroupSize(tier,loc,first):1,fill=compatible.length?compatible:(rankOf(first)==="boss"?[]:[first]),chosen=[first];while(chosen.length<count&&fill.length)chosen.push(typeof weightedPick==="function"?weightedPick(fill.map(m=>[m,Math.max(1,Number(m.encounter_weight||m.weight||1))])):fill[0]);const bi=chosen.findIndex(m=>rankOf(m)==="boss");if(bi>1)[chosen[1],chosen[bi]]=[chosen[bi],chosen[1]];const seen={};return chosen.map((m,i)=>{const e=scaledEnemy(m,tier,i);seen[m.id]=(seen[m.id]||0)+1;if(seen[m.id]>1)e.name=m.name+"（"+seen[m.id]+"）";return e})}
   window.startBattle=function(monster,context){const result=battleRosterOriginal.start.apply(this,arguments),b=G?.battle;if(b?.active){b.enemies=encounterFormation(monster);const primary=b.enemies.find(x=>x.id===monster.id&&x.battleRank===rankOf(monster))||b.enemies[0];selectRosterEnemy(primary.battleId,false);b.log.push("敵方陣形："+b.enemies.length+"名敵人列陣；首領優先列於前列。");if(typeof renderAll==="function")renderAll()}return result};
 
   /* FF4-inspired original command UI: changes presentation, not combat rules. */
