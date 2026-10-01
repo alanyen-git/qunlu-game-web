@@ -207,6 +207,7 @@ jobs:
           node tools/test-region-map-graphics.js
           node tools/test-world-mosaic.js
           node tools/test-world-map-province-atlas.js
+          node tools/test-map-survey-completion-v1.js
           node tools/test-map-scene-v2.js
           node tools/test-visual-system.js
           node tools/test-polity-province-depth.js
