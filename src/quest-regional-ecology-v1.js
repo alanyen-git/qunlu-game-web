@@ -55,7 +55,7 @@ function localizedCheckpoints(target,original,targetCount){
 }
 function mentionedLocationNames(t){
  const texts=[t?.name,t?.description,t?.desc,t?.completion_rule].filter(x=>typeof x==="string");
- return [...new Set(arr(db()?.locations).map(l=>String(l?.name||"")).filter(name=>name&&texts.some(text=>text.includes(name)))]
+ return [...new Set(arr(db()?.locations).map(l=>String(l?.name||"")).filter(name=>name&&texts.some(text=>text.includes(name))))]
    .sort((a,b)=>b.length-a.length);
 }
 function localizeQuestText(value,original,target,oldCheckpoints=[],newCheckpoints=[],aliases=[]){
