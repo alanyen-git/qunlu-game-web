@@ -5,7 +5,7 @@
  */
 (()=>{
 "use strict";
-const REV="REGIONAL-QUEST-ECOLOGY-1.6";
+const REV="REGIONAL-QUEST-ECOLOGY-1.7";
 const arr=x=>Array.isArray(x)?x:[];
 const game=()=>typeof G!=="undefined"?G:null;
 const db=()=>typeof DB!=="undefined"?DB:null;
@@ -53,10 +53,18 @@ function localizedCheckpoints(target,original,targetCount){
  const old=arr(original?.checkpoints).filter(Boolean);
  return [...new Set([...local,...old])].slice(0,Math.max(1,Number(targetCount)||old.length||1));
 }
-function localizeQuestText(value,original,target,oldCheckpoints=[],newCheckpoints=[]){
+function mentionedLocationNames(t){
+ const texts=[t?.name,t?.description,t?.desc,t?.completion_rule].filter(x=>typeof x==="string");
+ return [...new Set(arr(db()?.locations).map(l=>String(l?.name||"")).filter(name=>name&&texts.some(text=>text.includes(name)))]
+   .sort((a,b)=>b.length-a.length);
+}
+function localizeQuestText(value,original,target,oldCheckpoints=[],newCheckpoints=[],aliases=[]){
  let out=String(value??"");
  const pairs=[];
  if(original?.name&&target?.name&&original.name!==target.name)pairs.push([original.name,target.name]);
+ for(const alias of aliases){
+  if(alias&&alias!==target?.name)pairs.push([alias,target?.name||alias]);
+ }
  const count=Math.min(oldCheckpoints.length,newCheckpoints.length);
  for(let i=0;i<count;i++){
   if(oldCheckpoints[i]&&newCheckpoints[i]&&oldCheckpoints[i]!==newCheckpoints[i])pairs.push([oldCheckpoints[i],newCheckpoints[i]]);
@@ -66,6 +74,19 @@ function localizeQuestText(value,original,target,oldCheckpoints=[],newCheckpoint
   out=out.split(String(from)).join(String(to));
  }
  return out;
+}
+function localizeQuestName(t,target,original,aliases=[]){
+ if(!target?.name)return String(t?.name||"");
+ let name=String(t?.name||"");
+ const originalName=name;
+ const sources=[original?.name,...aliases].filter(Boolean).sort((a,b)=>String(b).length-String(a).length);
+ for(const from of sources){
+  if(from&&from!==target.name)name=name.split(String(from)).join(String(target.name));
+ }
+ if(name!==originalName)return name;
+ if(t?.objective?.kind==="patrol")return target.name+"巡查";
+ if(t?.objective?.kind==="action")return target.name+(t?.type||"調查");
+ return name;
 }
 function localizeTemplate(t,town,locations){
  const o=clone(t?.objective||{}),original=place(o.location_id),candidates=localTargetCandidates(t,town);
@@ -77,10 +98,13 @@ function localizeTemplate(t,town,locations){
  const sites=(target&&["action","patrol"].includes(o.kind)?[target.id]:arr(locations).map(x=>x.id)).filter(Boolean);
  const localized={...t,objective:o,recommended_locations:[...new Set(sites.length?sites:arr(t?.recommended_locations))]};
  if(target&&["action","patrol"].includes(o.kind)){
+  const aliases=mentionedLocationNames(t);
   const oldCheckpoints=arr(t?.objective?.checkpoints);
   const newCheckpoints=arr(o.checkpoints);
-  if(typeof t.description==="string")localized.description=localizeQuestText(t.description,original,target,oldCheckpoints,newCheckpoints);
-  if(typeof t.desc==="string")localized.desc=localizeQuestText(t.desc,original,target,oldCheckpoints,newCheckpoints);
+  localized.name=localizeQuestName(t,target,original,aliases);
+  if(typeof t.description==="string")localized.description=localizeQuestText(t.description,original,target,oldCheckpoints,newCheckpoints,aliases);
+  if(typeof t.desc==="string")localized.desc=localizeQuestText(t.desc,original,target,oldCheckpoints,newCheckpoints,aliases);
+  if(typeof t.completion_rule==="string")localized.completion_rule=localizeQuestText(t.completion_rule,original,target,oldCheckpoints,newCheckpoints,aliases);
  }
  return localized;
 }
@@ -201,12 +225,12 @@ function board(pool,town,facility){
   const localizedDescription=localized.description||entry.t.description||entry.t.desc||"";
   const localizedDesc=localized.desc||localized.description||entry.t.desc||entry.t.description||"";
   Object.assign(localized,{
-   name:entry.t.name,
+   name:localized.name||entry.t.name,
    description:localizedDescription+"（"+town.name+"公會公告；本次依周邊實際可達地圖發布。）",
    desc:localizedDesc+"（"+town.name+"設施公告。）",
   });
   const publishedSites=["action","patrol"].includes(localized.objective?.kind)?arr(localized.recommended_locations):sites;
-  selected.set(entry.t.id,{townId:town.id,townName:town.name,provinceId:province(town),places:publishedSites,kind:entry.k,signature:target(localized),description:localized.description,objective:clone(localized.objective),template:localized});
+  selected.set(entry.t.id,{townId:town.id,townName:town.name,provinceId:province(town),places:publishedSites,kind:entry.k,signature:target(localized),description:localized.description,objective:clone(localized.objective),name:localized.name,template:localized});
   kept.push(localized);
  }
  return {list:kept,selected,counts:{eligible:eligible.length,blocked,shown:chosen.length,slots}};
@@ -224,6 +248,7 @@ function intro(town,facility,result){
 function decorateAccepted(q,entry){
  if(!q||!entry)return;
  if(entry.objective)q.objective=clone(entry.objective);
+ if(entry.name)q.name=entry.name;
  q.issuerTownId=entry.townId;q.issuerTownName=entry.townName;
  q.issuerProvinceId=entry.provinceId;q.regionQuestCategory=entry.kind;q.objectiveSignature=entry.signature;
  q.description=entry.description;
