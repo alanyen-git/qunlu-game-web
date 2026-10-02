@@ -4,8 +4,9 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "LOCALITY-AUDIT-1.0：擴大檢查並統一所有所在地生成內容；地方政務、神殿、臨時委託、組織契約與接取後快照禁止跨城鎮沿用模板地圖名稱。",
+  "summary": "ACTIVE-QUEST-LOCAL-MIGRATION-1.0：既有進行中委託開啟時同步遷移名稱、描述、巡查點、目標地圖與地方快照，避免舊存檔繼續顯示橋灣鎮模板名稱。",
   "changelog": [
+    "ACTIVE-QUEST-LOCAL-MIGRATION-1.0：修正既有進行中委託仍顯示舊地圖／舊名稱；開啟委託板時會依發布城鎮遷移地方化快照，保留進度並更新實際目標。",
     "LOCALITY-AUDIT-1.0：新增資料庫模板與現有存檔的跨區域檢查，組織契約納入地方化；所在地不足時不再退回同省或20小時外地圖。",
     "QUEST-LOCAL-NAME-1.1：地方政務、神殿委託與臨時委託共用完整地方化，採集／討伐／設施委託也同步更新名稱與描述；不修改正史模板ID與存檔schema。",
     "QUEST-LOCAL-NAME-1.0：地方委託卡片名稱與接取後任務名稱改用實際發布地圖，例如風泉村顯示白草牧野巡查；不修改正史模板ID與存檔schema。",
@@ -2041,7 +2042,7 @@
     "mobile_first": true,
     "save_compatible": true
   },
-  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-2.0",
+  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-2.1",
   "polity_province_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "goldbalance_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "province_geographic_expansion_revision": "PROVINCE-GEOGRAPHIC-EXPANSION-1.0",
