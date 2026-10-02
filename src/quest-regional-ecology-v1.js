@@ -5,7 +5,7 @@
  */
 (()=>{
 "use strict";
-const REV="REGIONAL-QUEST-ECOLOGY-1.5";
+const REV="REGIONAL-QUEST-ECOLOGY-1.6";
 const arr=x=>Array.isArray(x)?x:[];
 const game=()=>typeof G!=="undefined"?G:null;
 const db=()=>typeof DB!=="undefined"?DB:null;
@@ -53,6 +53,20 @@ function localizedCheckpoints(target,original,targetCount){
  const old=arr(original?.checkpoints).filter(Boolean);
  return [...new Set([...local,...old])].slice(0,Math.max(1,Number(targetCount)||old.length||1));
 }
+function localizeQuestText(value,original,target,oldCheckpoints=[],newCheckpoints=[]){
+ let out=String(value??"");
+ const pairs=[];
+ if(original?.name&&target?.name&&original.name!==target.name)pairs.push([original.name,target.name]);
+ const count=Math.min(oldCheckpoints.length,newCheckpoints.length);
+ for(let i=0;i<count;i++){
+  if(oldCheckpoints[i]&&newCheckpoints[i]&&oldCheckpoints[i]!==newCheckpoints[i])pairs.push([oldCheckpoints[i],newCheckpoints[i]]);
+ }
+ for(const [from,to] of pairs){
+  if(!from||!to||from===to)continue;
+  out=out.split(String(from)).join(String(to));
+ }
+ return out;
+}
 function localizeTemplate(t,town,locations){
  const o=clone(t?.objective||{}),original=place(o.location_id),candidates=localTargetCandidates(t,town);
  const target=candidates[0]||(locations?.[0]&&place(locations[0].id));
@@ -61,7 +75,14 @@ function localizeTemplate(t,town,locations){
   if(o.kind==="patrol")o.checkpoints=localizedCheckpoints(target,o,o.target);
  }
  const sites=(target&&["action","patrol"].includes(o.kind)?[target.id]:arr(locations).map(x=>x.id)).filter(Boolean);
- return {...t,objective:o,recommended_locations:[...new Set(sites.length?sites:arr(t?.recommended_locations))]};
+ const localized={...t,objective:o,recommended_locations:[...new Set(sites.length?sites:arr(t?.recommended_locations))]};
+ if(target&&["action","patrol"].includes(o.kind)){
+  const oldCheckpoints=arr(t?.objective?.checkpoints);
+  const newCheckpoints=arr(o.checkpoints);
+  if(typeof t.description==="string")localized.description=localizeQuestText(t.description,original,target,oldCheckpoints,newCheckpoints);
+  if(typeof t.desc==="string")localized.desc=localizeQuestText(t.desc,original,target,oldCheckpoints,newCheckpoints);
+ }
+ return localized;
 }
 function localizeAuthorityRequest(q,town){
  if(!town||town.kind!=="town")return q;
@@ -177,10 +198,12 @@ function board(pool,town,facility){
   const sites=(local.length?local:entry.locations).slice(0,5).map(x=>x.id);
   const localized=localizeTemplate(entry.t,town,entry.locations);
   localized.recommended_locations=sites.length&&!["action","patrol"].includes(localized.objective?.kind)?sites:localized.recommended_locations;
+  const localizedDescription=localized.description||entry.t.description||entry.t.desc||"";
+  const localizedDesc=localized.desc||localized.description||entry.t.desc||entry.t.description||"";
   Object.assign(localized,{
    name:entry.t.name,
-   description:(entry.t.description||entry.t.desc||"")+"（"+town.name+"公會公告；本次依周邊實際可達地圖發布。）",
-   desc:(entry.t.desc||entry.t.description||"")+"（"+town.name+"設施公告。）",
+   description:localizedDescription+"（"+town.name+"公會公告；本次依周邊實際可達地圖發布。）",
+   desc:localizedDesc+"（"+town.name+"設施公告。）",
   });
   const publishedSites=["action","patrol"].includes(localized.objective?.kind)?arr(localized.recommended_locations):sites;
   selected.set(entry.t.id,{townId:town.id,townName:town.name,provinceId:province(town),places:publishedSites,kind:entry.k,signature:target(localized),description:localized.description,objective:clone(localized.objective),template:localized});
