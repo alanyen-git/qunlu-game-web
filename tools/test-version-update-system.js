@@ -10,8 +10,8 @@ const html=fs.readFileSync("index.html","utf8");
 const sw=fs.readFileSync("sw.js","utf8");
 const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 
-assert.equal(version.version,"CURRENT-2.25.21");
-assert.equal(version.previous_version,"CURRENT-2.25.20");
+assert.equal(version.version,"CURRENT-2.25.22");
+assert.equal(version.previous_version,"CURRENT-2.25.21");
 assert.equal(version.pwa_cache_revision,"v200");
 assert.match(runtime,/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json/);
 assert.match(runtime,/checkForGameUpdate\(true\)/);
