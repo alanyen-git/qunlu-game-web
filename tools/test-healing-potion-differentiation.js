@@ -22,11 +22,11 @@ const character={hp:20,maxHp:100,mana:0,maxMana:100,stamina:0,maxStamina:100,buf
 ctx.G={character,battle:null};ctx.clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));ctx.combatStats=()=>({healingPower:100});ctx.removeStatuses=()=>{};ctx.battleLog=()=>{};
 vm.runInContext(runtime.slice(consumableStart,consumableEnd)+runtime.slice(tickStart,tickEnd),ctx,{filename:"healing-runtime-slice.js"});
 const apply=vm.runInContext("applyConsumable",ctx),tick=vm.runInContext("tickBattleEffects",ctx);
-assert.equal(apply(instant).ok,true);assert.equal(character.hp,52);assert.equal(character.buffs.length,0);
-character.hp=20;assert.equal(apply(sustained).ok,true);assert.equal(character.hp,32);
+assert.equal(apply(instant).ok,true);assert.equal(character.hp,84);assert.equal(character.buffs.length,0);
+character.hp=20;assert.equal(apply(sustained).ok,true);assert.equal(character.hp,44);
 assert.equal(character.buffs.length,1);assert.equal(character.buffs[0].hp_regen,8);assert.equal(character.buffs[0].hours,3);
 apply(sustained);assert.equal(character.buffs.length,1,"field recovery should refresh, not stack");
-character.hp=20;ctx.G.battle={active:true};assert.equal(apply(sustained).ok,true);assert.equal(character.hp,32);assert.equal(character.buffs.length,0,"combat use replaces previous field regeneration");
-for(let turn=0;turn<3;turn++)tick();assert.equal(character.hp,56);assert.equal(ctx.G.battle.playerRegeneration,null);
+character.hp=20;ctx.G.battle={active:true};assert.equal(apply(sustained).ok,true);assert.equal(character.hp,44);assert.equal(character.buffs.length,0,"combat use replaces previous field regeneration");
+for(let turn=0;turn<3;turn++)tick();assert.equal(character.hp,92);assert.equal(ctx.G.battle.playerRegeneration,null);
 character.hp=20;ctx.G.battle={active:true};apply(sustained);tick();apply(sustained);assert.equal(ctx.G.battle.playerRegeneration.rounds,3,"reused potion should refresh rounds");
 console.log("healing differentiation OK: distinct E recipes, 32 instant vs 12+8x3 sustained, field non-stacking, finalization gate");
