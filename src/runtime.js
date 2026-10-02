@@ -3979,7 +3979,7 @@ function eatFacilityMeal(fid,period,mealId){
  G.character.hunger=clamp(G.character.hunger-m.hunger,0,120);
  G.character.thirst=clamp(G.character.thirst-(m.thirst||0),0,120);
  G.character.fatigue=clamp(G.character.fatigue-(m.fatigue||0),0,120);
- if(m.hp)G.character.hp=clamp(G.character.hp+m.hp,0,G.character.maxHp);
+ if(m.hp)G.character.hp=clamp(G.character.hp+combatScaledNumber(m.hp),0,G.character.maxHp);
  log("用餐",`${DB.facilities[fid].name}：享用${m.name}，支付${m.price}銀。`,"ok");
  endTurn(.5)
 }
@@ -4823,7 +4823,7 @@ let battleSkillPopupStage="closed",battleSelectedSkillIndex=null;
 function startBattle(monster,context){
  closeBattleSkillPopup();
  battleLastFocus=document.activeElement;
- const enemy={...monster,maxHp:monster.hp,hp:monster.hp},cs=combatStats();
+ const enemy=scaleCombatRecord({...monster,maxHp:monster.hp,hp:monster.hp});enemy.maxHp=enemy.hp;const cs=combatStats();
  const playerInit=cs.initiative+Math.min(6,cs.range/8),enemyInit=(enemy.initiative||10)+Math.min(4,(enemy.range||1)/8);
  G.battle={active:true,context,round:1,enemy,playerBuff:{},enemyBuff:{},enemyStatuses:[],weaponOil:null,defending:false,playerStaggered:false,awaitingCompanion:false,companion:battleCompanionSnapshot(),party:partyBattleSnapshots(),
  log:[`${context}時遭遇 ${monster.name}［${monster.tier}］。`,`先攻：${G.character.name} ${playerInit.toFixed(1)}／${monster.name} ${enemyInit.toFixed(1)}。`]};
@@ -4832,8 +4832,8 @@ function startBattle(monster,context){
 }
 function battleLog(msg){if(!G.battle)return;G.battle.log.push(msg);if(G.battle.log.length>14)G.battle.log.shift()}
 function skillResourceCost(s){
- const raw=s.stamina_cost||0;
- return skillUsesMana(s)?Math.max(0,raw-talentSpecial("spellCostReduction")):raw
+ const raw=combatScaledNumber(s.stamina_cost||0);
+ return skillUsesMana(s)?Math.max(0,raw-combatScaledNumber(talentSpecial("spellCostReduction"))):raw
 }
 function skillUsesMana(s){return (s.resource||"stamina")==="mana"}
 function battleCritFromRoll(roll,critRate){const steps=Math.max(0,Math.floor(critRate/5));return steps>0&&roll>=Math.max(11,21-steps)}
@@ -4877,9 +4877,9 @@ function battleGeneralAttack(){
  const score=r+Math.floor((cs.accuracy+rangeBonus-stagger-(e.evasion+(b.enemyBuff.evasion||0)-enemyStatusEvasionPenalty()))/10);
  if(score>=10){
    const crit=battleCritFromRoll(r,Math.max(0,cs.critRate-(e.critResist||0)));
-   let atk=cs.attack+(b.weaponOil?.attack||0)+talentTargetBonus(e),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
+   let atk=cs.attack+combatScaledNumber(b.weaponOil?.attack||0)+combatScaledNumber(talentTargetBonus(e)),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
    def*=1-cs.armorPenPct/100;
-   if(e.hp/e.maxHp<=.25)atk+=talentSpecial("executeBonus");
+   if(e.hp/e.maxHp<=.25)atk+=combatScaledNumber(talentSpecial("executeBonus"));
    let dmg=Math.max(1,Math.round(atk-def*.45));
    if(b.weaponOil?.element&&["光明","黑暗","火","風","水","地","雷","生命","死亡"].includes(b.weaponOil.element))dmg=applyElementDamage(dmg,e,b.weaponOil.element);
    if(crit)dmg=Math.round(dmg*cs.critDamage/100);
@@ -4957,7 +4957,8 @@ function battleUseSkill(index,targetKey="self"){
    });enemyBattleTurn();return
  }
  if(dtype==="buff"){
-   b.playerBuff.attack=(b.playerBuff.attack||0)+(s.power||0);b.playerBuff.defense=(b.playerBuff.defense||0)+(s.defense||0);
+   b.playerBuff.attack=(b.playerBuff.attack||0)+combatScaledNumber(s.power||0);b.playerBuff.defense=(b.playerBuff.defense||0)+combatScaledNumber(s.defense||0);
+   b.playerBuff.magicPower=(b.playerBuff.magicPower||0)+combatScaledNumber(s.magicPower||0);b.playerBuff.magicDefense=(b.playerBuff.magicDefense||0)+combatScaledNumber(s.magicDefense||0);
    b.playerBuff.accuracy=(b.playerBuff.accuracy||0)+(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus");b.playerBuff.evasion=(b.playerBuff.evasion||0)+(s.evasion||0);
    for(const k of ["magicPower","magicDefense","critRate","critDamage","attackSpeed","castSpeed","blockRate","statusResist"])b.playerBuff[k]=(b.playerBuff[k]||0)+(s[k]||0);
    b.playerBuff.statusResist=(b.playerBuff.statusResist||0)+skillLevelBonus(s,"status_resist_bonus");
@@ -4968,20 +4969,20 @@ function battleUseSkill(index,targetKey="self"){
    battleLog(`使用 ${s.name}：${supportEffectText(s)}。`);enemyBattleTurn();return
  }
  if(dtype==="debuff"){
-   for(const [k,v] of Object.entries(s.debuff||{}))b.enemyBuff[k]=(b.enemyBuff[k]||0)+v;
+   for(const [k,v] of Object.entries(s.debuff||{}))b.enemyBuff[k]=(b.enemyBuff[k]||0)+(["attack","defense","magicPower","magicDefense"].includes(k)?combatScaledNumber(v):v);
    if(s.status)applyEnemyStatus(s.status,(s.status_chance||50)+skillLevelBonus(s,"status_chance_bonus"),(s.status_rounds||2)+skillLevelBonus(s,"status_rounds_bonus"));
    battleLog(`${s.name} 削弱 ${e.name}。`);enemyBattleTurn();return
  }
 
  const r=rollD20(),scale=s.scaling_stat|| (dtype==="magic"?"magic":dtype==="physical"?"physical":"hybrid"),pct=skillPowerPercent(s)/100;
  let baseAtk=scale==="magic"?cs.magicPower:scale==="physical"?cs.attack:Math.round((cs.attack+cs.magicPower)/2);
- let atk=baseAtk*pct+talentTargetBonus(e);
+ let atk=baseAtk*pct+combatScaledNumber(talentTargetBonus(e));
  let edef=(dtype==="magic"?(e.magicDefense||e.defense):dtype==="hybrid"?Math.round((e.defense+(e.magicDefense||e.defense))/2):e.defense)-enemyStatusDefensePenalty();
  edef=Math.max(0,edef);
  let pen=dtype==="magic"?cs.magicPenPct:cs.armorPenPct;
  if(dtype==="magic")pen+=skillLevelBonus(s,"magic_pen_pct");else if(dtype==="hybrid")pen+=Math.max(skillLevelBonus(s,"armor_pen_pct"),skillLevelBonus(s,"magic_pen_pct"));else pen+=skillLevelBonus(s,"armor_pen_pct");
  edef*=1-pen/100;
- if(e.hp/e.maxHp<=.25)atk+=talentSpecial("executeBonus");
+ if(e.hp/e.maxHp<=.25)atk+=combatScaledNumber(talentSpecial("executeBonus"));
  const score=r+Math.floor((cs.accuracy+(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")-stagger-(e.evasion+(b.enemyBuff.evasion||0)-enemyStatusEvasionPenalty()))/10);
  if(score>=10){
    const crit=battleCritFromRoll(r,Math.max(0,cs.critRate-(e.critResist||0))),raw=Math.max(1,Math.round(atk-edef*.42));
@@ -5013,7 +5014,7 @@ function battleUseItem(index){
    const ef=d.battle_effect;
    if(ef.special==="repel"){battleLog(`使用 ${d.name}，強烈氣味迫使敵人退開。`);removeItem(x.id,1,index);finishBattle("逃跑成功");return}
    if(ef.special==="lure"){battleLog(`使用 ${d.name}，敵人受到誘餌干擾，命中下降。`);G.battle.enemyBuff.accuracy=(G.battle.enemyBuff.accuracy||0)-4}
-   const dmg=Math.max(0,ef.damage||0);if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
+   const dmg=Math.max(0,combatScaledNumber(ef.damage||0));if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
    if(ef.enemyDebuff)for(const [k,v] of Object.entries(ef.enemyDebuff))if(k!=="rounds")G.battle.enemyBuff[k]=(G.battle.enemyBuff[k]||0)+v;
    if(ef.status)applyEnemyStatus(ef.status,ef.status_chance||55,ef.rounds||2)
  }else if(d.weapon_oil){
@@ -5124,8 +5125,8 @@ function enemyBattleTurn(){
      const impactPct=dmg/Math.max(1,G.character.maxHp)*100;if(impactPct>12+cs.poise*.38){b.playerStaggered=true;battleLog("強烈衝擊造成硬直，下一次行動命中下降。")}
      battleLog(`${e.name} D20=${r} 命中，造成 ${dmg} 傷害${e.primary_element?`／${e.primary_element}`:""}${crit?"（爆擊）":""}${blocked?`（格擋${cs.blockValue}%）`:""}。`);
      if(e.status_attack)applyPlayerStatus(e.status_attack.id,e,e.status_attack.base_chance,e.status_attack.rounds);
-     const thorn=talentSpecial("thorns");if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
-     const counter=talentSpecial("counterDamage");if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
+     const thorn=combatScaledNumber(talentSpecial("thorns"));if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
+     const counter=combatScaledNumber(talentSpecial("counterDamage"));if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
    }else battleLog(`${e.name} D20=${r} 攻擊未命中。`);
  }
  if(!targetCompanion&&!targetParty)degradeEquipment();b.defending=false;tickBattleEffects();
@@ -5477,8 +5478,8 @@ function companionCombatStats(inst){
  if(sp.companion_kind==="summon")power*=1+owner.summonPower/350;
  else if(sp.companion_kind==="contract")power*=1+owner.summonPower/500;
  return {
-   hp:Math.round((b.hp||18)*scale*power),attack:Math.round((b.attack||6)*scale*power),
-   magic:Math.round((b.magic||4)*scale*power),defense:Math.round((b.defense||4)*scale*power),
+   hp:combatScaledNumber(Math.round((b.hp||18)*scale*power)),attack:combatScaledNumber(Math.round((b.attack||6)*scale*power)),
+   magic:combatScaledNumber(Math.round((b.magic||4)*scale*power)),defense:combatScaledNumber(Math.round((b.defense||4)*scale*power)),
    accuracy:clamp(Math.round((b.accuracy||58)+(lv-1)*.5),40,95),
    evasion:clamp(Math.round((b.evasion||8)+(lv-1)*.22),0,55),
    speed:Math.round((b.speed||10)+(lv-1)*.15),element:sp.element,ai:sp.ai_profile
@@ -5791,8 +5792,8 @@ function attemptJoinParty(index){
 }
 function partyMemberCombatStats(inst){
  const t=partyTemplate(inst.templateId),b=t.base_stats,scale=1+(inst.level-1)*.035,bond=1+clamp(inst.bond||0,0,100)/700;
- return {maxHp:Math.round(b.hp*scale*bond),attack:Math.round(b.attack*scale*bond),magic:Math.round(b.magic*scale*bond),
-   defense:Math.round(b.defense*scale*bond),accuracy:clamp(Math.round(b.accuracy+(inst.level-1)*.45),40,95),
+ return {maxHp:combatScaledNumber(Math.round(b.hp*scale*bond)),attack:combatScaledNumber(Math.round(b.attack*scale*bond)),magic:combatScaledNumber(Math.round(b.magic*scale*bond)),
+   defense:combatScaledNumber(Math.round(b.defense*scale*bond)),accuracy:clamp(Math.round(b.accuracy+(inst.level-1)*.45),40,95),
    evasion:clamp(Math.round(b.evasion+(inst.level-1)*.2),0,55),speed:Math.round(b.speed+(inst.level-1)*.12)}
 }
 function partyBattleSnapshots(){
@@ -6153,10 +6154,10 @@ function applyConsumable(d){
  if(d.use){
    if(d.use.hunger)c.hunger=clamp(c.hunger+d.use.hunger,0,120);
    if(d.use.thirst)c.thirst=clamp(c.thirst+d.use.thirst,0,120);
-   if(d.use.hp)c.hp=clamp(c.hp+d.use.hp*(combatStats().healingPower/100),0,c.maxHp);
+   if(d.use.hp)c.hp=clamp(c.hp+combatScaledNumber(d.use.hp)*(combatStats().healingPower/100),0,c.maxHp);
    if(d.use.hp_percent)c.hp=clamp(c.maxHp*d.use.hp_percent/100,0,c.maxHp);
-   if(d.use.stamina)c.stamina=clamp(c.stamina+d.use.stamina,0,c.maxStamina);
-   if(d.use.mana)c.mana=clamp(c.mana+d.use.mana,0,c.maxMana);
+   if(d.use.stamina)c.stamina=clamp(c.stamina+combatScaledNumber(d.use.stamina),0,c.maxStamina);
+   if(d.use.mana)c.mana=clamp(c.mana+combatScaledNumber(d.use.mana),0,c.maxMana);
    if(d.use.mana_percent)c.mana=clamp(c.maxMana*d.use.mana_percent/100,0,c.maxMana);
    if(d.use.conditions)removeStatuses(d.use.conditions);
    if(d.use.regeneration){
@@ -6164,9 +6165,9 @@ function applyConsumable(d){
      c.buffs=(c.buffs||[]).filter(b=>b.regen_source!=="healing_potion");
      if(G.battle?.active){
        const rounds=Math.max(0,Math.floor(Number(r.combat_rounds)||0));
-       if(rounds)G.battle.playerRegeneration={source:d.name,hp_per_round:Math.max(0,Number(r.combat_hp_per_round)||0),rounds};
+       if(rounds)G.battle.playerRegeneration={source:d.name,hp_per_round:combatScaledNumber(Math.max(0,Number(r.combat_hp_per_round)||0)),rounds};
      }else{
-       c.buffs.push({name:d.name,regen_source:"healing_potion",hp_regen:Math.max(0,Number(r.field_hp_per_hour)||0),hours:Math.max(0,Number(r.field_hours)||0)});
+       c.buffs.push({name:d.name,regen_source:"healing_potion",hp_regen:combatScaledRate(Math.max(0,Number(r.field_hp_per_hour)||0)),hours:Math.max(0,Number(r.field_hours)||0)});
      }
    }
  }
