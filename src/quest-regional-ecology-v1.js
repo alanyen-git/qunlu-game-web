@@ -5,7 +5,7 @@
  */
 (()=>{
 "use strict";
-const REV="REGIONAL-QUEST-ECOLOGY-2.0";
+const REV="REGIONAL-QUEST-ECOLOGY-2.1";
 const arr=x=>Array.isArray(x)?x:[];
 const game=()=>typeof G!=="undefined"?G:null;
 const db=()=>typeof DB!=="undefined"?DB:null;
