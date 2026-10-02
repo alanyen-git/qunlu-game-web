@@ -6146,6 +6146,8 @@ function removeStatuses(list){
  G.character.statusEffects=(G.character.statusEffects||[]).filter(s=>!list.includes(s.id||s))
 }
 function applyConsumable(d){
+ const scaledNumber=typeof scaledNumber==="function"?scaledNumber:value=>{const n=Number(value);return Number.isFinite(n)?Math.round(n*2):value};
+ const scaledRate=typeof scaledRate==="function"?scaledRate:value=>{const n=Number(value);return Number.isFinite(n)?Math.round(n*2*100)/100:value};
  const c=G.character;
  if(d.toxicity){
    if((c.toxicity||0)+d.toxicity>100)return {ok:false,msg:`毒性將超過100（目前${Math.round(c.toxicity||0)}）`};
@@ -6154,10 +6156,10 @@ function applyConsumable(d){
  if(d.use){
    if(d.use.hunger)c.hunger=clamp(c.hunger+d.use.hunger,0,120);
    if(d.use.thirst)c.thirst=clamp(c.thirst+d.use.thirst,0,120);
-   if(d.use.hp)c.hp=clamp(c.hp+combatScaledNumber(d.use.hp)*(combatStats().healingPower/100),0,c.maxHp);
+   if(d.use.hp)c.hp=clamp(c.hp+scaledNumber(d.use.hp)*(combatStats().healingPower/100),0,c.maxHp);
    if(d.use.hp_percent)c.hp=clamp(c.maxHp*d.use.hp_percent/100,0,c.maxHp);
-   if(d.use.stamina)c.stamina=clamp(c.stamina+combatScaledNumber(d.use.stamina),0,c.maxStamina);
-   if(d.use.mana)c.mana=clamp(c.mana+combatScaledNumber(d.use.mana),0,c.maxMana);
+   if(d.use.stamina)c.stamina=clamp(c.stamina+scaledNumber(d.use.stamina),0,c.maxStamina);
+   if(d.use.mana)c.mana=clamp(c.mana+scaledNumber(d.use.mana),0,c.maxMana);
    if(d.use.mana_percent)c.mana=clamp(c.maxMana*d.use.mana_percent/100,0,c.maxMana);
    if(d.use.conditions)removeStatuses(d.use.conditions);
    if(d.use.regeneration){
@@ -6165,9 +6167,9 @@ function applyConsumable(d){
      c.buffs=(c.buffs||[]).filter(b=>b.regen_source!=="healing_potion");
      if(G.battle?.active){
        const rounds=Math.max(0,Math.floor(Number(r.combat_rounds)||0));
-       if(rounds)G.battle.playerRegeneration={source:d.name,hp_per_round:combatScaledNumber(Math.max(0,Number(r.combat_hp_per_round)||0)),rounds};
+       if(rounds)G.battle.playerRegeneration={source:d.name,hp_per_round:scaledNumber(Math.max(0,Number(r.combat_hp_per_round)||0)),rounds};
      }else{
-       c.buffs.push({name:d.name,regen_source:"healing_potion",hp_regen:combatScaledRate(Math.max(0,Number(r.field_hp_per_hour)||0)),hours:Math.max(0,Number(r.field_hours)||0)});
+       c.buffs.push({name:d.name,regen_source:"healing_potion",hp_regen:scaledRate(Math.max(0,Number(r.field_hp_per_hour)||0)),hours:Math.max(0,Number(r.field_hours)||0)});
      }
    }
  }
