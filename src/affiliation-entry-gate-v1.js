@@ -6,8 +6,8 @@
 "use strict";
 if(typeof DB!=="object"||!DB)return;
 
-const RELEASE="CURRENT-1.85.0";
-const REV="AFFILIATION-ENTRY-GATE-1.0";
+const RELEASE="CURRENT-1.85.1";
+const REV="AFFILIATION-ENTRY-GATE-1.1";
 const TIER_RANK=Object.freeze({F:0,E:1,D:2,C:3,B:4,A:5,S:6});
 const GATE=Object.freeze({
  F:{evidence:0,exam:false,dc:0,cooldown:0,hours:0},
@@ -149,6 +149,55 @@ function basicExamReason(type,a){
  }
  return "";
 }
+function joinRequirementDetails(type,a){
+ const c=globalThis.G?.character||null,p=profile(type,a),s=state(type,a),rows=[];
+ const add=(label,current,required,ok)=>rows.push({label,current:String(current??"—"),required:String(required??"—"),ok:!!ok});
+ if(!c){add("遊戲狀態","尚未進入遊戲","需先進入遊戲",false);return rows}
+ const contactCount=Math.min(Number(s?.evidence?.length||0),p.evidence_required);
+ add("正式接觸",p.evidence_required?`${contactCount}/${p.evidence_required} 筆線索`:"公開接觸",p.evidence_required?"已取得正式接觸":"不需額外線索",hasContact(type,a.id));
+ const active=memberId(type);
+ add("目前勢力",active&&active!==a.id?`已加入${aff(type,active)?.name||"其他勢力"}`:"未加入其他勢力",`可加入${a.name}`,!active||active===a.id);
+ if(type==="organization"){
+  const joinable=a.joinable!==false;
+  add("可加入狀態",joinable?"可加入":"不可加入","可加入",joinable);
+  const level=Number(c.level||1),needLevel=Number(a.min_join_level||1);
+  add("角色等級",`Lv${level}`,`Lv${needLevel}以上`,level>=needLevel);
+  const rep=Number(c.organizations?.reputation?.[a.id]||0),needRep=Number(a.join_reputation||0);
+  add("組織聲望",rep,`至少 ${needRep}`,rep>=needRep);
+  if(a.primary_facility){
+   const facilityName=DB.facilities?.[a.primary_facility]?.name||a.primary_facility;
+   const currentFacility=DB.facilities?.[c.currentFacility]?.name||c.currentFacility||"目前不在指定地點";
+   add("考核地點",currentFacility,`需在${facilityName}`,c.currentFacility===a.primary_facility);
+  }
+ }else{
+  const ds=c.disciplines||{},level=Number(c.level||1),needLevel=Number(a.min_level||1);
+  add("角色等級",`Lv${level}`,`Lv${needLevel}以上`,level>=needLevel);
+  if(a.primary_facility){
+   const facilityName=DB.facilities?.[a.primary_facility]?.name||a.primary_facility;
+   const currentFacility=DB.facilities?.[c.currentFacility]?.name||c.currentFacility||"目前不在指定地點";
+   add("考核地點",currentFacility,`需在${facilityName}`,c.currentFacility===a.primary_facility);
+  }
+  if(Array.isArray(a.contact_location_ids)&&a.contact_location_ids.length){
+   const currentLocation=c.locationId||"未設定";
+   add("正式接觸地點",currentLocation,`需為：${a.contact_location_ids.join("、")}`,a.contact_location_ids.includes(c.locationId));
+  }
+  const compatible=typeof globalThis.disciplineClassCompatible!=="function"||globalThis.disciplineClassCompatible(a);
+  add("戰鬥職業相容性",compatible?"相容":"不相容","符合流派訓練方向",compatible);
+  const needMastery=Number(DB.discipline_bonus_system?.minimum_mastery_to_join||10),mastery=Number(ds.mastery?.[a.id]||0);
+  add("基礎研習度",`${mastery}%`,`至少${needMastery}%`,mastery>=needMastery);
+ }
+ if(p.exam_required){
+  const passed=examPassed(type,a.id),cool=Number(s?.exam?.nextAttemptDay||0)>day();
+  add("入門考核",passed?"已通過":cool?`冷卻中・第${s.exam.nextAttemptDay}日後`:"尚未通過",`通過${p.tier}級考核（DC${p.exam_dc}）`,passed);
+ }
+ return rows;
+}
+function joinConditionsCard(type,a){
+ const rows=joinRequirementDetails(type,a),missing=rows.filter(x=>!x.ok);
+ const summary=missing.length?`<b>未達條件：${missing.length} 項</b>`:"<span class='ok'><b>已符合正式加入條件</b></span>";
+ const body=rows.map(x=>`<div><b>${x.ok?"✓":"✕"} ${esc(x.label)}</b><br><span class="small">目前：${esc(x.current)}／需求：${esc(x.required)}</span></div>`).join("");
+ return `<div class="card" data-affiliation-join-conditions="1"><b>正式加入條件</b><br><span class="small">${summary}</span><div class="small">${body}</div></div>`;
+}
 function examModifier(type,a){
  const c=G.character,min=Number(type==="organization"?(a.min_join_level||1):(a.min_level||1));
  let mod=clamp(Math.floor(((c.level||1)-min)/8),-2,4);
@@ -227,16 +276,16 @@ function gateCard(type,a){
 function patchJoinButton(type,a){
  const body=typeof document!=="undefined"?document.getElementById("modalBody"):null;if(!body)return;
  const needle=type==="organization"?`attemptJoinOrganization('${a.id}')`:`joinDiscipline('${a.id}')`;
+ const blocked=joinRequirementDetails(type,a).some(x=>!x.ok);
  for(const b of body.querySelectorAll("button")){
   if(!String(b.getAttribute("onclick")||"").includes(needle))continue;
-  const p=profile(type,a);
-  if(!examPassed(type,a.id)){b.disabled=true;b.textContent=`需先通過${p.tier}級入門考核`}
-  else b.textContent="正式加入（考核已通過）";
+  b.disabled=blocked;
+  b.textContent=blocked?"未達條件":"正式加入";
  }
 }
 function injectCard(type,a){
- const body=typeof document!=="undefined"?document.getElementById("modalBody"):null;if(!body||body.querySelector("[data-affiliation-entry-gate]"))return;
- const html=gateCard(type,a);if(html)body.insertAdjacentHTML("afterbegin",html);patchJoinButton(type,a);
+ const body=typeof document!=="undefined"?document.getElementById("modalBody"):null;if(!body||body.querySelector("[data-affiliation-entry-gate],[data-affiliation-join-conditions]"))return;
+ const html=[joinConditionsCard(type,a),gateCard(type,a)].filter(Boolean).join("");if(html)body.insertAdjacentHTML("afterbegin",html);patchJoinButton(type,a);
 }
 
 const RAW={
