@@ -4,8 +4,9 @@
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "QUEST-LOCAL-TEXT-1.0：修正地方委託公告在地點已替換後，說明文字仍沿用橋灣鎮／柳橋鎮原始野外地圖名稱的問題；公會、神殿與地方政務委託共用地點文字在地化，舊存檔相容。",
+  "summary": "QUEST-LOCAL-NAME-1.0：地方委託名稱、描述、巡查點與實際目標地圖同步在地化；風泉村不再顯示白樺林路巡查等橋灣鎮模板名稱。",
   "changelog": [
+    "QUEST-LOCAL-NAME-1.0：地方委託卡片名稱與接取後任務名稱改用實際發布地圖，例如風泉村顯示白草牧野巡查；不修改正史模板ID與存檔schema。",
     "QUEST-LOCAL-TEXT-1.0：修正風泉村委託公告同時顯示「灰橡林緣」與「白草牧野」的資料不一致。地方化目標改寫後，公告描述與巡查點文字同步改成實際發布城鎮周邊地圖；不修改canonical地圖、委託模板或存檔schema。公會、神殿、地方政務委託共用同一套文字在地化保護。",
     "MAP-SURVEY-PERF-1.0：修正 MAP-SURVEY-COMPLETION-2.0 的手機效能回歸。地圖 render 不再每次重跑 606 地點完整測繪；正常切層級、篩選、返回等按鍵只做 O(1) 快取檢查。完整測繪僅在初始化或 DB.locations 陣列新增／替換時執行，且群組座標基準改成一次索引，避免重複全表掃描。",
     "MAP-SURVEY-COMPLETION-2.0：將測繪覆蓋從舊核心區與五個新手區擴充到全部現行 DB.locations；保留既有手工／canonical 座標，缺少座標的地點依行省錨點＋canonical links 建立穩定區域路網位置。地圖每次開啟前會做冪等補全，發布除錯也要求未測繪地點為 0；不修改 links、hours、旅行權限或存檔 schema。",
@@ -2038,7 +2039,7 @@
     "mobile_first": true,
     "save_compatible": true
   },
-  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.6",
+  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.7",
   "polity_province_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "goldbalance_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "province_geographic_expansion_revision": "PROVINCE-GEOGRAPHIC-EXPANSION-1.0",
