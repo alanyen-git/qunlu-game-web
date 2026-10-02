@@ -5,7 +5,8 @@
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
   "summary": "QUEST-LOCAL-NAME-1.1：地方政務、神殿委託與臨時委託統一同步標題、描述、目標地圖；避免跨城鎮顯示舊地圖名稱。",
-  "changelog": [\n    "QUEST-LOCAL-NAME-1.1：地方政務、神殿委託與臨時委託共用完整地方化，採集／討伐／設施委託也同步更新名稱與描述；不修改正史模板ID與存檔schema。",
+  "changelog": [
+    "QUEST-LOCAL-NAME-1.1：地方政務、神殿委託與臨時委託共用完整地方化，採集／討伐／設施委託也同步更新名稱與描述；不修改正史模板ID與存檔schema。",
     "QUEST-LOCAL-NAME-1.0：地方委託卡片名稱與接取後任務名稱改用實際發布地圖，例如風泉村顯示白草牧野巡查；不修改正史模板ID與存檔schema。",
     "QUEST-LOCAL-TEXT-1.0：修正風泉村委託公告同時顯示「灰橡林緣」與「白草牧野」的資料不一致。地方化目標改寫後，公告描述與巡查點文字同步改成實際發布城鎮周邊地圖；不修改canonical地圖、委託模板或存檔schema。公會、神殿、地方政務委託共用同一套文字在地化保護。",
     "MAP-SURVEY-PERF-1.0：修正 MAP-SURVEY-COMPLETION-2.0 的手機效能回歸。地圖 render 不再每次重跑 606 地點完整測繪；正常切層級、篩選、返回等按鍵只做 O(1) 快取檢查。完整測繪僅在初始化或 DB.locations 陣列新增／替換時執行，且群組座標基準改成一次索引，避免重複全表掃描。",
