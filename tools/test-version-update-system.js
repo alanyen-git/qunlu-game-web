@@ -32,4 +32,4 @@ const startup=ota.slice(ota.indexOf("async function startNativeUpdates()"),ota.i
 assert.doesNotMatch(startup,/checkForGameUpdate/);
 assert.match(architecture,/manually connects to GitHub/);
 assert.match(architecture,/interrupt an active session/);
-console.log(`Manual GitHub update flow OK: ${version.version}, PWA ${version.pwa_cache_revision}, Android versionCode 2025021`);
+console.log(`Manual GitHub update flow OK: ${version.version}, PWA ${version.pwa_cache_revision}, Android versionCode 2025022`);
