@@ -216,14 +216,45 @@ function signatureOfTown(town){
  return {label:(p?.display_name||p?.name||town.name),details:adjectives.join("｜")||"依周邊地圖與可達道路發布"};
 }
 let displayBoard=new Map();
+function migrateAcceptedQuest(q,town,template){
+ if(!q||!town||!template)return false;
+ const source={...template,...q,objective:clone(q.objective||template.objective)};
+ const places=validLocations(source,town);
+ if(!places.length)return false;
+ const localized=localizeTemplate(source,town,places);
+ if(!localized?.objective)return false;
+ let changed=false;
+ const set=(key,value)=>{if(value!==undefined&&JSON.stringify(q[key])!==JSON.stringify(value)){q[key]=clone(value);changed=true}};
+ set("name",localized.name||q.name||template.name);
+ set("description",localized.description||q.description||template.description||template.desc);
+ set("objective",localized.objective);
+ set("viableLocationIds",places.map(x=>x.id));
+ set("issuerTownId",town.id);set("issuerTownName",town.name);set("issuerProvinceId",province(town));
+ set("regionQuestCategory",kind(localized));set("objectiveSignature",target(localized));
+ if(changed&&typeof persist==="function")persist();
+ return changed;
+}
 function board(pool,town,facility){
  const g=game();if(!g||!town)return {list:pool,selected:new Map(),counts:{eligible:0,blocked:0}};
- const active=new Set(arr(g.quests).filter(q=>q.turninFacility===facility).map(q=>q.templateId));
+ const activeByTemplate=new Map(arr(g.quests).filter(q=>q.turninFacility===facility).map(q=>[q.templateId,q]));
+ const active=new Set(activeByTemplate.keys());
  const eligible=[],kept=[],selected=new Map();let blocked=0;
  const day=Math.floor(hour()/24);
  for(const t of pool){
   if(!t?.id)continue;
-  if(active.has(t.id)){kept.push(t);continue;}
+  if(active.has(t.id)){
+   const activeQuest=activeByTemplate.get(t.id),activeTown=place(activeQuest?.issuerTownId)||town;
+   migrateAcceptedQuest(activeQuest,activeTown,t);
+   const display={...t};
+   if(activeQuest){
+    display.name=activeQuest.name||display.name;
+    display.description=activeQuest.description||display.description||display.desc;
+    display.desc=activeQuest.description||display.desc||display.description;
+    display.objective=clone(activeQuest.objective||display.objective);
+    display.recommended_locations=arr(activeQuest.viableLocationIds).length?activeQuest.viableLocationIds.slice():display.recommended_locations;
+   }
+   kept.push(display);continue;
+  }
   if(Number(g.character?.level)<Number(t.min_level||1)||Number(g.character?.level)>Number(t.max_level||99))continue;
   if(typeof questTemplateViable==="function"&&!questTemplateViable(t))continue;
   if(typeof questMarketAvailable==="function"&&!questMarketAvailable(t))continue;
