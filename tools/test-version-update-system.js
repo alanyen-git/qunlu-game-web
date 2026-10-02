@@ -10,8 +10,8 @@ const html=fs.readFileSync("index.html","utf8");
 const sw=fs.readFileSync("sw.js","utf8");
 const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 
-assert.equal(version.version,"CURRENT-2.25.20");
-assert.equal(version.previous_version,"CURRENT-2.25.19");
+assert.equal(version.version,"CURRENT-2.25.21");
+assert.equal(version.previous_version,"CURRENT-2.25.20");
 assert.equal(version.pwa_cache_revision,"v199");
 assert.match(runtime,/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json/);
 assert.match(runtime,/checkForGameUpdate\(true\)/);
@@ -32,4 +32,4 @@ const startup=ota.slice(ota.indexOf("async function startNativeUpdates()"),ota.i
 assert.doesNotMatch(startup,/checkForGameUpdate/);
 assert.match(architecture,/manually connects to GitHub/);
 assert.match(architecture,/interrupt an active session/);
-console.log(`Manual GitHub update flow OK: ${version.version}, PWA ${version.pwa_cache_revision}, Android versionCode 2025020`);
+console.log(`Manual GitHub update flow OK: ${version.version}, PWA ${version.pwa_cache_revision}, Android versionCode 2025021`);
