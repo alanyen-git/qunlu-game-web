@@ -89,15 +89,19 @@ function localizeQuestName(t,target,original,aliases=[]){
  return name;
 }
 function localizeTemplate(t,town,locations){
- const o=clone(t?.objective||{}),original=place(o.location_id),candidates=localTargetCandidates(t,town);
- const target=candidates[0]||(locations?.[0]&&place(locations[0].id));
+ const o=clone(t?.objective||{}),original=place(o.location_id);
+ const actionTarget=localTargetCandidates(t,town)[0];
+ const fallback=arr(locations).map(x=>place(x?.id||x)).find(Boolean);
+ const target=actionTarget||fallback;
  if(target&&["action","patrol"].includes(o.kind)){
   o.location_id=target.id;
   if(o.kind==="patrol")o.checkpoints=localizedCheckpoints(target,o,o.target);
+ }else if(target&&o.location_id){
+  o.location_id=target.id;
  }
  const sites=(target&&["action","patrol"].includes(o.kind)?[target.id]:arr(locations).map(x=>x.id)).filter(Boolean);
  const localized={...t,objective:o,recommended_locations:[...new Set(sites.length?sites:arr(t?.recommended_locations))]};
- if(target&&["action","patrol"].includes(o.kind)){
+ if(target){
   const aliases=mentionedLocationNames(t);
   const oldCheckpoints=arr(t?.objective?.checkpoints);
   const newCheckpoints=arr(o.checkpoints);
@@ -127,6 +131,7 @@ function localizeFaithMission(q,town){
   places=localRegionLocations(town).filter(l=>["wild","dungeon"].includes(l.kind)&&arr(l.gather).includes(o.item_id)&&Number.isFinite(travel(town.id,l.id)))
    .sort((a,b)=>travel(town.id,a.id)-travel(town.id,b.id)||a.id.localeCompare(b.id)).map(l=>l.id);
   if(!places.length)return null;
+  Object.assign(localized,localizeTemplate(q,town,places.map(id=>({id}))));
  }else return q;
  localized.viableLocationIds=[...new Set(places)];
  localized.places=localized.viableLocationIds.slice();
