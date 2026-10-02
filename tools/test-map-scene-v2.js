@@ -21,7 +21,7 @@ assert.ok(registry.includes('"src/map-scene-v2.js"'));
 assert.ok(!registry.includes('"src/witcher-map-core-v1.js"'));
 assert.equal(version.map_scene_revision,"MAP-SCENE-2.2");
 assert.equal(version.map_scene.legacy_renderer_active,false);
-assert.equal(version.pwa_cache_revision,"v200");
+assert.equal(version.pwa_cache_revision,"v201");
 
 const DB={meta:{current_version:"CURRENT-2.25.22"},world_geopolitical_map:{canvas:{width:900,height:560},region_geometry:[
  {region_id:"REG-1",layer:"surface",political_entity_id:"POL-1",points:[[20,20],[620,20],[620,430],[20,430]]}
