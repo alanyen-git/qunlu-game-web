@@ -399,15 +399,48 @@ function patch(){
  globalThis.turnInGuildQuest=function(id){return globalThis.turnInQuest.apply(this,arguments)};
  globalThis.__REGIONAL_QUEST_ECOLOGY_PATCHED=true;
 }
+function localizationAudit(){
+ const collections=[
+  ["guild",arr(db()?.quest_templates)],
+  ["facility",arr(db()?.shop_quests)],
+  ["authority",arr(db()?.authority_request_archetypes)],
+  ["faith",arr(db()?.faith_mission_archetypes)],
+  ["organization",arr(db()?.organization_contract_archetypes)],
+  ["adventure",arr(db()?.adventure_event_templates)]
+ ];
+ const warnings=[],locationById=new Map(arr(db()?.locations).map(l=>[l.id,l]));
+ for(const [source,rows] of collections)for(const row of rows){
+  const o=row?.objective||{},ids=[o.location_id,...arr(row?.recommended_locations),...arr(row?.location_ids)].filter(Boolean);
+  const bound=new Set(ids.map(id=>locationById.get(id)?.name).filter(Boolean));
+  const mentioned=mentionedLocationNames(row);
+  const unresolved=mentioned.filter(name=>!bound.has(name));
+  if(unresolved.length)warnings.push({source,id:row.id||"",names:unresolved.slice(0,5)});
+ }
+ const active=[],g=game();
+ for(const q of arr(g?.quests)){
+  const issuer=place(q?.issuerTownId),allowed=new Set(localRegionLocations(issuer).map(l=>l.id));
+  const bad=arr(q?.viableLocationIds).filter(id=>!allowed.has(id));
+  if(issuer&&bad.length)active.push({id:q.id||"",issuerTownId:issuer.id,foreignLocationIds:bad});
+ }
+ return {
+  pass:active.length===0,
+  canonical_template_warnings:warnings.length,
+  canonical_template_samples:warnings.slice(0,20),
+  active_cross_region_quests:active,
+  rule:"模板可保留正史固定地點；所有地方發布與接取後快照必須改用當前城鎮可達地圖，禁止同省或20小時外備援。"
+}
+}
 function audit(){
  const issues=[];if(!globalThis.__REGIONAL_QUEST_ECOLOGY_PATCHED)issues.push("委託板／完成冷卻未接入");
  if(!arr(db()?.quest_templates).length)issues.push("沒有可供地區調度的公會委託模板");
  if(!arr(db()?.locations).some(x=>x.kind==="town"))issues.push("缺少城鎮索引");
- return {revision:REV,pass:issues.length===0,issues,history_size:arr(game()?.worldState?.regionalQuestEcology?.records).length,
+ const localization=localizationAudit();
+ if(localization.active_cross_region_quests.length)issues.push("已有接取委託仍指向發布城鎮以外的地圖");
+ return {revision:REV,pass:issues.length===0,issues,localization,history_size:arr(game()?.worldState?.regionalQuestEcology?.records).length,
   cooldown_hours:{same_template:120,same_target:96,recent_patrol_type:48},save_compatible:true};
 }
 globalThis.runRegionalQuestEcologyAudit=audit;
-globalThis.QUNLU_REGIONAL_QUEST=Object.freeze({revision:REV,board,cooldown,validLocations,kind,target,localizeAuthorityRequest,localizeFaithMission,localizeOrganizationContract,audit});
+globalThis.QUNLU_REGIONAL_QUEST=Object.freeze({revision:REV,board,cooldown,validLocations,kind,target,localizeAuthorityRequest,localizeFaithMission,localizeOrganizationContract,localizationAudit,audit});
 if(db()?.meta)db().meta.regional_quest_ecology_revision=REV;
 patch();
 globalThis.QUNLU_CORE?.registerModule?.("src/quest-regional-ecology-v1.js",{domain:"finalization",revision:REV});
