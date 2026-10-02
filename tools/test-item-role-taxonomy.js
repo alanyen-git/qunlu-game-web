@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
-const globalThis={QUNLU_RELEASE_VERSION:"CURRENT-2.25.21"};
+const globalThis={QUNLU_RELEASE_VERSION:"CURRENT-2.25.22"};
 globalThis.globalThis=globalThis;
 const ctx=vm.createContext({globalThis,console});
 vm.runInContext(fs.readFileSync("src/game-data.js","utf8"),ctx);
