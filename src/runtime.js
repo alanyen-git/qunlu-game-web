@@ -6,6 +6,7 @@ DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
 DB.meta.runtime_optimization_revision="RUNTIME-OPT-1.5";
 DB.meta.save_storage_revision="SAVE-STORAGE-2.0";
 DB.meta.ui_runtime_revision="UI-RUNTIME-1.0";
+DB.meta.combat_scaling_revision="COMBAT-SCALING-2.0";
 DB.meta.inventory_category_filter_revision="INVENTORY-CATEGORY-FILTER-1.0";
 DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
@@ -63,6 +64,31 @@ const $=s=>{
  return document.querySelector(s)
 };
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=n=>Math.floor(Math.random()*n);
+const COMBAT_NUMERIC_SCALE=2;
+const COMBAT_STAMINA_MAX=100;
+const combatScaledNumber=(value,scale=COMBAT_NUMERIC_SCALE)=>{
+ const n=Number(value);
+ return Number.isFinite(n)?Math.round(n*scale):value
+};
+const combatScaledRate=value=>{
+ const n=Number(value);
+ return Number.isFinite(n)?Math.round(n*COMBAT_NUMERIC_SCALE*100)/100:value
+};
+const scaleCombatRecord=(record,fields=["hp","attack","magic","magicPower","defense","magicDefense","poise"])=>{
+ const out={...record};
+ for(const key of fields)if(Number.isFinite(Number(out[key])))out[key]=combatScaledNumber(out[key]);
+ if(Array.isArray(out.damage))out.damage=out.damage.map(value=>combatScaledNumber(value));
+ return out
+};
+globalThis.QUNLU_COMBAT_SCALING={
+ version:"COMBAT-SCALING-2.0",
+ magnitude:COMBAT_NUMERIC_SCALE,
+ staminaMax:COMBAT_STAMINA_MAX,
+ scaledNumber:combatScaledNumber,
+ scaledRate:combatScaledRate,
+ scaleRecord:scaleCombatRecord,
+ preserved:["等級","技能／命中／爆擊等百分比","機率","價格","時間","存檔ID"]
+};
 function canonicalPoliticalStandingId(id){return DB.political_merge_map?.[id]||id}
 function normalizePoliticalStandingState(){
  const c=G?.character;if(!c)return {changed:false,repairs:[]};
@@ -497,6 +523,7 @@ function migrateSave(){
    G.character.talents=[...new Set(G.character.talents.map(remapTalentId).filter(id=>valid.has(id)))];
  }
 
+ if(G?.character)syncResourceCaps(true);
  if(!G||G.meta?.version===CURRENT_VERSION)return;
  G.meta.version=CURRENT_VERSION;
  const c=G.character;if(!Array.isArray(c.knownCookingRecipes))c.knownCookingRecipes=cookingLegacyKnownRecipes(c);c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
@@ -1182,9 +1209,9 @@ function resourceCaps(){
  const str=statCode("STR",false),con=statCode("CON",false),intl=statCode("INT",false),wis=statCode("WIS",false),lv=Math.max(1,G.character.level||1);
  const r=raceData(),o=org(G.character.originId);
  return {
-   hp:Math.max(1,Math.round(16+con*1.2+(lv-1)*2)),
-   stamina:Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8)),
-   mana:Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana"))),
+   hp:Math.max(1,combatScaledNumber(Math.round(16+con*1.2+(lv-1)*2))),
+   stamina:COMBAT_STAMINA_MAX,
+   mana:Math.max(0,combatScaledNumber(Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana")))),
    carry:Math.max(20,roundCarry(30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity")+sharedCarryCapacityBonus().total))
  }
 }
@@ -1224,10 +1251,10 @@ function combatStats(sharedWeight=null){
  const loadWeight=sharedWeight==null?calcWeight():sharedWeight,loadRatio=carry>0?loadWeight/carry:0,overloadMove=loadRatio>1?Math.min(35,(loadRatio-1)*50):0;
  const blockRate=clamp(Math.round(2+con*.18+e.blockRate+s.blockRate+b.blockRate+r.blockRate+t.blockRate+(ae.blockRate||0)+af.blockRate),0,75);
  const cs={
-   attack:Math.round((atkBase+e.attack+s.attack+b.attack+r.attack+t.attack)*(1+(af.attack_pct+ci.attack_pct)/100)),
-   magicPower:Math.round((magicBase+e.magicPower+s.magicPower+b.magicPower+r.magicPower+t.magicPower)*(1+(af.magic_attack_pct+ci.magic_attack_pct)/100)),
-   defense:Math.round((2+con*.78+str*.18+e.defense+s.defense+b.defense+r.defense+t.defense)*(1+bp.defensePct/100)*(1+(af.defense_pct+ci.defense_pct)/100)),
-   magicDefense:Math.round((2+wis*.82+con*.26+e.magicDefense+s.magicDefense+b.magicDefense+r.magicDefense+t.magicDefense)*(1+bp.magicDefensePct/100)*(1+(af.magic_defense_pct+ci.magic_defense_pct)/100)),
+   attack:combatScaledNumber(Math.round((atkBase+e.attack+s.attack+b.attack+r.attack+t.attack)*(1+(af.attack_pct+ci.attack_pct)/100))),
+   magicPower:combatScaledNumber(Math.round((magicBase+e.magicPower+s.magicPower+b.magicPower+r.magicPower+t.magicPower)*(1+(af.magic_attack_pct+ci.magic_attack_pct)/100))),
+   defense:combatScaledNumber(Math.round((2+con*.78+str*.18+e.defense+s.defense+b.defense+r.defense+t.defense)*(1+bp.defensePct/100)*(1+(af.defense_pct+ci.defense_pct)/100))),
+   magicDefense:combatScaledNumber(Math.round((2+wis*.82+con*.26+e.magicDefense+s.magicDefense+b.magicDefense+r.magicDefense+t.magicDefense)*(1+bp.magicDefensePct/100)*(1+(af.magic_defense_pct+ci.magic_defense_pct)/100))),
    accuracy:clamp(Math.round(50+dex*1.6+luck*.2+e.accuracy+s.accuracy+b.accuracy+r.accuracy+t.accuracy+af.accuracy+ci.accuracy),5,99),
    evasion:clamp(Math.round(2+dex*.65+luck*.20+e.evasion+s.evasion+b.evasion+r.evasion+t.evasion+af.evasion+ci.evasion),0,80),
    critRate:clamp(Math.round(2+luck*.5+dex*.10+e.critRate+s.critRate+b.critRate+r.critRate+t.critRate+af.critRate+ci.crit_rate),0,75),
@@ -1245,8 +1272,8 @@ function combatStats(sharedWeight=null){
    statusResist:clamp(Math.round(5+wis*1.0+con*.45+e.statusResist+s.statusResist+b.statusResist+r.statusResist+t.statusResist+af.statusResist+ci.status_resist),0,90),
    lifeSteal:Math.round(clamp(talentSpecial("lifeSteal")*100+ae.lifeSteal+ab.lifeSteal+(G.battle?.weaponOil?.lifeSteal||0)*100+ci.life_steal,0,50)*10)/10,
    healingPower:Math.round(clamp(100+wis*1.2+intl*.35+talentSpecial("healingBonus")*100+ae.healingPower+ab.healingPower+ca.healingPower+af.healingPower,70,250)),
-   manaRegen:Math.round((.5+wis*.10+intl*.03+ae.manaRegen+ab.manaRegen+ca.manaRegen+talentSpecial("manaRegen")+af.manaRegen)*100)/100,
-   hpRegen:Math.round((.15+con*.04+talentSpecial("hpRegenPerHour")+ae.hpRegen+ab.hpRegen)*100)/100,
+   manaRegen:combatScaledRate(Math.round((.5+wis*.10+intl*.03+ae.manaRegen+ab.manaRegen+ca.manaRegen+talentSpecial("manaRegen")+af.manaRegen)*100)/100),
+   hpRegen:combatScaledRate(Math.round((.15+con*.04+talentSpecial("hpRegenPerHour")+ae.hpRegen+ab.hpRegen)*100)/100),
    critResist:Math.round(clamp(con*.20+wis*.15+ae.critResist+ab.critResist+talentSpecial("critResist"),0,60)*10)/10,
    threat:Math.round(100+con*1.4+str*.4+ae.threat+ab.threat+ca.threat+talentSpecial("threat")),
    stealth:Math.round(clamp(20+dex*1.4+luck*.3+ae.stealth+ab.stealth+ca.stealth+talentSpecial("stealth")+af.stealth,0,150)),
