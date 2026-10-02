@@ -289,6 +289,7 @@ function patch(){
  const baseFacility=globalThis.facilityQuest,baseFacilityAccept=globalThis.acceptFacilityQuest;
  const baseAuthorityGenerate=globalThis.generateAuthorityRequests,baseAuthorityAccept=globalThis.acceptAuthorityRequest;
   const baseFaithGenerate=globalThis.generateFaithMissions,baseFaithAccept=globalThis.acceptFaithMission;
+  const baseOrgCandidates=globalThis.organizationContractCandidates,baseOrgGenerate=globalThis.generateOrganizationContracts,baseOrgAccept=globalThis.acceptOrganizationContract;
  if([baseGuild,baseAccept,baseTurnIn,baseFacility,baseFacilityAccept].some(fn=>typeof fn!=="function"))return;
  globalThis.guildQuests=function(){
   const town=place(game()?.character?.locationId),original=db().quest_templates;
@@ -363,6 +364,25 @@ function patch(){
   if(accepted){decorateAccepted(accepted,fresh);if(typeof persist==="function")persist();}
   return v;
  };
+ if(typeof baseOrgCandidates==="function")globalThis.organizationContractCandidates=function(orgOrId){
+  const rows=arr(baseOrgCandidates.apply(this,arguments)),town=place(game()?.character?.locationId);
+  return town?.kind==="town"?rows.map(q=>localizeOrganizationContract(q,town)).filter(Boolean):rows;
+ };
+ if(typeof baseOrgGenerate==="function")globalThis.generateOrganizationContracts=function(orgOrId){
+  const rows=arr(baseOrgGenerate.apply(this,arguments)),town=place(game()?.character?.locationId);
+  return town?.kind==="town"?rows.map(q=>localizeOrganizationContract(q,town)).filter(Boolean):rows;
+ };
+ if(typeof baseOrgAccept==="function")globalThis.acceptOrganizationContract=function(orgId,templateId){
+  const town=place(game()?.character?.locationId),org=typeof worldOrg==="function"?worldOrg(orgId):null;
+  const raw=town&&org&&typeof baseOrgCandidates==="function"?arr(baseOrgCandidates(org)).find(q=>q.id===templateId):null;
+  const localized=raw&&town?localizeOrganizationContract(raw,town):raw;
+  if(!raw||!localized){if(typeof alert==="function")alert("此組織契約目前未在當地發布，請重新開啟契約清單。");return;}
+  const before=new Set(arr(game()?.quests).map(q=>q.id));
+  const v=baseOrgAccept.apply(this,arguments);
+  const accepted=arr(game()?.quests).find(q=>!before.has(q.id)&&q.templateId===templateId&&q.organizationId===orgId);
+  if(accepted){decorateAccepted(accepted,localized);if(typeof persist==="function")persist();}
+  return v;
+ };
  globalThis.turnInQuest=function(id){
   const g=game(),q=arr(g?.quests).find(x=>x.id===id),wasReady=q?.status==="ready";
   const v=baseTurnIn.apply(this,arguments);
@@ -387,7 +407,7 @@ function audit(){
   cooldown_hours:{same_template:120,same_target:96,recent_patrol_type:48},save_compatible:true};
 }
 globalThis.runRegionalQuestEcologyAudit=audit;
-globalThis.QUNLU_REGIONAL_QUEST=Object.freeze({revision:REV,board,cooldown,validLocations,kind,target,localizeAuthorityRequest,audit});
+globalThis.QUNLU_REGIONAL_QUEST=Object.freeze({revision:REV,board,cooldown,validLocations,kind,target,localizeAuthorityRequest,localizeFaithMission,localizeOrganizationContract,audit});
 if(db()?.meta)db().meta.regional_quest_ecology_revision=REV;
 patch();
 globalThis.QUNLU_CORE?.registerModule?.("src/quest-regional-ecology-v1.js",{domain:"finalization",revision:REV});
