@@ -24,7 +24,7 @@ vm.runInContext(runtime.slice(consumableStart,consumableEnd)+runtime.slice(tickS
 const apply=vm.runInContext("applyConsumable",ctx),tick=vm.runInContext("tickBattleEffects",ctx);
 assert.equal(apply(instant).ok,true);assert.equal(character.hp,84);assert.equal(character.buffs.length,0);
 character.hp=20;assert.equal(apply(sustained).ok,true);assert.equal(character.hp,44);
-assert.equal(character.buffs.length,1);assert.equal(character.buffs[0].hp_regen,8);assert.equal(character.buffs[0].hours,3);
+assert.equal(character.buffs.length,1);assert.equal(character.buffs[0].hp_regen,16);assert.equal(character.buffs[0].hours,3);
 apply(sustained);assert.equal(character.buffs.length,1,"field recovery should refresh, not stack");
 character.hp=20;ctx.G.battle={active:true};assert.equal(apply(sustained).ok,true);assert.equal(character.hp,44);assert.equal(character.buffs.length,0,"combat use replaces previous field regeneration");
 for(let turn=0;turn<3;turn++)tick();assert.equal(character.hp,92);assert.equal(ctx.G.battle.playerRegeneration,null);
