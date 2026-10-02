@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.21",
-  "previous_version": "CURRENT-2.25.20",
+  "version": "CURRENT-2.25.22",
+  "previous_version": "CURRENT-2.25.21",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
   "summary": "ACTIVE-QUEST-LOCAL-MIGRATION-1.0：既有進行中委託開啟時同步遷移名稱、描述、巡查點、目標地圖與地方快照，避免舊存檔繼續顯示橋灣鎮模板名稱。",
   "changelog": [
+    "COMBAT-SCALING-2.0：生命值、魔力值、攻擊力、防禦力、技能與藥劑固定量同步放大2倍；最大體力固定100；保留機率、百分比、價格、時間與存檔ID以維持相容性。",
     "ACTIVE-QUEST-LOCAL-MIGRATION-1.0：修正既有進行中委託仍顯示舊地圖／舊名稱；開啟委託板時會依發布城鎮遷移地方化快照，保留進度並更新實際目標。",
     "LOCALITY-AUDIT-1.0：新增資料庫模板與現有存檔的跨區域檢查，組織契約納入地方化；所在地不足時不再退回同省或20小時外地圖。",
     "QUEST-LOCAL-NAME-1.1：地方政務、神殿委託與臨時委託共用完整地方化，採集／討伐／設施委託也同步更新名稱與描述；不修改正史模板ID與存檔schema。",
@@ -876,7 +877,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.25.13：補齊四個資料庫領域的生成器／管理AI配對與runtime治理閘門；91個正式src模組與PWA v191同步，Android版號由版本檔遞增；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.25.21",
+    "last_verified_release": "CURRENT-2.25.22",
     "notes": [
       "ENEMY-ROSTER-1.2：多敵人生成不再只看同地圖候選池；改以第一名敵人為生態群組錨點，依 authored encounter group、勢力、怪物族群與生態類別篩選合理隊友。犬科掠食者不會與羊／鹿等草食群並肩作戰；不死、惡魔、構裝、元素、人型勢力、水生、昆蟲、龍裔與野生動物分群處理。Boss 若沒有合理隨從則保留單體，不硬湊不相關敵人。舊存檔相容。PWA v199，Android versionCode 2025020。",
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
@@ -945,7 +946,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.21",
+    "last_verified_release": "CURRENT-2.25.22",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
