@@ -48,6 +48,28 @@ function localTargetCandidates(t,town){
  });
  return rows;
 }
+function localObjectiveCandidates(t,town){
+ const o=t?.objective||{};
+ if(!town)return [];
+ if(["action","patrol"].includes(o.kind))return localTargetCandidates(t,town);
+ const original=place(o.location_id),wantedKind=original?.kind||"";
+ let rows=localRegionLocations(town).filter(l=>l.id!==town.id&&["wild","dungeon"].includes(l.kind)&&Number.isFinite(travel(town.id,l.id)));
+ if(wantedKind)rows=rows.filter(l=>l.kind===wantedKind);
+ if(["gather","item"].includes(o.kind)&&o.item_id){
+  rows=rows.filter(l=>arr(l.gather).includes(o.item_id)||arr(l.resource_profile?.forage).includes(o.item_id)||arr(l.resource_profile?.mining).includes(o.item_id)||arr(l.resource_profile?.woodcut).includes(o.item_id)||arr(l.resource_profile?.hunt).includes(o.item_id));
+ }
+ if(["kill","hunt"].includes(o.kind)&&o.monster_id){
+  const withRoster=rows.filter(l=>arr(l.encounter_monster_ids).includes(o.monster_id));
+  if(withRoster.length)rows=withRoster;
+ }
+ const originalTier=rank(original?.tier||t?.tier||"F");
+ rows.sort((a,b)=>{
+  const exact=Number(a.id===original?.id)-Number(b.id===original?.id);
+  const tier=Math.abs(rank(a.tier)-originalTier)-Math.abs(rank(b.tier)-originalTier);
+  return exact||tier||travel(town.id,a.id)-travel(town.id,b.id)||a.id.localeCompare(b.id);
+ });
+ return rows;
+}
 function localizedCheckpoints(target,original,targetCount){
  const local=arr(target?.explore).map(x=>Array.isArray(x)?x[0]:x).filter(Boolean);
  const old=arr(original?.checkpoints).filter(Boolean);
@@ -90,9 +112,9 @@ function localizeQuestName(t,target,original,aliases=[]){
 }
 function localizeTemplate(t,town,locations){
  const o=clone(t?.objective||{}),original=place(o.location_id);
- const actionTarget=localTargetCandidates(t,town)[0];
+ const localTarget=localObjectiveCandidates(t,town)[0];
  const fallback=arr(locations).map(x=>place(x?.id||x)).find(Boolean);
- const target=actionTarget||fallback;
+ const target=localTarget||fallback;
  if(target&&["action","patrol"].includes(o.kind)){
   o.location_id=target.id;
   if(o.kind==="patrol")o.checkpoints=localizedCheckpoints(target,o,o.target);
@@ -114,29 +136,35 @@ function localizeTemplate(t,town,locations){
 }
 function localizeAuthorityRequest(q,town){
  if(!town||town.kind!=="town")return q;
- const o=q?.objective||{};
- if(!["action","patrol"].includes(o.kind))return q;
- const candidate=localTargetCandidates(q,town)[0];
- if(!candidate)return null;
- const localized=localizeTemplate(q,town,[{id:candidate.id}]);
- return {...localized,viableLocationIds:[candidate.id]};
+ const o=q?.objective||{},mapBound=!!o.location_id||arr(q?.recommended_locations).length>0||["action","patrol","gather","kill","hunt"].includes(o.kind);
+ if(!mapBound)return q;
+ const locations=validLocations(q,town);if(!locations.length)return null;
+ const localized=localizeTemplate(q,town,locations);
+ return {...localized,viableLocationIds:locations.map(x=>x.id),places:locations.map(x=>x.id),issuerTownId:town.id,issuerTownName:town.name,issuerProvinceId:province(town),regionQuestCategory:"地方政務",objectiveSignature:target(localized)};
 }
 function localizeFaithMission(q,town){
  if(!town||town.kind!=="town")return q;
- const o=q?.objective||{},localized=clone(q);let places=[];
- if(["action","patrol"].includes(o.kind)){
-  const candidate=localTargetCandidates(q,town)[0];if(!candidate)return null;
-  Object.assign(localized,localizeTemplate(q,town,[{id:candidate.id}]));places=[candidate.id];
- }else if(o.kind==="gather"){
-  places=localRegionLocations(town).filter(l=>["wild","dungeon"].includes(l.kind)&&arr(l.gather).includes(o.item_id)&&Number.isFinite(travel(town.id,l.id)))
-   .sort((a,b)=>travel(town.id,a.id)-travel(town.id,b.id)||a.id.localeCompare(b.id)).map(l=>l.id);
-  if(!places.length)return null;
-  Object.assign(localized,localizeTemplate(q,town,places.map(id=>({id}))));
- }else return q;
- localized.viableLocationIds=[...new Set(places)];
+ const o=q?.objective||{},mapBound=!!o.location_id||arr(q?.recommended_locations).length>0||["action","patrol","gather","kill","hunt"].includes(o.kind);
+ if(!mapBound)return q;
+ const places=validLocations(q,town);if(!places.length)return null;
+ const localized=localizeTemplate(q,town,places);
+ localized.viableLocationIds=places.map(x=>x.id);
  localized.places=localized.viableLocationIds.slice();
  localized.issuerTownId=town.id;localized.issuerTownName=town.name;localized.issuerProvinceId=province(town);
  localized.regionQuestCategory="神殿委託";localized.objectiveSignature=target(localized);
+ localized.description=(localized.description||"")+"（本次依"+town.name+"周邊可達地圖發布。）";
+ return localized;
+}
+function localizeOrganizationContract(q,town){
+ if(!town||town.kind!=="town")return q;
+ const o=q?.objective||{},mapBound=!!o.location_id||arr(q?.recommended_locations).length>0||["action","patrol","gather","kill","hunt"].includes(o.kind);
+ if(!mapBound)return {...q,issuerTownId:town.id,issuerTownName:town.name,issuerProvinceId:province(town),regionQuestCategory:"組織契約"};
+ const places=validLocations(q,town);if(!places.length)return null;
+ const localized=localizeTemplate(q,town,places);
+ localized.viableLocationIds=places.map(x=>x.id);
+ localized.places=localized.viableLocationIds.slice();
+ localized.issuerTownId=town.id;localized.issuerTownName=town.name;localized.issuerProvinceId=province(town);
+ localized.regionQuestCategory="組織契約";localized.objectiveSignature=target(localized);
  localized.description=(localized.description||"")+"（本次依"+town.name+"周邊可達地圖發布。）";
  return localized;
 }
@@ -163,16 +191,12 @@ function cooldown(t,town){
 }
 function validLocations(t,town){
  if(!town)return [];
- const localTargets=localTargetCandidates(t,town);
- if(localTargets.length)return localTargets.map(l=>({id:l.id,hours:travel(town.id,l.id),local:true}));
- const raw=typeof questViableLocations==="function"?questViableLocations(t):arr(t.recommended_locations);
- const seen=new Set(),out=[];
- for(const id of raw){const l=place(id);if(!l||seen.has(id)||!Number.isFinite(travel(town.id,id)))continue;seen.add(id);
-  const hours=travel(town.id,id);
-  if(nearby(town,l)||hours<=20)out.push({id,hours,local:nearby(town,l)});
- }
- out.sort((a,b)=>Number(b.local)-Number(a.local)||a.hours-b.hours||a.id.localeCompare(b.id));
- return out;
+ const o=t?.objective||{},mapBound=!!o.location_id||arr(t?.recommended_locations).length>0||["action","patrol","gather","kill","hunt"].includes(o.kind);
+ const local=localObjectiveCandidates(t,town);
+ if(local.length)return local.map(l=>({id:l.id,hours:travel(town.id,l.id),local:true}));
+ // 地方目標不足時不再退回同省或20小時外的其他城鎮地圖。
+ if(mapBound)return [];
+ return [{id:town.id,hours:0,local:true}];
 }
 function signatureOfTown(town){
  const eco=town?.local_economy||{};
