@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.20",
-  "previous_version": "CURRENT-2.25.19",
+  "version": "CURRENT-2.25.21",
+  "previous_version": "CURRENT-2.25.20",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "MAP-SURVEY-PERF-1.0：修正全地圖測繪補全被綁在每次地圖按鍵重繪上的效能回歸；改為初始化／地點資料變更時才完整重算，平常按鍵走 O(1) 快取檢查。",
+  "summary": "QUEST-LOCAL-TEXT-1.0：修正地方委託公告在地點已替換後，說明文字仍沿用橋灣鎮／柳橋鎮原始野外地圖名稱的問題；公會、神殿與地方政務委託共用地點文字在地化，舊存檔相容。",
   "changelog": [
+    "QUEST-LOCAL-TEXT-1.0：修正風泉村委託公告同時顯示「灰橡林緣」與「白草牧野」的資料不一致。地方化目標改寫後，公告描述與巡查點文字同步改成實際發布城鎮周邊地圖；不修改canonical地圖、委託模板或存檔schema。公會、神殿、地方政務委託共用同一套文字在地化保護。",
     "MAP-SURVEY-PERF-1.0：修正 MAP-SURVEY-COMPLETION-2.0 的手機效能回歸。地圖 render 不再每次重跑 606 地點完整測繪；正常切層級、篩選、返回等按鍵只做 O(1) 快取檢查。完整測繪僅在初始化或 DB.locations 陣列新增／替換時執行，且群組座標基準改成一次索引，避免重複全表掃描。",
     "MAP-SURVEY-COMPLETION-2.0：將測繪覆蓋從舊核心區與五個新手區擴充到全部現行 DB.locations；保留既有手工／canonical 座標，缺少座標的地點依行省錨點＋canonical links 建立穩定區域路網位置。地圖每次開啟前會做冪等補全，發布除錯也要求未測繪地點為 0；不修改 links、hours、旅行權限或存檔 schema。",
     "ENEMY-ROSTER-1.2：多敵人生成不再只看同地圖候選池；改以第一名敵人為生態群組錨點，依 authored encounter group、勢力、怪物族群與生態類別篩選合理隊友。犬科掠食者不會與羊／鹿等草食群並肩作戰；不死、惡魔、構裝、元素、人型勢力、水生、昆蟲、龍裔與野生動物分群處理。Boss 若沒有合理隨從則保留單體，不硬湊不相關敵人。舊存檔相容。PWA v199，Android versionCode 2025020。",
@@ -494,7 +495,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v199",
+  "pwa_cache_revision": "v200",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -940,7 +941,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.20",
+    "last_verified_release": "CURRENT-2.25.21",
     "delivery_note": "GitHub branch Pages publishes independently of validation until Pages source is switched to GitHub Actions."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -2037,7 +2038,7 @@
     "mobile_first": true,
     "save_compatible": true
   },
-  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.5",
+  "regional_quest_ecology_revision": "REGIONAL-QUEST-ECOLOGY-1.6",
   "polity_province_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "goldbalance_depth_revision": "POLITY-PROVINCE-DEPTH-1.0",
   "province_geographic_expansion_revision": "PROVINCE-GEOGRAPHIC-EXPANSION-1.0",
