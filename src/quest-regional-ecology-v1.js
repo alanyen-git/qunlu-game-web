@@ -138,7 +138,8 @@ function localizeAuthorityRequest(q,town){
  if(!town||town.kind!=="town")return q;
  const o=q?.objective||{},mapBound=!!o.location_id||arr(q?.recommended_locations).length>0||["action","patrol","gather","kill","hunt"].includes(o.kind);
  if(!mapBound)return q;
- const locations=validLocations(q,town);if(!locations.length)return null;
+ const candidates=localObjectiveCandidates(q,town);if(!candidates.length)return null;
+ const locations=["action","patrol"].includes(o.kind)?candidates.slice(0,1).map(x=>({id:x.id,hours:travel(town.id,x.id),local:true})):validLocations(q,town);
  const localized=localizeTemplate(q,town,locations);
  return {...localized,viableLocationIds:locations.map(x=>x.id),places:locations.map(x=>x.id),issuerTownId:town.id,issuerTownName:town.name,issuerProvinceId:province(town),regionQuestCategory:"地方政務",objectiveSignature:target(localized)};
 }
@@ -146,7 +147,9 @@ function localizeFaithMission(q,town){
  if(!town||town.kind!=="town")return q;
  const o=q?.objective||{},mapBound=!!o.location_id||arr(q?.recommended_locations).length>0||["action","patrol","gather","kill","hunt"].includes(o.kind);
  if(!mapBound)return q;
- const places=validLocations(q,town);if(!places.length)return null;
+ const candidates=localObjectiveCandidates(q,town);if(!candidates.length)return null;
+ const places=["action","patrol"].includes(o.kind)?candidates.slice(0,1).map(x=>({id:x.id,hours:travel(town.id,x.id),local:true})):validLocations(q,town);
+ if(!places.length)return null;
  const localized=localizeTemplate(q,town,places);
  localized.viableLocationIds=places.map(x=>x.id);
  localized.places=localized.viableLocationIds.slice();
@@ -159,7 +162,9 @@ function localizeOrganizationContract(q,town){
  if(!town||town.kind!=="town")return q;
  const o=q?.objective||{},mapBound=!!o.location_id||arr(q?.recommended_locations).length>0||["action","patrol","gather","kill","hunt"].includes(o.kind);
  if(!mapBound)return {...q,issuerTownId:town.id,issuerTownName:town.name,issuerProvinceId:province(town),regionQuestCategory:"組織契約"};
- const places=validLocations(q,town);if(!places.length)return null;
+ const candidates=localObjectiveCandidates(q,town);if(!candidates.length)return null;
+ const places=["action","patrol"].includes(o.kind)?candidates.slice(0,1).map(x=>({id:x.id,hours:travel(town.id,x.id),local:true})):validLocations(q,town);
+ if(!places.length)return null;
  const localized=localizeTemplate(q,town,places);
  localized.viableLocationIds=places.map(x=>x.id);
  localized.places=localized.viableLocationIds.slice();
