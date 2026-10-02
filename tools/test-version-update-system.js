@@ -12,7 +12,7 @@ const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 
 assert.equal(version.version,"CURRENT-2.25.22");
 assert.equal(version.previous_version,"CURRENT-2.25.21");
-assert.equal(version.pwa_cache_revision,"v200");
+assert.equal(version.pwa_cache_revision,"v201");
 assert.match(runtime,/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json/);
 assert.match(runtime,/checkForGameUpdate\(true\)/);
 assert.match(runtime,/QUNLU_NATIVE_UPDATE/);
@@ -22,7 +22,7 @@ assert.match(runtime,/連線 GitHub 檢查更新/);
 assert.match(runtime,/legacy save restore failed; trying expanded storage/);
 assert.match(runtime,/expanded save restore failed/);
 assert.match(runtime,/legacy save is incomplete/);
-assert.match(sw,/CACHE_NAME=CACHE_PREFIX\+"v200"/);
+assert.match(sw,/CACHE_NAME=CACHE_PREFIX\+"v201"/);
 
 assert.match(ota,/GITHUB_VERSION_URL\s*=\s*"https:\/\/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json"/);
 assert.match(ota,/globalThis\.QUNLU_NATIVE_UPDATE/);
