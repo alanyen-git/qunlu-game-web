@@ -4644,11 +4644,11 @@ function craftEffectText(d){
    const n=Number(use.thirst);
    add(n<0?`降低口渴${Math.abs(n)}`:`增加口渴${n}`)
  }
- if(use.hp)add(`恢復HP ${use.hp}`);
- if(use.regeneration)add("持續恢復：戰鬥中每回合+"+use.regeneration.combat_hp_per_round+"HP，共"+use.regeneration.combat_rounds+"回合；非戰鬥每小時+"+use.regeneration.field_hp_per_hour+"HP，共"+use.regeneration.field_hours+"小時（不疊加）");
+ if(use.hp)add(`恢復HP ${combatScaledNumber(use.hp)}`);
+ if(use.regeneration)add("持續恢復：戰鬥中每回合+"+combatScaledNumber(use.regeneration.combat_hp_per_round)+"HP，共"+use.regeneration.combat_rounds+"回合；非戰鬥每小時+"+combatScaledRate(use.regeneration.field_hp_per_hour)+"HP，共"+use.regeneration.field_hours+"小時（不疊加）");
  if(use.hp_percent)add(`HP恢復至${use.hp_percent}%`);
- if(use.stamina)add(`恢復SP ${use.stamina}`);
- if(use.mana)add(`恢復MP ${use.mana}`);
+ if(use.stamina)add(`恢復SP ${combatScaledNumber(use.stamina)}`);
+ if(use.mana)add(`恢復MP ${combatScaledNumber(use.mana)}`);
  if(use.mana_percent)add(`MP恢復至${use.mana_percent}%`);
  if(Array.isArray(use.conditions)&&use.conditions.length){
    const names={poison:"中毒",bleed:"流血",burn:"燃燒",freeze:"冰凍",fear:"恐懼",blind:"致盲",slow:"緩慢"};
@@ -4746,7 +4746,7 @@ function itemStatsText(d,compareTo=null){
        const color=current>candidate?"var(--good)":current<candidate?"var(--bad)":"#f3efe7";
        a.push(`<span class="equip-compare-base" style="color:#f3efe7">${names[k]}${equipmentCompareValueText(candidate)}/</span><span class="${cls}" style="color:${color}">${equipmentCompareValueText(current)}</span>`)
      }
-   }else for(const [k,v] of Object.entries(d.combat||{}))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
+   }else for(const [k,v] of Object.entries(d.combat||{}))if(v){const shown=["attack","magicPower","defense","magicDefense"].includes(k)?combatScaledNumber(v):v;a.push(`${names[k]||k}${shown>0?"+":""}${typeof shown==="number"&&Math.abs(shown)<1?shown.toFixed(2):shown}`)}
  }
  if((d.feature_tags||[]).length||d.set_id){
    const advNames={moveSpeed:"移速",range:"射程",armorPenPct:"破甲",magicPenPct:"法穿",blockValue:"格擋減傷",poise:"韌性",statusAccuracy:"異常命中",lifeSteal:"生命偷取",healingPower:"治療效果",manaRegen:"MP回復/時",hpRegen:"HP回復/時",critResist:"爆擊抗性",threat:"威脅",stealth:"潛行",perception:"感知",carryCapacity:"負重",initiative:"先攻",blockRate:"格擋"};
@@ -4755,9 +4755,9 @@ function itemStatsText(d,compareTo=null){
    if(d.feature)a.push(`特色：${d.feature}`);
    if(d.set_id){const set=(DB.equipment_sets||[]).find(x=>x.id===d.set_id);if(set)a.push(`套裝：${set.name}（${set.pieces.length}件）`)}
  }
- if(d.use?.hp)a.push(`HP+${d.use.hp}`);if(d.use?.regeneration)a.push("持續恢復：戰鬥每回合+"+d.use.regeneration.combat_hp_per_round+"HP ×"+d.use.regeneration.combat_rounds+"回合／非戰鬥每小時+"+d.use.regeneration.field_hp_per_hour+"HP ×"+d.use.regeneration.field_hours+"小時");if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
- if(d.use?.mana)a.push(`MP+${d.use.mana}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
- if(d.use?.stamina)a.push(`體力+${d.use.stamina}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
+ if(d.use?.hp)a.push(`HP+${combatScaledNumber(d.use.hp)}`);if(d.use?.regeneration)a.push("持續恢復：戰鬥每回合+"+combatScaledNumber(d.use.regeneration.combat_hp_per_round)+"HP ×"+d.use.regeneration.combat_rounds+"回合／非戰鬥每小時+"+combatScaledRate(d.use.regeneration.field_hp_per_hour)+"HP ×"+d.use.regeneration.field_hours+"小時");if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
+ if(d.use?.mana)a.push(`MP+${combatScaledNumber(d.use.mana)}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
+ if(d.use?.stamina)a.push(`體力+${combatScaledNumber(d.use.stamina)}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
  if(d.revive)a.push(`倒下自動復甦${d.revive.hp_percent}%`);
  if(d.toxicity)a.push(`毒性+${d.toxicity}`);
  if(d.battle_effect)a.push(`投擲${d.battle_effect.damage||0}傷害${d.battle_effect.element?`／${d.battle_effect.element}`:""}`);
@@ -5240,7 +5240,7 @@ function supportPercentValue(s,key){
 }
 function passiveEffectText(s){
  const out=[],add=(v,label,suffix="")=>{const n=Number(v||0);if(n)out.push(`${label}${n>0?"+":""}${Math.round(n*100)/100}${suffix}`)};
- add(s?.power,"物理攻擊");add(s?.magicPower,"魔法攻擊");add(s?.defense,"物理防禦");add(s?.magicDefense,"魔法防禦");
+ add(combatScaledNumber(s?.power),"物理攻擊");add(combatScaledNumber(s?.magicPower),"魔法攻擊");add(combatScaledNumber(s?.defense),"物理防禦");add(combatScaledNumber(s?.magicDefense),"魔法防禦");
  add(s?.accuracy,"命中","%");add(s?.evasion,"閃避","%");add(s?.critRate,"爆擊率","%");add(s?.critDamage,"爆擊傷害","%");
  add(s?.blockRate,"格擋率","%");add(s?.statusResist,"異常抗性","%");
  return out.join("、")||s?.effect_text||s?.desc||"持續生效"
@@ -5269,7 +5269,7 @@ function supportEffectText(s){
  const dp=supportPercentValue(s,"defense_pct"),mdp=supportPercentValue(s,"magic_defense_pct");
  if(dp)out.push(`物理防禦+${dp}%`);
  if(mdp)out.push(`魔法防禦+${mdp}%`);
- add(s?.power,"物理攻擊");add(s?.magicPower,"魔法攻擊");add(s?.defense,"物理防禦");add(s?.magicDefense,"魔法防禦");
+ add(combatScaledNumber(s?.power),"物理攻擊");add(combatScaledNumber(s?.magicPower),"魔法攻擊");add(combatScaledNumber(s?.defense),"物理防禦");add(combatScaledNumber(s?.magicDefense),"魔法防禦");
  add(s?.accuracy,"命中","%");add(s?.evasion,"閃避","%");add(s?.critRate,"爆擊率","%");add(s?.critDamage,"爆擊傷害","%");
  add(s?.blockRate,"格擋率","%");add(s?.statusResist,"異常抗性","%");
  if(Number(s?.attackSpeed||0))out.push(`攻擊速度+${Math.round(Number(s.attackSpeed)*100)}%`);
