@@ -1156,3 +1156,17 @@ input,select{
   .game-shell .play-section{display:grid;grid-template-columns:1fr 1.45fr;gap:12px;align-items:start}
   .game-shell .play-section .section-title{padding-top:6px}
 }
+
+/* Original party portrait strip: visual layer only, runtime data stays in DB. */
+.journey-hero{position:relative;overflow:hidden}
+.journey-hero:after{
+  content:"";position:absolute;right:2%;bottom:-2px;width:min(62%,520px);height:100%;
+  background:url("../art/qunlu-party-portraits.svg") right bottom/contain no-repeat;
+  pointer-events:none;opacity:.96;
+}
+.journey-hero-caption,.journey-hero-note{position:relative;z-index:1;max-width:43%}
+@media(max-width:560px){
+  .journey-hero{min-height:168px}
+  .journey-hero:after{right:-10%;width:78%;opacity:.9}
+  .journey-hero-caption,.journey-hero-note{max-width:48%}
+}
