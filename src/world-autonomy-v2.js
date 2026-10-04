@@ -1,11 +1,12 @@
-/* 群陸旅誌：自主世界第二階段
- * WORLD-AUTONOMY-2.1
+/* 群陸旅誌：自主世界第二階段 CURRENT-1.61.0
+ * WORLD-AUTONOMY-2.0
  * NPC日程／商隊物流／資源再生／地下城重生與佔領／跨區天候鋒面
  */
 (()=>{
   if(typeof DB!=="object"||!DB)return;
 
-  const REVISION="WORLD-AUTONOMY-2.1";
+  const RELEASE="CURRENT-1.61.0";
+  const REVISION="WORLD-AUTONOMY-2.0";
   const CFG={
     heartbeat_ms:30000,
     npc_tick_hours:1,
@@ -18,6 +19,7 @@
   };
 
   DB.meta=DB.meta||{};
+  DB.meta.current_version=RELEASE;
   DB.meta.world_autonomy_revision=REVISION;
   DB.world_autonomy_phase2_system={
     version:REVISION,
@@ -28,7 +30,6 @@
       "NPC位置由世界時刻決定，不等待玩家觸發。",
       "商隊離開產地時降低當地供應，抵達目的地時增加當地供應，沿用MARKET-PRICE-SYNC-2.0價格模型。",
       "採集會扣除當地資源節點容量，節點依世界時間逐步恢復。",
-      "新手區可用resource_economy依地方繁榮、產業與環境修正資源容量與恢復速度；不改變素材層級上限。",
       "地下城討伐會降低怪物壓力，之後依世界時間再生並可能改變佔領者。",
       "天候以行省為單位保存，鋒面會跨行省移動；角色所在地天候同步到既有weather欄位。",
       "離線補算只推進世界狀態，不直接傷害角色或強制發生戰鬥。"
@@ -46,9 +47,7 @@
   };
 
   const GATHER_PATCHES={
-    // 琥珀田野為 F 級安全農野，只能直接取得 F 級蜂蜜。
-    // 精製蜂蠟／長纖亞麻皆為 E 級加工農產，由琥珀田鎮與商隊物流供應，不得列入野外直接採集池。
-    "ASD2-WILD-AMBERFIELDS":["ITEM-ASD2-AMBER-HONEY"],
+    "ASD2-WILD-AMBERFIELDS":["ITEM-ASD2-AMBER-HONEY","ITEM-ASD2-BEESWAX","ITEM-ASD2-FLAX"],
     "ASD2-WILD-SEABREAKREEF":["ITEM-ASD2-REEF-SALT"],
     "ASD2-WILD-NIGHTMARSH":["ITEM-ASD2-MIRROR-MUD"]
   };
@@ -200,15 +199,11 @@
 
   function genericResourceConfig(l,d){const rank=tierRank(d?.tier||l?.tier||"F"),max=[18,15,12,8,5,3,1][rank]||8,regen=[4,6,8,12,24,48,96][rank]||12;return {max,regen_hours_per_unit:regen}}
   function resourceKey(locationId,itemId){return `${locationId}::${itemId}`}
-  function resourceConfig(locationId,itemId){
-    const l=getLoc(locationId),base=SPECIAL_RESOURCE_CONFIG[itemId]||genericResourceConfig(l,getItem(itemId)),eco=l?.resource_economy||null;
-    const capacityMult=clampValue(Number(eco?.capacity_mult||1),.65,1.35),regenMult=clampValue(Number(eco?.regen_hours_mult||1),.65,1.5);
-    return {max:Math.max(1,Math.round(Number(base.max||1)*capacityMult)),regen_hours_per_unit:Math.max(1,Math.round(Number(base.regen_hours_per_unit||12)*regenMult))}
-  }
+  function resourceConfig(locationId,itemId){return SPECIAL_RESOURCE_CONFIG[itemId]||genericResourceConfig(getLoc(locationId),getItem(itemId))}
   function ensureResourceNode(locationId,itemId,current=nowHour()){
     const s=phase2State(),key=resourceKey(locationId,itemId),cfg=resourceConfig(locationId,itemId);
     if(!s.resourceNodes[key])s.resourceNodes[key]={locationId,itemId,current:cfg.max,max:cfg.max,regenHoursPerUnit:cfg.regen_hours_per_unit,lastHour:current,regenCarry:0};
-    const node=s.resourceNodes[key];node.max=cfg.max;node.regenHoursPerUnit=cfg.regen_hours_per_unit;if(!Number.isFinite(Number(node.current)))node.current=cfg.max;node.current=Math.min(node.max,Math.max(0,Number(node.current||0)));if(!Number.isFinite(Number(node.lastHour)))node.lastHour=current;if(!Number.isFinite(Number(node.regenCarry)))node.regenCarry=0;return node;
+    const node=s.resourceNodes[key];node.max=cfg.max;node.regenHoursPerUnit=cfg.regen_hours_per_unit;if(!Number.isFinite(Number(node.current)))node.current=cfg.max;if(!Number.isFinite(Number(node.lastHour)))node.lastHour=current;if(!Number.isFinite(Number(node.regenCarry)))node.regenCarry=0;return node;
   }
   function allResourcePairs(){const pairs=[];for(const l of (DB.locations||[]))for(const itemId of (l.gather||[]))if(getItem(itemId)?.wild_gather_eligible)pairs.push([l.id,itemId]);return pairs}
   function syncResourceNodes(force=false){
@@ -223,7 +218,7 @@
   function resourceAvailable(locationId,itemId){return Number(worldResourceNodeState(locationId,itemId)?.current||0)>0}
   function consumeResource(locationId,itemId,qty){const node=worldResourceNodeState(locationId,itemId);if(!node)return 0;const take=Math.max(0,Math.min(Number(qty||0),Number(node.current||0)));node.current-=take;node.lastHarvestHour=nowHour();if(node.current<=0)pushWorldEvent("resource_depleted",`${getLoc(locationId)?.name||locationId}的${getItem(itemId)?.name||itemId}暫時採盡，等待自然恢復。`,{locationId,itemId});return take}
 
-  function dungeonRespawnHours(tier,l=null){const base=({F:24,E:30,D:36,C:48,B:72,A:120,S:240})[tier]||48,mult=clampValue(Number(l?.dungeon_economy?.respawn_hours_mult||1),.7,1.4);return Math.max(12,Math.round(base*mult))}
+  function dungeonRespawnHours(tier){return ({F:24,E:30,D:36,C:48,B:72,A:120,S:240})[tier]||48}
   function dungeonOccupierFor(l,population){if(population<.18)return {type:"vacant",id:null,name:"低活動／近乎空置"};const monsters=(DB.monsters||[]).filter(m=>Array.isArray(m.habitat)&&m.habitat.includes(l.id));if(monsters.length){const m=monsters[Math.floor(Math.random()*monsters.length)];return {type:"monster",id:m.id,name:m.name}}if(l.tier==="B")return {type:"restricted",id:null,name:"封鎖區監管與未知活動"};return {type:"wild",id:null,name:"零散魔物與野生生物"}}
   function ensureDungeonState(locationId,current=nowHour()){
     const s=phase2State(),l=getLoc(locationId);if(!l||l.kind!=="dungeon")return null;
@@ -233,7 +228,7 @@
   function syncDungeonStates(force=false){
     const s=phase2State();if(!s)return false;const current=nowHour(),elapsed=Math.max(0,current-Number(s.lastDungeonHour||current));if(!force&&elapsed<CFG.dungeon_tick_hours)return false;
     for(const l of (DB.locations||[]).filter(x=>x.kind==="dungeon")){
-      const d=ensureDungeonState(l.id,current),delta=Math.max(0,current-Number(d.lastHour||current)),respawn=dungeonRespawnHours(l.tier,l);d.population=clampValue(Number(d.population||0)+delta/respawn*.35,0,1);d.lastHour=current;
+      const d=ensureDungeonState(l.id,current),delta=Math.max(0,current-Number(d.lastHour||current)),respawn=dungeonRespawnHours(l.tier);d.population=clampValue(Number(d.population||0)+delta/respawn*.35,0,1);d.lastHour=current;
       if(current>=Number(d.nextOccupationHour||0)){const old=d.occupier?.name||"";d.occupier=dungeonOccupierFor(l,d.population);d.nextOccupationHour=current+24;if(old&&old!==d.occupier.name)pushWorldEvent("dungeon_occupation",`${l.name}的活動主體由「${old}」轉為「${d.occupier.name}」。`,{locationId:l.id,occupier:d.occupier})}
     }
     s.lastDungeonHour=current;return true;
@@ -252,18 +247,11 @@
   function processWeatherFronts(force=false){const s=phase2State();if(!s)return false;ensureWeatherFronts();const current=nowHour(),elapsed=Math.max(0,current-Number(s.lastWeatherFrontHour||current));if(!force&&elapsed<CFG.weather_front_tick_hours){syncLocalWeather();return false}const steps=Math.max(1,Math.min(16,Math.floor(elapsed/CFG.weather_front_tick_hours)||1));for(let step=0;step<steps;step++)for(const front of s.weatherFronts){front.index=(front.index+front.direction+ASD_PROVINCE_RING.length)%ASD_PROVINCE_RING.length;front.lastMoveHour=current}rebuildRegionalWeather(current);syncLocalWeather();s.lastWeatherFrontHour=current;return true}
   function worldRegionalWeather(provinceId){processWeatherFronts(false);return phase2State()?.regionalWeather?.[provinceId]||null}
 
-  function inventoryQtySnapshot(ids){
-    const wanted=new Set(ids),out=new Map();
-    for(const row of (G?.character?.inventory||[])){
-      if(!wanted.has(row?.id))continue;
-      out.set(row.id,Number(out.get(row.id)||0)+Number(row.qty||1));
-    }
-    return out
-  }
+  function inventoryQtyLocal(id){return (G?.character?.inventory||[]).filter(x=>x.id===id).reduce((n,x)=>n+Number(x.qty||1),0)}
   function patchGatherRuntime(){
     if(globalThis.__WORLD_AUTONOMY2_GATHER_PATCHED)return;
     if(typeof globalThis.gatherEligiblePool==="function"){const originalPool=globalThis.gatherEligiblePool;globalThis.gatherEligiblePool=function(l){syncResourceNodes(false);return originalPool.apply(this,arguments).filter(id=>resourceAvailable(l?.id,id))}}
-    if(typeof globalThis.actGather==="function"){const originalActGather=globalThis.actGather;globalThis.actGather=function(){const l=getLoc(G?.character?.locationId),ids=Array.isArray(l?.gather)?l.gather.slice():[],before=inventoryQtySnapshot(ids);const result=originalActGather.apply(this,arguments);if(l){const after=inventoryQtySnapshot(ids);for(const id of ids){const gained=Math.max(0,Number(after.get(id)||0)-Number(before.get(id)||0));if(gained>0)consumeResource(l.id,id,gained)}}return result}}
+    if(typeof globalThis.actGather==="function"){const originalActGather=globalThis.actGather;globalThis.actGather=function(){const l=getLoc(G?.character?.locationId),ids=Array.isArray(l?.gather)?l.gather.slice():[],before=new Map(ids.map(id=>[id,inventoryQtyLocal(id)]));const result=originalActGather.apply(this,arguments);if(l)for(const id of ids){const gained=Math.max(0,inventoryQtyLocal(id)-Number(before.get(id)||0));if(gained>0)consumeResource(l.id,id,gained)}return result}}
     globalThis.__WORLD_AUTONOMY2_GATHER_PATCHED=true;
   }
   function patchDungeonKillRuntime(){if(globalThis.__WORLD_AUTONOMY2_KILL_PATCHED)return;if(typeof globalThis.updateQuestProgress==="function"){const original=globalThis.updateQuestProgress;globalThis.updateQuestProgress=function(kind,data={}){const result=original.apply(this,arguments);if(kind==="kill"){const l=getLoc(G?.character?.locationId);if(l?.kind==="dungeon")markDungeonKill(l.id,Number(data?.qty||1))}return result}}globalThis.__WORLD_AUTONOMY2_KILL_PATCHED=true}
@@ -284,7 +272,7 @@
   function patchMoreMenu(){if(globalThis.__WORLD_AUTONOMY2_MENU_PATCHED||typeof globalThis.openMoreMenu!=="function")return;const original=globalThis.openMoreMenu;globalThis.openMoreMenu=function(){const result=original.apply(this,arguments);setTimeout(()=>{const grid=document.querySelector("#modalBody .more-grid");if(grid&&!grid.querySelector("[data-world-autonomy2]")){const b=document.createElement("button");b.className="more-card";b.dataset.worldAutonomy2="1";b.innerHTML='<span class="more-icon">◌</span><span>世界動態</span>';b.addEventListener("click",openWorldAutonomyPanel);grid.appendChild(b)}},0);return result};globalThis.__WORLD_AUTONOMY2_MENU_PATCHED=true}
   function patchActionTimeTrigger(){if(globalThis.__WORLD_AUTONOMY2_ENDTURN_PATCHED||typeof globalThis.endTurn!=="function")return;const original=globalThis.endTurn;globalThis.endTurn=function(){const result=original.apply(this,arguments);setTimeout(()=>phase2Heartbeat("action"),0);return result};globalThis.__WORLD_AUTONOMY2_ENDTURN_PATCHED=true}
   function initializePhase2(){
-    if(typeof G==="undefined"||!G?.worldState)return false;G.meta=G.meta||{};applyGatherPatches();const s=phase2State();
+    if(typeof G==="undefined"||!G?.worldState)return false;G.meta=G.meta||{};G.meta.version=RELEASE;applyGatherPatches();const s=phase2State();
     if(!s.initialized){s.initialized=true;s.initializedHour=nowHour();updateNpcSchedules(true);syncResourceNodes(true);syncDungeonStates(true);ensureWeatherFronts();rebuildRegionalWeather(nowHour());syncLocalWeather();for(const route of CARAVAN_ROUTES)if(routeValid(route))ensureCaravanState(route);pushWorldEvent("phase2_init","自主世界第二階段已啟動：NPC、商隊、資源、地下城與區域天候開始依世界時間運作。",{})}
     patchGatherRuntime();patchDungeonKillRuntime();patchMoreMenu();patchActionTimeTrigger();return true;
   }
@@ -303,6 +291,6 @@
   globalThis.WORLD_AUTONOMY_PHASE2_CONFIG=Object.freeze({...CFG});
   if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>phase2Heartbeat("visible"),40)});
   if(typeof window!=="undefined")window.addEventListener("focus",()=>setTimeout(()=>phase2Heartbeat("focus"),40));
-  globalThis.QUNLU_CORE?.registerInterval?.("world-autonomy-v2-heartbeat",()=>phase2Heartbeat("interval"),CFG.heartbeat_ms);
+  setInterval(()=>phase2Heartbeat("interval"),CFG.heartbeat_ms);
   setTimeout(()=>phase2Heartbeat("startup"),50);
 })();

@@ -75,7 +75,7 @@
   };
 
   DB.meta=DB.meta||{};
-  DB.meta.current_version=globalThis.QUNLU_RELEASE_VERSION||DB.meta.current_version||RELEASE;
+  DB.meta.current_version=RELEASE;
   DB.meta.npc_depth_revision=REVISION;
   DB.npc_depth_system={
     version:REVISION,
@@ -369,6 +369,6 @@
   initialize();
   if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(()=>npcDepthHeartbeat("visible"),80)});
   if(typeof window!=="undefined")window.addEventListener("focus",()=>setTimeout(()=>npcDepthHeartbeat("focus"),80));
-  globalThis.QUNLU_CORE?.registerInterval?.("npc-depth-v1-heartbeat",()=>npcDepthHeartbeat("interval"),CFG.heartbeat_ms);
+  setInterval(()=>npcDepthHeartbeat("interval"),CFG.heartbeat_ms);
   setTimeout(()=>npcDepthHeartbeat("startup"),100);
 })();

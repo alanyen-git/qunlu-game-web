@@ -1,30 +1,13 @@
 
-const CURRENT_VERSION=globalThis.QUNLU_RELEASE_VERSION||"CURRENT-2.12.0";
+const CURRENT_VERSION="CURRENT-1.57.0";
 const AUDIT_INTERVAL_TURNS=5;
 DB.meta.current_version=CURRENT_VERSION;
 DB.hard_rules.audit_every_turns=AUDIT_INTERVAL_TURNS;
-DB.meta.runtime_optimization_revision="RUNTIME-OPT-1.5";
-DB.meta.save_storage_revision="SAVE-STORAGE-2.0";
+DB.meta.runtime_optimization_revision="RUNTIME-OPT-1.4";
 DB.meta.ui_runtime_revision="UI-RUNTIME-1.0";
-DB.meta.combat_scaling_revision="COMBAT-SCALING-2.0";
-DB.meta.inventory_category_filter_revision="INVENTORY-CATEGORY-FILTER-1.0";
 DB.meta.quality_audit_revision="QUALITY-AUDIT-1.0";
 DB.meta.status_runtime_revision="STATUS-1.11";
-DB.meta.political_standing_repair_revision="POLITICAL-STANDING-REPAIR-1.0";
-DB.meta.battle_formation_revision="BATTLE-FORMATION-2.0";
-DB.meta.gather_runtime_revision="GATHER-RUNTIME-1.1";
-DB.meta.team_carry_revision="TEAM-CARRY-1.0";
-DB.meta.subjob_progression_revision="SUBJOB-PROGRESSION-2.0";
-DB.subjob_progression_system={
- version:"SUBJOB-PROGRESSION-2.0",
- grades:["F","E","D","C","B","A","S"],
- promotion_mode:"manual",
- xp_mode:"cumulative",
- rules:["副職業經驗由對應製作／料理行動取得。","達到下一階XP門檻且角色等級符合要求後，由角色介面手動升級。","升級不消耗累積XP，門檻採累積制；S級為上限。"],
- save_schema_changed:false
-};
-DB.team_carry_system={version:"TEAM-CARRY-1.0",save_schema_changed:false,counts:["實際同行NPC隊友","寵物／契約獸"],excludes:["純召喚獸"],factors:{teammate:["定位","種族體格","階級","等級","羈絆"],companion:["物種體型特徵","階級","等級","羈絆"]},rule:"以共享行李額度增加角色即時負重上限；不改物品重量，不把同行者完整個人負重全部轉給玩家。"};
-DB.runtime_optimization_system.version="RUNTIME-OPT-1.5";
+DB.runtime_optimization_system.version="RUNTIME-OPT-1.4";
 DB.status_system.version="STATUS-1.11";
 Object.assign(DB.status_system.definitions,{
  confusion:{name:"混亂",category:"control",cleanse:["confusion"],effect:"每回合45%無法行動，命中下降"},
@@ -41,20 +24,10 @@ DB.integration_registry.optimization_notes.push("RUNTIME-OPT-1.1：移除戰鬥�
 DB.integration_registry.optimization_notes.push("CURRENT-1.52.0／QUALITY-AUDIT-1.0：修正製作扣料、戰鬥行動驗證、狀態引用/runtime與窄螢幕可讀性；不改canonical世界內容與存檔結構。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.53.0／UI-RUNTIME-1.0：快取靜態DOM、略過相同介面重寫、批次同步背包型委託、共用戰鬥數值，並補齊彈窗鍵盤焦點；不改canonical世界內容與存檔結構。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.54.0／RUNTIME-OPT-1.4：補齊能力點與技能XP舊存檔正規化、三次教會復活、商店每日庫存及每日收購資金；不改canonical世界內容與既有角色資料。");
-DB.integration_registry.optimization_notes.push("CURRENT-2.07.1／RUNTIME-OPT-1.5：相同狀態存檔略過重複localStorage寫入、主畫面共用負重結果，降低大型存檔與背包反覆序列化／掃描成本；不改canonical世界內容與存檔schema。");
-DB.integration_registry.optimization_notes.push("CURRENT-2.07.4／SAVE-STORAGE-2.0：主存檔與更新備份由localStorage遷移至IndexedDB大容量儲存，保留localStorage失敗回退與舊存檔自動搬移；以舊5 MB級localStorage為基準提供10倍50 MB設計目標。");
-DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／POLITICAL-STANDING-REPAIR-1.0：政治聲望整併改為每次載入、聲望讀寫與五回合自檢前皆正規化；POL-005→POL-001、POL-006→POL-007、POL-018→POL-001，不再因CURRENT版本短路或舊政務回報重新產生退役政治體聲望。");
-DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／BATTLE-FORMATION-2.0：戰鬥介面改為敵方置頂；自己、隊友與出戰寵物／召喚獸共用盟友並排網格。戰鬥卡不再顯示寵物／召喚獸光環與專屬技能明細，保留AI與HP資訊。");
-DB.integration_registry.optimization_notes.push("CURRENT-2.10.0／GATHER-RUNTIME-1.1：採集正式讀取gather／mining／woodcut三類地圖資源池；工具需求統一以tool_effect判定，缺工具時顯示實際缺少的工具並提示雜貨鋪。");
-DB.integration_registry.optimization_notes.push("CURRENT-2.10.1／TEAM-CARRY-1.0：實際同行隊友與寵物／契約獸依定位、體格、階級、等級與羈絆提供共享負重；純召喚獸不提供常駐行李空間。負重直接接入resourceCaps→combatStats主鏈、超重懲罰、HUD與背包。");
-DB.integration_registry.optimization_notes.push("CURRENT-2.11.0／SUBJOB-PROGRESSION-2.0：副職業改為累積XP＋角色介面手動升級；角色頁直接顯示目前XP／下一階所需XP與升級按鍵，保留既有XP與舊存檔相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.55.0／CONTENT-DEPTH-1.0：西境河谷加入地點限定奇遇、F～C級委託、設施委託、地方傳聞、節慶、微歷史與民俗；既有存檔原地相容。");
 DB.integration_registry.optimization_notes.push("CURRENT-1.57.0／WEB-DEPLOY-1.0：正式版改由GitHub Pages發布，版本檢查使用相對路徑並定期偵測更新；遊玩與發布皆不依賴Netlify。");
 let G=null;
-// 跨模組狀態橋接：地圖、勢力與其他獨立程序透過 globalThis.G 讀取目前遊戲狀態。
-// 保留 runtime 內部 G 的既有引用與存檔流程，只補上同一個 live reference。
-Object.defineProperty(globalThis,"G",{configurable:true,get:()=>G,set:value=>{G=value}});
-let creation={race:null,raceSubtype:null,origin:null,originFacet:null,element:null,classId:null,randomLeft:10};
+let creation={race:null,raceSubtype:null,origin:null,element:null,classId:null,randomLeft:10};
 const DOM_CACHE=new Map(),UI_HTML_CACHE=new WeakMap();
 const $=s=>{
  if(/^#[A-Za-z][\w-]*$/.test(s)){
@@ -64,53 +37,6 @@ const $=s=>{
  return document.querySelector(s)
 };
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=n=>Math.floor(Math.random()*n);
-const COMBAT_NUMERIC_SCALE=2;
-const COMBAT_STAMINA_MAX=100;
-const combatScaledNumber=(value,scale=COMBAT_NUMERIC_SCALE)=>{
- const n=Number(value);
- return Number.isFinite(n)?Math.round(n*scale):value
-};
-const combatScaledRate=value=>{
- const n=Number(value);
- return Number.isFinite(n)?Math.round(n*COMBAT_NUMERIC_SCALE*100)/100:value
-};
-const scaleCombatRecord=(record,fields=["hp","attack","magic","magicPower","defense","magicDefense","poise"])=>{
- const out={...record};
- for(const key of fields)if(Number.isFinite(Number(out[key])))out[key]=combatScaledNumber(out[key]);
- if(Array.isArray(out.damage))out.damage=out.damage.map(value=>combatScaledNumber(value));
- return out
-};
-globalThis.QUNLU_COMBAT_SCALING={
- version:"COMBAT-SCALING-2.0",
- magnitude:COMBAT_NUMERIC_SCALE,
- staminaMax:COMBAT_STAMINA_MAX,
- scaledNumber:combatScaledNumber,
- scaledRate:combatScaledRate,
- scaleRecord:scaleCombatRecord,
- preserved:["等級","技能／命中／爆擊等百分比","機率","價格","時間","存檔ID"]
-};
-function canonicalPoliticalStandingId(id){return DB.political_merge_map?.[id]||id}
-function normalizePoliticalStandingState(){
- const c=G?.character;if(!c)return {changed:false,repairs:[]};
- c.politicalStanding=c.politicalStanding&&typeof c.politicalStanding==="object"?c.politicalStanding:{};
- const s=c.politicalStanding,repairs=[];let changed=false;
- for(const [oldId,newId] of Object.entries(DB.political_merge_map||{"POL-005":"POL-001","POL-006":"POL-007","POL-018":"POL-001"})){
-   if(!Object.prototype.hasOwnProperty.call(s,oldId))continue;
-   const source=clamp(Number(s[oldId])||0,-100,100),target=s[newId];
-   if(target==null||Math.abs(source)>Math.abs(Number(target)||0))s[newId]=source;
-   delete s[oldId];changed=true;repairs.push(`${oldId}→${newId}`)
- }
- for(const [pid,v] of Object.entries(s)){
-   const n=Number(v),fixed=Number.isFinite(n)?clamp(n,-100,100):0;
-   if(v!==fixed){s[pid]=fixed;changed=true;repairs.push(`${pid}聲望範圍修正`)}
- }
- if(changed){
-   G.worldState=G.worldState||{};
-   G.worldState.lastPoliticalStandingRepair={turn:Number(G.turn||0),time:typeof timeText==="function"?timeText():null,repairs:[...new Set(repairs)]}
- }
- return {changed,repairs:[...new Set(repairs)]}
-}
-globalThis.repairPoliticalStandingState=normalizePoliticalStandingState;
 function normalizeUIButtonTypes(html){return String(html??"").replace(/<button\b(?![^>]*\btype\s*=)/gi,'<button type="button"')}
 function setUIHTML(el,html){
  if(!el)return false;const safe=normalizeUIButtonTypes(html);if(UI_HTML_CACHE.get(el)===safe)return false;
@@ -118,7 +44,7 @@ function setUIHTML(el,html){
 }
 function setUIText(el,text){if(!el)return false;const value=String(text??"");if(el.textContent===value)return false;el.textContent=value;return true}
 const IDX={
- item:new Map(DB.items.map(x=>[x.id,x])),race:new Map(DB.races.map(x=>[x.id,x])),loc:new Map(DB.locations.map(x=>[x.id,x])),cls:new Map(DB.combat_classes.map(x=>[x.id,x])),
+ item:new Map(DB.items.map(x=>[x.id,x])),loc:new Map(DB.locations.map(x=>[x.id,x])),cls:new Map(DB.combat_classes.map(x=>[x.id,x])),
  origin:new Map(DB.origins.map(x=>[x.id,x])),sub:new Map(DB.subjobs.map(x=>[x.id,x])),talent:new Map((DB.talents||[]).map(x=>[x.id,x])),
  monster:new Map((DB.monsters||[]).map(x=>[x.id,x])),quest:new Map([...(DB.quest_templates||[]),...(DB.shop_quests||[])].map(x=>[x.id,x])),recipe:new Map((DB.recipes||[]).map(x=>[x.id,x])),
  companion:new Map((DB.companion_species||[]).map(x=>[x.id,x])),partyTemplate:new Map((DB.party_member_templates||[]).map(x=>[x.id,x])),
@@ -136,399 +62,30 @@ const IDX={
  regionalPower:new Map((DB.regional_powers||[]).map(x=>[x.id,x])),materialPack:new Map((DB.generator_material_packs||[]).map(x=>[x.region_id,x])),
  historicalRelation:new Map((DB.historical_relationship_records||[]).map(x=>[x.id,x]))
 };
-const STATIC_ARRAY_INDEXES=new Map();
-function refreshStaticArrayIndexBindings(){
- STATIC_ARRAY_INDEXES.clear();
- for(const [rows,index] of [
-  [DB.races,IDX.race],[DB.items,IDX.item],[DB.locations,IDX.loc],[DB.combat_classes,IDX.cls],
-  [DB.origins,IDX.origin],[DB.subjobs,IDX.sub],[DB.talents,IDX.talent],[DB.monsters,IDX.monster],
-  [DB.recipes,IDX.recipe],[DB.companion_species,IDX.companion],[DB.party_member_templates,IDX.partyTemplate],
-  [DB.faith_entities,IDX.faith],[DB.world_organizations,IDX.worldOrg],[DB.political_entities,IDX.polity],
-  [DB.world_regions,IDX.worldRegion]
- ])if(Array.isArray(rows))STATIC_ARRAY_INDEXES.set(rows,index);
-}
-refreshStaticArrayIndexBindings();
 let TRAVEL_CACHE=null;
 function ensureTravelCache(){if(TRAVEL_CACHE)return TRAVEL_CACHE;const ids=DB.locations.map(x=>x.id),ix=new Map(ids.map((id,i)=>[id,i])),n=ids.length,d=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Infinity));for(const l of DB.locations){const i=ix.get(l.id);for(const e of (l.links||[])){const j=ix.get(e.to);if(j!=null&&Number.isFinite(e.hours))d[i][j]=Math.min(d[i][j],e.hours)}}for(let k=0;k<n;k++)for(let i=0;i<n;i++){if(!Number.isFinite(d[i][k]))continue;for(let j=0;j<n;j++){const nd=d[i][k]+d[k][j];if(nd<d[i][j])d[i][j]=nd}}TRAVEL_CACHE={ix,d};return TRAVEL_CACHE}
 const ENCOUNTER_CACHE=new Map();
 const CRAFT_INDEX=new Map();
-
-function replaceRuntimeIndex(map,rows,keyFn=x=>x?.id){
- if(!(map instanceof Map))return;
- map.clear();
- for(const x of rows||[]){const key=keyFn(x);if(key!=null)map.set(key,x)}
-}
-function syncRuntimeIndexesAndMetadata(){
- replaceRuntimeIndex(IDX.item,DB.items);
- replaceRuntimeIndex(IDX.race,DB.races);
- replaceRuntimeIndex(IDX.loc,DB.locations);
- replaceRuntimeIndex(IDX.cls,DB.combat_classes);
- replaceRuntimeIndex(IDX.origin,DB.origins);
- replaceRuntimeIndex(IDX.sub,DB.subjobs);
- replaceRuntimeIndex(IDX.talent,DB.talents);
- replaceRuntimeIndex(IDX.monster,DB.monsters);
- replaceRuntimeIndex(IDX.quest,[...(DB.quest_templates||[]),...(DB.shop_quests||[])]);
- replaceRuntimeIndex(IDX.recipe,DB.recipes);
- replaceRuntimeIndex(IDX.companion,DB.companion_species);
- replaceRuntimeIndex(IDX.partyTemplate,DB.party_member_templates);
- replaceRuntimeIndex(IDX.faith,DB.faith_entities);
- replaceRuntimeIndex(IDX.faithOath,DB.faith_oaths);
- replaceRuntimeIndex(IDX.pantheon,DB.pantheons);
- replaceRuntimeIndex(IDX.worldOrg,DB.world_organizations);
- replaceRuntimeIndex(IDX.adventureEvent,DB.adventure_event_templates);
- replaceRuntimeIndex(IDX.dialogue,DB.dialogue_database?.records);
- replaceRuntimeIndex(IDX.intel,DB.intel_database?.records);
- replaceRuntimeIndex(IDX.lore,DB.lore_records);
- replaceRuntimeIndex(IDX.polity,DB.political_entities);
- replaceRuntimeIndex(IDX.culture,DB.culture_profiles);
- replaceRuntimeIndex(IDX.worldRegion,DB.world_regions);
- replaceRuntimeIndex(IDX.authority,DB.political_authority_catalog?.length?DB.political_authority_catalog:DB.authority_archetypes);
- replaceRuntimeIndex(IDX.authorityTier,DB.authority_tiers);
- replaceRuntimeIndex(IDX.authorityRight,DB.authority_rights_catalog);
- replaceRuntimeIndex(IDX.authorityProfile,DB.polity_authority_profiles,x=>x?.polity_id);
- replaceRuntimeIndex(IDX.authorityRequest,DB.authority_request_archetypes);
- replaceRuntimeIndex(IDX.discipline,DB.discipline_factions);
- replaceRuntimeIndex(IDX.sTier,DB.s_tier_combatants);
- replaceRuntimeIndex(IDX.historyEvent,DB.world_timeline);
- replaceRuntimeIndex(IDX.historySubperiod,DB.historical_subperiods);
- replaceRuntimeIndex(IDX.historyChain,DB.historical_causal_chains);
- replaceRuntimeIndex(IDX.historicalDispute,DB.historical_disputes);
- replaceRuntimeIndex(IDX.regionalPower,DB.regional_powers);
- replaceRuntimeIndex(IDX.materialPack,DB.generator_material_packs,x=>x?.region_id);
- replaceRuntimeIndex(IDX.historicalRelation,DB.historical_relationship_records);
- refreshStaticArrayIndexBindings();
-
- TRAVEL_CACHE=null;ENCOUNTER_CACHE.clear();CRAFT_INDEX.clear();
- try{if(typeof globalThis.syncContentLinkItemSources==="function")globalThis.syncContentLinkItemSources()}catch(e){console.warn("item source resync",e)}
-
- const counts={
-   items:(DB.items||[]).length,
-   locations:(DB.locations||[]).length,
-   monsters:(DB.monsters||[]).length,
-   classes:(DB.combat_classes||[]).length,
-   companions:(DB.companion_species||[]).length,
-   party_templates:(DB.party_member_templates||[]).length,
-   faith_entities:(DB.faith_entities||[]).length,
-   organizations:(DB.world_organizations||[]).length,
-   dialogue:(DB.dialogue_database?.records||[]).length,
-   intel:(DB.intel_database?.records||[]).length,
-   political_entities:(DB.political_entities||[]).length,
-   authority_archetypes:(DB.authority_archetypes||[]).length,
-   authority_profiles:(DB.polity_authority_profiles||[]).length,
-   lore_records:(DB.lore_records||[]).length,
-   history_events:(DB.world_timeline||[]).length,
-   craft_recipes:(DB.items||[]).filter(x=>x?.craft_recipe).length,
-   cooking_recipes:(DB.recipes||[]).filter(r=>typeof isCookingRecipe==="function"?isCookingRecipe(r):true).length,
-   quest_templates:(DB.quest_templates||[]).length,
-   adventure_event_templates:(DB.adventure_event_templates||[]).length,
-   regional_profiles:(DB.regional_content_profiles||[]).length,
-   regional_npc_archetypes:(DB.regional_npc_archetypes||[]).length,
-   regional_adventure_hooks:(DB.regional_adventure_hooks||[]).length,
-   regional_life_events:(DB.regional_life_events||[]).length,
-   generators:(DB.generators||[]).length,
-   management_ai:(DB.management_ai||[]).length,
-   regional_economy_profiles:(DB.regional_economy_profiles||[]).length,
-   realm_region_maps:(DB.realm_region_maps||[]).length,
-   province_region_maps:(DB.province_region_maps||[]).length,
-   settlement_region_maps:(DB.settlement_region_maps||[]).length,
-   settlements:(DB.locations||[]).filter(x=>x?.kind==="town").length,
-   cultural_festivals:(DB.cultural_festivals||[]).length,
-   myth_cycle_records:(DB.myth_cycle_records||[]).length,
-   local_historical_incidents:(DB.local_historical_incidents||[]).length,
-   regional_folklore:(DB.regional_folklore||[]).length,
-   regional_rumors:(DB.regional_rumors||[]).length,
-   generator_material_packs:(DB.generator_material_packs||[]).length,
-   regional_powers:(DB.regional_powers||[]).length,
-   historical_relationship_records:(DB.historical_relationship_records||[]).length
- };
- if(DB.integration_registry){
-   DB.integration_registry.counts=DB.integration_registry.counts&&typeof DB.integration_registry.counts==="object"?DB.integration_registry.counts:{};
-   Object.assign(DB.integration_registry.counts,counts);
- }
- if(DB.lore_system)DB.lore_system.record_count=counts.lore_records;
-
- DB.database_growth_compat_system={
-   version:"DATABASE-GROWTH-COMPAT-1.0",
-   release:"CURRENT-1.66.1",
-   live_counts:{...counts},
-   expandable_minimums:{
-     companion_species:200,party_member_templates:200,pantheons:9,faith_entities:100,
-     political_entities:18,culture_profiles:20,authority_archetypes:20,
-     physical_disciplines:25,magic_disciplines:24,eastern_sword_traditions:3,
-     overseas_unknown_horizons:3,historical_subperiods:12,historical_causal_chains:14,
-     historical_disputes:8,regional_powers:2,myth_cycle_records:27,
-     historical_relationship_records:222,talents:100
-   },
-   closed_invariants:{
-     s_tier_global_cap:40,equipment_slots:8,subjob_limit:2,skill_limit:10,
-     map_hierarchy_layers:4,settlement_world_tiers:7
-   },
-   rules:[
-     "可擴充資料庫只檢查核心最低量與引用完整性，不因新增合法資料超過舊版基準而報錯。",
-     "真正封閉規則仍維持硬限制，例如S級全球上限40、8個頂層裝備欄、副職業2個、技能10個。",
-     "五回合自檢前重建runtime索引與可推導統計，避免後載入擴充資料被舊索引誤判為不存在。",
-     "新增資料若缺必要引用、ID重複、超出封閉上限或破壞世界規則，仍必須正常回報。"
-   ]
- };
- return counts
-}
-function databaseGrowthAudit(){
- const issues=[];
- syncRuntimeIndexesAndMetadata();
- for(const [key,value] of Object.entries(DB)){
-   if(!Array.isArray(value)||!value.length)continue;
-   let objectCount=0,identifiedCount=0;
-   const seen=new Set(),duplicates=new Set();
-   for(const row of value){
-     if(!row||typeof row!=="object"||Array.isArray(row))continue;
-     objectCount++;
-     if(row.id==null)continue;
-     identifiedCount++;
-     const id=String(row.id);
-     if(seen.has(id))duplicates.add(id);else seen.add(id);
-   }
-   if(!objectCount||identifiedCount<Math.ceil(objectCount*.8)||!duplicates.size)continue;
-   issues.push(`資料庫ID重複:${key}/${[...duplicates].slice(0,6).join("、")}`);
- }
- return issues
-}
-
-if(typeof window!=="undefined")window.addEventListener("load",()=>setTimeout(()=>{try{syncRuntimeIndexesAndMetadata()}catch(e){console.warn("runtime index sync",e)}},120),{once:true});
-
-function craftingRecipeMatchesFacility(d,fid){
- const r=d?.craft_recipe,prof=DB.crafting_system?.facility_profession?.[fid];
- if(!r||!prof)return false;
- if(r.profession!==prof||r.requires_facility!==fid)return false;
- if(d.type==="料理"||d.inventory_group==="食物"||d.food_subtype)return false;
- return true
-}
-function currentFacilityAllowsCrafting(fid){
- const l=G?.character?loc(G.character.locationId):null;
- return !!fid&&G?.character?.currentFacility===fid&&!!l&&(l.facilities||[]).includes(fid)
-}
-function craftingItemsFor(fid,tier){const k=`${fid}|${tier}`;if(!CRAFT_INDEX.has(k))CRAFT_INDEX.set(k,(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&d.tier===tier));return CRAFT_INDEX.get(k)}
-function by(arr,id){const index=STATIC_ARRAY_INDEXES.get(arr);return index?.get(id)??arr.find(x=>x.id===id)}
-const item=id=>IDX.item.get(id),loc=id=>IDX.loc.get(id),cls=id=>IDX.cls.get(id),org=id=>IDX.origin.get(id),sub=id=>IDX.sub.get(id),monster=id=>IDX.monster.get(id);
+function craftingItemsFor(fid,tier){const k=`${fid}|${tier}`;if(!CRAFT_INDEX.has(k))CRAFT_INDEX.set(k,(DB.items||[]).filter(d=>d.craft_recipe?.requires_facility===fid&&d.tier===tier));return CRAFT_INDEX.get(k)}
+const by=(arr,id)=>arr.find(x=>x.id===id),item=id=>IDX.item.get(id),loc=id=>IDX.loc.get(id),cls=id=>IDX.cls.get(id),org=id=>IDX.origin.get(id),sub=id=>IDX.sub.get(id),monster=id=>IDX.monster.get(id);
 function nowId(p){return p+"-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,6).toUpperCase()}
 function rollD20(){return 1+rand(20)}
 function weightedPick(pairs){let total=pairs.reduce((s,x)=>s+x[1],0),r=Math.random()*total;for(const x of pairs){r-=x[1];if(r<=0)return x[0]}return pairs.at(-1)[0]}
 function tierOrder(t){return {F:0,E:1,D:2,C:3,B:4,A:5,S:6}[t]??0}
-const ITEM_LIST_CATEGORY_ORDER={"武器":10,"防具":20,"飾品":30,"藥劑":40,"餐飲":50,"素材":60,"補給／工具":70,"卷軸／書籍":80,"任務／寶物":85,"其他":90};
-const SHOP_CATEGORY_STATE={};
-const CRAFT_CATEGORY_STATE={};
-function itemListCategoryLabel(d){
- if(!d)return "其他";
- if(d.catalog_group==="武器"||d.type==="主武器")return "武器";
- if(d.catalog_group==="防具"||["盔甲","頭盔","手套","鞋子"].includes(d.type))return "防具";
- if(d.catalog_group==="飾品"||["飾品","披風"].includes(d.type))return "飾品";
- if(d.type==="藥劑"||d.consumable_group)return "藥劑";
- if(["料理","食物","食材"].includes(d.type)||d.inventory_group==="食物"||d.inventory_group==="食材")return "餐飲";
- if(["補給","工具","道具"].includes(d.type)||d.tool_effect)return "補給／工具";
- if(["書籍","卷軸","符文"].includes(d.type)||d.knowledge_tag)return "卷軸／書籍";
- if(["任務","任務道具","寶藏","鑰匙"].includes(d.type)||["quest","key_item","treasure"].includes(d.kind))return "任務／寶物";
- if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.kind==="material"||d.material_group||d.monster_drop_core)return "素材";
- return "其他"
-}
-function worldTierItemSort(a,b){
- return tierOrder(a?.tier||"F")-tierOrder(b?.tier||"F") ||
-   (ITEM_LIST_CATEGORY_ORDER[itemListCategoryLabel(a)]||99)-(ITEM_LIST_CATEGORY_ORDER[itemListCategoryLabel(b)]||99) ||
-   String(a?.name||a?.id||"").localeCompare(String(b?.name||b?.id||""),"zh-Hant")
-}
-function itemListCategories(items){
- return [...new Set((items||[]).map(itemListCategoryLabel))].sort((a,b)=>(ITEM_LIST_CATEGORY_ORDER[a]||99)-(ITEM_LIST_CATEGORY_ORDER[b]||99)||a.localeCompare(b,"zh-Hant"))
-}
-function tierGroupedItemRows(items,rowFn,emptyText="目前沒有商品。"){
- const sorted=[...(items||[])].sort(worldTierItemSort);if(!sorted.length)return `<div class="small">${emptyText}</div>`;
- let last="",html="";
- for(const d of sorted){
-   if(d.tier!==last){last=d.tier;html+=`<div class="inventory-category-title">${d.tier}級</div>`}
-   html+=rowFn(d)
- }
- return html
-}
 function equipId(v){return v&&typeof v==="object"?v.id:v}
 function makeEquip(id,dur=null){const d=item(id);return {id,durability:dur??d.durability,maxDurability:d.durability}}
-const SAVE_DB_NAME="qunlu-chronicle-storage";
-const SAVE_DB_VERSION=1;
-const SAVE_DB_STORE="kv";
-const SAVE_MAIN_KEY="chronicle_save";
-const SAVE_BACKUP_INDEX_KEY="chronicle_update_backups";
-const SAVE_STORAGE_BASELINE_BYTES=5*1024*1024;
-const SAVE_STORAGE_TARGET_BYTES=SAVE_STORAGE_BASELINE_BYTES*10;
-let saveDbPromise=null;
-let saveStorageInfo={quota:null,usage:null,persisted:null,targetBytes:SAVE_STORAGE_TARGET_BYTES};
-
-function openSaveDatabase(){
- if(saveDbPromise)return saveDbPromise;
- saveDbPromise=new Promise((resolve,reject)=>{
-   if(!globalThis.indexedDB){reject(new Error("瀏覽器未提供 IndexedDB 大容量儲存。"));return}
-   const req=indexedDB.open(SAVE_DB_NAME,SAVE_DB_VERSION);
-   req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(SAVE_DB_STORE))db.createObjectStore(SAVE_DB_STORE)};
-   req.onsuccess=()=>resolve(req.result);
-   req.onerror=()=>reject(req.error||new Error("IndexedDB 開啟失敗。"));
-   req.onblocked=()=>console.warn("save database upgrade blocked")
- });
- return saveDbPromise
-}
-async function saveDbGet(key){
- const db=await openSaveDatabase();
- return new Promise((resolve,reject)=>{
-   const tx=db.transaction(SAVE_DB_STORE,"readonly"),req=tx.objectStore(SAVE_DB_STORE).get(key);
-   req.onsuccess=()=>resolve(req.result??null);
-   req.onerror=()=>reject(req.error||tx.error||new Error("IndexedDB 讀取失敗。"))
- })
-}
-async function saveDbPut(key,value){
- const db=await openSaveDatabase();
- return new Promise((resolve,reject)=>{
-   const tx=db.transaction(SAVE_DB_STORE,"readwrite");
-   tx.objectStore(SAVE_DB_STORE).put(value,key);
-   tx.oncomplete=()=>resolve(true);
-   tx.onerror=()=>reject(tx.error||new Error("IndexedDB 寫入失敗。"));
-   tx.onabort=()=>reject(tx.error||new Error("IndexedDB 寫入已中止。"))
- })
-}
-async function saveDbDelete(key){
- const db=await openSaveDatabase();
- return new Promise((resolve,reject)=>{
-   const tx=db.transaction(SAVE_DB_STORE,"readwrite");
-   tx.objectStore(SAVE_DB_STORE).delete(key);
-   tx.oncomplete=()=>resolve(true);
-   tx.onerror=()=>reject(tx.error||new Error("IndexedDB 刪除失敗。"));
-   tx.onabort=()=>reject(tx.error||new Error("IndexedDB 刪除已中止。"))
- })
-}
-async function saveDbClear(){
- const db=await openSaveDatabase();
- return new Promise((resolve,reject)=>{
-   const tx=db.transaction(SAVE_DB_STORE,"readwrite");
-   tx.objectStore(SAVE_DB_STORE).clear();
-   tx.oncomplete=()=>resolve(true);
-   tx.onerror=()=>reject(tx.error||new Error("IndexedDB 清除失敗。"));
-   tx.onabort=()=>reject(tx.error||new Error("IndexedDB 清除已中止。"))
- })
-}
-async function refreshSaveStorageInfo(){
- try{
-   if(navigator.storage?.persisted)saveStorageInfo.persisted=await navigator.storage.persisted();
-   if(navigator.storage?.estimate){
-     const est=await navigator.storage.estimate();
-     saveStorageInfo.quota=Number(est.quota||0)||null;
-     saveStorageInfo.usage=Number(est.usage||0)||0
-   }
- }catch(e){console.warn("storage estimate failed",e)}
- return saveStorageInfo
-}
-async function requestExpandedSaveStorage(){
- try{
-   if(navigator.storage?.persist){
-     const granted=await navigator.storage.persist();
-     if(typeof granted==="boolean")saveStorageInfo.persisted=granted
-   }
- }catch(e){console.warn("persistent storage request failed",e)}
- await refreshSaveStorageInfo();
- return saveStorageInfo
-}
-async function migrateLegacySaveBackups(){
- if(!window.localStorage)return;
- let legacyIndex=[];
- try{legacyIndex=JSON.parse(localStorage.getItem(SAVE_BACKUP_INDEX_KEY)||"[]");if(!Array.isArray(legacyIndex))legacyIndex=[]}catch(e){legacyIndex=[]}
- const keys=[];
- try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith("chronicle_save_backup_"))keys.push(key)}}catch(e){}
- if(!keys.length&&!legacyIndex.length)return;
- const known=new Map(legacyIndex.filter(x=>x?.key).map(x=>[x.key,x]));
- const moved=[];
- for(const key of keys){
-   let raw=null;try{raw=localStorage.getItem(key)}catch(e){}
-   if(!raw)continue;
-   await saveDbPut(key,raw);
-   moved.push(known.get(key)||{key,from:"legacy",to:"migrated",time:new Date().toISOString()})
- }
- const merged=[...moved,...legacyIndex.filter(x=>x?.key&&!keys.includes(x.key))].slice(0,5);
- if(merged.length)await saveDbPut(SAVE_BACKUP_INDEX_KEY,merged);
- try{
-   for(const key of keys)localStorage.removeItem(key);
-   localStorage.removeItem(SAVE_BACKUP_INDEX_KEY)
- }catch(e){}
-}
-async function init(){
- let legacyRaw=null;
- try{legacyRaw=window.localStorage?localStorage.getItem(SAVE_MAIN_KEY):null}catch(e){}
- if(legacyRaw){
-   let restored=false;
-   try{
-     G=JSON.parse(legacyRaw);
-     lastPersistSerialized="";
-     migrateSave();
-     if(!G||typeof G!=="object"||!G.meta||!G.character||!G.worldTime)throw new Error("legacy save is incomplete");
-     enterGame(true);
-     restored=true
-   }catch(e){
-     console.warn("legacy save restore failed; trying expanded storage",e);
-     G=null
-   }
-   if(restored){
-     try{
-       await requestExpandedSaveStorage();
-       await migrateLegacySaveBackups();
-       persist();
-       await flushPersistWrites()
-     }catch(e){console.warn("legacy save migration failed",e)}
-     return
-   }
- }
- let raw=null;
- try{
-   await requestExpandedSaveStorage();
-   await migrateLegacySaveBackups();
-   raw=await saveDbGet(SAVE_MAIN_KEY)
- }catch(e){console.warn("large save storage init failed",e)}
- if(raw){
-   try{
-     G=JSON.parse(raw);
-     lastPersistSerialized=raw;
-     migrateSave();
-     if(!G||typeof G!=="object"||!G.meta||!G.character||!G.worldTime)throw new Error("expanded save is incomplete");
-     enterGame(true)
-   }catch(e){console.warn("expanded save restore failed",e);G=null}
- }
-}
+function init(){let raw=null;try{raw=window.localStorage?localStorage.getItem("chronicle_save"):null}catch(e){}if(raw){try{G=JSON.parse(raw);migrateSave();enterGame(true)}catch(e){console.warn(e)}}}
 function migrateSave(){
  const legacyOriginMap=DB.origin_system?.legacy_origin_map||{};
  const legacyRaceSubtypeMap={"獅":"獅人","虎":"虎人","狼":"狼人","狐":"狐人","貓":"貓人","牛":"獅人"};
  if(G?.character?.raceId==="R-ORC"&&legacyRaceSubtypeMap[G.character.raceSubtype])G.character.raceSubtype=legacyRaceSubtypeMap[G.character.raceSubtype];
 
- const legacyOriginId=G?.character?.originId;
- if(legacyOriginId&&legacyOriginMap[legacyOriginId]){
-   G.character.originId=legacyOriginMap[legacyOriginId];
-   const mappedFacet=DB.origin_system?.legacy_origin_facets?.[legacyOriginId];
-   if(mappedFacet&&!G.character.originFacetId)G.character.originFacetId=mappedFacet;
- }
- const defaultOriginFacet=DB.origin_system?.default_facets?.[G?.character?.originId];
- if(defaultOriginFacet&&!G?.character?.originFacetId)G.character.originFacetId=defaultOriginFacet;
+ if(G?.character?.originId&&legacyOriginMap[G.character.originId])G.character.originId=legacyOriginMap[G.character.originId];
 
- /* 政治聲望整併必須每次載入都執行，不能被CURRENT版本短路；舊地方政務也可能在升版後再次寫回退役政治體ID。 */
- normalizePoliticalStandingState();
-
- const classMerge=DB.combat_class_merge_map||{};
- const remapClassId=id=>classMerge[id]||id;
- if(G?.character?.classId)G.character.classId=remapClassId(G.character.classId);
- if(Array.isArray(G?.character?.classHistory))for(const row of G.character.classHistory)if(row?.id)row.id=remapClassId(row.id);
- if(Array.isArray(G?.character?.unlockedClassRoutes))G.character.unlockedClassRoutes=[...new Set(G.character.unlockedClassRoutes.map(remapClassId))];
-
- const talentMerge=DB.talent_merge_map||{};
- const remapTalentId=id=>talentMerge[id]||id;
- if(Array.isArray(G?.character?.talents)){
-   const valid=IDX.talent;
-   G.character.talents=[...new Set(G.character.talents.map(remapTalentId).filter(id=>valid.has(id)))];
- }
-
- if(G?.character)syncResourceCaps(true);
  if(!G||G.meta?.version===CURRENT_VERSION)return;
  G.meta.version=CURRENT_VERSION;
- const c=G.character;if(!Array.isArray(c.knownCookingRecipes))c.knownCookingRecipes=cookingLegacyKnownRecipes(c);c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
+ const c=G.character;c.politicalStanding=c.politicalStanding||{};c.regionalPowerStanding=c.regionalPowerStanding||{};
  for(const [oldId,newId] of Object.entries({"POL-010":"RP-010","POL-017":"RP-017"})){if(c.politicalStanding[oldId]!=null)c.regionalPowerStanding[newId]=c.politicalStanding[oldId];delete c.politicalStanding[oldId]}
- normalizePoliticalStandingState();
  c.disciplines=c.disciplines||{discovered:[],mastery:{},reputation:{},membershipId:null};
  const dm=DB.discipline_merge_map||{};c.disciplines.discovered=[...new Set((c.disciplines.discovered||[]).map(id=>dm[id]||id))];
  for(const [oldId,newId] of Object.entries(dm)){if(c.disciplines.mastery?.[oldId]!=null)c.disciplines.mastery[newId]=Math.max(Number(c.disciplines.mastery[newId]||0),Number(c.disciplines.mastery[oldId]||0));if(c.disciplines.reputation?.[oldId]!=null)c.disciplines.reputation[newId]=Math.max(Number(c.disciplines.reputation[newId]||-100),Number(c.disciplines.reputation[oldId]||0));delete c.disciplines.mastery?.[oldId];delete c.disciplines.reputation?.[oldId]}
@@ -536,18 +93,9 @@ function migrateSave(){
  const rr=by(DB.races,c.raceId)||DB.races[0],rs=(c.raceId==="R-ORC"&&c.raceSubtype)?(DB.race_system.beastfolk_subtypes[c.raceSubtype]||{}):{};
  c.raceTraits=c.raceTraits||[...(rr.traits||[]),...(rs.traits||[])];
  c.raceResistances=c.raceResistances||{...(rr.element_resistances||{})};
- c.talents=Array.isArray(c.talents)?[...new Set(c.talents.map(id=>DB.talent_merge_map?.[id]||id).filter(id=>(DB.talents||[]).some(t=>t.id===id)))]:[];
- if(c.talents.length>DB.talent_system.character_limit)c.talents=c.talents.slice(0,DB.talent_system.character_limit);
- if(c.talents.length<DB.talent_system.character_limit){
+ if(!Array.isArray(c.talents)||c.talents.length!==DB.talent_system.character_limit){
    const ctx=talentContext(c.raceId,c.raceSubtype,c.originId,c.classId,c.element,c.subjobs||[]);
-   const have=new Set(c.talents),groups=new Set(c.talents.map(id=>talentById(id)?.exclusive_group).filter(Boolean));
-   const pool=talentCandidates(ctx).filter(([t])=>!have.has(t.id)&&(!t.exclusive_group||!groups.has(t.exclusive_group)));
-   while(c.talents.length<DB.talent_system.character_limit&&pool.length){
-     const pick=weightedPick(pool.map(([t,s])=>[t,s]));
-     c.talents.push(pick.id);have.add(pick.id);
-     if(pick.exclusive_group)groups.add(pick.exclusive_group);
-     for(let i=pool.length-1;i>=0;i--)if(have.has(pool[i][0].id)||(pool[i][0].exclusive_group&&groups.has(pool[i][0].exclusive_group)))pool.splice(i,1);
-   }
+   c.talents=drawTalents(ctx,DB.talent_system.character_limit).map(t=>t.id)
  }
 
 
@@ -561,7 +109,7 @@ function migrateSave(){
      q.patrolVisited=(q.patrolVisited||fresh.objective.checkpoints.slice(0,oldProgress)).slice(0,oldProgress);
      q.progress=oldProgress
    }
- }for(const q of G.quests){if(q.status==="ready"&&!q.reportDeadlineHour)q.reportDeadlineHour=Math.max(q.deadlineHour||totalHours(),totalHours()+(DB.quest_system.report_grace_hours||24));}c.classMastery=c.classMastery??0;c.classHistory=c.classHistory||[];c.unlockedClassRoutes=c.unlockedClassRoutes||[];c.knownRecipes=c.knownRecipes||[];c.weaponSet=c.weaponSet||{offhand:null};for(const sj of (c.subjobs||[])){sj.xp=Math.max(0,Number(sj.xp)||0);if(!["F","E","D","C","B","A","S"].includes(sj.grade))sj.grade="F";}
+ }for(const q of G.quests){if(q.status==="ready"&&!q.reportDeadlineHour)q.reportDeadlineHour=Math.max(q.deadlineHour||totalHours(),totalHours()+(DB.quest_system.report_grace_hours||24));}c.classMastery=c.classMastery??0;c.classHistory=c.classHistory||[];c.unlockedClassRoutes=c.unlockedClassRoutes||[];c.knownRecipes=c.knownRecipes||[];c.weaponSet=c.weaponSet||{offhand:null};for(const sj of (c.subjobs||[]))sj.xp=sj.xp??0;
  const mainD=item(equipId(c.equipment?.主武器));if(mainD&&isShieldItem(mainD)){if(!c.weaponSet.offhand)c.weaponSet.offhand=c.equipment.主武器;c.equipment.主武器=makeEquip("EQ-IRON-SWORD")}
  if(mainIsTwoHanded()&&c.weaponSet.offhand)unequipOffhand(true);
  const offD=c.weaponSet.offhand&&item(equipId(c.weaponSet.offhand));if(offD&&!offhandEligible(offD))unequipOffhand(true);
@@ -572,84 +120,33 @@ c.currentFacility=null;c.battle=null;
  normalizeAbilityPoints();normalizeRevivalState();for(const s of (c.skills||[]))normalizeSkillXp(s);G.worldState.questMarketLedger=Array.isArray(G.worldState.questMarketLedger)?G.worldState.questMarketLedger:[];for(const q of (G.quests||[])){const o=q.objective||{};if(["item","gather"].includes(o.kind)&&o.item_id)o.consume_on_turnin=true;const cap=DB.progression_system.quest_xp_by_tier[q.tier]||12;q.xp_reward=Math.min(Number(q.xp_reward||cap),cap)}syncAllQuestInventoryProgress(true);
  normalizeAffiliationMemberships();syncResourceCaps(true);persist()
 }
-let lastPersistError=null,lastPersistSerialized="",pendingPersistSerialized=null,persistDrainPromise=null;
+let lastPersistError=null;
 function renderSaveHealth(error=null){
  const el=$("#saveWarning");if(!el)return;
  if(error){el.classList.remove("hide");const msg=el.querySelector("span");if(msg)msg.textContent=`${error} 請先匯出存檔備份。`}
  else el.classList.add("hide")
 }
-function persistErrorMessage(e){
- return e?.name==="QuotaExceededError"?"本機大容量儲存空間已滿。":"目前無法寫入本機存檔。"
-}
-async function writeSerializedSave(serialized){
- try{
-   await saveDbPut(SAVE_MAIN_KEY,serialized);
-   try{localStorage.removeItem(SAVE_MAIN_KEY)}catch(e){}
-   return true
- }catch(indexedDbError){
-   try{
-     if(!window.localStorage)throw indexedDbError;
-     localStorage.setItem(SAVE_MAIN_KEY,serialized);
-     return true
-   }catch(localError){
-     throw localError?.name==="QuotaExceededError"?localError:indexedDbError
-   }
- }
-}
-async function drainPersistQueue(){
- try{
-   while(pendingPersistSerialized!==null){
-     const serialized=pendingPersistSerialized;
-     pendingPersistSerialized=null;
-     try{
-       await writeSerializedSave(serialized);
-       lastPersistSerialized=serialized;
-       if(lastPersistError){lastPersistError=null;renderSaveHealth(null)}
-     }catch(e){
-       const message=persistErrorMessage(e);
-       if(lastPersistError!==message)console.error("local save failed",e);
-       lastPersistError=message;renderSaveHealth(message)
-     }
-   }
-   return !lastPersistError
- }finally{persistDrainPromise=null}
-}
 function persist(){
  try{
-  if(G&&typeof generateSaveAuditSnapshot==="function"&&typeof manageSaveAudit==="function"){
-   const saveGate=manageSaveAudit(generateSaveAuditSnapshot({gameState:G,includeState:false}));
-   if(!saveGate.ok){const message="存檔治理閘門拒絕不完整狀態。";if(lastPersistError!==message)console.error(message,saveGate.issues);lastPersistError=message;renderSaveHealth(message);return false}
-  }
-  const serialized=JSON.stringify(G);
-   if(serialized===lastPersistSerialized||serialized===pendingPersistSerialized)return true;
-   if(!globalThis.indexedDB){
-     if(!window.localStorage)throw new Error("瀏覽器未提供本機儲存空間。");
-     localStorage.setItem(SAVE_MAIN_KEY,serialized);
-     lastPersistSerialized=serialized;
-     if(lastPersistError){lastPersistError=null;renderSaveHealth(null)}
-     return true
-   }
-   pendingPersistSerialized=serialized;
-   if(!persistDrainPromise)persistDrainPromise=drainPersistQueue();
+   if(!window.localStorage)throw new Error("瀏覽器未提供本機儲存空間。");
+   localStorage.setItem("chronicle_save",JSON.stringify(G));
+   if(lastPersistError){lastPersistError=null;renderSaveHealth(null)}
    return true
  }catch(e){
-   const message=persistErrorMessage(e);
+   const message=e?.name==="QuotaExceededError"?"本機儲存空間已滿。":"目前無法寫入本機存檔。";
    if(lastPersistError!==message)console.error("local save failed",e);
    lastPersistError=message;renderSaveHealth(message);return false
  }
 }
-async function flushPersistWrites(){
- if(persistDrainPromise)await persistDrainPromise;
- return !lastPersistError
-}
 
-function talentById(id){const cid=DB.talent_merge_map?.[id]||id;return IDX.talent.get(cid)||null}
+function talentById(id){return IDX.talent.get(id)||null}
 function talentContext(raceId,raceSubtype,originId,classId,element,subjobs=[]){
  const r=by(DB.races,raceId),o=org(originId),c=cls(classId);
  return {race:r,subtype:raceSubtype,origin:o,cls:c,element,subjobs,weaponGroup:talentWeaponGroupForClass(c)}
 }
-function talentWeaponGroupFromItem(d,extraName=""){
- const name=(d?.name||"")+" "+String(extraName||""),sub=d?.catalog_subcategory||"";
+function talentWeaponGroupForClass(c){
+ if(!c)return null;
+ const d=item(c.weapon),name=(d?.name||"")+" "+(c.name||""),sub=d?.catalog_subcategory||"";
  if(/盾/.test(name))return "盾牌";
  if(/巨劍|大劍/.test(name))return "巨劍";
  if(/弩/.test(name))return "弩";
@@ -661,28 +158,6 @@ function talentWeaponGroupFromItem(d,extraName=""){
  if(/斧|錘|鎚|釘頭/.test(name)||["斧","錘"].includes(sub))return "斧錘";
  if(/劍|刀/.test(name)||["劍","武士刀"].includes(sub))return "長劍";
  return sub||"其他"
-}
-function talentWeaponGroupForClass(c){
- if(!c)return null;
- return talentWeaponGroupFromItem(item(c.weapon),c.name||"")
-}
-function currentTalentWeaponGroups(){
- const out=[];
- const main=item(equipId(G?.character?.equipment?.主武器));
- const off=item(equipId(G?.character?.weaponSet?.offhand));
- for(const group of [talentWeaponGroupFromItem(main),talentWeaponGroupFromItem(off)]){
-   if(group&&!out.includes(group))out.push(group);
- }
- if(!out.length){
-   const fallback=talentWeaponGroupForClass(cls(G?.character?.classId));
-   if(fallback)out.push(fallback);
- }
- return out
-}
-function currentTalentWeaponGroup(){return currentTalentWeaponGroups()[0]||null}
-function talentEffectActive(t){
- const groups=t?.identity?.activation?.weapon_groups;
- return !Array.isArray(groups)||!groups.length||groups.some(group=>currentTalentWeaponGroups().includes(group))
 }
 function talentMatchBlock(block,ctx){
  if(!block)return 0;
@@ -726,13 +201,10 @@ function talentCandidates(ctx,starterOnly=true){
  out.sort((a,b)=>b[1]-a[1]||a[0].id.localeCompare(b[0].id));return out
 }
 function drawTalents(ctx,count=2,starterOnly=true){
- const pool=talentCandidates(ctx,starterOnly).slice(),out=[],groups=new Set();
+ const pool=talentCandidates(ctx,starterOnly).slice(),out=[];
  while(out.length<count&&pool.length){
-   const eligible=pool.filter(([t])=>!t.exclusive_group||!groups.has(t.exclusive_group));
-   if(!eligible.length)break;
-   const pick=weightedPick(eligible.map(([t,s])=>[t,s]));out.push(pick);
-   if(pick.exclusive_group)groups.add(pick.exclusive_group);
-   for(let i=pool.length-1;i>=0;i--)if(pool[i][0].id===pick.id||(pick.exclusive_group&&pool[i][0].exclusive_group===pick.exclusive_group))pool.splice(i,1)
+   const pick=weightedPick(pool.map(([t,s])=>[t,s]));out.push(pick);
+   const i=pool.findIndex(([t])=>t.id===pick.id);if(i>=0)pool.splice(i,1)
  }
  return out
 }
@@ -743,16 +215,15 @@ function refreshTalentPreview(){
  }
  const ctx=talentContext(creation.race,creation.raceSubtype,creation.origin,creation.classId,creation.element,[]);
  const pool=talentCandidates(ctx);
- el.innerHTML=`候選 ${pool.length} 個：${pool.slice(0,8).map(([t])=>`${t.name}〔${t.identity?.distinctive_axis||t.category}〕`).join("、")}${pool.length>8?"……":""}<br>建立角色時依權重抽2個；同系列天賦不會重複。`
+ el.innerHTML=`候選 ${pool.length} 個：${pool.slice(0,10).map(([t])=>t.name).join("、")}${pool.length>10?"……":""}<br>建立角色時依權重無重複抽2個。`
 }
 function characterTalents(){return (G?.character?.talents||[]).map(talentById).filter(Boolean)}
-function activeCharacterTalents(){return characterTalents().filter(talentEffectActive)}
-function talentStatBonus(n){return activeCharacterTalents().reduce((s,t)=>s+(t.effects?.stats?.[n]||0),0)}
-function talentSpecial(key){return activeCharacterTalents().reduce((s,t)=>s+(t.effects?.special?.[key]||0),0)}
+function talentStatBonus(n){return characterTalents().reduce((s,t)=>s+(t.effects?.stats?.[n]||0),0)}
+function talentSpecial(key){return characterTalents().reduce((s,t)=>s+(t.effects?.special?.[key]||0),0)}
 function talentSubjobBonus(sid,key){
  if(!sid||!G?.character?.subjobs?.some(x=>x.id===sid))return 0;
  let total=0;
- for(const t of activeCharacterTalents()){
+ for(const t of characterTalents()){
    const s=t.effects?.subjob;if(!s)continue;
    if(s.all||(s.ids||[]).includes(sid))total+=Number(s[key]||0)
  }
@@ -760,7 +231,7 @@ function talentSubjobBonus(sid,key){
 }
 function talentCombat(){
  const out={attack:0,magicPower:0,defense:0,magicDefense:0,accuracy:0,evasion:0,critRate:0,critDamage:0,attackSpeed:0,castSpeed:0,blockRate:0,statusResist:0};
- for(const t of activeCharacterTalents()){
+ for(const t of characterTalents()){
    const c=t.effects?.combat||{};
    for(const k of Object.keys(out))out[k]+=c[k]||0
  }
@@ -768,12 +239,12 @@ function talentCombat(){
 }
 function talentResistances(){
  const out={光明:0,黑暗:0,火:0,風:0,水:0,地:0,雷:0,生命:0,死亡:0};
- for(const t of activeCharacterTalents())for(const [k,v] of Object.entries(t.effects?.resist||{}))if(k in out)out[k]+=v;
+ for(const t of characterTalents())for(const [k,v] of Object.entries(t.effects?.resist||{}))if(k in out)out[k]+=v;
  return out
 }
 function talentSurvival(){
  const out={hungerRate:1,fatigueRate:1,thirstRate:1};
- for(const t of activeCharacterTalents()){
+ for(const t of characterTalents()){
    const s=t.effects?.survival||{};
    if(s.hungerRate)out.hungerRate*=s.hungerRate;
    if(s.fatigueRate)out.fatigueRate*=s.fatigueRate;
@@ -782,11 +253,11 @@ function talentSurvival(){
  return out
 }
 function talentActionBonus(tag){
- return activeCharacterTalents().reduce((s,t)=>s+(t.effects?.action_bonus?.[tag]||0),0)
+ return characterTalents().reduce((s,t)=>s+(t.effects?.action_bonus?.[tag]||0),0)
 }
 function talentTargetBonus(enemy){
  let bonus=0;
- for(const t of activeCharacterTalents()){
+ for(const t of characterTalents()){
    const x=t.effects?.target_bonus;if(!x)continue;
    const catOk=!x.categories?.length||x.categories.includes(enemy.category);
    const nameOk=!x.name_keywords?.length||x.name_keywords.some(k=>(enemy.name||"").includes(k));
@@ -801,12 +272,10 @@ function rollRace(){
  $("#raceResult").innerHTML=`<b>${r.name}${creation.raceSubtype?`（${creation.raceSubtype}）`:""}</b><br><span class="small">${r.group||""}｜${r.description||""}</span>`;
  deriveElement();refreshTalentPreview()
 }
-function originDisplayLabel(origin,facet){return [...new Set([origin?.name,facet?.name].filter(Boolean))].join("・")||"未知出身"}
 function rollOrigin(){
  const o=weightedPick(DB.origins.map(x=>[x,Number(x.weight||1)]));
- const facets=Array.isArray(o.facets)?o.facets:[],facet=facets.length?weightedPick(facets.map(x=>[x,Number(x.weight||1)])):null;
- creation.origin=o.id;creation.originFacet=facet?.id||null;
- $("#originResult").innerHTML=`<b>${originDisplayLabel(o,facet)}</b><br><span class="small">${o.category}｜${o.description}<br><b>特色：</b>${o.signature||"—"}<br><b>代價：</b>${o.burden||"—"}${facet?`<br><b>側寫：</b>${facet.note}`:""}</span>`;
+ creation.origin=o.id;
+ $("#originResult").innerHTML=`<b>${o.name}</b><br><span class="small">${o.category}｜${o.description}</span>`;
  deriveElement();refreshTalentPreview()
 }
 function deriveElement(){if(!creation.race||!creation.origin){creation.element=null;$("#elementResult").textContent="依種族＋出身自動隨機";return}const r=by(DB.races,creation.race),o=org(creation.origin),pool=[...(r.affinity_bias||[]),...(o.affinities||[]),...(o.affinities||[])];creation.element=pool[rand(pool.length)]||"地";$("#elementResult").textContent=creation.element+"親和";refreshTalentPreview()}
@@ -830,26 +299,16 @@ function rollClass(){
 function createCharacter(){
  if(!creation.race||!creation.origin||!creation.element||!creation.classId){alert("請先完成種族、出身與職業。");return}
  const r=by(DB.races,creation.race),o=org(creation.origin),cc=cls(creation.classId),id=nowId("CHAR");
- if(typeof generateCharacterProfile==="function"&&typeof manageCharacterGeneration==="function"){
-  const draft=generateCharacterProfile({id,name:($("#nameInput").value||"旅人").trim(),raceId:r?.id, raceSubtype:creation.raceSubtype, originId:o?.id, originFacetId:creation.originFacet, element:creation.element, classId:cc?.id});
-  const gate=manageCharacterGeneration(draft);
-  if(!gate.ok){alert(`角色生成未通過資料治理：${(gate.issues||[]).slice(0,3).map(x=>x.detail||x.code).join("、")}`);return}
- }
- const facet=(o.facets||[]).find(x=>x.id===creation.originFacet)||null;
- const originStarterSubjobs=[...new Set([...(o.starter_subjobs||[]),...(facet?.starter_subjobs||[])])];
  const pool=DB.skill_pools[cc.id]||DB.skill_pools["C-WAR"],starterPool=[...new Map(pool.filter(s=>s.tier==="F").map(s=>[skillKey(s),s])).values()],fallbackPool=[...new Map(pool.map(s=>[skillKey(s),s])).values()],chosen=(starterPool.length>=2?starterPool:fallbackPool).slice().sort(()=>Math.random()-.5).slice(0,2);
- const originItems=[...(o.items||[]),...(facet?.items||[])].filter(id=>item(id));
+ const originItems=(o.items||[]).filter(id=>item(id));
  const inv=[{id:"I-WATER",qty:2,acquiredHour:8},{id:"I-BREAD",qty:2,acquiredHour:8},{id:"I-JERKY",qty:1,acquiredHour:8}];
  for(const iid of originItems){const found=inv.find(x=>x.id===iid);if(found)found.qty++;else inv.push({id:iid,qty:1,acquiredHour:8})}
  const startH=o.survival_start||{};
- const startResolver=globalThis.QUNLU_STARTER_SETTLEMENTS?.assign;
- const startInfo=typeof startResolver==="function"?startResolver({raceId:r.id,raceSubtype:creation.raceSubtype,originId:o.id,originCategory:o.category,classId:cc.id,classCategory:cc.category}):{location_id:"L-WILLOW"};
- const startLocationId=loc(startInfo?.location_id)?startInfo.location_id:"L-WILLOW";
  G={meta:{version:CURRENT_VERSION,characterId:id,saveIndex:[]},turn:0,worldTime:{year:317,season:"初春",day:1,hour:8,minute:0},worldState:{weather:"晴朗",eventClock:0,politicalRelations:{},politicalEvents:[],authorityEvents:[],disciplineEvents:[],orgRelations:{},orgEvents:[],sTierEvents:[],integratedEvents:[],orchestrator:{lastWorldDynamicTurn:-1}},
- character:{id,name:($("#nameInput").value||"旅人").trim(),raceId:r.id,raceSubtype:creation.raceSubtype,originId:o.id,originFacetId:facet?.id||null,originFlags:[...new Set([...(o.flags||[]),...(facet?.flags||[])])],originKnowledge:[...new Set([...(o.knowledge||[]),...(facet?.knowledge||[])])],element:creation.element,classId:cc.id,level:1,xp:0,abilityPoints:0,spentAbilityPoints:0,abilityPointEntitlement:0,adventureRank:"F",combatGrade:"F",classSealed:!!cc.sealed,classGate:cc.gate||null,classMastery:0,classHistory:[],unlockedClassRoutes:[],
- subjobs:originStarterSubjobs.slice(0,1).map(sid=>({id:sid,grade:"F",xp:0,source:"出身"})),stats:{力量:10,敏捷:10,智力:10,意志:10,體力:10,魅力:10,幸運:10},hp:28,maxHp:28,stamina:22,maxStamina:22,mana:24,maxMana:24,toxicity:0,statusEffects:[],hunger:startH.hunger??10,fatigue:startH.fatigue??5,thirst:startH.thirst??10,weightCap:28+(r.weight_mod||0)+(o.weight_mod||0)+Number(facet?.weight_mod||0),moneySilver:Math.max(0,Number(o.silver||30)+Number(facet?.silver_mod||0)),guildReputation:0,guildRestrictionUntilTurn:0,politicalStanding:{},disciplines:{discovered:[],mastery:{},reputation:{},membershipId:null},organizations:{membershipId:null,memberships:[],formerMemberships:[],reputation:{},discovered:[]},locationId:startLocationId,currentFacility:null,alive:true,revival:{base:3,bonus:0,max:3,used:0,remaining:3},buffs:[],
+ character:{id,name:($("#nameInput").value||"旅人").trim(),raceId:r.id,raceSubtype:creation.raceSubtype,originId:o.id,originFlags:[...(o.flags||[])],originKnowledge:[...(o.knowledge||[])],element:creation.element,classId:cc.id,level:1,xp:0,abilityPoints:0,spentAbilityPoints:0,abilityPointEntitlement:0,adventureRank:"F",combatGrade:"F",classSealed:!!cc.sealed,classGate:cc.gate||null,classMastery:0,classHistory:[],unlockedClassRoutes:[],
+ subjobs:(o.starter_subjobs||[]).slice(0,1).map(sid=>({id:sid,grade:"F",xp:0,source:"出身"})),stats:{力量:10,敏捷:10,智力:10,意志:10,體力:10,魅力:10,幸運:10},hp:28,maxHp:28,stamina:22,maxStamina:22,mana:24,maxMana:24,toxicity:0,statusEffects:[],hunger:startH.hunger??10,fatigue:startH.fatigue??5,thirst:startH.thirst??10,weightCap:28+(r.weight_mod||0)+(o.weight_mod||0),moneySilver:o.silver||30,guildReputation:0,guildRestrictionUntilTurn:0,politicalStanding:{},disciplines:{discovered:[],mastery:{},reputation:{},membershipId:null},organizations:{membershipId:null,memberships:[],formerMemberships:[],reputation:{},discovered:[]},locationId:"L-WILLOW",currentFacility:null,alive:true,revival:{base:3,bonus:0,max:3,used:0,remaining:3},buffs:[],
  skills:chosen.map(s=>({...s,type:"戰鬥",mastery:6,skillXp:Math.round(skillXpThresholds()[1]*.55*100)/100})),companions:[],activeCompanionId:null,adventureParty:null,equipment:{主武器:makeEquip(cc.starter_weapon_id||cc.weapon),頭盔:makeEquip("EQ-HELM"),盔甲:makeEquip("EQ-CLOTH"),手套:makeEquip("EQ-GLOVE"),鞋子:makeEquip("EQ-SHOE"),披風:makeEquip("EQ-CLOAK"),飾品1:null,飾品2:null},
- inventory:inv,weaponSet:{offhand:cc.starter_offhand_id?makeEquip(cc.starter_offhand_id):null},knownRecipes:[],knownCookingRecipes:[],knownLoreIds:starterLoreForCharacter(r.id,cc.id),conditions:[],trainingToday:{day:1,combat:0,survival:0,body:0}},history:[],dialogueMemory:[],knownIntel:[],explorationIntel:[],intelBoardCache:{},questBoard:[],quests:[],questHistory:[],battle:null};
+ inventory:inv,weaponSet:{offhand:cc.starter_offhand_id?makeEquip(cc.starter_offhand_id):null},knownRecipes:[],knownLoreIds:starterLoreForCharacter(r.id,cc.id),conditions:[],trainingToday:{day:1,combat:0,survival:0,body:0}},history:[],dialogueMemory:[],knownIntel:[],explorationIntel:[],intelBoardCache:{},questBoard:[],quests:[],questHistory:[],battle:null};
  const tctx=talentContext(r.id,creation.raceSubtype,o.id,cc.id,creation.element,G.character.subjobs);
  const drawnTalents=drawTalents(tctx,DB.talent_system.character_limit);
  G.character.talents=drawnTalents.map(t=>t.id);
@@ -865,9 +324,7 @@ function createCharacter(){
  log("系統",`角色建立：${displayRace()}／${o.name}／${cc.name}［${cc.tier}］。`,"ok");log("天賦",`候選池${talentCandidates(tctx).length}個，抽取：${characterTalents().map(t=>t.name).join("、")}。`,"ok");
  if((o.starter_subjobs||[]).length)log("出身",`因「${o.name}」取得起始副職業：${sub(o.starter_subjobs[0]).name}［F］。`,"ok");
  if((o.items||[]).length)log("出身",`出身物資已加入背包：${o.items.map(id=>item(id)?.name).filter(Boolean).join("、")}。`);
- const startLoc=loc(startLocationId),startPolity=startLoc?.political_entity_id?IDX.polity.get(startLoc.political_entity_id):null;
- if(startLoc)log("出發地",`依種族、出身與職業分配至 ${startLoc.name}${startPolity?`（${startPolity.name}）`:""}。`,"ok");
- log("世界誌",`已載入${startLoc?.region||"所在區域"}、${startPolity?.name||"當地政治體"}、${r.name}與${cc.name}的起始歷史文化記錄，共${G.character.knownLoreIds.length}筆。`,"ok");
+ log("世界誌",`已載入西境河谷、洛文邊侯領、${r.name}與${cc.name}的起始歷史文化記錄，共${G.character.knownLoreIds.length}筆。`,"ok");
  if(cc.sealed)log("職業",`高階職業能力保持封印：${cc.gate}`,"warnText")
 }
 function enterGame(resume){$("#createPanel").classList.add("hide");$("#gamePanel").classList.remove("hide");$("#fixedNav").classList.remove("hide");if(resume)log("系統",`已讀取存檔並更新至${CURRENT_VERSION}。`,"save");renderAll()}
@@ -905,47 +362,26 @@ function applySurvival(){
  if(c.hp<=0){c.alive=false;c.conditions.push("死亡");log("死亡","生命值歸零。","danger")}
 }
 function effectiveStat(n){
- let v=(G.character.stats[n]||10)+talentStatBonus(n)+equipmentSetStatBonus(n);
+ let v=(G.character.stats[n]||10)+talentStatBonus(n);
  for(const b of (G.character.buffs||[]))v+=b[`stat_${n}`]||0;
  if(G.battle?.active&&G.battle.playerBuff)v+=G.battle.playerBuff[`stat_${n}`]||0;
  if(G.character.hunger>=90||G.character.fatigue>=90||G.character.thirst>=90)v=Math.floor(v/2);
  return Math.max(1,v)
 }
-function survivalPenalty(){let p=0;[G.character.hunger,G.character.fatigue,G.character.thirst].forEach(v=>{if(v>=70)p-=2});if(calcWeight()>combatStats().carryCapacity)p-=2;return p}
+function survivalPenalty(){let p=0;[G.character.hunger,G.character.fatigue,G.character.thirst].forEach(v=>{if(v>=70)p-=2});if(calcWeight()>G.character.weightCap)p-=2;return p}
 function isShieldItem(d){return !!d&&d.catalog_subcategory==="盾牌"}
 function isOneHandedWeapon(d){return !!d&&d.type==="主武器"&&!isShieldItem(d)&&(d.weapon_profile?.hands||1)===1}
 function offhandEligible(d){return isShieldItem(d)||isOneHandedWeapon(d)}
-function canEquipOffhandItem(d){return equipmentRequirementState(d,true)}
+function canEquipOffhandItem(d){
+ const gate=canEquipItem(d);if(!gate.ok)return gate;
+ if(!offhandEligible(d))return {ok:false,reason:"副手只能裝備盾牌或單手武器"};
+ if(mainIsTwoHanded())return {ok:false,reason:"目前主手為雙手武器，不能同時使用副手"};
+ return {ok:true,reason:""}
+}
 function offhandEquip(){return G.character.weaponSet?.offhand||null}
 function equippedEntries(){
  const arr=Object.entries(G.character.equipment||{}).map(([slot,eq])=>({slot,eq})).filter(x=>x.eq);
  if(offhandEquip())arr.push({slot:"副手",eq:offhandEquip()});return arr
-}
-let EQUIPMENT_SET_CACHE={signature:null,state:[]};
-function equipmentSetState(){
- const ids=[...new Set(equippedEntries().map(({eq})=>equipId(eq)).filter(Boolean))].sort();
- const signature=ids.join("|");
- if(EQUIPMENT_SET_CACHE.signature===signature)return EQUIPMENT_SET_CACHE.state;
- const owned=new Set(ids),state=(DB.equipment_sets||[]).map(set=>{
-   const count=(set.pieces||[]).filter(id=>owned.has(id)).length;
-   const active=(set.bonuses||[]).filter(b=>Number(b.pieces)>0&&count>=Number(b.pieces)).sort((a,b)=>a.pieces-b.pieces);
-   return {set,count,total:(set.pieces||[]).length,active}
- }).filter(x=>x.count>0);
- EQUIPMENT_SET_CACHE={signature,state};return state
-}
-function equipmentSetBonusBucket(field){
- const out={};
- for(const x of equipmentSetState())for(const b of x.active)for(const [k,v] of Object.entries(b?.[field]||{}))out[k]=(out[k]||0)+Number(v||0);
- return out
-}
-function equipmentSetStatBonus(stat){return Number(equipmentSetBonusBucket("stats")[stat]||0)}
-function equipmentSetSummaryHtml(){
- const states=equipmentSetState();if(!states.length)return "";
- const rows=states.map(x=>{
-   const lines=(x.set.bonuses||[]).map(b=>`<span class="${x.count>=b.pieces?"ok":"small"}">${b.pieces}件：${b.description||"套裝效果"}</span>`).join("<br>");
-   return `<div class="card small"><b>${x.set.name}</b> ${x.count}/${x.total}<br>${lines}</div>`
- }).join("");
- return `<h3>套裝效果</h3>${rows}`
 }
 function mainIsTwoHanded(){
  const d=mainWeaponData();return (d?.weapon_profile?.hands||1)>=2
@@ -960,9 +396,7 @@ function unequipOffhand(silent=false){
    const d=item(equipId(eq));if(!d)return;const ratio=(eq.durability??1)/(eq.maxDurability||d.durability||1);
    let scale=ratio<=0?0:ratio<.3?.6:1;if(d.sealed)scale*=.35;
    for(const k of Object.keys(out))out[k]+=(d.combat?.[k]||0)*scale
- });
- const set=equipmentSetBonusBucket("combat");for(const k of Object.keys(out))out[k]+=Number(set[k]||0);
- return out
+ });return out
 }
 function skillCombat(){
  const out={attack:0,magicPower:0,defense:0,magicDefense:0,accuracy:0,evasion:0,critRate:0,critDamage:0,attackSpeed:0,castSpeed:0,blockRate:0,statusResist:0};
@@ -1013,9 +447,7 @@ function advancedEquipment(){
  equippedEntries().forEach(({eq})=>{
    const d=item(equipId(eq));if(!d)return;const ratio=(eq.durability??1)/(eq.maxDurability||d.durability||1),scale=ratio<=0?0:ratio<.3?.6:1;
    for(const [k,v] of Object.entries(d.advanced_combat||{}))if(k in out)out[k]+=Number(v||0)*scale
- });
- const set=equipmentSetBonusBucket("advanced_combat");for(const k of Object.keys(out))out[k]+=Number(set[k]||0);
- return out
+ });return out
 }
 function advancedBuffs(){
  const out={moveSpeed:0,range:0,armorPenPct:0,magicPenPct:0,blockRate:0,blockValue:0,poise:0,statusAccuracy:0,lifeSteal:0,healingPower:0,manaRegen:0,hpRegen:0,critResist:0,threat:0,stealth:0,perception:0,carryCapacity:0,initiative:0};
@@ -1026,22 +458,14 @@ function advancedBuffs(){
  if(G.battle?.active&&G.battle.playerBuff)for(const k of Object.keys(out))out[k]+=Number(G.battle.playerBuff[k]||0);
  return out
 }
-function classCombatIdentityEffects(){
- const raw=cls(G.character.classId)?.combat_identity?.combat_effects||{};
- const keys=["attack_pct","magic_attack_pct","defense_pct","magic_defense_pct","accuracy","evasion","crit_rate","crit_damage","attack_speed_pct","cast_speed_pct","armor_pen_pct","magic_pen_pct","block_value","poise","status_accuracy","status_resist","healing_power","mana_regen","threat","stealth","perception","summon_power","initiative","move_speed","life_steal"];
- return Object.fromEntries(keys.map(k=>[k,Number(raw[k]||0)]))
-}
 function classCombatAdvanced(){
- const role=cls(G.character.classId)?.combat_role||"",ci=classCombatIdentityEffects(),out={initiative:0,moveSpeed:0,blockValue:0,poise:0,statusAccuracy:0,healingPower:0,manaRegen:0,threat:0,stealth:0,perception:0,summonPower:0};
+ const role=cls(G.character.classId)?.combat_role||"",out={initiative:0,moveSpeed:0,blockValue:0,poise:0,statusAccuracy:0,healingPower:0,manaRegen:0,threat:0,stealth:0,perception:0,summonPower:0};
  if(role.includes("防禦")){out.threat+=25;out.blockValue+=7;out.poise+=8}
  if(role.includes("敏捷")){out.initiative+=4;out.stealth+=6}
  if(role.includes("遠程")){out.perception+=5;out.initiative+=2}
  if(role.includes("治療")){out.healingPower+=10;out.manaRegen+=.4}
  if(role.includes("施法")){out.statusAccuracy+=4;out.manaRegen+=.3}
  if(role.includes("支援")){out.summonPower+=5}
- out.initiative+=ci.initiative;out.moveSpeed+=ci.move_speed;out.blockValue+=ci.block_value;out.poise+=ci.poise;
- out.statusAccuracy+=ci.status_accuracy;out.healingPower+=ci.healing_power;out.manaRegen+=ci.mana_regen;
- out.threat+=ci.threat;out.stealth+=ci.stealth;out.perception+=ci.perception;out.summonPower+=ci.summon_power;
  return out
 }
 
@@ -1106,7 +530,6 @@ function syncQuestInventoryProgressOne(q,quiet=true,quantities=null){
 function syncAllQuestInventoryProgress(quiet=true){const quantities=inventoryQuantityMap();for(const q of G?.quests||[])syncQuestInventoryProgressOne(q,quiet,quantities)}
 function questMarketKey(q){const o=q?.objective||{};if(["item","gather"].includes(o.kind)&&o.item_id)return `item:${o.item_id}`;if(o.kind==="kill")return `kill:${(o.monster_keywords||[]).slice().sort().join("+")}`;return null}
 function questMarketRegionId(){return loc(G.character.locationId)?.world_region_id||loc(G.character.locationId)?.region_id||"REG-18"}
-function localEconomyProfile(id=G.character.locationId){return loc(id)?.local_economy||null}
 function questMarketLedger(){G.worldState=G.worldState||{};G.worldState.questMarketLedger=Array.isArray(G.worldState.questMarketLedger)?G.worldState.questMarketLedger:[];const win=DB.quest_system?.market_demand?.window_hours||120,now=totalHours();G.worldState.questMarketLedger=G.worldState.questMarketLedger.filter(x=>now-x.hour<=win);return G.worldState.questMarketLedger}
 function questMarketPressure(q,regionId=questMarketRegionId()){const key=questMarketKey(q);if(!key)return 0;const now=totalHours(),win=DB.quest_system?.market_demand?.window_hours||120;return questMarketLedger().filter(x=>x.regionId===regionId&&x.key===key).reduce((n,x)=>n+(x.qty||1)*Math.max(.25,1-(now-x.hour)/win),0)}
 function questMarketFactor(q,regionId=questMarketRegionId()){
@@ -1116,103 +539,19 @@ function questMarketAvailable(q){return questMarketFactor(q)>0}
 function adjustedRewardRange(q){const af=affiliationEffects(),f=questMarketFactor(q)*(1+af.quest_reward_pct/100),r=q.reward||[q.rewardSilver||0,q.rewardSilver||0];return [Math.max(1,Math.round(r[0]*f)),Math.max(1,Math.round(r[1]*f)),f]}
 function registerQuestMarketCompletion(q){const key=questMarketKey(q);if(!key)return;questMarketLedger().push({hour:totalHours(),regionId:questMarketRegionId(),key,qty:q.objective?.target||1,source:q.sourceType||q.type||"quest"});if(G.worldState.questMarketLedger.length>120)G.worldState.questMarketLedger=G.worldState.questMarketLedger.slice(-120)}
 function marketPressureText(q){const f=questMarketFactor(q);return f>=1?"需求正常":f<=0?"市場飽和・暫停發布":`需求轉弱・報酬${Math.round(f*100)}%`}
-function regionalItemMarketFactor(d){
- const rid=questMarketRegionId(),place=loc(G.character.locationId),ctx=regionalEconomyContext(rid,place?.political_entity_id),eco=localEconomyProfile();
- let f=Number(eco?.market_price_mult||1);
- if(d?.regional_origin_id===rid)f*=DB.market_economy_system?.regional_origin_factor||.95;else if(d?.regional_origin_id)f*=DB.market_economy_system?.imported_origin_factor||1.05;
- const text=[d?.name,d?.material,d?.material_group,d?.type].filter(Boolean).join(" ");
- if(ctx?.exports?.some(k=>text.includes(k)))f*=.95;
- if(ctx?.imports?.some(k=>text.includes(k)))f*=1.05;
- return clamp(f,...(DB.market_economy_system?.price_factor_range||[.8,1.2]))
-}
+function regionalItemMarketFactor(d){const rid=questMarketRegionId(),ctx=regionalEconomyContext(rid,loc(G.character.locationId)?.political_entity_id);let f=1;if(d?.regional_origin_id===rid)f*=DB.market_economy_system?.regional_origin_factor||.95;else if(d?.regional_origin_id)f*=DB.market_economy_system?.imported_origin_factor||1.05;const text=[d?.name,d?.material,d?.material_group,d?.type].filter(Boolean).join(" ");if(ctx?.exports?.some(k=>text.includes(k)))f*=.95;if(ctx?.imports?.some(k=>text.includes(k)))f*=1.05;return clamp(f,...(DB.market_economy_system?.price_factor_range||[.8,1.2]))}
 function guildBuybackUnitPrice(d){
  const bonus=clamp(talentSpecial("sellBonus"),0,.25),market=Math.max(1,Math.floor((d?.value||1)*.5*(1+bonus)*regionalItemMarketFactor(d)*affiliationPriceMultiplier("sell")));
  return Math.max(1,Math.floor(market*.9))
 }
-const TEAM_CARRY_ROLE_BASE=Object.freeze({frontline:13,tank:16,healer:7,ranged:9,scout:8,caster:6,hybrid:10,support:11,specialist:10});
-const TEAM_CARRY_ROLE_TRAIT=Object.freeze({
- frontline:"近戰體能與行軍整備",tank:"重裝搬運與前線補給",healer:"醫療包與輕量補給",ranged:"彈藥與野外行囊",scout:"輕裝偵查與分散攜行",
- caster:"施法媒介與輕量行囊",hybrid:"多用途行軍裝備",support:"補給整備與隊伍後勤",specialist:"專業工具與任務裝備"
-});
-const TEAM_CARRY_TIER_BONUS=Object.freeze([0,1,2,4,6,8,10]);
-function roundCarry(v){return Math.round(Number(v||0)*10)/10}
-function teammateCarryRaceModifier(race){
- const s=String(race||"");
- if(/巨人|食人魔|巨魔|泰坦/.test(s))return 10;
- if(/獸人|半獸人|牛頭|熊人|龍裔|龍人|構裝|魔像/.test(s))return 5;
- if(/矮人|山民/.test(s))return 4;
- if(/半身|侏儒|妖精/.test(s))return -3;
- if(/精靈/.test(s))return -1;
- return 0
-}
-function teammateCarryProfile(template,member=null){
- if(!template)return {bonus:0,trait:"無",role:"specialist",level:1,bond:0};
- const role=TEAM_CARRY_ROLE_BASE[template.role]!=null?template.role:"specialist";
- const level=Math.max(1,Number(member?.level||template.min_player_level||1));
- const bond=clamp(Number(member?.bond||0),0,100);
- const tierBonus=TEAM_CARRY_TIER_BONUS[tierOrder(template.tier)]||0;
- const base=TEAM_CARRY_ROLE_BASE[role]+teammateCarryRaceModifier(template.race)+tierBonus+Math.min(8,(level-1)*.35);
- const bonus=roundCarry(Math.max(2,base*(1+bond*.0015)));
- return {bonus,trait:TEAM_CARRY_ROLE_TRAIT[role],role,level,bond}
-}
-function companionCarryProfile(species,inst=null){
- if(!species)return {bonus:0,trait:"無",canCarry:false};
- if(species.companion_kind==="summon")return {bonus:0,trait:"召喚型不提供常駐負重",canCarry:false};
- const text=[species.name,species.family,species.species_group,species.body_type].filter(Boolean).join(" ");
- let base=6,trait="一般伴獸攜行";
- if(/馬|駝|牛|象|犀|熊|巨獸|甲獸|龍|龜/.test(text)){base=16;trait="大型載運／重體型"}
- else if(/構裝|魔像|傀儡|石像|岩獸|鐵獸/.test(text)){base=14;trait="重型構裝載運"}
- else if(/狼|犬|鹿|豬|羊|虎|獅|豹|蜥|猿/.test(text)){base=9;trait="中型獸類攜行"}
- else if(/鳥|鷹|隼|鴉|蝠|貓|狐|兔|蛇|鼠|蟲|蛙|妖精/.test(text)){base=3.5;trait="輕型／敏捷體型"}
- else if(/靈|幽|元素|幻/.test(text)){base=2.5;trait="半實體輕量攜行"}
- if(species.companion_kind==="contract"){base+=2;trait+="・契約穩定"}
- const level=Math.max(1,Number(inst?.level||species.min_owner_level||1));
- const bond=clamp(Number(inst?.bond||0),0,100);
- const tierBonus=TEAM_CARRY_TIER_BONUS[tierOrder(species.tier)]||0;
- const bonus=roundCarry(clamp((base+tierBonus+Math.min(10,(level-1)*.30))*(1+bond*.002),1.5,42));
- return {bonus,trait,canCarry:true,level,bond}
-}
-function teammateCarryCapacityBonus(){
- const rows=[];
- try{
-   const list=typeof partyMembers==="function"?partyMembers():[];
-   for(const m of list){
-     const t=typeof partyTemplate==="function"?partyTemplate(m?.templateId):null;
-     if(!t)continue;
-     const p=teammateCarryProfile(t,m);
-     rows.push({uid:m.uid,templateId:t.id,name:t.name,bonus:p.bonus,trait:p.trait})
-   }
- }catch(error){}
- return {total:roundCarry(rows.reduce((s,x)=>s+x.bonus,0)),rows}
-}
-function companionCarryCapacityBonus(){
- const rows=[];
- try{
-   const list=typeof companions==="function"?companions():(G?.character?.companions||[]);
-   for(const inst of list){
-     const sp=typeof companionSpecies==="function"?companionSpecies(inst?.speciesId):null;
-     if(!sp)continue;
-     const p=companionCarryProfile(sp,inst);
-     if(!p.canCarry||p.bonus<=0)continue;
-     rows.push({uid:inst.uid,speciesId:sp.id,name:sp.name,bonus:p.bonus,trait:p.trait})
-   }
- }catch(error){}
- return {total:roundCarry(rows.reduce((s,x)=>s+x.bonus,0)),rows}
-}
-function sharedCarryCapacityBonus(){
- const teammates=teammateCarryCapacityBonus(),companionsCarry=companionCarryCapacityBonus();
- return {teammates,companions:companionsCarry,total:roundCarry(teammates.total+companionsCarry.total)}
-}
-globalThis.QUNLU_TEAM_CARRY={version:"TEAM-CARRY-1.0",teammateProfile:teammateCarryProfile,companionProfile:companionCarryProfile,teammates:teammateCarryCapacityBonus,companions:companionCarryCapacityBonus,total:sharedCarryCapacityBonus};
-
 function resourceCaps(){
  const str=statCode("STR",false),con=statCode("CON",false),intl=statCode("INT",false),wis=statCode("WIS",false),lv=Math.max(1,G.character.level||1);
  const r=raceData(),o=org(G.character.originId);
  return {
-   hp:Math.max(1,combatScaledNumber(Math.round(16+con*1.2+(lv-1)*2))),
-   stamina:COMBAT_STAMINA_MAX,
-   mana:Math.max(0,combatScaledNumber(Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana")))),
-   carry:Math.max(20,roundCarry(30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity")+sharedCarryCapacityBonus().total))
+   hp:Math.max(1,Math.round(16+con*1.2+(lv-1)*2)),
+   stamina:Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8)),
+   mana:Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana"))),
+   carry:Math.max(20,Math.round((30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity"))*10)/10)
  }
 }
 
@@ -1227,13 +566,12 @@ function elementalResistances(){
  const out={光明:0,黑暗:0,火:0,風:0,水:0,地:0,雷:0,生命:0,死亡:0};
  for(const [k,v] of Object.entries(raceResistances()))if(k in out)out[k]+=Number(v||0);
  for(const {eq} of equippedEntries()){if(!eq)continue;const d=item(equipId(eq));for(const [k,v] of Object.entries(d?.element_resistances||{}))if(k in out)out[k]+=Number(v||0)}
- const set=equipmentSetBonusBucket("element_resistances");for(const [k,v] of Object.entries(set))if(k in out)out[k]+=Number(v||0);
  for(const b of (G.character.buffs||[]))for(const [k,v] of Object.entries(b.element_resistances||{}))if(k in out)out[k]+=Number(v||0);
  return out
 }
 function poisonResistance(){return clamp(combatStats().statusResist+talentSpecial("poisonResist"),0,95)}
-function combatStats(sharedWeight=null){
- const e=equipmentCombat(),s=skillCombat(),b=buffCombat(),bp=battlePercentBuffs(),af=affiliationEffects(),r=raceCombat(),t=talentCombat(),ae=advancedEquipment(),ab=advancedBuffs(),ca=classCombatAdvanced(),ci=classCombatIdentityEffects(),wp=mainWeaponProfile();
+function combatStats(){
+ const e=equipmentCombat(),s=skillCombat(),b=buffCombat(),bp=battlePercentBuffs(),af=affiliationEffects(),r=raceCombat(),t=talentCombat(),ae=advancedEquipment(),ab=advancedBuffs(),ca=classCombatAdvanced(),wp=mainWeaponProfile();
  const str=effectiveStat("力量"),dex=effectiveStat("敏捷"),con=effectiveStat("體力"),intl=effectiveStat("智力"),wis=effectiveStat("意志"),cha=effectiveStat("魅力"),luck=effectiveStat("幸運");
  const cc=cls(G.character.classId),role=cc?.combat_role||"",group=wp.group;
  let atkBase;
@@ -1245,35 +583,35 @@ function combatStats(sharedWeight=null){
  if(role.includes("治療")||/牧師|神官|祭司|聖職/.test(cc?.name||""))magicBase=2+wis*.95+intl*.45;
  else if(/吟遊|舞者/.test(cc?.name||""))magicBase=2+cha*.82+intl*.38+wis*.20;
  else magicBase=2+intl*1.05+wis*.30;
- const attackSpeed=clamp((.82+dex*.012+e.attackSpeed+s.attackSpeed+b.attackSpeed+r.attackSpeed+t.attackSpeed)*(1+(af.attack_speed_pct+ci.attack_speed_pct)/100),.55,2.5);
- const castSpeed=clamp((.78+intl*.009+wis*.008+e.castSpeed+s.castSpeed+b.castSpeed+r.castSpeed+t.castSpeed)*(1+(af.cast_speed_pct+ci.cast_speed_pct)/100),.55,2.5);
+ const attackSpeed=clamp((.82+dex*.012+e.attackSpeed+s.attackSpeed+b.attackSpeed+r.attackSpeed+t.attackSpeed)*(1+af.attack_speed_pct/100),.55,2.5);
+ const castSpeed=clamp((.78+intl*.009+wis*.008+e.castSpeed+s.castSpeed+b.castSpeed+r.castSpeed+t.castSpeed)*(1+af.cast_speed_pct/100),.55,2.5);
  const carry=resourceCaps().carry+ae.carryCapacity+ab.carryCapacity+af.carryCapacity;
- const loadWeight=sharedWeight==null?calcWeight():sharedWeight,loadRatio=carry>0?loadWeight/carry:0,overloadMove=loadRatio>1?Math.min(35,(loadRatio-1)*50):0;
+ const loadRatio=carry>0?calcWeight()/carry:0,overloadMove=loadRatio>1?Math.min(35,(loadRatio-1)*50):0;
  const blockRate=clamp(Math.round(2+con*.18+e.blockRate+s.blockRate+b.blockRate+r.blockRate+t.blockRate+(ae.blockRate||0)+af.blockRate),0,75);
  const cs={
-   attack:combatScaledNumber(Math.round((atkBase+e.attack+s.attack+b.attack+r.attack+t.attack)*(1+(af.attack_pct+ci.attack_pct)/100))),
-   magicPower:combatScaledNumber(Math.round((magicBase+e.magicPower+s.magicPower+b.magicPower+r.magicPower+t.magicPower)*(1+(af.magic_attack_pct+ci.magic_attack_pct)/100))),
-   defense:combatScaledNumber(Math.round((2+con*.78+str*.18+e.defense+s.defense+b.defense+r.defense+t.defense)*(1+bp.defensePct/100)*(1+(af.defense_pct+ci.defense_pct)/100))),
-   magicDefense:combatScaledNumber(Math.round((2+wis*.82+con*.26+e.magicDefense+s.magicDefense+b.magicDefense+r.magicDefense+t.magicDefense)*(1+bp.magicDefensePct/100)*(1+(af.magic_defense_pct+ci.magic_defense_pct)/100))),
-   accuracy:clamp(Math.round(50+dex*1.6+luck*.2+e.accuracy+s.accuracy+b.accuracy+r.accuracy+t.accuracy+af.accuracy+ci.accuracy),5,99),
-   evasion:clamp(Math.round(2+dex*.65+luck*.20+e.evasion+s.evasion+b.evasion+r.evasion+t.evasion+af.evasion+ci.evasion),0,80),
-   critRate:clamp(Math.round(2+luck*.5+dex*.10+e.critRate+s.critRate+b.critRate+r.critRate+t.critRate+af.critRate+ci.crit_rate),0,75),
-   critDamage:clamp(Math.round(145+str*.25+dex*.20+intl*.10+e.critDamage+s.critDamage+b.critDamage+r.critDamage+t.critDamage+af.critDamage+ci.crit_damage),125,300),
+   attack:Math.round((atkBase+e.attack+s.attack+b.attack+r.attack+t.attack)*(1+af.attack_pct/100)),
+   magicPower:Math.round((magicBase+e.magicPower+s.magicPower+b.magicPower+r.magicPower+t.magicPower)*(1+af.magic_attack_pct/100)),
+   defense:Math.round((2+con*.78+str*.18+e.defense+s.defense+b.defense+r.defense+t.defense)*(1+bp.defensePct/100)*(1+af.defense_pct/100)),
+   magicDefense:Math.round((2+wis*.82+con*.26+e.magicDefense+s.magicDefense+b.magicDefense+r.magicDefense+t.magicDefense)*(1+bp.magicDefensePct/100)*(1+af.magic_defense_pct/100)),
+   accuracy:clamp(Math.round(50+dex*1.6+luck*.2+e.accuracy+s.accuracy+b.accuracy+r.accuracy+t.accuracy+af.accuracy),5,99),
+   evasion:clamp(Math.round(2+dex*.65+luck*.20+e.evasion+s.evasion+b.evasion+r.evasion+t.evasion+af.evasion),0,80),
+   critRate:clamp(Math.round(2+luck*.5+dex*.10+e.critRate+s.critRate+b.critRate+r.critRate+t.critRate+af.critRate),0,75),
+   critDamage:clamp(Math.round(145+str*.25+dex*.20+intl*.10+e.critDamage+s.critDamage+b.critDamage+r.critDamage+t.critDamage+af.critDamage),125,300),
    initiative:Math.round((5+dex*1.35+luck*.35+(attackSpeed-1)*10+ae.initiative+ab.initiative+ca.initiative+talentSpecial("initiative"))*(1+af.initiative_pct/100)),
    moveSpeed:Math.round(clamp(100+dex*1.35+ae.moveSpeed+ab.moveSpeed+ca.moveSpeed+talentSpecial("moveSpeed")+af.moveSpeed-overloadMove,55,180)),
    attackSpeed,castSpeed,
    range:Math.round((Math.max(.8,wp.range+ae.range+ab.range))*10)/10,
-   armorPenPct:Math.round(clamp((wp.armor_pen_pct||0)+str*.12+ae.armorPenPct+ab.armorPenPct+talentSpecial("armorPierce")+af.armorPenPct+ci.armor_pen_pct,0,60)*10)/10,
-   magicPenPct:Math.round(clamp(intl*.10+wis*.06+ae.magicPenPct+ab.magicPenPct+talentSpecial("magicPierce")+af.magicPenPct+ci.magic_pen_pct,0,60)*10)/10,
+   armorPenPct:Math.round(clamp((wp.armor_pen_pct||0)+str*.12+ae.armorPenPct+ab.armorPenPct+talentSpecial("armorPierce")+af.armorPenPct,0,60)*10)/10,
+   magicPenPct:Math.round(clamp(intl*.10+wis*.06+ae.magicPenPct+ab.magicPenPct+talentSpecial("magicPierce")+af.magicPenPct,0,60)*10)/10,
    blockRate,
    blockValue:Math.round(clamp(20+con*.7+ae.blockValue+ab.blockValue+ca.blockValue+talentSpecial("blockValue"),10,80)),
    poise:Math.round(10+con*1.1+str*.35+ae.poise+ab.poise+ca.poise+talentSpecial("poise")),
    statusAccuracy:Math.round(clamp(5+wis*.65+intl*.35+luck*.2+ae.statusAccuracy+ab.statusAccuracy+ca.statusAccuracy+talentSpecial("statusAccuracy")+af.statusAccuracy,0,95)),
-   statusResist:clamp(Math.round(5+wis*1.0+con*.45+e.statusResist+s.statusResist+b.statusResist+r.statusResist+t.statusResist+af.statusResist+ci.status_resist),0,90),
-   lifeSteal:Math.round(clamp(talentSpecial("lifeSteal")*100+ae.lifeSteal+ab.lifeSteal+(G.battle?.weaponOil?.lifeSteal||0)*100+ci.life_steal,0,50)*10)/10,
+   statusResist:clamp(Math.round(5+wis*1.0+con*.45+e.statusResist+s.statusResist+b.statusResist+r.statusResist+t.statusResist+af.statusResist),0,90),
+   lifeSteal:Math.round(clamp(talentSpecial("lifeSteal")*100+ae.lifeSteal+ab.lifeSteal+(G.battle?.weaponOil?.lifeSteal||0)*100,0,50)*10)/10,
    healingPower:Math.round(clamp(100+wis*1.2+intl*.35+talentSpecial("healingBonus")*100+ae.healingPower+ab.healingPower+ca.healingPower+af.healingPower,70,250)),
-   manaRegen:combatScaledRate(Math.round((.5+wis*.10+intl*.03+ae.manaRegen+ab.manaRegen+ca.manaRegen+talentSpecial("manaRegen")+af.manaRegen)*100)/100),
-   hpRegen:combatScaledRate(Math.round((.15+con*.04+talentSpecial("hpRegenPerHour")+ae.hpRegen+ab.hpRegen)*100)/100),
+   manaRegen:Math.round((.5+wis*.10+intl*.03+ae.manaRegen+ab.manaRegen+ca.manaRegen+talentSpecial("manaRegen")+af.manaRegen)*100)/100,
+   hpRegen:Math.round((.15+con*.04+talentSpecial("hpRegenPerHour")+ae.hpRegen+ab.hpRegen)*100)/100,
    critResist:Math.round(clamp(con*.20+wis*.15+ae.critResist+ab.critResist+talentSpecial("critResist"),0,60)*10)/10,
    threat:Math.round(100+con*1.4+str*.4+ae.threat+ab.threat+ca.threat+talentSpecial("threat")),
    stealth:Math.round(clamp(20+dex*1.4+luck*.3+ae.stealth+ab.stealth+ca.stealth+talentSpecial("stealth")+af.stealth,0,150)),
@@ -1355,7 +693,7 @@ function resourceCard(kind,label,value,max,percent){
 }
 function renderAll(){
  if(!G)return;syncBodyScrollLock();normalizeAbilityPoints();normalizeRevivalState();syncAllQuestInventoryProgress(true);
- const c=G.character,weight=calcWeight(),cs=combatStats(weight),hpPct=c.maxHp?c.hp/c.maxHp*100:0,spPct=c.maxStamina?c.stamina/c.maxStamina*100:0,mpPct=c.maxMana?c.mana/c.maxMana*100:0;
+ const c=G.character,cs=combatStats(),weight=calcWeight(),hpPct=c.maxHp?c.hp/c.maxHp*100:0,spPct=c.maxStamina?c.stamina/c.maxStamina*100:0,mpPct=c.maxMana?c.mana/c.maxMana*100:0;
  setUIText($("#timeTop"),timeText());setUIText($("#turnTop"),G.turn);
  const here=loc(c.locationId);setUIHTML($("#locTop"),`<span class="loc-main">${here.name} <span class="tier">${here.tier}</span>｜安全${locationSafety(here)}/100 ${safetyLabel(here)}</span>`);
  setUIText($("#moneyTop"),"");
@@ -1476,13 +814,12 @@ function encounterCandidates(l){
  const out=DB.monsters.filter(m=>{
    if(m.encounter_enabled===false||m.domestic)return false;
    if(tierOrder(m.tier)>maxTier)return false;
-   const explicitHabitat=(m.habitat||[]).includes(l.id)||(m.habitats||[]).includes(l.id);
-   if(!explicitHabitat&&!(m.habitats||[]).some(h=>tags.includes(h)))return false;
-   if(p.zone==="town_outskirts"&&!m.near_town_eligible&&!explicitHabitat)return false;
+   if(!(m.habitats||[]).some(h=>tags.includes(h)))return false;
+   if(p.zone==="town_outskirts"&&!m.near_town_eligible)return false;
    if(m.category==="元素植物魔法生物系"&&!p.allow_magical_ecology)return false;
    if(m.category==="惡魔與深淵地獄系"&&!p.allow_demons)return false;
    if(p.zone==="town_outskirts"&&["龍與亞龍爬蟲系","不死系","元素植物魔法生物系","惡魔與深淵地獄系"].includes(m.category))return false;
-   if(!explicitHabitat&&!monsterFitsLocationEcology(m,l))return false;
+   if(!monsterFitsLocationEcology(m,l))return false;
    return true
  });
  ENCOUNTER_CACHE.set(l.id,out);return out
@@ -1490,11 +827,10 @@ function encounterCandidates(l){
 function activeKillQuestTargets(l,pool){
  const out=[];
  for(const q of (G.quests||[])){
-   if(q.status!=="active"||!["kill","hunt"].includes(q.objective?.kind))continue;
+   if(q.status!=="active"||q.objective?.kind!=="kill")continue;
    const valid=q.viableLocationIds||questViableLocations(questTemplate(q.templateId)||q);
    if(valid.length&&!valid.includes(l.id))continue;
-   const keys=q.objective.monster_keywords||[],targetId=q.objective.monster_id;
-   const matched=pool.filter(m=>targetId?m.id===targetId:keys.some(k=>m.name.includes(k)));
+   const keys=q.objective.monster_keywords||[],matched=pool.filter(m=>keys.some(k=>m.name.includes(k)));
    if(matched.length){
      const chance=q.target_spawn_boost??questTemplate(q.templateId)?.target_spawn_boost??DB.quest_system.target_information_bonus.kill_target_encounter_chance;
      out.push(...matched.map(m=>[m,chance]))
@@ -1528,66 +864,8 @@ function playerAdventureTier(){
  const lv=G.character.level||1;
  if(lv>=90)return "S";if(lv>=70)return "A";if(lv>=50)return "B";if(lv>=35)return "C";if(lv>=20)return "D";if(lv>=8)return "E";return "F"
 }
-function adventureEventMoneyCap(l=loc(G.character.locationId),eventTier=null){
- const tier=eventTier||l?.tier||"F",caps=[12,24,60,120,240,480,900];
- const allowed=Math.min(tierOrder(tier),tierOrder(l?.tier||tier),tierOrder(playerAdventureTier()));
- return caps[Math.max(0,allowed)]??12
-}
-function adventureEventWorldHour(){
- const wt=G?.worldTime||{};
- try{if(typeof totalHours==="function")return Number(totalHours()||0)}catch(error){}
- return Number(wt.hour||0)+Number(wt.minute||0)/60;
-}
-function adventureEventHistory(){
- G.worldState=G.worldState||{};
- const h=G.worldState.adventureEventHistory;
- if(!h||typeof h!=="object"||Array.isArray(h))G.worldState.adventureEventHistory={};
- return G.worldState.adventureEventHistory;
-}
-function adventureEventEvidenceValues(){
- const rows=[...(Array.isArray(G?.knownIntel)?G.knownIntel:[]),...(Array.isArray(G?.explorationIntel)?G.explorationIntel:[])];
- return rows.map(x=>[x?.id,x?.title,x?.name,x?.summary,x?.text,x?.topic,x?.result].filter(Boolean).join(" ").toLowerCase());
-}
-function adventureEventHasIntel(tags=[]){
- const values=adventureEventEvidenceValues();
- return (Array.isArray(tags)?tags:[]).every(tag=>values.some(value=>value.includes(String(tag||"").toLowerCase())));
-}
-function adventureEventOrganizationAffinity(template){
- const ids=Array.isArray(template?.organization_ids)?template.organization_ids.filter(Boolean):[];
- if(!ids.length)return 1;
- const c=G?.character||{},o=c.organizations||{},known=new Set([o.membershipId,...(o.memberships||[]),...(o.discovered||[]),...(o.formerMemberships||[])].filter(Boolean));
- if(ids.some(id=>known.has(id)))return 2.8;
- return template.organization_gate?.strict?0:0.55;
-}
-function adventureEventTimeMatches(windows,hour=adventureEventWorldHour()){
- if(!Array.isArray(windows)||!windows.length)return true;
- const h=((Number(hour)||0)%24+24)%24;
- return windows.some(pair=>{
-   const start=Number(pair?.[0]),end=Number(pair?.[1]);
-   if(!Number.isFinite(start)||!Number.isFinite(end))return false;
-   if(start===end)return true;
-   return start<end?(h>=start&&h<end):(h>=start||h<end);
- });
-}
-function adventureEventHistoryKey(template,location){return `${template?.id||"unknown"}::${location?.id||"unknown"}`}
-function adventureEventContextMatches(template,location){
- const season=String(G?.worldTime?.season||""),weather=String(G?.worldState?.weather||"");
- if(Array.isArray(template?.seasons)&&template.seasons.length&&!template.seasons.includes(season))return false;
- if(Array.isArray(template?.weather)&&template.weather.length&&!template.weather.includes(weather))return false;
- if(!adventureEventTimeMatches(template?.time_windows))return false;
- if(Array.isArray(template?.required_intel_tags)&&template.required_intel_tags.length&&!adventureEventHasIntel(template.required_intel_tags))return false;
- if(template?.organization_gate?.strict&&!adventureEventOrganizationAffinity(template))return false;
- const history=adventureEventHistory()[adventureEventHistoryKey(template,location)];
- if(!history)return true;
- const policy=template.repeat_policy||"cooldown_72h",elapsed=adventureEventWorldHour()-Number(history.lastHour??-999999);
- if(policy==="unique_per_location"&&history.outcome)return false;
- const cooldown=policy==="cooldown_120h"?120:policy==="cooldown_96h"?96:policy==="cooldown_72h"?72:0;
- return !cooldown||elapsed>=cooldown;
-}
-function recordAdventureEventOutcome(template,event,choice,success){
- if(!template||!event)return;
- const h=adventureEventHistory(),key=adventureEventHistoryKey(template,loc(event.locationId)),previous=h[key]||{};
- h[key]={templateId:template.id,locationId:event.locationId,generatedTurn:event.createdTurn??G.turn,attempts:Number(previous.attempts||0)+1,lastTurn:G.turn,lastHour:adventureEventWorldHour(),choice:choice||"engage",success:success===true,outcome:choice==="leave"?"left":success===true?"success":"failure"};
+function adventureEventMoneyCap(l=loc(G.character.locationId)){
+ return Math.min(12,3+tierOrder(l.tier)*2+Math.floor((G.character.level||1)/10)*2)
 }
 function adventureEventCandidates(l){
  const maxTier=Math.min(tierOrder(l.tier),tierOrder(playerAdventureTier()));
@@ -1596,8 +874,7 @@ function adventureEventCandidates(l){
    tierOrder(e.tier)<=maxTier &&
    (!(e.location_ids||[]).length||(e.location_ids||[]).includes(l.id)) &&
    (e.kinds||[]).includes(l.kind) &&
-   (!(e.zones||[]).length||(e.zones||[]).includes(zone)) &&
-   adventureEventContextMatches(e,l)
+   (!(e.zones||[]).length||(e.zones||[]).includes(zone))
  )
 }
 function generateAdventureEvent(context){
@@ -1608,32 +885,31 @@ function generateAdventureEvent(context){
  const base=sys.base_chance[context]??.04,luck=(combatStats().rareEventRate||1)/sys.luck_divisor;
  if(Math.random()>clamp(base+luck,.02,.14))return null;
  const pool=adventureEventCandidates(l);if(!pool.length)return null;
- const template=weightedPick(pool.map(e=>[e,Math.max(.1,Number(e.event_weight||1)*adventureEventOrganizationAffinity(e)*(adventureEventHasIntel(e.intel_tags||[])?1.35:1))]));
+ const template=pool[rand(pool.length)];
  const ev={id:`AE-RUN-${G.turn}-${rand(9999)}`,templateId:template.id,name:template.name,tier:template.tier,locationId:l.id,context,createdTurn:G.turn};
  G.pendingAdventureEvent=ev;G.worldState.lastAdventureEventTurn=G.turn;persist();return ev
 }
 function adventureEventTemplate(ev=G.pendingAdventureEvent){return ev?(IDX.adventureEvent.get(ev.templateId)||null):null}
 function openPendingAdventureEvent(){
  const ev=G.pendingAdventureEvent,t=adventureEventTemplate(ev);if(!ev||!t)return;
- const l=loc(ev.locationId),cap=adventureEventMoneyCap(l,t.tier);
+ const l=loc(ev.locationId),cap=adventureEventMoneyCap(l);
  showModal(`奇遇・${t.name}`,`<div class="card"><b>${l.name}</b> <span class="tier">${t.tier}</span>｜安全度${locationSafety(l)}/100（${safetyLabel(l)}）<br><span class="small">${t.text}</span></div>
  <div class="card small">這類奇遇受角色等級、地圖層級與獎勵上限控制；本地小額銀幣上限約${cap}銀，不會直接給C級以上裝備。</div>
  <div class="actions"><button class="good" onclick="resolveAdventureEvent('engage')">介入／調查</button><button onclick="resolveAdventureEvent('leave')">離開</button></div>`)
 }
-function validAdventureRewardItem(id,l,eventTier=null){
+function validAdventureRewardItem(id,l){
  const d=item(id);if(!d)return false;
- if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type)||["武器","防具","飾品"].includes(d.catalog_group))return false;
- const maxTier=Math.min(tierOrder(l?.tier||"F"),tierOrder(eventTier||l?.tier||"F"),tierOrder(playerAdventureTier()));
- return tierOrder(d.tier)<=maxTier
+ if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type))return false;
+ return tierOrder(d.tier)<=Math.min(tierOrder(l.tier),tierOrder("E"))
 }
 function applyAdventureEventReward(t){
  const l=loc(G.character.locationId),r=t.reward||{},parts=[];
  if(r.money){
-   const cap=adventureEventMoneyCap(l,t.tier),amt=Math.min(cap,randomInt(r.money[0],r.money[1]));
+   const cap=adventureEventMoneyCap(l),amt=Math.min(cap,randomInt(r.money[0],r.money[1]));
    if(amt>0){G.character.moneySilver+=amt;parts.push(`${amt}銀`)}
  }
  if(r.item_pool?.length){
-   const pool=r.item_pool.filter(id=>validAdventureRewardItem(id,l,t.tier));
+   const pool=r.item_pool.filter(id=>validAdventureRewardItem(id,l));
    if(pool.length){
      const id=pool[rand(pool.length)],range=r.item_qty||[1,1],q=Math.max(1,Math.min(2,randomInt(range[0],range[1])));
      addItem(id,q);parts.push(`${item(id).name}×${q}`)
@@ -1651,7 +927,7 @@ function applyAdventureEventReward(t){
 function resolveAdventureEvent(choice){
  const ev=G.pendingAdventureEvent,t=adventureEventTemplate(ev);if(!ev||!t)return;
  if(choice==="leave"){
-   log("奇遇",`${t.name}：你選擇不介入，事件沒有進一步發展。`);recordAdventureEventOutcome(t,ev,"leave",false);G.pendingAdventureEvent=null;closeModal();persist();renderAll();return
+   log("奇遇",`${t.name}：你選擇不介入，事件沒有進一步發展。`);G.pendingAdventureEvent=null;closeModal();persist();renderAll();return
  }
  const roll=rollD20(),mod=Math.floor((effectiveStat(t.stat)-10)/2)+survivalPenalty(),total=roll+mod,success=total>=t.dc;
  let parts=[];
@@ -1660,7 +936,7 @@ function resolveAdventureEvent(choice){
    const f=t.failure||{};if(f.fatigue)G.character.fatigue=clamp(G.character.fatigue+f.fatigue,0,120);
    log("奇遇",`${t.name}：D20 ${roll}${mod>=0?"+":""}${mod}=${total}，未達DC${t.dc}。${t.fail}${f.fatigue?` 疲勞+${f.fatigue}。`:""}`)
  }
- emitIntegratedEvent("adventure_event","location",ev.locationId,`${t.name}：${success?"成功處理":"未成功處理"}`,{templateId:t.id,success});recordAdventureEventOutcome(t,ev,"engage",success);G.pendingAdventureEvent=null;applySurvival();closeModal();persist();renderAll()
+ emitIntegratedEvent("adventure_event","location",ev.locationId,`${t.name}：${success?"成功處理":"未成功處理"}`,{templateId:t.id,success});G.pendingAdventureEvent=null;applySurvival();closeModal();persist();renderAll()
 }
 function maybeAdventureEvent(context){
  const ev=generateAdventureEvent(context);if(!ev)return false;
@@ -1689,38 +965,15 @@ function actExplore(){
  if(!battled&&!evented&&!peted&&!socialed)maybeOrganizationEncounter("探索");
  endTurn(l.kind==="town"?.8:1.4)
 }
-const GATHER_TOOL_LABELS={mining:"鐵鎬",woodcut:"伐木斧",fishing:"釣竿",gather:"採集小刀"};
-function hasTool(effect){return !!effect&&G.character.inventory.some(x=>(x?.qty??1)>0&&item(x.id)?.tool_effect===effect)}
-function gatherToolEffectForItem(d,sourceKind=null){
- if(!d)return null;
- if(["mining","woodcut","fishing"].includes(sourceKind))return sourceKind;
- const raw=String(d.gather_tool||"").trim();
- const aliases={"採集小刀":"gather","採藥小刀":"gather","採集":"gather","mining":"mining","woodcut":"woodcut","fishing":"fishing","gather":"gather"};
- if(raw)return aliases[raw]||raw;
- const src=d.acquisition_sources||[];
- if(src.includes("mining"))return "mining";
- if(src.includes("woodcut"))return "woodcut";
- if(src.includes("fish"))return "fishing";
- return null
-}
-function gatherLocationEntries(l){
- const out=[],seen=new Set();
- for(const [kind,ids] of [["mining",l?.mining||[]],["woodcut",l?.woodcut||[]],["gather",l?.gather||[]]]){
-   for(const id of ids){if(seen.has(id))continue;seen.add(id);out.push({id,kind})}
- }
- return out
-}
-function gatherSourceKind(l,id){return gatherLocationEntries(l).find(x=>x.id===id)?.kind||"gather"}
+function hasTool(effect){return G.character.inventory.some(x=>item(x.id)?.tool_effect===effect)}
 function gatherEligiblePool(l){
  const out=[];
- for(const row of gatherLocationEntries(l)){
-   const d=item(row.id);if(!d)continue;
-   const explicitToolResource=row.kind==="mining"||row.kind==="woodcut";
-   if(d.wild_gather_eligible===false)continue;
-   if(!explicitToolResource&&!d.wild_gather_eligible)continue;
-   const need=gatherToolEffectForItem(d,row.kind);
-   if(need&&!hasTool(need))continue;
-   out.push(row.id)
+ for(const id of (l.gather||[])){
+   const d=item(id);if(!d||!d.wild_gather_eligible)continue;
+   const src=d.acquisition_sources||[];
+   if(src.includes("mining")&&!hasTool("mining"))continue;
+   if(src.includes("woodcut")&&!hasTool("woodcut"))continue;
+   out.push(id)
  }
  return out
 }
@@ -1740,18 +993,15 @@ function actGather(){
  if(!beginTurn("採集"))return;
  const l=loc(G.character.locationId),pool=gatherEligiblePool(l);
  if(!pool.length){
-   const missing=[...new Set(gatherLocationEntries(l).map(row=>{
-     const d=item(row.id),need=gatherToolEffectForItem(d,row.kind);
-     return need&&!hasTool(need)?(GATHER_TOOL_LABELS[need]||need):null
-   }).filter(Boolean))];
-   log("採集",missing.length?`此處資源需要對應採集工具：${missing.join("、")}。可在雜貨鋪購買。`:"此處缺乏可直接採集的自然資源。");
+   const hasLocked=(l.gather||[]).some(id=>item(id)?.gather_tool);
+   log("採集",hasLocked?"此處資源需要對應採集工具。":"此處缺乏可直接採集的自然資源。");
    endTurn(.5);return
  }
  const t=checkRoll("意志","採集"),n=t>=16?3:t>=10?2:1,got=[],target=activeGatherTarget(l,pool);
  for(let i=0;i<n;i++){
-   const id=target&&Math.random()<target.chance?target.id:pool[rand(pool.length)],d=item(id),kind=gatherSourceKind(l,id);let q=1;
-   if(kind==="mining"&&hasTool("mining")&&t>=14)q++;
-   if(kind==="woodcut"&&hasTool("woodcut")&&t>=14)q++;
+   const id=target&&Math.random()<target.chance?target.id:pool[rand(pool.length)],d=item(id);let q=1;
+   if(d?.acquisition_sources?.includes("mining")&&hasTool("mining")&&t>=14)q++;
+   if(d?.acquisition_sources?.includes("woodcut")&&hasTool("woodcut")&&t>=14)q++;
    addItem(id,q);updateQuestProgress("gather",{item_id:id,qty:q});got.push(`${d.name}×${q}`)
  }
  log("採集",got.join("、"),"ok");maybeEncounter("採集");endTurn(1)
@@ -1774,123 +1024,17 @@ function openRestChoice(){showModal("野外休息","<div class='actions'><button
 function wildRest(h){closeModal();if(!beginTurn("野外休息"))return;G.character.fatigue=clamp(G.character.fatigue-h*12,0,120);G.character.stamina=G.character.maxStamina;maybeEncounter("休息");endTurn(h)}
 function openTraining(){showModal("自主訓練","<div class='actions'><button onclick=\"train('combat')\">戰鬥訓練</button><button onclick=\"train('survival')\">生存訓練</button><button onclick=\"train('body')\">體能訓練</button></div>")}
 function train(type){closeModal();if(!beginTurn("自主訓練"))return;G.character.fatigue=clamp(G.character.fatigue+6,0,120);log("訓練","完成基礎訓練；成長仍受每日上限控制。","ok");endTurn(1.5)}
-function cookingOutputItem(r){
- const id=r?.result||r?.output?.item_id||null;
- return id?item(id):null
-}
-function isCookingRecipe(r){
- if(!r)return false;
- const d=cookingOutputItem(r);if(!d)return false;
- const prof=String(r.profession||"").trim();
- if(prof&&!["料理","烹飪","cook","cooking","SJ-COOK"].includes(prof))return false;
- return d.type==="料理"||d.inventory_group==="食物"||!!d.food_subtype
-}
-const COOK_CATEGORY_ORDER=["主食","肉類","魚鮮","湯品","蔬果","飲品","甜點","其他"];
-const COOK_CATEGORY_STATE={selected:null};
-function cookingCategoryLabel(r){
- const d=cookingOutputItem(r)||{},sub=String(d.food_subtype||d.food_category||r?.food_category||""),name=String(r?.name||d.name||"");
- const explicit=String(r?.cooking_category||d.cooking_category||"");
- if(COOK_CATEGORY_ORDER.includes(explicit))return explicit;
- if(/飲品|飲料|茶飲|飲水/.test(sub)||/茶$|茶飲|飲品|飲料|果汁|涼水|草飲|酸飲|清飲|熱飲|奶昔|豆漿|麥飲|莓露$/.test(name))return "飲品";
- if(/湯|羹|濃湯|高湯|燉湯/.test(sub+" "+name))return "湯品";
- if(/甜點|糕點|點心|糖果/.test(sub)||/蛋糕|甜餅|布丁|奶酪|果醬|果派|蜂蜜餅|甜派|糖漬/.test(name))return "甜點";
- if(/魚|蝦|蟹|海鮮|河鮮|貝類/.test(sub+" "+name))return "魚鮮";
- if(/肉類|肉食/.test(sub)||/肉|雞|羊|牛|豬|獵物|獸排|火腿|香腸/.test(name))return "肉類";
- if(/蔬果|蔬菜|沙拉/.test(sub)||/沙拉|野菜|蔬|蘑菇|香菇|根莖|莓果|果盤/.test(name))return "蔬果";
- if(/主食|麵食|米飯|烘焙/.test(sub)||/米飯|麥粥|麵包|麵餅|饅頭|麵條|乾糧|飯糰|燴飯|麥餅|穀物/.test(name))return "主食";
- return "其他"
-}
-function cookingRecipeAccess(r){
- const access=String(r?.recipe_access||r?.cook_recipe_access||"");
- if(["public","trainer","special"].includes(access))return access;
- return tierOrder(r?.tier||cookingOutputItem(r)?.tier||"F")===0?"public":"trainer"
-}
-function cookingRecipeKnown(r,c=G?.character){
- if(!isCookingRecipe(r))return false;
- return cookingRecipeAccess(r)==="public"||(Array.isArray(c?.knownCookingRecipes)&&c.knownCookingRecipes.includes(r.id))
-}
-function cookingLegacyKnownRecipes(c){
- const j=(c?.subjobs||[]).find(x=>x.id==="SJ-COOK"),rank=j?.grade||null;
- return [...new Set((DB.recipes||[]).filter(r=>isCookingRecipe(r)&&(!r.cook_grade||(rank&&tierOrder(rank)>=tierOrder(r.cook_grade)))).map(r=>r.id).filter(Boolean))]
-}
-function cookingRecipeVisible(r,j){
- if(!isCookingRecipe(r)||!cookingRecipeKnown(r))return false;
- const tier=tierOrder(r.tier||cookingOutputItem(r)?.tier||"F");
- if(tier>0&&!j)return false;
- return !r.cook_grade||(j&&tierOrder(j.grade)>=tierOrder(r.cook_grade))
-}
-function cookingRecipeCanLearn(r){
- if(!isCookingRecipe(r)||cookingRecipeAccess(r)!=="trainer"||cookingRecipeKnown(r))return false;
- const j=(G?.character?.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
- const tier=tierOrder(r.tier||cookingOutputItem(r)?.tier||"F");
- if(tier>tierOrder(loc(G.character.locationId)?.tier||"F"))return false;
- if(tier>0&&!j)return false;
- if(r.cook_grade&&(!j||tierOrder(j.grade)<tierOrder(r.cook_grade)))return false;
- return G.character.level>=(r.recipe_level||1)
-}
-function cookingRecipeLearnFee(r){
- const d=cookingOutputItem(r),tier=tierOrder(r.tier||d?.tier||"F");
- return Math.max(4,Math.ceil(Number(d?.value??d?.price??20)*.08)+(tier+1)*6)
-}
-function cookingLearningCandidates(j=null){
- if(!G?.character)return [];
- if(!j)j=(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
- const local=tierOrder(loc(G.character.locationId)?.tier||"F"),limit=j?tierOrder(j.grade||"F")+2:0;
- return (DB.recipes||[]).filter(r=>isCookingRecipe(r)&&!cookingRecipeKnown(r)&&tierOrder(r.tier||cookingOutputItem(r)?.tier||"F")<=Math.min(local,limit)).sort((a,b)=>tierOrder(a.tier||"F")-tierOrder(b.tier||"F")||String(a.name||"").localeCompare(String(b.name||""),"zh-Hant"))
-}
-function cookingCategoryPlan(recipes){
- const found=new Set((recipes||[]).map(cookingCategoryLabel));
- const options=COOK_CATEGORY_ORDER.filter(x=>found.has(x));
- const usable=options.length?options:["主食"];
- return {options:usable,selected:usable.includes(COOK_CATEGORY_STATE.selected)?COOK_CATEGORY_STATE.selected:usable[0]}
-}
-function openCookingRecipeTraining(){
- const j=(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
- const list=cookingLearningCandidates(j);
- const rows=tierGroupedItemRows(list,r=>{
-  const fee=cookingRecipeLearnFee(r),tier=r.tier||"F",canLearn=cookingRecipeCanLearn(r);
-  const missing=[],access=cookingRecipeAccess(r),d=cookingOutputItem(r);
-  if(access==="trainer"){
-   if(tierOrder(tier)>0&&!j)missing.push("需要取得烹飪副職業");
-   if(r.cook_grade&&(!j||tierOrder(j.grade)<tierOrder(r.cook_grade)))missing.push(`需要烹飪${r.cook_grade}級`);
-   if(G.character.level<(r.recipe_level||1))missing.push(`需要角色Lv${r.recipe_level||1}`);
-   if(G.character.moneySilver<fee)missing.push(`學習費${fee}銀（持有${G.character.moneySilver}銀）`)
-  }
-  const desc=access==="special"?"特殊來源：需由世界事件、委託或探索取得":access==="trainer"?(missing.join("｜")||"符合學習條件"):"從對應來源取得配方";
-  const action=access==="trainer"?`<button ${canLearn&&G.character.moneySilver>=fee?"":"disabled"} onclick="learnCookingRecipe('${r.id}')">學習 ${fee}銀</button>`:`<span class="small">尚未取得</span>`;
-  return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${tier}</span><br><span class="small">${craftResultLine(d)}<br>${desc}</span></span>${action}</div>`
- },"目前沒有可見的未學料理配方。");
- const status=j?`烹飪［${j.grade}］｜熟練XP ${j.xp||0}`:"尚未取得烹飪副職業";
- showModal("料理・學習配方",`<div class="card small">${status}<br>此處只列未學會的配方；副職階級、地區與特殊取得途徑仍生效。</div>${rows}<div class="actions"><button onclick="openCooking()">返回料理</button></div>`,"openCookingRecipeTraining()")
-}
-function learnCookingRecipe(rid){
- const r=IDX.recipe.get(rid);
- if(!r||cookingRecipeKnown(r)||!cookingRecipeCanLearn(r))return;
- const fee=cookingRecipeLearnFee(r);
- if(G.character.moneySilver<fee){alert(`需要 ${fee} 銀。`);return}
- closeModal();if(!beginTurn("學習料理配方"))return;
- G.character.moneySilver-=fee;
- G.character.knownCookingRecipes=Array.isArray(G.character.knownCookingRecipes)?G.character.knownCookingRecipes:[];
- if(!G.character.knownCookingRecipes.includes(r.id))G.character.knownCookingRecipes.push(r.id);
- COOK_CATEGORY_STATE.selected=cookingCategoryLabel(r);
- log("料理",`學會 ${r.name}［${r.tier||"F"}］配方，支付${fee}銀。`,"ok");
- endTurn(2);openCooking()
-}
-function openCooking(category=null){
- const j=(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null;
- const available=(DB.recipes||[]).filter(r=>cookingRecipeVisible(r,j));
- const plan=cookingCategoryPlan(available);
- if(category&&plan.options.includes(category))COOK_CATEGORY_STATE.selected=category;
- const selected=plan.options.includes(COOK_CATEGORY_STATE.selected)?COOK_CATEGORY_STATE.selected:plan.selected;
- COOK_CATEGORY_STATE.selected=selected;
- const tabs=plan.options.map(cat=>`<button type="button" ${cat===selected?'class="primary"':""} aria-pressed="${cat===selected}" onclick="openCooking('${cat}')">${cat} ${available.filter(r=>cookingCategoryLabel(r)===cat).length}</button>`).join("");
- const list=available.filter(r=>cookingCategoryLabel(r)===selected);
- const rows=tierGroupedItemRows(list,r=>{
-  const result=cookingOutputItem(r);
-  return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${r.tier||"F"}</span><br><span class="small">${craftResultLine(result)}<br>${cookingMaterialText(r,true)}</span></span><span class="craft-batch"><button onclick="cookBatch('${r.id}',1)">製作1</button><button onclick="cookBatch('${r.id}',5)">×5</button><button onclick="cookBatch('${r.id}',10)">×10</button></span></div>`
- },"此分類目前沒有已學會的配方。");
- const trainable=cookingLearningCandidates(j);
- showModal("料理",`<div class="card small">僅顯示已掌握的料理配方，每次只顯示所選分類；未學配方請至「學習配方」。</div><h3>料理類別</h3><div class="actions craft-category-tabs" role="group" aria-label="料理類別">${tabs}</div>${rows}<div class="actions"><button onclick="openCookingRecipeTraining()">學習配方 ${trainable.length}</button></div>`,"openCooking()")
+function openCooking(){
+ const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),rank=hasCook?G.character.subjobs.find(x=>x.id==="SJ-COOK").grade:null;
+ let list=DB.recipes.filter(r=>!r.cook_grade||(rank&&tierOrder(rank)>=tierOrder(r.cook_grade)));
+ let b=`<div class="small">沒有烹飪副職業也能製作F級基礎料理；E級以上需烹飪資格。批量製作會按實際次數消耗材料與時間。</div>`+
+ list.map(r=>{
+   const result=item(r.result);
+   return `<div class="itemrow"><span><b>${r.name}</b> <span class="tier">${r.tier}</span>
+   <br><span class="small">${craftResultLine(result)}<br>${cookingMaterialText(r,true)}</span></span>
+   <span class="craft-batch"><button onclick="cookBatch('${r.id}',1)">製作1</button><button onclick="cookBatch('${r.id}',5)">×5</button><button onclick="cookBatch('${r.id}',10)">×10</button></span></div>`
+ }).join("");
+ showModal("料理",b,"openCooking()")
 }
 function getMissingMaterials(r){
  const miss=[];
@@ -1915,9 +1059,7 @@ function showMissingMaterials(r,miss){
 function cookingMissingBatch(r,count){const miss=[];for(const [id,q] of Object.entries(r.requires||{})){const need=q*count,have=inventoryQty(id);if(have<need)miss.push({id,need,have})}if(r.requires_any_food){const need=r.requires_any_food*count,have=(G.character.inventory||[]).reduce((n,x)=>n+(item(x.id)?.type==="食材"?(x.qty||1):0),0);if(have<need)miss.push({id:"ANY_FOOD",need,have})}return miss}
 function consumeAnyFood(qty){let n=qty;for(let i=G.character.inventory.length-1;i>=0&&n>0;i--){const x=G.character.inventory[i];if(item(x.id)?.type!=="食材")continue;const take=Math.min(n,x.qty||1);removeItem(x.id,take,i);n-=take}return n<=0}
 function cookBatch(rid,count=1){
- count=Math.max(1,Math.min(10,Number(count)||1));const r=IDX.recipe.get(rid);if(!r)return;
- if(!isCookingRecipe(r)){alert("此配方不是料理配方，無法從料理介面製作。");return}if(!cookingRecipeVisible(r,(G.character.subjobs||[]).find(x=>x.id==="SJ-COOK")||null)){alert("尚未學會此料理配方，或烹飪資格不足。");return}
- const miss=cookingMissingBatch(r,count);if(miss.length){alert("批量材料不足："+miss.map(x=>`${x.id==="ANY_FOOD"?"任意食材":item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}closeModal();if(!beginTurn(`批量料理：${r.name}×${count}`))return;const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),chance=clamp(42+effectiveStat("敏捷")*2+effectiveStat("幸運")*2+(hasCook?18:0)-tierOrder(r.tier)*8+talentSubjobBonus("SJ-COOK","success"),25,95);let success=0,fail=0;for(let n=0;n<count;n++){if(r.requires)for(const [id,q] of Object.entries(r.requires))consumeIngredient(id,q);if(r.requires_any_food)consumeAnyFood(r.requires_any_food);if(1+rand(100)<=chance){addItem(r.result);success++}else fail++;if(hasCook)gainSubjobXp("SJ-COOK",(tierOrder(r.tier)+1)*6)}log("料理",`${r.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");const red=clamp(talentSubjobBonus("SJ-COOK","timeReduction"),0,.35);endTurn(Math.max(.25,Math.round(count*(1-red)*100)/100));openCooking()
+ count=Math.max(1,Math.min(10,Number(count)||1));const r=IDX.recipe.get(rid);if(!r)return;const miss=cookingMissingBatch(r,count);if(miss.length){alert("批量材料不足："+miss.map(x=>`${x.id==="ANY_FOOD"?"任意食材":item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}closeModal();if(!beginTurn(`批量料理：${r.name}×${count}`))return;const hasCook=G.character.subjobs.some(x=>x.id==="SJ-COOK"),chance=clamp(42+effectiveStat("敏捷")*2+effectiveStat("幸運")*2+(hasCook?18:0)-tierOrder(r.tier)*8+talentSubjobBonus("SJ-COOK","success"),25,95);let success=0,fail=0;for(let n=0;n<count;n++){if(r.requires)for(const [id,q] of Object.entries(r.requires))consumeIngredient(id,q);if(r.requires_any_food)consumeAnyFood(r.requires_any_food);if(1+rand(100)<=chance){addItem(r.result);success++}else fail++;if(hasCook)gainSubjobXp("SJ-COOK",(tierOrder(r.tier)+1)*6)}log("料理",`${r.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");const red=clamp(talentSubjobBonus("SJ-COOK","timeReduction"),0,.35);endTurn(Math.max(.25,Math.round(count*(1-red)*100)/100));openCooking()
 }
 function cook(rid){return cookBatch(rid,1)}
 
@@ -1927,7 +1069,7 @@ function questObjectiveText(q){
  const o=q.objective||{};
  if(o.kind==="item")return `取得 ${item(o.item_id)?.name||o.item_id} ×${o.target}`;
  if(o.kind==="gather")return `採集 ${item(o.item_id)?.name||o.item_id} ×${o.target}`;
- if(["kill","hunt"].includes(o.kind)){const target=o.monster_id?(monster(o.monster_id)?.name||o.monster_id):(o.monster_keywords||[]).join("／");return `討伐 ${target} ×${o.target}`}
+ if(o.kind==="kill")return `討伐 ${(o.monster_keywords||[]).join("／")} 類敵人 ×${o.target}`;
  if(o.kind==="patrol"){
    const done=q.patrolVisited||[];
    const cp=(o.checkpoints||[]).map((n,i)=>`${done.includes(n)?"✓":"□"}${i+1}.${n}`).join("、");
@@ -1947,7 +1089,7 @@ function questLocationValid(t,l){
  }
  if(o.kind==="patrol")return l.id===o.location_id&&Array.isArray(o.checkpoints)&&o.checkpoints.length>=o.target;
  if(o.kind==="action")return l.id===o.location_id;
- if(["kill","hunt"].includes(o.kind))return ["wild","dungeon"].includes(l.kind)&&encounterCandidates(l).some(m=>o.monster_id?m.id===o.monster_id:(o.monster_keywords||[]).some(k=>m.name.includes(k)));
+ if(o.kind==="kill")return ["wild","dungeon"].includes(l.kind)&&encounterCandidates(l).some(m=>(o.monster_keywords||[]).some(k=>m.name.includes(k)));
  return false
 }
 function questViableLocations(t){
@@ -1965,7 +1107,7 @@ function questTimeAllowance(t){
  const reachable=places.map(id=>shortestTravelHours(G.character.locationId,id)).filter(Number.isFinite);
  if(!reachable.length)return Infinity;
  const travel=Math.min(...reachable),o=t.objective||{};
- const work=["kill","hunt"].includes(o.kind)?(o.target||1)*4:o.kind==="gather"?(o.target||1)*1.5:o.kind==="patrol"?(o.target||1)*1.4:(o.target||1)*1.5;
+ const work=o.kind==="kill"?(o.target||1)*4:o.kind==="gather"?(o.target||1)*1.5:o.kind==="patrol"?(o.target||1)*1.4:(o.target||1)*1.5;
  return Math.ceil(Math.max(t.base_time_limit_hours||t.time_limit_hours||0,minByTier,travel*2+work+12))
 }
 function questEffectiveDeadline(q){return q.status==="ready"?(q.reportDeadlineHour??q.deadlineHour):q.deadlineHour}
@@ -1981,7 +1123,7 @@ function updateQuestProgress(kind,data={}){
    if(!["active","ready"].includes(q.status))continue;const o=q.objective||{};
    if(["item","gather"].includes(o.kind)&&o.item_id){syncQuestInventoryProgressOne(q,false);continue}
    if(q.status!=="active")continue;let add=0;
-   if(kind==="kill"&&["kill","hunt"].includes(o.kind)&&(o.monster_id?o.monster_id===data.id:(o.monster_keywords||[]).some(k=>(data.name||"").includes(k))))add=1;
+   if(kind==="kill"&&o.kind==="kill"&&(o.monster_keywords||[]).some(k=>(data.name||"").includes(k)))add=1;
    if(kind==="action"&&o.kind==="action"&&o.action===data.action&&(!o.location_id||o.location_id===data.location_id))add=1;
    if(kind==="patrol"&&o.kind==="patrol"&&o.location_id===data.location_id){q.patrolVisited=q.patrolVisited||[];const next=(o.checkpoints||[]).find(cp=>!q.patrolVisited.includes(cp));if(next){q.patrolVisited.push(next);add=1;log("巡查",`${q.name}：完成巡查點「${next}」(${q.patrolVisited.length}/${o.target})。`,"ok")}}
    if(add){q.progress=Math.min(o.target||1,(q.progress||0)+add);if(q.progress>=(o.target||1)){q.status="ready";q.completedHour=totalHours();const grace=q.completionGraceHours??DB.quest_system.report_grace_hours??24;q.reportDeadlineHour=Math.max(q.deadlineHour||totalHours(),totalHours()+grace);log("委託",`${q.name}：目標已完成，請在回報寬限內返回指定設施。`,"ok")}}
@@ -2107,55 +1249,17 @@ function recipeKnown(d){
  if(d.recipe_access==="public")return true;
  return (G.character.knownRecipes||[]).includes(d.recipe_id)
 }
-function craftingRecipeVisible(d,j){
- if(!d?.craft_recipe||!recipeKnown(d))return false;
- const recipeRank=tierOrder(d.tier||"F");
- if(!j)return recipeRank===tierOrder("F");
- const subRank=tierOrder(j.grade||"F");
- return recipeRank<=subRank+2
-}
 function recipeCanLearn(d){
- const r=d?.craft_recipe,j=subjobForProfession(r?.profession),access=d?.recipe_access,fid=r?.requires_facility;
- return !!d?.recipe_id&&access==="trainer"&&j&&craftingRecipeMatchesFacility(d,fid)&&currentFacilityAllowsCrafting(fid)&&tierOrder(d.tier||"F")<=tierOrder(loc(G.character.locationId)?.tier||"F")&&tierOrder(j.grade)>=tierOrder(d.tier)&&G.character.level>=(d.recipe_level||1)
+ const j=subjobForProfession(d.craft_recipe?.profession),access=d.recipe_access;
+ return ["trainer"].includes(access)&&j&&tierOrder(j.grade)>=tierOrder(d.tier)&&G.character.level>=(d.recipe_level||1)
 }
 function recipeLearnFee(d){return Math.max(4,Math.ceil((d.value||20)*.08)+(tierOrder(d.tier)+1)*6)}
-function craftingLearningCandidates(fid,j=null){
- const prof=DB.crafting_system?.facility_profession?.[fid];
- if(!prof||!G?.character)return [];
- if(!j)j=subjobForProfession(prof);
- const locTier=loc(G.character.locationId)?.tier||"F";
- const maxTier=j?tierOrder(j.grade||"F")+2:tierOrder("F");
- return (DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&
-  tierOrder(d.tier||"F")<=tierOrder(locTier)&&tierOrder(d.tier||"F")<=maxTier&&!recipeKnown(d)).sort(worldTierItemSort)
-}
-function openCraftRecipeTraining(fid){
- const prof=DB.crafting_system.facility_profession[fid];if(!prof)return;
- if(!currentFacilityAllowsCrafting(fid)){alert("必須先進入對應製作設施。");return}
- const j=subjobForProfession(prof),list=craftingLearningCandidates(fid,j);
- const rows=tierGroupedItemRows(list,d=>{
-   const fee=recipeLearnFee(d),trainer=d.recipe_access==="trainer",eligible=trainer&&recipeCanLearn(d);
-   const missing=[];
-   if(trainer){
-     if(!j)missing.push("尚未取得對應副職業");
-     else if(tierOrder(j.grade||"F")<tierOrder(d.tier||"F"))missing.push(`需要副職業${d.tier}級（目前${j.grade}級）`);
-     if(G.character.level<(d.recipe_level||1))missing.push(`需要角色Lv${d.recipe_level||1}`);
-     if(G.character.moneySilver<fee)missing.push(`學習費${fee}銀（目前${G.character.moneySilver}銀）`)
-   }
-   const note=trainer?(missing.length?missing.join("｜"):"已符合學習條件"):d.recipe_access==="special"?"特殊來源：需透過世界事件、委託或掉落等正式途徑取得":"需先透過對應來源取得配方";
-   const button=trainer?`<button type="button" ${eligible&&G.character.moneySilver>=fee?"":"disabled"} onclick="learnCraftRecipe('${d.id}')">學習 ${fee}銀</button>`:`<span class="small">尚未取得</span>`;
-   return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${craftResultLine(d)}<br>${trainer?`師傅教授｜學習費${fee}銀｜需要角色Lv${d.recipe_level||1}`:"非師傅教授"}<br>${note}</span></span>${button}</div>`
- },"目前沒有符合此地區與副職業可見階級的未學配方。");
- const sj=j?`${sub(j.id).name}［${j.grade}］ XP ${j.xp||0}`:"尚未取得對應副職業";
- showModal(`${DB.facilities[fid].name}・學習配方`,`<div class="card small">${sj}<br>此處集中顯示尚未學會的配方；不符合學習條件者顯示需求。特殊來源配方須透過正式世界途徑取得，不能直接向師傅購買。</div>${rows}<div class="actions"><button onclick="openCrafting('${fid}')">返回製作</button></div>`,`openCraftRecipeTraining('${fid}')`)
-}
 function learnCraftRecipe(itemId){
  const d=item(itemId);if(!d?.craft_recipe||!recipeCanLearn(d)||recipeKnown(d))return;
  const fee=recipeLearnFee(d);if(G.character.moneySilver<fee){alert(`需要 ${fee} 銀。`);return}
  closeModal();if(!beginTurn("學習製作配方"))return;
  G.character.moneySilver-=fee;G.character.knownRecipes=G.character.knownRecipes||[];G.character.knownRecipes.push(d.recipe_id);
- const fid=d.craft_recipe.requires_facility;
- CRAFT_CATEGORY_STATE[fid]=craftingCategoryLabel(fid,d);
- log("製作",`學會 ${d.name}［${d.tier}］配方，支付${fee}銀。`,"ok");endTurn(2);openCrafting(fid)
+ log("製作",`學會 ${d.name}［${d.tier}］配方，支付${fee}銀。`,"ok");endTurn(2);openCrafting(d.craft_recipe.requires_facility,d.tier)
 }
 function consumeIngredient(id,qty){
  let left=qty;
@@ -2165,41 +1269,16 @@ function consumeIngredient(id,qty){
  }
  return left<=0
 }
-const SUBJOB_GRADES=["F","E","D","C","B","A","S"];
 function subjobThreshold(grade){return DB.crafting_system.subjob_xp_thresholds[grade]??Infinity}
-function formatSubjobXp(value){
- const n=Math.max(0,Number(value)||0),rounded=Math.round(n*100)/100;
- return Number.isInteger(rounded)?String(rounded):rounded.toFixed(2).replace(/0+$/,"").replace(/\.$/,"")
-}
-function subjobUpgradeState(j){
- const grade=SUBJOB_GRADES.includes(j?.grade)?j.grade:"F",idx=SUBJOB_GRADES.indexOf(grade),xp=Math.max(0,Number(j?.xp)||0);
- if(idx>=SUBJOB_GRADES.length-1)return {grade,next:null,xp,need:null,levelNeed:null,xpReady:true,levelReady:true,canUpgrade:false,max:true};
- const next=SUBJOB_GRADES[idx+1],need=Number(subjobThreshold(next)),levelNeed=Number(DB.class_design_system.unlock_levels[next]||99);
- const xpReady=Number.isFinite(need)&&xp>=need,levelReady=G.character.level>=levelNeed;
- return {grade,next,xp,need,levelNeed,xpReady,levelReady,canUpgrade:xpReady&&levelReady,max:false}
-}
-function subjobProgressHtml(j){
- const d=sub(j.id),state=subjobUpgradeState(j),name=d?.name||j.id,xp=formatSubjobXp(state.xp);
- if(state.max)return `<div class="subjob-progress-entry"><div class="subjob-progress-main"><b>${name}［${state.grade}］</b><br><span class="small">XP ${xp}/MAX｜已達最高階</span></div></div>`;
- const need=Number.isFinite(state.need)?formatSubjobXp(state.need):"—",levelHint=state.levelReady?"":`｜需角色Lv${state.levelNeed}`;
- return `<div class="subjob-progress-entry"><div class="subjob-progress-main"><b>${name}［${state.grade}］</b><br><span class="small">XP ${xp}/${need}${levelHint}</span></div><button type="button" class="${state.canUpgrade?"good":""}" ${state.canUpgrade?"":"disabled"} onclick="upgradeSubjob('${j.id}')">升級［${state.next}］</button></div>`
-}
 function gainSubjobXp(sid,amount){
- const j=G.character.subjobs.find(x=>x.id===sid);if(!j)return null;
+ const j=G.character.subjobs.find(x=>x.id===sid);if(!j)return;
  const rate=talentSubjobBonus(sid,"xpRate");
  amount=Math.max(0,Math.round(amount*(1+rate)*100)/100);
- j.xp=Math.max(0,Number(j.xp)||0)+amount;
- return subjobUpgradeState(j)
-}
-function upgradeSubjob(sid){
- const j=G.character.subjobs.find(x=>x.id===sid);if(!j)return;
- const state=subjobUpgradeState(j),name=sub(sid)?.name||sid;
- if(!state.next){alert(`${name}已達最高階。`);return}
- if(!state.xpReady){alert(`${name}副職業經驗不足：XP ${formatSubjobXp(state.xp)}/${formatSubjobXp(state.need)}。`);return}
- if(!state.levelReady){alert(`${name}升級至［${state.next}］需要角色Lv${state.levelNeed}；目前Lv${G.character.level}。`);return}
- j.grade=state.next;
- log("副職業",`${name}升級為［${state.next}］；累積XP保留。`,"ok");
- persist();openCharacter()
+ j.xp=(j.xp||0)+amount;
+ const idx=tierOrder(j.grade||"F");
+ if(idx>=6)return;
+ const next=["F","E","D","C","B","A","S"][idx+1],need=subjobThreshold(next),lv=DB.class_design_system.unlock_levels[next]||99;
+ if(j.xp>=need&&G.character.level>=lv){j.grade=next;log("副職業",`${sub(sid).name}熟練提升為［${next}］。`,"ok")}
 }
 function craftSuccessChance(d,j){
  const prof=d.craft_recipe.profession,primary=prof==="鍛造"?"力量":prof==="裁縫"?"敏捷":"智力";
@@ -2217,107 +1296,25 @@ function craftMaxBatch(d,limit=10){
  return Math.max(0,Math.min(limit,...mats.map(x=>Math.floor(inventoryQty(x.id)/Math.max(1,x.qty)))))
 }
 function craftItemBatch(itemId,count=1){
- count=Math.max(1,Math.min(10,Number(count)||1));const d=item(itemId),r=d?.craft_recipe,j=d&&subjobForProfession(r?.profession),fid=r?.requires_facility;
- if(!d||!r||!j){alert("缺少對應副職業。");return}
- if(!craftingRecipeMatchesFacility(d,fid)){alert("此配方的專業／設施分類異常，已禁止製作。");return}
- if(!currentFacilityAllowsCrafting(fid)){alert(`必須在${DB.facilities?.[fid]?.name||"對應製作設施"}內才能製作。`);return}
- if(!recipeKnown(d)){alert("尚未學會此配方。");return}
- if(tierOrder(j.grade)<tierOrder(d.tier)){alert(`副職業階級不足，需要${d.tier}級。`);return}
- if(G.character.level<(d.recipe_level||1)){alert(`需要角色Lv${d.recipe_level}。`);return}
- const missing=craftingMissingBatch(d,count);if(missing.length){alert("批量材料不足："+missing.map(x=>`${item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}
- closeModal();if(!beginTurn(`批量製作：${d.name}×${count}`))return;const chance=craftSuccessChance(d,j);let success=0,fail=0;
- for(let n=0;n<count;n++){const roll=1+rand(100),ok=roll<=chance;for(const x of craftRecipeMaterials(d))consumeIngredient(x.id,x.qty);if(ok){addItem(d.id,1);success++}else fail++;gainSubjobXp(DB.crafting_system.profession_subjob[r.profession],(tierOrder(d.tier)+1)*8)}
- log("製作",`${d.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");endTurn(craftTimeHours(d,j)*count);openCrafting(fid)
+ count=Math.max(1,Math.min(10,Number(count)||1));const d=item(itemId),r=d?.craft_recipe,j=d&&subjobForProfession(r?.profession);if(!d||!r||!j){alert("缺少對應副職業。");return}if(!recipeKnown(d)){alert("尚未學會此配方。");return}if(tierOrder(j.grade)<tierOrder(d.tier)){alert(`副職業階級不足，需要${d.tier}級。`);return}if(G.character.level<(d.recipe_level||1)){alert(`需要角色Lv${d.recipe_level}。`);return}const missing=craftingMissingBatch(d,count);if(missing.length){alert("批量材料不足："+missing.map(x=>`${item(x.id)?.name||x.id} ${x.have}/${x.need}`).join("、"));return}closeModal();if(!beginTurn(`批量製作：${d.name}×${count}`))return;const chance=craftSuccessChance(d,j);let success=0,fail=0;for(let n=0;n<count;n++){const roll=1+rand(100),ok=roll<=chance;for(const x of craftRecipeMaterials(d))consumeIngredient(x.id,x.qty);if(ok){addItem(d.id,1);success++}else fail++;gainSubjobXp(DB.crafting_system.profession_subjob[r.profession],(tierOrder(d.tier)+1)*8)}log("製作",`${d.name}×${count}：成功${success}、失敗${fail}（單次成功率${chance}%）。`,success?"ok":"danger");endTurn(craftTimeHours(d,j)*count);openCrafting(r.requires_facility,d.tier)
 }
 function craftItem(itemId){return craftItemBatch(itemId,1)}
 
-const ALCHEMY_CRAFT_CATEGORY_ORDER=["恢復","傷害","異常恢復","增益","特殊"];
-function alchemyRecipeCategory(d){
- if(ALCHEMY_CRAFT_CATEGORY_ORDER.includes(d?.alchemy_recipe_category))return d.alchemy_recipe_category;
- const group=String(d?.consumable_group||d?.effect_group||"");
- const name=String(d?.name||""),use=d?.use||{},buff=d?.buff||{},combat=d?.combat||{};
- if((Array.isArray(use.conditions)&&use.conditions.length>0)||/異常恢復|異常解除|解毒|清醒|淨化|解除狀態|解咒/.test(group))return "異常恢復";
- if(d?.battle_effect||/傷害|爆裂|投擲|攻擊藥劑|毒藥|腐蝕/.test(group))return "傷害";
- if(d?.revive||Number(use.hp)>0||Number(use.hp_percent)>0||Number(use.mana)>0||Number(use.mana_percent)>0||Number(use.stamina)>0||/生命回復|法力回復|魔力回復|體力回復|恢復|回復|治療/.test(group))return "恢復";
- if(d?.weapon_oil||Object.entries(buff).some(([k,v])=>k!=="hours"&&Number(v)>0)||Object.values(combat).some(v=>Number(v)>0)||/增益|強化|屬性提升|抗性|能力提升/.test(group))return "增益";
- if(/解毒|止血|清醒|淨化|解除|解咒|抗異常/.test(name))return "異常恢復";
- if(/炸彈|爆裂|投擲|傷害|毒液|酸液|燃燒瓶/.test(name))return "傷害";
- if(/恢復|回復|治療|療傷|生命|法力|魔力|體力|花蜜|藥膏|復活|復甦/.test(name))return "恢復";
- if(/強化|增益|抗性|能力|祝福|塗油|武器油/.test(name))return "增益";
- return "特殊"
-}
-const CRAFT_PROFESSIONAL_CATEGORY_ORDER=Object.freeze({
- alchemy:ALCHEMY_CRAFT_CATEGORY_ORDER,
- blacksmith:["武器","盾牌","防具","飾品","工具／其他"],
- tailor:["衣甲","頭盔","手套","鞋靴","披風","飾品","其他"],
- enchanter:["武器附魔","盾牌附魔","防具附魔","飾品附魔","其他"]
-});
-function craftingCategoryLabel(fid,d){
- if(fid==="alchemy")return alchemyRecipeCategory(d);
- const type=String(d?.type||d?.equipment_slot||d?.equip_slot||"");
- const slot=String(d?.equip_slot||d?.equipment_slot||"");
- const group=String(d?.catalog_group||"");
- const shield=type==="盾牌"||slot==="shield";
- const weapon=!shield&&(type==="主武器"||type==="副武器"||["weapon","offhand"].includes(slot)||group==="武器");
- const armor=["盔甲","頭盔","手套","鞋子"].includes(type)||["body","head","hands","feet"].includes(slot)||group==="防具";
- const accessory=["飾品","披風"].includes(type)||group==="飾品";
- if(fid==="blacksmith"){
-   if(shield)return "盾牌";
-   if(weapon)return "武器";
-   if(armor)return "防具";
-   if(accessory)return "飾品";
-   return "工具／其他"
- }
- if(fid==="tailor"){
-   if(type==="頭盔"||slot==="head")return "頭盔";
-   if(type==="手套"||slot==="hands")return "手套";
-   if(type==="鞋子"||slot==="feet")return "鞋靴";
-   if(type==="披風"||slot==="cloak")return "披風";
-   if(type==="飾品"||group==="飾品")return "飾品";
-   if(type==="盔甲"||slot==="body")return "衣甲";
-   return "其他"
- }
- if(fid==="enchanter"){
-   if(shield)return "盾牌附魔";
-   if(weapon)return "武器附魔";
-   if(armor)return "防具附魔";
-   if(accessory)return "飾品附魔";
-   return "其他"
- }
- return itemListCategoryLabel(d)
-}
-function craftingCategoryPlan(fid,base){
- const categoryOf=d=>craftingCategoryLabel(fid,d);
- const order=CRAFT_PROFESSIONAL_CATEGORY_ORDER[fid]||["其他"];
- const found=new Set((base||[]).map(categoryOf));
- const categories=[...order.filter(cat=>found.has(cat)),...[...found].filter(cat=>!order.includes(cat))];
- const options=categories.length?categories:[order[0]];
- const defaultCategory=fid==="alchemy"&&categories.includes("恢復")?"恢復":options[0];
- return {options,defaultCategory,categoryOf}
-}
-function openCrafting(fid,category=null){
+function openCrafting(fid,tierFilter="F"){
  const prof=DB.crafting_system.facility_profession[fid];if(!prof)return;
- if(!currentFacilityAllowsCrafting(fid)){alert("必須先進入對應製作設施。");return}
  const locTier=loc(G.character.locationId).tier,j=subjobForProfession(prof);
- const base=(DB.items||[]).filter(d=>craftingRecipeMatchesFacility(d,fid)&&tierOrder(d.tier)<=tierOrder(locTier)&&craftingRecipeVisible(d,j)&&recipeKnown(d));
- const trainable=craftingLearningCandidates(fid,j);
- const {options,defaultCategory,categoryOf}=craftingCategoryPlan(fid,base);
- if(category&&options.includes(category))CRAFT_CATEGORY_STATE[fid]=category;
- const selected=options.includes(CRAFT_CATEGORY_STATE[fid])?CRAFT_CATEGORY_STATE[fid]:defaultCategory;
- CRAFT_CATEGORY_STATE[fid]=selected;
- const tabs=options.map(cat=>{
-  const count=base.filter(d=>categoryOf(d)===cat).length;
-  return `<button type="button" aria-pressed="${cat===selected}" ${cat===selected?'class="primary"':""} onclick="openCrafting('${fid}','${cat}')">${cat} ${count}</button>`
- }).join("");
- const all=base.filter(d=>categoryOf(d)===selected).sort(worldTierItemSort);
- const rows=tierGroupedItemRows(all,d=>{
+ const allowed=["F","E","D","C","B","A","S"].filter(t=>tierOrder(t)<=tierOrder(locTier));
+ if(!allowed.includes(tierFilter))tierFilter=allowed.at(-1)||"F";
+ const tabs=allowed.map(t=>`<button ${t===tierFilter?'class="primary"':""} onclick="openCrafting('${fid}','${t}')">${t}</button>`).join("");
+ const all=craftingItemsFor(fid,tierFilter);
+ const rows=all.slice(0,80).map(d=>{
    const known=recipeKnown(d),canLearn=!known&&recipeCanLearn(d),missing=craftingMissing(d),chance=j?craftSuccessChance(d,j):0,maxBatch=known?craftMaxBatch(d,10):0;
    const mats=craftMaterialText(d,true);
    const gradeOk=j&&tierOrder(j.grade)>=tierOrder(d.tier),canCraft=gradeOk&&G.character.level>=(d.recipe_level||1);
    return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${craftResultLine(d)}<br>${mats}<br>${known?`成功率約${chance}%｜${craftTimeHours(d,j)}小時｜可連做${maxBatch}次`:`配方：${d.recipe_access==="special"?"特殊來源":d.recipe_access==="trainer"?"師傅教授":"公開"}`}${missing.length?`｜缺料${missing.length}種`:""}</span></span><span>${canLearn?`<button onclick="learnCraftRecipe('${d.id}')">學配方 ${recipeLearnFee(d)}銀</button>`:""} ${known?`<span class="craft-batch"><button ${canCraft&&maxBatch>=1?"":"disabled"} onclick="craftItemBatch('${d.id}',1)">製作1</button><button ${canCraft&&maxBatch>=5?"":"disabled"} onclick="craftItemBatch('${d.id}',5)">×5</button><button ${canCraft&&maxBatch>=10?"":"disabled"} onclick="craftItemBatch('${d.id}',10)">×10</button></span>`:""}</span></div>`
- },"此類別沒有可用配方。");
+ }).join("")||"<div class='small'>此階級沒有可用配方。</div>";
  const sj=j?`${sub(j.id).name}［${j.grade}］ XP ${j.xp||0}`:"尚未取得對應副職業";
- showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>製作清單只顯示已學會的配方，未學配方統一由「學習配方」查看；可見階級仍受副職業及地區限制。</div><h3>製作類別</h3><div class="small">依成品類型分類｜目前僅顯示「${selected}」的配方。</div><div class="actions craft-category-tabs" role="group" aria-label="製作類別">${tabs}</div>${rows}<div class="actions"><button onclick="openCraftRecipeTraining('${fid}')">學習配方 ${trainable.length}</button><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting('${fid}','${selected}')`)
+ showModal(`${DB.facilities[fid].name}・製作`,`<div class="card small">${sj}<br>F公開；E/D可由師傅教授；C以上需要特殊配方來源。</div><div class="actions">${tabs}</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`,`openCrafting(\'${fid}\',\'${tierFilter}\')`)
 }function pantheon(id){return IDX.pantheon.get(id)||null}
 function faithEntity(id){return IDX.faith.get(id)}
 function deity(id){const x=faithEntity(id);return x?.entity_type==="deity"?x:null}
@@ -2436,10 +1433,7 @@ function openFaithEncounter(fid){
  const x=generateFaithEncounter(fid);if(!x){showModal("信仰人物","<div class='card small'>目前沒有公開活動的神職人物。</div>");return}
  showModal(`${fid==="tavern"?"酒館":"教會"}・信仰人物`,`<div class="card"><b>${x.role}</b>｜${x.entity.name}<br><span class="small">${x.pantheon.name}｜${x.text}</span></div><div class="actions"><button onclick="openFaithEntity('${x.entity.id}')">了解其組織</button><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
 }
-function worldOrg(id){
- const canonical=typeof globalThis.resolveOrganizationAlias==="function"?globalThis.resolveOrganizationAlias(id):(DB.organization_merge_map?.[id]||id);
- return IDX.worldOrg.get(canonical)
-}
+function worldOrg(id){return IDX.worldOrg.get(id)}
 function loreRecord(id){return IDX.lore.get(id)}
 function politicalEntity(id){return IDX.polity.get(id)}
 function cultureProfile(id){return IDX.culture.get(id)}
@@ -2450,8 +1444,8 @@ function authorityArchetype(id){return IDX.authority.get(id)||null}
 function authorityProfile(polityId){return IDX.authorityProfile.get(polityId)||null}
 function authorityOffice(polityId,officeId){return authorityProfile(polityId)?.office_nodes?.find(x=>x.id===officeId)||null}
 function authorityTierLevel(id){return Number(String(id||"AUTH-0").split("-")[1]||0)}
-function politicalStanding(polityId){normalizePoliticalStandingState();const id=canonicalPoliticalStandingId(polityId);G.character.politicalStanding=G.character.politicalStanding||{};return G.character.politicalStanding[id]||0}
-function changePoliticalStanding(polityId,delta){normalizePoliticalStandingState();const id=canonicalPoliticalStandingId(polityId);G.character.politicalStanding=G.character.politicalStanding||{};G.character.politicalStanding[id]=clamp((G.character.politicalStanding[id]||0)+delta,-100,100)}
+function politicalStanding(polityId){G.character.politicalStanding=G.character.politicalStanding||{};return G.character.politicalStanding[polityId]||0}
+function changePoliticalStanding(polityId,delta){G.character.politicalStanding=G.character.politicalStanding||{};G.character.politicalStanding[polityId]=clamp((G.character.politicalStanding[polityId]||0)+delta,-100,100)}
 function maxPoliticalAccessTier(polityId){
  const standing=politicalStanding(polityId),level=G.character.level||1;let best="AUTH-0";
  for(const x of (DB.political_access_system?.player_access_levels||[]))if(level>=x.min_level&&standing>=x.min_standing&&authorityTierLevel(x.authority_tier)>=authorityTierLevel(best))best=x.authority_tier;
@@ -2464,18 +1458,6 @@ function successionContext(polityId,officeId){
  return {method:a?.succession_method||`依${p?.legal_tradition||"地方傳統"}與上級確認`,basis:a?`${a.name}的法統規則`:`${p?.name||"政治體"}的既有法統`,multistage:true}
 }
 function authorityRightNames(o){return (o?.rights||[]).map(x=>authorityRight(x)?.name||x)}
-function politicalRankClassInfo(id){return DB.political_rank_classes?.[id]||null}
-function politicalRankLadderHtml(profile){
- const rows=(profile?.rank_ladder||[]).slice().sort((a,b)=>(a.precedence||999)-(b.precedence||999));
- if(!rows.length)return "<div class='small'>尚未建立細部政治／身分階序。</div>";
- return rows.map(r=>{
-   const k=politicalRankClassInfo(r.rank_class),flags=[];
-   if(r.hereditary)flags.push("可世襲");
-   if(r.territorial)flags.push("領地性");
-   if(r.governing_default)flags.push("預設具公共權能");else flags.push(r.is_honorary?"純榮譽":"不自動具統治權");
-   return `<div class="itemrow"><span><b>${r.precedence}. ${r.title}</b> <span class="tier">${r.authority_tier}</span><br><span class="small">${k?.label||r.rank_class}｜${flags.join("・")}${r.acquisition?`<br>取得：${r.acquisition}`:""}${r.rights_note?`<br>權限：${r.rights_note}`:""}${r.note?`<br>${r.note}`:""}</span></span></div>`;
- }).join("")
-}
 function openAuthorityHierarchy(polityId){
  const p=politicalEntity(polityId),prof=authorityProfile(polityId);if(!p||!prof)return;
  const access=maxPoliticalAccessTier(polityId),standing=politicalStanding(polityId);
@@ -2483,8 +1465,7 @@ function openAuthorityHierarchy(polityId){
    const t=authorityTierInfo(o.authority_tier),parent=o.reports_to?authorityOffice(polityId,o.reports_to):null,can=authorityOfficeAccessible(polityId,o);
    return `<div class="itemrow"><span><b>${o.title}</b> <span class="tier">${o.authority_tier}</span><br><span class="small">${t?.name||""}｜${parent?`上級：${parent.title}`:"最高／獨立權位"}${o.parallel_authority_ids?.length?`｜平行權力：${o.parallel_authority_ids.map(x=>authorityOffice(polityId,x)?.title||x).join("、")}`:""}｜${can?"可接觸":"目前僅能查閱公開資料"}</span></span><button onclick="openAuthorityOffice('${polityId}','${o.id}')">查看</button></div>`
  }).join("");
- const rankIntro=prof.rank_ladder?.length?`<div class="card"><b>政治／身分階序</b><br><span class="small">以下是禮序與制度身分，不等於實際統治權。王族、爵位、議席、官職與榮譽身分會分開判定；榮譽身分預設不帶課稅、司法、軍令、任命、議席或投票權。</span></div>${politicalRankLadderHtml(prof)}`:"";
- showModal(`${p.name}・權力層級`,`<div class="card"><b>政治權力 ≠ 戰鬥力</b><br><span class="small">你的地方政治聲望 ${standing}｜目前最高可接觸 ${access}（${authorityTierInfo(access)?.name||""}）。AUTH只描述統治範圍與法定權利，不使用F–S戰力判定。</span></div>${rankIntro}<div class="card"><b>法定權力鏈</b><br><span class="small">下列節點才用於實際委託、管轄、司法、稅役與政治事件判定。</span></div>${rows}<div class="actions"><button onclick="openAuthorityRequests('${polityId}')">地方政務委託</button><button onclick="openPolity('${polityId}')">上一頁</button></div>`)
+ showModal(`${p.name}・權力層級`,`<div class="card"><b>政治權力 ≠ 戰鬥力</b><br><span class="small">你的地方政治聲望 ${standing}｜目前最高可接觸 ${access}（${authorityTierInfo(access)?.name||""}）。AUTH只描述統治範圍與法定權利，不使用F–S戰力判定。</span></div>${rows}<div class="actions"><button onclick="openAuthorityRequests('${polityId}')">地方政務委託</button><button onclick="openPolity('${polityId}')">上一頁</button></div>`)
 }
 function openAuthorityOffice(polityId,officeId){
  const p=politicalEntity(polityId),o=authorityOffice(polityId,officeId);if(!p||!o)return;
@@ -2623,10 +1604,7 @@ function openEasternSwordFigure(id){
  const weapon=(DB.named_weapons||[]).find(x=>x.id===f.weapon_id),fam=notableFamily(f.family_id);
  showModal(f.name,`<div class="card"><b>${f.name}</b>${f.aliases?.length?`｜${f.aliases.join("／")}`:""}<br>${tier}<br><span class="small">${fam?`家系：${fam.name}<br>`:""}${weapon?`持有：${weapon.name}［${weapon.tier}］<br>`:""}現況：${f.current_status||"未公開"}</span></div><div class="card"><b>經歷</b><br><span class="small">${(f.history||[]).join("<br>")}</span></div><div class="card"><b>人物</b><br><span class="small">${f.personality||"資料未公開"}</span></div><div class="actions"><button onclick="openEasternSwordTraditions()">返回東方劍術</button></div>`)
 }
-function disciplineFor(id){
- const canonical=typeof globalThis.resolveDisciplineAlias==="function"?globalThis.resolveDisciplineAlias(id):(DB.discipline_merge_map?.[id]||id);
- return IDX.discipline.get(canonical)
-}
+function disciplineFor(id){return IDX.discipline.get(DB.discipline_merge_map?.[id]||id)}
 function allCanonicalNames(){
  const arr=[];for(const key of ["political_entities","world_regions","locations","world_organizations","discipline_factions","faith_entities","deities","combat_classes","monsters","talents","s_tier_combatants"])for(const x of (DB[key]||[]))if(x?.name)arr.push(x.name);return arr
 }
@@ -2671,14 +1649,9 @@ function generateWorldName(type="person",culture="asdale_west",context={}){
 function disciplineState(){
  const c=G.character;
  c.disciplines=c.disciplines||{discovered:[],mastery:{},reputation:{},membershipId:null};
- const canon=id=>typeof globalThis.resolveDisciplineAlias==="function"?globalThis.resolveDisciplineAlias(id):(DB.discipline_merge_map?.[id]||id);
- c.disciplines.discovered=[...new Set((Array.isArray(c.disciplines.discovered)?c.disciplines.discovered:[]).map(canon).filter(id=>disciplineFor(id)))];
- const mastery={},reputation={};
- for(const [id,v] of Object.entries(c.disciplines.mastery||{})){const k=canon(id);mastery[k]=Math.max(Number(mastery[k]||0),Number(v||0))}
- for(const [id,v] of Object.entries(c.disciplines.reputation||{})){const k=canon(id),n=Number(v||0);if(reputation[k]==null||Math.abs(n)>Math.abs(reputation[k]))reputation[k]=n}
- c.disciplines.mastery=mastery;c.disciplines.reputation=reputation;
- if(c.disciplines.contribution&&typeof c.disciplines.contribution==="object"){const next={};for(const [id,v] of Object.entries(c.disciplines.contribution)){const k=canon(id);if(next[k]==null)next[k]=v}c.disciplines.contribution=next}
- c.disciplines.membershipId=canon(c.disciplines.membershipId);
+ c.disciplines.discovered=Array.isArray(c.disciplines.discovered)?c.disciplines.discovered:[];
+ c.disciplines.mastery=c.disciplines.mastery||{};
+ c.disciplines.reputation=c.disciplines.reputation||{};
  if(!c.disciplines.membershipId||!disciplineFor(c.disciplines.membershipId))c.disciplines.membershipId=null;
  return c.disciplines
 }
@@ -2752,14 +1725,12 @@ function leaveDiscipline(id){
  s.membershipId=null;persist();log("流派",`你退出${d.name}，「${d.member_bonus?.name||"流派加成"}」已取消。`);openDiscipline(id)
 }
 function openDiscipline(id){
- const d=disciplineFor(id);if(!d)return;id=d.id;if(d.discovery==="hidden_restricted"&&!disciplineState().discovered.includes(id)){alert("你目前沒有可靠來源能確認這個流派。");return}discoverDiscipline(id,"查閱流派");
+ const d=disciplineFor(id);if(!d)return;if(d.discovery==="hidden_restricted"&&!disciplineState().discovered.includes(id)){alert("你目前沒有可靠來源能確認這個流派。");return}discoverDiscipline(id,"查閱流派");
  const m=disciplineMastery(id),rep=disciplineRep(id),reason=disciplineStudyReason(d),cost=disciplineStudyCost(d),s=disciplineState(),member=s.membershipId===id,joinGate=canJoinDiscipline(d);
  const orgName=d.parent_org_id?worldOrg(d.parent_org_id)?.name:"獨立傳承";
  const clsNames=(d.related_class_ids||[]).map(x=>cls(x)?.name||x).slice(0,8).join("、"),b=d.member_bonus;
- const firstRecord=d.first_attested_year!=null?`群陸紀元${d.first_attested_year}年前後`:"未詳",originText=d.historical_origin||d.description||"正式沿革資料尚待整理。";
- showModal(d.name,`<div class="card"><b>${d.name}</b>［${disciplineTrackLabel(d)}］<br>${disciplineKindLabel(d)||"傳承流派"}｜${d.family||"未分類傳承"}<br><span class="small">隸屬／合作：${orgName}<br>最早紀錄：${firstRecord}<br>${originText}</span></div>
+ showModal(d.name,`<div class="card"><b>${d.name}</b>［${disciplineTrackLabel(d)}］<br>${disciplineKindLabel(d)}｜${d.family}<br><span class="small">隸屬／合作：${orgName}<br>最早紀錄：群陸紀元${d.first_attested_year}年前後<br>${d.historical_origin}</span></div>
  <div class="card"><b>流派加成｜${b?.name||"未設定"}</b><br><span class="small">${affiliationBonusText(b)}<br>${member?"目前生效中；退出流派後立即取消。":"正式加入後生效；角色同時只能加入一個流派。"}</span></div>
- <div class="card"><b>流派特色與現況</b><br><span class="small"><b>核心打法：</b>${d.combat_identity||d.signature||"尚未整理"}<br><b>訓練哲學：</b>${d.training_philosophy||d.specialty}<br><b>明確弱點：</b>${d.weakness||"依對手與場地而異"}<br><b>現況：</b>${d.current_state||"維持既有師承。"}${d.distinctive_features?.length?`<br>特色：${d.distinctive_features.join("／")}`:""}</span></div>
  <div class="card"><b>教範</b><br><span class="small">${d.specialty}<br>${d.institutional_culture}${d.substyles?.length?`<br>內部分支：${d.substyles.join("、")}`:""}<br>相關職業：${clsNames||"依個別師承判定"}<br>訓練內容上限：${d.training_tier_ceiling}</span></div>
  <div class="card"><b>你的進度</b><br>${disciplineMasteryLabel(m)} ${m.toFixed(1)}%｜流派聲望 ${rep}<br><span class="small">${reason?`目前不可研習：${reason}`:`可進行基礎研習，費用${cost}銀／${DB.discipline_system.study_hours}小時。`}<br>正式加入條件：基礎研習${DB.discipline_bonus_system?.minimum_mastery_to_join||10}%以上；研習不會直接授予C級以上裝備或跳過技能學習條件。</span></div>
  <div class="actions"><button ${reason?"disabled":""} class="good" onclick="studyDiscipline('${id}')">研習</button>${member?`<button class="bad" onclick="leaveDiscipline('${id}')">退出流派</button>`:`<button ${joinGate.ok?"":"disabled"} onclick="joinDiscipline('${id}')">${joinGate.ok?"正式加入":joinGate.reason}</button>`}<button onclick="openLoreScope('discipline','${id}','${d.name}・沿革')">歷史脈絡</button><button onclick="openDisciplineDirectory('${d.track}',${G.character.currentFacility?`'${G.character.currentFacility}'`:"null"})">上一頁</button></div>`)
@@ -3320,354 +2291,10 @@ function worldEventCandidatePool(regionId){
    ...(DB.regional_rumors||[]).filter(x=>x.region_id===regionId).map(x=>({...x,source_kind:"rumor",canonical_mutation:false}))
  ]
 }
-const GENERATOR_RUNTIME_FUNCTIONS=Object.freeze({
- actExplore,
- actGather,
- actHunt,
- activeCharacterTalents,
- activeCompanionInstance,
- activeCompanionSpecies,
- activeDisciplineBonus,
- activeDisciplineId,
- activeGatherTarget,
- activeKillQuestTargets,
- activeOrganizationBonus,
- activeOrganizationId,
- activeOverlayDialog,
- activeQuests,
- authorityArchetype,
- authorityConflictType,
- authorityInteractionForPlayer,
- authorityLadderHtml,
- authorityLiaisonFacility,
- authorityOffice,
- authorityOfficeAccessible,
- authorityProfile,
- authorityProfileForPolity,
- authorityRankLabel,
- authorityRequestOffice,
- authorityRight,
- authorityRightNames,
- authorityRightsText,
- authorityTierInfo,
- authorityTierLevel,
- craftEffectText,
- craftItem,
- craftItemBatch,
- craftMaterialText,
- craftMaxBatch,
- craftRecipeMaterials,
- craftRecipePool,
- craftResultLine,
- craftSuccessChance,
- craftTimeHours,
- craftingCategoryLabel,
- craftingCategoryPlan,
- craftingItemsFor,
- craftingLearningCandidates,
- craftingMissing,
- craftingMissingBatch,
- craftingRecipeMatchesFacility,
- craftingRecipeVisible,
- cultureContextForLocation,
- cultureMaterialFor,
- cultureProfile,
- dialogueTimeTag,
- disciplineClassCompatible,
- disciplineContactsHere,
- disciplineEventType,
- disciplineFor,
- disciplineKindLabel,
- disciplineMastery,
- disciplineMasteryLabel,
- disciplineOpportunityQuest,
- disciplineRelation,
- disciplineRep,
- disciplineState,
- disciplineStudyCost,
- disciplineStudyReason,
- disciplineTrackLabel,
- dungeonPoolForRegion,
- encounterChanceForLocation,
- encounterWeightForLocation,
- evaluateAuthorityDynamics,
- evaluateDisciplineDynamics,
- evaluateOrganizationDynamics,
- evaluatePoliticalDynamics,
- evaluateSTierInfluence,
- faithEntity,
- faithMissionArchetypeValid,
- faithOathEligible,
- faithProfile,
- faithRelation,
- faithRelationLabel,
- faithStanding,
- faithState,
- generateAdventureEvent,
- generateAuthorityRequests,
- generateCharacterProfile,
- generateCombatCharacterProfile,
- generateDialogue,
- generateFaithEncounter,
- generateFaithMissions,
- generateIntelBoard,
- generateJoinOffers,
- generateOrganizationContracts,
- generateOrganizationEncounter,
- generateRecruitCandidates,
- generateSaveAuditSnapshot,
- generateWorldName,
- generateWorldSimulationDecision,
- guildBasicTraining,
- guildBuybackUnitPrice,
- guildQuests,
- guildSellItem,
- intelArchiveCard,
- intelArchiveEntries,
- intelDayKey,
- intelRecordValid,
- localAuthorityForLocation,
- localDeities,
- localEconomyProfile,
- localFaithEntities,
- localGameVersion,
- localHistoryFor,
- localOrganizations,
- loreCards,
- loreFor,
- loreRecord,
- loreVerificationLabel,
- loreVisible,
- makeCompanionInstance,
- mapHierarchyForLocation,
- maxPoliticalAccessTier,
- maybeAdventureEvent,
- maybeEncounter,
- maybeOrganizationEncounter,
- maybePartySocialEvent,
- maybePetOpportunity,
- npcArchetypePool,
- organizationCompatibility,
- organizationContractCandidates,
- partyBattleLog,
- partyBattleSnapshots,
- partyCompatibility,
- partyLeaderName,
- partyMemberCombatStats,
- partyMembers,
- partyOpportunityCandidate,
- partyRoleNeeds,
- partySize,
- partyTemplate,
- partyThreatTargets,
- politicalContextForLocation,
- politicalEntity,
- politicalEventType,
- politicalRankClassInfo,
- politicalRankLadderHtml,
- politicalRelationKey,
- politicalRelationState,
- politicalStanding,
- provinceRegionForLocation,
- questDeliveryReady,
- questEffectiveDeadline,
- questIntelContext,
- questIntelScore,
- questIntelSourceLabel,
- questIntelTargets,
- questKnownIntel,
- questListAction,
- questLocationValid,
- questMarketAvailable,
- questMarketFactor,
- questMarketKey,
- questMarketLedger,
- questMarketPressure,
- questMarketRegionId,
- questObjectiveConsumesItems,
- questObjectiveText,
- questPenaltyText,
- questRemainingHours,
- questSourceMeta,
- questTemplate,
- questTemplateViable,
- questTimeAllowance,
- questTimeLabel,
- questViableLocations,
- recipeCanLearn,
- recipeKnown,
- recipeLearnFee,
- rollClass,
- rollD20,
- rollEnemyLoot,
- rollOrigin,
- rollRace,
- rootPolityIdForLocation,
- shopBuy,
- shopBuyUnitPrice,
- shopSell,
- shopSellUnitPrice,
- shopStockForFacility,
- studyDiscipline,
- successionContext,
- successionContextForPolity,
- worldEventCandidatePool,
- manageCombatCharacterProfile,
- manageWorldSimulation,
- manageSaveAudit,
- manageCharacterGeneration,
- easternSwordTradition,
- hiddenSwordSiteContext,
- raikoTechniqueEligibility,
- sTierCombatant,
- sTierHistoryFor,
- sTierRelationsFor,
- continentalPolityFor,
- overseasHorizonFor,
- historyChainFor,
- historyForEntity,
- historicalDispute,
- regionalContentProfile,
- regionalNpcArchetypes,
- regionalAdventureHooks,
- runWorldDynamics,
- settlementTierProfile,
- regionalRumorsFor,
- regionalFolkloreFor,
- mythMotifsFor,
- generatorMaterialPackFor,
- historicalRelationsFor,
- relationIncidentCandidates,
- relationQuestCandidates,
- relationRumorCandidates,
- regionalEquipmentPool,
- potionCatalogForTier,
- utilityItemPool,
- talentCandidates,
-});
 function generatorRuntimeFunctionExists(name){
- const key=String(name||"").trim();
- return Object.prototype.hasOwnProperty.call(GENERATOR_RUNTIME_FUNCTIONS,key)&&typeof GENERATOR_RUNTIME_FUNCTIONS[key]==="function";
+ if(!name)return false;
+ try{return typeof eval(name)==="function"}catch{return false}
 }
-function generationClone(value){
- try{return typeof structuredClone==="function"?structuredClone(value):JSON.parse(JSON.stringify(value))}
- catch{return null}
-}
-function generationIssue(code,detail){return {code,detail:String(detail||code)}}
-function generateCombatCharacterProfile(input={}){
- const raceId=input.raceId||input.race?.id||G?.character?.raceId;
- const originId=input.originId||input.origin?.id||G?.character?.originId;
- const classId=input.classId||input.combatClassId||input.combat_class_id||G?.character?.classId;
- const race=by(DB.races||[],raceId),origin=org(originId),combatClass=cls(classId);
- const issues=[];
- if(!race)issues.push(generationIssue("RACE_NOT_FOUND",raceId));
- if(!origin)issues.push(generationIssue("ORIGIN_NOT_FOUND",originId));
- if(!combatClass)issues.push(generationIssue("CLASS_NOT_FOUND",classId));
- if(issues.length)return {ok:false,profile:null,issues,fallback:"no_result"};
- const facet=(origin.facets||[]).find(x=>x?.id===(input.originFacetId||input.originFacet||null))||null;
- const subtype=input.raceSubtype||input.race_subtype||null;
- const raceSubtypeData=race.id==="R-ORC"&&subtype?(DB.race_system?.beastfolk_subtypes?.[subtype]||{}):{};
- const stats={力量:10,敏捷:10,智力:10,意志:10,體力:10,魅力:10,幸運:10};
- for(const source of [race.stats,raceSubtypeData.stats,origin.stats,combatClass.stats])for(const [key,value] of Object.entries(source||{}))stats[key]=(stats[key]||10)+Number(value||0);
- const talentCtx=typeof talentContext==="function"?talentContext(race.id,subtype,origin.id,combatClass.id,input.element||"地",input.subjobs||[]):null;
- const talents=Array.isArray(input.talents)?input.talents.map(x=>typeof x==="string"?x:x?.id).filter(Boolean):talentCtx&&typeof drawTalents==="function"?drawTalents(talentCtx,Number(DB.talent_system?.character_limit||2)).map(x=>x.id):[];
- const skillPool=DB.skill_pools?.[combatClass.id]||DB.skill_pools?.["C-WAR"]||[];
- const skills=(Array.isArray(input.skills)?input.skills:skillPool.filter(x=>x?.tier==="F").slice(0,2)).map(x=>typeof x==="string"?x:x?.id||skillKey(x)).filter(Boolean);
- const starterWeaponId=input.starterWeaponId||combatClass.starter_weapon_id||combatClass.weapon||null;
- const starterOffhandId=input.starterOffhandId||combatClass.starter_offhand_id||null;
- const equipment={main:starterWeaponId,offhand:starterOffhandId};
- for(const [label,id] of [["starter_weapon",starterWeaponId],["starter_offhand",starterOffhandId]])if(id&&!item(id))issues.push(generationIssue("ITEM_NOT_FOUND",`${label}:${id}`));
- for(const id of skills)if(!skillPool.some(x=>x?.id===id||skillKey(x)===id))issues.push(generationIssue("SKILL_NOT_FOUND",id));
- for(const id of talents)if(!DB.talents?.some(x=>x?.id===id))issues.push(generationIssue("TALENT_NOT_FOUND",id));
- const limit=Number(DB.talent_system?.character_limit||2);
- if(new Set(talents).size!==talents.length)issues.push(generationIssue("DUPLICATE_TALENT",talents.join(",")));
- if(talents.length>limit)issues.push(generationIssue("TALENT_LIMIT",`${talents.length}/${limit}`));
- return {ok:issues.length===0,profile:{id:input.id||nowId("CHAR-DRAFT"),name:String(input.name||"旅人").trim()||"旅人",raceId:race.id,raceSubtype:subtype,originId:origin.id,originFacetId:facet?.id||null,element:input.element||"地",classId:combatClass.id,stats,talents,skills,equipment},issues,fallback:issues.length?"no_result":null};
-}
-function manageCombatCharacterProfile(profile){
- const p=profile?.profile||profile,issues=[];
- if(!p||!p.raceId||!p.originId||!p.classId)issues.push(generationIssue("PROFILE_CORE_MISSING","種族／出身／職業"));
- if(p&&!by(DB.races||[],p.raceId))issues.push(generationIssue("RACE_NOT_FOUND",p.raceId));
- if(p&&!org(p.originId))issues.push(generationIssue("ORIGIN_NOT_FOUND",p.originId));
- if(p&&!cls(p.classId))issues.push(generationIssue("CLASS_NOT_FOUND",p.classId));
- for(const [key,value] of Object.entries(p?.stats||{}))if(!Number.isFinite(Number(value))||Number(value)<1)issues.push(generationIssue("STAT_INVALID",`${key}:${value}`));
- const limit=Number(DB.talent_system?.character_limit||2);if((p?.talents||[]).length>limit)issues.push(generationIssue("TALENT_LIMIT",`${p.talents.length}/${limit}`));
- for(const id of p?.skills||[])if(!Object.values(DB.skill_pools||{}).flat().some(x=>x?.id===id||skillKey(x)===id))issues.push(generationIssue("SKILL_NOT_FOUND",id));
- for(const id of [p?.equipment?.main,p?.equipment?.offhand].filter(Boolean))if(!item(id))issues.push(generationIssue("ITEM_NOT_FOUND",id));
- return {ok:issues.length===0,issues,validated:issues.length===0,output_contract:"combat_character_profile"};
-}
-function generateCharacterProfile(input={}){
- const combat=generateCombatCharacterProfile(input);
- if(!combat.ok)return {ok:false,profile:null,combat,issues:combat.issues,fallback:"no_result"};
- const p=combat.profile;
- const name=String(input.name||"").trim()||(typeof generateWorldName==="function"?generateWorldName("person",input.culture||"asdale_west",{usedNames:[]}) : "旅人");
- const startResolver=globalThis.QUNLU_STARTER_SETTLEMENTS?.assign;
- const startInfo=typeof startResolver==="function"?startResolver({raceId:p.raceId,raceSubtype:p.raceSubtype,originId:p.originId,originCategory:org(p.originId)?.category,classId:p.classId,classCategory:cls(p.classId)?.category}):null;
- const startLocationId=startInfo?.location_id&&loc(startInfo.location_id)?startInfo.location_id:null;
- const profile={...p,name,starterSettlementId:startLocationId,starterSkills:[...p.skills],starterItems:[...(org(p.originId)?.items||[])].filter(id=>item(id)),starterSubjobs:[...(org(p.originId)?.starter_subjobs||[])].filter(id=>(DB.subjobs||[]).some(x=>x?.id===id))};
- const issues=[];
- if(!startLocationId)issues.push(generationIssue("STARTER_SETTLEMENT_NOT_FOUND",startInfo?.location_id||"none"));
- for(const id of profile.starterItems)if(!item(id))issues.push(generationIssue("STARTER_ITEM_NOT_FOUND",id));
- return {ok:issues.length===0,profile,combat,issues,fallback:issues.length?"no_result":null};
-}
-function manageCharacterGeneration(result){
- const p=result?.profile||result,issues=[];
- if(!result?.ok&&result?.issues?.length)issues.push(...result.issues);
- const combat=manageCombatCharacterProfile(p);issues.push(...(combat.issues||[]));
- if(!p?.name||String(p.name).length>24)issues.push(generationIssue("NAME_INVALID",p?.name||""));
- if(p?.starterSettlementId&&!loc(p.starterSettlementId))issues.push(generationIssue("STARTER_SETTLEMENT_NOT_FOUND",p.starterSettlementId));
- for(const id of p?.starterItems||[])if(!item(id))issues.push(generationIssue("STARTER_ITEM_NOT_FOUND",id));
- return {ok:issues.length===0,issues,validated:issues.length===0,output_contract:"character_profile"};
-}
-function generateWorldSimulationDecision(input={}){
- const currentLocation=loc(input.locationId||G?.character?.locationId),regionId=input.regionId||currentLocation?.world_region_id||currentLocation?.region_id||null;
- if(!regionId)return {ok:true,no_result:true,regionId:null,candidate:null,reason:"無法解析目前世界大區"};
- const recent=new Set((G?.worldState?.integratedEvents||[]).slice(0,12).map(x=>x?.sourceId||x?.id).filter(Boolean));
- const pool=(typeof worldEventCandidatePool==="function"?worldEventCandidatePool(regionId):[]).filter(x=>x?.id&&!recent.has(x.id));
- if(!pool.length)return {ok:true,no_result:true,regionId,candidate:null,reason:"目前沒有合法且未重複的地方世界動態"};
- const candidate=pool.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)))[0];
- return {ok:true,no_result:false,regionId,candidate:{...candidate},turn:Number(G?.turn||input.turn||0)};
-}
-function manageWorldSimulation(decision){
- const issues=[],d=decision||{};
- if(!d.ok)issues.push(generationIssue("DECISION_NOT_GENERATED","世界動態生成器未通過"));
- if(d.candidate){if(!d.candidate.id)issues.push(generationIssue("EVENT_ID_MISSING","世界事件缺少ID"));if(d.candidate.region_id&&d.regionId&&d.candidate.region_id!==d.regionId)issues.push(generationIssue("REGION_MISMATCH",`${d.candidate.id}:${d.candidate.region_id}->${d.regionId}`));}
- const last=Number(G?.worldState?.orchestrator?.lastWorldDynamicTurn??-1);if(last===Number(G?.turn)&&G?.worldState?.orchestrator?.lastSimulationAudit?.turn===Number(G?.turn))issues.push(generationIssue("DUPLICATE_WORLD_TURN",G.turn));
- return {ok:issues.length===0,issues,validated:issues.length===0,no_result:!d.candidate,turn:Number(G?.turn||d.turn||0),regionId:d.regionId||null};
-}
-function generateSaveAuditSnapshot(input={}){
- const state=input.gameState||G,issues=[];
- if(!state||typeof state!=="object")issues.push(generationIssue("STATE_MISSING","遊戲狀態不存在"));
- const required=["meta","character","worldTime","worldState"];
- for(const key of required)if(!state?.[key]||typeof state[key]!=="object")issues.push(generationIssue("CORE_FIELD_MISSING",key));
- const version=state?.meta?.version||DB.meta?.current_version||null,characterId=state?.meta?.characterId||state?.character?.id||null;
- if(!/^CURRENT-\d+\.\d+\.\d+$/.test(String(version||"")))issues.push(generationIssue("VERSION_INVALID",version||""));
- if(!characterId)issues.push(generationIssue("CHARACTER_ID_MISSING","meta.characterId"));
- let bytes=0;if(!issues.length){try{bytes=JSON.stringify(state).length}catch(error){issues.push(generationIssue("SERIALIZE_FAILED",error.message))}}
- return {ok:issues.length===0,snapshotId:`SAVE-AUDIT-${characterId||"UNKNOWN"}-T${Number(state?.turn||0)}`,version,characterId,turn:Number(state?.turn||0),bytes,core_fields:required,issues,include_state:input.includeState===true,state:input.includeState===true?generationClone(state):undefined,fallback:issues.length?"preserve_last_valid_save":null};
-}
-function manageSaveAudit(snapshot){
- const issues=[];if(!snapshot?.ok)issues.push(...(snapshot?.issues||[generationIssue("SNAPSHOT_INVALID","存檔快照未通過生成")]))
- if(!snapshot?.version||!/^CURRENT-\d+\.\d+\.\d+$/.test(String(snapshot.version)))issues.push(generationIssue("VERSION_INVALID",snapshot?.version||""));
- if(!snapshot?.characterId)issues.push(generationIssue("CHARACTER_ID_MISSING","characterId"));
- if(!Number.isFinite(Number(snapshot?.bytes))||Number(snapshot.bytes)<=0)issues.push(generationIssue("SERIALIZED_EMPTY",snapshot?.bytes||0));
- return {ok:issues.length===0,issues,validated:issues.length===0,preserve_last_valid_save:issues.length>0};
-}
-function normalizeRegionalResourceSourceIndex(){
- DB.content_link_index=DB.content_link_index&&typeof DB.content_link_index==="object"?DB.content_link_index:{};
- const src=DB.content_link_index.item_sources=DB.content_link_index.item_sources&&typeof DB.content_link_index.item_sources==="object"?DB.content_link_index.item_sources:{};
- for(const d of DB.items||[]){
-  const s=src[d.id]=src[d.id]||{};
-  for(const k of ["shops","gather_locations","monster_drops","recipe_inputs","recipe_outputs","special_sources"])s[k]=Array.isArray(s[k])?[...new Set(s[k])]:[];
- }
- for(const l of DB.locations||[]){
-  const ids=[...(l.gather||[]),...(l.mining||[]),...(l.woodcut||[]),...(l.fish||[]),...(l.hunt||[])];
-  for(const id of ids){const s=src[id];if(s&&!s.gather_locations.includes(l.id))s.gather_locations.push(l.id)}
- }
- for(const m of DB.monsters||[])for(const d of m.loot_materials||[]){const s=src[d.id];if(s&&!s.monster_drops.includes(m.id))s.monster_drops.push(m.id)}
- return src
-}
-normalizeRegionalResourceSourceIndex();
 function integrationLinks(){
  return DB.content_link_index||{item_sources:{},facility_content:{},location_content:{}}
 }
@@ -3734,18 +2361,18 @@ function dynamicOrgIntelRows(fid){
 function orgState(){
  const c=G.character;
  c.organizations=c.organizations||{membershipId:null,memberships:[],formerMemberships:[],reputation:{},discovered:[]};
- const canon=id=>typeof globalThis.resolveOrganizationAlias==="function"?globalThis.resolveOrganizationAlias(id):(DB.organization_merge_map?.[id]||id);
- c.organizations.memberships=[...new Set((Array.isArray(c.organizations.memberships)?c.organizations.memberships:[]).map(canon).filter(Boolean))];
- c.organizations.formerMemberships=[...new Set((Array.isArray(c.organizations.formerMemberships)?c.organizations.formerMemberships:[]).map(canon).filter(Boolean))];
- c.organizations.discovered=[...new Set((Array.isArray(c.organizations.discovered)?c.organizations.discovered:[]).map(canon).filter(id=>worldOrg(id)))];
- const rep={};for(const [id,v] of Object.entries(c.organizations.reputation||{})){const k=canon(id),n=Number(v||0);if(rep[k]==null||Math.abs(n)>Math.abs(rep[k]))rep[k]=n}c.organizations.reputation=rep;
- if(c.organizations.contribution&&typeof c.organizations.contribution==="object"){const next={};for(const [id,v] of Object.entries(c.organizations.contribution)){const k=canon(id);if(next[k]==null)next[k]=v}c.organizations.contribution=next}
+ c.organizations.memberships=Array.isArray(c.organizations.memberships)?c.organizations.memberships:[];
+ c.organizations.formerMemberships=Array.isArray(c.organizations.formerMemberships)?c.organizations.formerMemberships:[];
+ c.organizations.reputation=c.organizations.reputation||{};
+ c.organizations.discovered=Array.isArray(c.organizations.discovered)?c.organizations.discovered:[];
  const valid=[...new Set(c.organizations.memberships.filter(id=>worldOrg(id)))];
- const requested=canon(c.organizations.membershipId);let active=worldOrg(requested)?requested:null;
+ let active=worldOrg(c.organizations.membershipId)?c.organizations.membershipId:null;
  if(!active&&valid.length)active=valid.at(-1);
  for(const id of valid)if(id!==active&&!c.organizations.formerMemberships.includes(id))c.organizations.formerMemberships.push(id);
- c.organizations.membershipId=active||null;c.organizations.memberships=active?[active]:[];
- G.worldState.orgRelations=G.worldState.orgRelations||{};G.worldState.orgEvents=G.worldState.orgEvents||[];
+ c.organizations.membershipId=active||null;
+ c.organizations.memberships=active?[active]:[];
+ G.worldState.orgRelations=G.worldState.orgRelations||{};
+ G.worldState.orgEvents=G.worldState.orgEvents||[];
  return c.organizations
 }
 function orgRep(id){return orgState().reputation[id]||0}
@@ -3850,14 +2477,12 @@ function openWorldOrganizations(){
  showModal("世界組織",`<div class="card small">目前加入：${active?`${active.name}<br>加成：${affiliationBonusText(active.member_bonus)}`:"無"}<br>角色同時只能正式加入一個組織；退出後加成立即取消。公開組織可直接查看；地下組織需透過情報、奇遇或其他關係發現。</div><div class="card"><b>近期勢力動向</b>${events}</div>${body}`)
 }
 function openOrganization(id){
- const o=worldOrg(id);if(!o)return;id=o.id;discoverOrganization(id);
+ const o=worldOrg(id);if(!o)return;discoverOrganization(id);
  const s=orgState(),member=s.membershipId===id,gate=canJoinOrganization(o);
  const rels=(DB.world_organizations||[]).filter(x=>x.id!==id).map(x=>({o:x,r:currentOrgRelation(id,x.id)})).filter(x=>Math.abs(x.r.score)>=25).sort((a,b)=>Math.abs(b.r.score)-Math.abs(a.r.score)).slice(0,5);
  const relHtml=rels.map(x=>`<div class="small">${x.o.name}：${orgRelationLabel(x.r.state)} ${x.r.score>=0?"+":""}${x.r.score}</div>`).join("")||"<div class='small'>目前沒有明顯外交關係。</div>";
- const b=o.member_bonus,features=(o.distinctive_features||[]).slice(0,5),branches=(o.branches||[]).slice(0,8);
+ const b=o.member_bonus;
  showModal(o.name,`<div class="card"><b>${o.name}</b> <span class="tier">${o.alignment==="light"?"光明":o.alignment==="dark"?"黑暗":"中立"}</span><br>${o.category}｜${o.scope}<br><span class="small">${o.description}<br>聲望 ${orgRep(id)}｜主要據點介面：${DB.facilities[o.primary_facility]?.name||o.primary_facility}</span></div>
- <div class="card"><b>歷史與現狀</b><br><span class="small">${o.history_summary||"沿革資料尚待整理。"}<br><br><b>現況：</b>${o.current_state||"目前維持既有職能。"}</span></div>
- <div class="card"><b>不可替代的特色</b><br><span class="small">${features.length?"• "+features.join("<br>• "):o.signature||"尚未整理"}${o.institutional_culture?`<br><br><b>制度文化：</b>${o.institutional_culture}`:""}${o.strategic_tension?`<br><b>當前張力：</b>${o.strategic_tension}`:""}${branches.length?`<br><br><b>已整併分會／部門：</b>${branches.map(x=>x.name).join("、")}`:""}</span></div>
  <div class="card"><b>組織加成｜${b?.name||"未設定"}</b><br><span class="small">${affiliationBonusText(b)}<br>${member?"目前生效中；退出組織後立即取消。":"正式加入後生效；角色同時只能加入一個組織。"}</span></div>
  <div class="card"><b>主要關係</b>${relHtml}</div>
  <div class="actions">${member?`<button class="bad" onclick="leaveOrganization('${id}')">退出組織</button>`:`<button ${gate.ok?"":"disabled"} onclick="attemptJoinOrganization('${id}')">${gate.ok?`申請加入（接受度${organizationCompatibility(o)}/100）`:gate.reason}</button>`}
@@ -3947,7 +2572,7 @@ function resolveOrganizationEncounter(engage){
  else log("組織奇遇",`你沒有介入${o.name}的地方事務。`);
  G.pendingOrganizationEncounter=null;closeModal();persist();renderAll()
 }
-function renderFacility(fid){const f=DB.facilities[fid],l=loc(G.character.locationId),ix=facilityIntegration(fid);let b=`<div class="card"><b>${f.name}</b><br><span class="small">${l.name}［${l.tier}］｜關聯組織${ix.organization_ids.length}｜情報${ix.intel_record_ids.length}｜對話${ix.dialogue_record_ids.length}${ix.subjob_ids.length?`｜可學副職${ix.subjob_ids.length}`:""}</span></div><div class="actions"><button onclick="facilityDialogue('${fid}')">對話</button><button onclick="facilityIntel('${fid}')">情報</button>`;if(f.shop)b+=`<button onclick="shopBuy('${fid}')">${fid==="tavern"||fid==="inn"?"購買餐飲":"購買"}</button><button onclick="shopSell('${fid}')">${fid==="tavern"?"收購食材":"出售"}</button>`;if(fid==="guild")b+=`<button onclick="guildQuests()">公會委託</button><button onclick="openGuildBuyback()">收購櫃檯</button><button onclick="openRecruitTeammates('guild')">招募隊友</button><button onclick="openJoinAdventureParty()">加入冒險團</button><button onclick="classTraining()">本職技能</button><button onclick="guildBasicTraining()">跨職基礎技能</button><button onclick="openClassAdvancement()">職業進階</button>`;if(fid==="tavern")b+=`<button onclick="openRecruitTeammates('tavern')">招募隊友</button>`;if(fid==="tavern")b+=`<button onclick="openFaithEncounter('tavern')">信仰人物</button>`;if(fid==="tavern"||fid==="inn")b+=`<button class="good" onclick="openMealService('${fid}')">用餐${mealPeriod()?`・${DB.meal_service_system.service_windows[mealPeriod()].label}`:""}</button>`;if(fid==="mageguild")b+=`<button onclick="openSummonResearch()">召喚研究</button><button onclick="openContractRitual()">契約儀式</button>`;if(fid==="enchanter")b+=`<button onclick="openContractRitual()">契約儀式</button>`;if(["blacksmith","tailor","alchemy","enchanter"].includes(fid))b+=`<button onclick="openCrafting('${fid}')">製作</button>`;if(fid==="blacksmith")b+=`<button onclick="openRepair()">修理裝備</button>`;if(fid==="church"||fid==="clinic")b+=`<button onclick="facilityHeal('${fid}')">全隊治療</button>`;if(fid==="church")b+=`<button onclick="openFaithDirectory()">神系與教會</button><button onclick="openFaithMissions()">神殿委託</button><button onclick="openFaithProfile()">祈禱／誓言</button><button onclick="openFaithEncounter('church')">地方神職</button>`;if(fid==="alchemy"||fid==="church")b+=`<button onclick="facilityQuest('${fid}')">臨時委託</button>`;if(DB.subjobs.some(s=>s.facilities.includes(fid)))b+=`<button onclick="learnSubjobHere('${fid}')">副職業學習</button>`;if(fid==="inn")b+=`<button onclick="innRest()">住宿</button>`;if(["guild","tavern","general","blacksmith","tailor","alchemy","enchanter","mageguild","clinic"].includes(fid))b+=`<button onclick="openFacilityOrganizations('${fid}')">組織／勢力</button>`;if(disciplineContactsHere(fid).length)b+=`<button onclick="openDisciplineDirectory('all','${fid}')">武技／魔法流派 ${disciplineContactsHere(fid).length}</button>`;if(fid===authorityLiaisonFacility()&&politicalContextForLocation().polity)b+=`<button onclick="openAuthorityRequests(\'${politicalContextForLocation().polity.id}\')">地方政務</button>`;b+="</div>";showModal(f.name,b,`renderFacility(\'${fid}\')`)}
+function renderFacility(fid){const f=DB.facilities[fid],l=loc(G.character.locationId),ix=facilityIntegration(fid);let b=`<div class="card"><b>${f.name}</b><br><span class="small">${l.name}［${l.tier}］｜關聯組織${ix.organization_ids.length}｜情報${ix.intel_record_ids.length}｜對話${ix.dialogue_record_ids.length}${ix.subjob_ids.length?`｜可學副職${ix.subjob_ids.length}`:""}</span></div><div class="actions"><button onclick="facilityDialogue('${fid}')">對話</button><button onclick="facilityIntel('${fid}')">情報</button>`;if(f.shop)b+=`<button onclick="shopBuy('${fid}')">${fid==="tavern"||fid==="inn"?"購買料理":"購買"}</button><button onclick="shopSell('${fid}')">${fid==="tavern"?"收購食材":"出售"}</button>`;if(fid==="guild")b+=`<button onclick="guildQuests()">公會委託</button><button onclick="openGuildBuyback()">收購櫃檯</button><button onclick="openRecruitTeammates('guild')">招募隊友</button><button onclick="openJoinAdventureParty()">加入冒險團</button><button onclick="classTraining()">本職技能</button><button onclick="guildBasicTraining()">跨職基礎技能</button><button onclick="openClassAdvancement()">職業進階</button>`;if(fid==="tavern")b+=`<button onclick="openRecruitTeammates('tavern')">招募隊友</button>`;if(fid==="tavern")b+=`<button onclick="openFaithEncounter('tavern')">信仰人物</button>`;if(fid==="tavern"||fid==="inn")b+=`<button class="good" onclick="openMealService('${fid}')">用餐${mealPeriod()?`・${DB.meal_service_system.service_windows[mealPeriod()].label}`:""}</button>`;if(fid==="mageguild")b+=`<button onclick="openSummonResearch()">召喚研究</button><button onclick="openContractRitual()">契約儀式</button>`;if(fid==="enchanter")b+=`<button onclick="openContractRitual()">契約儀式</button>`;if(["blacksmith","tailor","alchemy"].includes(fid))b+=`<button onclick="openCrafting('${fid}')">製作</button>`;if(fid==="blacksmith")b+=`<button onclick="openRepair()">修理裝備</button>`;if(fid==="church"||fid==="clinic")b+=`<button onclick="facilityHeal('${fid}')">治療</button>`;if(fid==="church")b+=`<button onclick="openFaithDirectory()">神系與教會</button><button onclick="openFaithMissions()">神殿委託</button><button onclick="openFaithProfile()">祈禱／誓言</button><button onclick="openFaithEncounter('church')">地方神職</button>`;if(fid==="alchemy"||fid==="church")b+=`<button onclick="facilityQuest('${fid}')">臨時委託</button>`;if(DB.subjobs.some(s=>s.facilities.includes(fid)))b+=`<button onclick="learnSubjobHere('${fid}')">副職業學習</button>`;if(fid==="inn")b+=`<button onclick="innRest()">住宿</button>`;if(["guild","tavern","general","blacksmith","tailor","alchemy","enchanter","mageguild","clinic"].includes(fid))b+=`<button onclick="openFacilityOrganizations('${fid}')">組織／勢力</button>`;if(disciplineContactsHere(fid).length)b+=`<button onclick="openDisciplineDirectory('all','${fid}')">武技／魔法流派 ${disciplineContactsHere(fid).length}</button>`;if(fid===authorityLiaisonFacility()&&politicalContextForLocation().polity)b+=`<button onclick="openAuthorityRequests(\'${politicalContextForLocation().polity.id}\')">地方政務</button>`;b+="</div>";showModal(f.name,b,`renderFacility(\'${fid}\')`)}
 function gameHourDecimal(){return G.worldTime.hour+G.worldTime.minute/60}
 function mealPeriod(){
  const h=gameHourDecimal(),w=DB.meal_service_system.service_windows;
@@ -3979,7 +2604,7 @@ function eatFacilityMeal(fid,period,mealId){
  G.character.hunger=clamp(G.character.hunger-m.hunger,0,120);
  G.character.thirst=clamp(G.character.thirst-(m.thirst||0),0,120);
  G.character.fatigue=clamp(G.character.fatigue-(m.fatigue||0),0,120);
- if(m.hp)G.character.hp=clamp(G.character.hp+combatScaledNumber(m.hp),0,G.character.maxHp);
+ if(m.hp)G.character.hp=clamp(G.character.hp+m.hp,0,G.character.maxHp);
  log("用餐",`${DB.facilities[fid].name}：享用${m.name}，支付${m.price}銀。`,"ok");
  endTurn(.5)
 }
@@ -4015,19 +2640,11 @@ function runWorldDynamics(){
  if(G.worldState.orchestrator.lastWorldDynamicTurn===G.turn)return false;
  G.worldState.orchestrator.lastWorldDynamicTurn=G.turn;
  evaluateOrganizationDynamics();evaluatePoliticalDynamics();evaluateAuthorityDynamics();evaluateDisciplineDynamics();evaluateSTierInfluence();
- const decision=typeof generateWorldSimulationDecision==="function"?generateWorldSimulationDecision({turn:G.turn}):null;
- const simulationAudit=typeof manageWorldSimulation==="function"?manageWorldSimulation(decision):null;
- G.worldState.orchestrator.lastSimulationAudit={turn:G.turn,ok:simulationAudit?.ok!==false,no_result:simulationAudit?.no_result!==false,issues:simulationAudit?.issues||[],regionId:simulationAudit?.regionId||decision?.regionId||null};
  return true
 }
 function systemDomainHealth(){
  const ds=DB.system_orchestrator?.domains||[],g=new Set(DB.generators.map(x=>x.id)),a=new Set(DB.management_ai.map(x=>x.id)),seenG=new Set(),seenA=new Set(),issues=[];
- for(const d of ds){
-  if(!(d.generator_ids||[]).length)issues.push(`資料庫領域缺少生成器:${d.id||d.name||"unknown"}`);
-  if(!(d.management_ai_ids||[]).length)issues.push(`資料庫領域缺少管理AI:${d.id||d.name||"unknown"}`);
-  for(const id of d.generator_ids||[]){if(!g.has(id))issues.push(`生成器領域引用缺失:${id}`);if(seenG.has(id))issues.push(`生成器重複領域:${id}`);seenG.add(id)}
-  for(const id of d.management_ai_ids||[]){if(!a.has(id))issues.push(`管理AI領域引用缺失:${id}`);if(seenA.has(id))issues.push(`管理AI重複領域:${id}`);seenA.add(id)}
- }
+ for(const d of ds){for(const id of d.generator_ids||[]){if(!g.has(id))issues.push(`生成器領域引用缺失:${id}`);if(seenG.has(id))issues.push(`生成器重複領域:${id}`);seenG.add(id)}for(const id of d.management_ai_ids||[]){if(!a.has(id))issues.push(`管理AI領域引用缺失:${id}`);if(seenA.has(id))issues.push(`管理AI重複領域:${id}`);seenA.add(id)}}
  for(const id of g)if(!seenG.has(id))issues.push(`孤立生成器:${id}`);for(const id of a)if(!seenA.has(id))issues.push(`孤立管理AI:${id}`);
  return {issues,generatorAssigned:seenG.size,aiAssigned:seenA.size,domainCount:ds.length}
 }
@@ -4265,88 +2882,16 @@ function normalizeCharacterSkills(){
  }
  c.skills=out.slice(0,10)
 }
-function skillPrereqCompareLine(label,need,current,ok,shortfall=""){
- const extra=!ok&&shortfall?`｜尚差 ${shortfall}`:"";
- return `<span class="${ok?"ok":"bad"}">${label}：需求 ${need}｜目前 ${current}${extra}</span>`
-}
-function skillStatRequirements(s,overrideStat=null,overrideNeed=null){
- const out={};
- for(const [k,v] of Object.entries(s?.prereq||{}))if(Number.isFinite(Number(v)))out[k]=Math.max(0,Number(v));
- for(const [k,v] of Object.entries(s?.required_stats||{}))if(Number.isFinite(Number(v)))out[k]=Math.max(0,Number(v));
- if(s?.required_stat){
-   const n=Number(s.required_stat_value??s.required_stat_requirement??DB.guild_training?.primary_stat_requirement??0);
-   if(Number.isFinite(n)&&n>0)out[s.required_stat]=n
- }
- if(overrideStat&&Number.isFinite(Number(overrideNeed)))out[overrideStat]=Math.max(0,Number(overrideNeed));
- return out
-}
-function skillLearningPrereqState(s,opt={}){
- const checks=[],mode=opt.mode||"class",fee=Math.max(0,Number(opt.fee)||0);
- const add=(label,need,current,ok,shortfall="")=>checks.push({label,need,current,ok:!!ok,shortfall});
- if(mode==="cross"&&s?.cross_train_locked)add("職業招牌技能","取得對應職業資格","目前為跨職學習",false,"只能從該職業本職學習");
- if(mode==="class"){
-   const need=String(s?.tier||"F"),current=String(G.character.combatGrade||"F"),ok=tierOrder(current)>=tierOrder(need);
-   add("戰鬥職業階級",need,current,ok,ok?"":`${tierOrder(need)-tierOrder(current)}階`)
- }
- const reqLv=Math.max(1,Number(s?.required_level)||1);
- if(reqLv>1){
-   const cur=Math.max(1,Number(G.character.level)||1),ok=cur>=reqLv;
-   add("角色等級",`Lv${reqLv}`,`Lv${cur}`,ok,ok?"":`Lv${reqLv-cur}`)
- }
- const statNeed=Number(DB.guild_training?.primary_stat_requirement||0);
- const statReqs=skillStatRequirements(s,opt.statName||null,opt.statName?statNeed:null);
- for(const [stat,need] of Object.entries(statReqs)){
-   const cur=Math.max(0,Number(G.character.stats?.[stat])||0),ok=cur>=need;
-   add(`${stat}（基礎屬性）`,need,cur,ok,ok?"":need-cur)
- }
- if(fee>0){
-   const cur=Math.max(0,Number(G.character.moneySilver)||0),ok=cur>=fee;
-   add("學費",`${fee}銀`,`${cur}銀`,ok,ok?"":`${fee-cur}銀`)
- }
- const used=(G.character.skills||[]).length,free=Math.max(0,10-used),slotOk=free>=1;
- add("技能欄", "至少1格", `可用${free}格（${used}/10）`,slotOk,slotOk?"":"1格");
- if(opt.requireGuild!==false){
-   const here=G.character.currentFacility==="guild",cur=G.character.currentFacility?(DB.facilities?.[G.character.currentFacility]?.name||G.character.currentFacility):"未進入設施";
-   add("學習地點","冒險者公會",cur,here,here?"":"需前往公會")
- }
- return {ok:checks.every(x=>x.ok),checks,missing:checks.filter(x=>!x.ok).map(x=>x.label),html:checks.map(x=>skillPrereqCompareLine(x.label,x.need,x.current,x.ok,x.shortfall)).join("<br>")}
-}
-function showSkillLearningRequirements(mode,key,cid=""){
- let s=null,sourceClass=null,options;
- if(mode==="class"){
-  s=findPoolSkillByKey(G.character.classId,key);
-  options={mode:"class",requireGuild:true};
- }else{
-  sourceClass=cid?cls(cid):null;
-  s=cid?findPoolSkillByKey(cid,key):sharedSkill(key);
-  options={mode:"cross",statName:sourceClass?.primary||null,fee:DB.guild_training.cross_profession_fee,requireGuild:true};
- }
- if(!s)return;
- const gate=skillLearningPrereqState(s,options);
- showBlockedRequirements(`技能學習條件・${s.name}`,gate.checks,mode==="class"?"classTraining()":"guildBasicTraining()");
-}
-function skillUseRequirementText(s){
- return s?.weapon_requirements?.length?`<br><span class="small">使用限制：${s.weapon_requirements.join("／")}（不影響學習資格，施展時需符合）</span>`:""
-}
-DB.meta.skill_learning_prereq_compare_revision="SKILL-LEARNING-PREREQ-COMPARE-1.0";
-DB.skill_learning_prereq_compare_system={version:"SKILL-LEARNING-PREREQ-COMPARE-1.0",rules:["本職、跨職與限定技能均顯示需求／目前值對比。","紅字代表未達成、綠字代表已達成；屬性門檻使用角色基礎屬性。","畫面按鈕與實際學習函式共用同一前置判定，避免只靠UI阻擋。","武器需求屬於技能使用限制，不混同為學習資格。"]};
-
 function classTraining(){
  const pool=DB.skill_pools[G.character.classId]||[],known=knownSkillKeys(),seen=new Set(),avail=[];
  for(const s of pool){
-   const key=skillKey(s);if(seen.has(key)||known.has(key))continue;
+   const key=skillKey(s);if(seen.has(key)||known.has(key)||tierOrder(s.tier)>tierOrder(G.character.combatGrade))continue;
    seen.add(key);avail.push(s)
  }
- avail.sort((a,b)=>tierOrder(a.tier)-tierOrder(b.tier)||String(a.name).localeCompare(String(b.name),"zh-Hant"));
- let lastTier="";
- const rows=avail.map(s=>{
-   const gate=skillLearningPrereqState(s,{mode:"class",requireGuild:true}),tierHead=s.tier!==lastTier?(lastTier=s.tier,`<div class="inventory-category-title">${s.tier}級技能</div>`):"";
-   const label=gate.ok?"學習":"未達條件・查看";
-   return tierHead+`<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span>［${s.kind}／${s.school||"戰技"}］<br>
-   <span class="small">${skillDescriptionText(s)}<br>${s.kind!=="被動"?`命中${(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")}｜${s.resource==="mana"?"MP":"體力"}${s.resource_cost??s.stamina_cost??0}`:"常駐生效"}${s.canonical_skill_id?"｜通用技能":""}<br><b>前置條件（角色基礎狀態）</b><br>${gate.html}${skillUseRequirementText(s)}</span></span>
-   <button type="button" class="${gate.ok?"good":"prereq-action"}" onclick="${gate.ok?`learnCombatSkill('${skillKey(s)}')`:`showSkillLearningRequirements('class','${skillKey(s)}')`}">${label}</button></div>`
- }).join("")||"<div class='small'>目前沒有尚未學會的本職技能。</div>";
- showModal("冒險者公會・本職技能",`<div class="card small">比照副職業學習：每項技能直接對照需求與目前值。紅字代表尚未達成，綠字代表已達成；高階技能保留顯示，方便查看後續成長目標。</div>`+rows+`<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`)
+ const rows=avail.map(s=>`<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span>［${s.kind}／${s.school||"戰技"}］<br>
+ <span class="small">${skillDescriptionText(s)}<br>${s.kind!=="被動"?`命中${(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")}｜${s.resource==="mana"?"MP":"體力"}${s.resource_cost??s.stamina_cost??0}`:"常駐生效"}${s.canonical_skill_id?`｜通用技能`:""}</span></span>
+ <button onclick="learnCombatSkill('${skillKey(s)}')">學習</button></div>`).join("")||"<div class='small'>目前沒有符合階級的新技能。</div>";
+ showModal("冒險者公會・本職技能",rows+`<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`)
 }
 function classCombatTrack(c){return c?.combat_track||((c?.resource_type==="混合")?"hybrid":(c?.resource_type==="MP"?"magic":"physical"))}
 function canCrossTrainClass(fromClass,toClass){
@@ -4357,7 +2902,7 @@ function canCrossTrainClass(fromClass,toClass){
 function combatTrackText(c){return {"physical":"物理系","magic":"魔法系","hybrid":"魔武雙修"}[classCombatTrack(c)]||"未分類"}
 function guildBasicTraining(){
  if(G.character.currentFacility!=="guild")return;
- const current=cls(G.character.classId),rows=[],known=knownSkillKeys(),seenLocal=new Set(),fee=DB.guild_training.cross_profession_fee;
+ const current=cls(G.character.classId),rows=[],known=knownSkillKeys(),seenLocal=new Set();
 
  const rowTrack=(s,c=null)=>{
    if(c?.combat_track==="magic")return "magic";
@@ -4370,8 +2915,9 @@ function guildBasicTraining(){
 
  for(const s of (DB.shared_skills||[])){
    if(s.tier!=="F"||known.has(s.id)||!sharedTrackAllowed(current,s.shared_scope))continue;
-   const gate=skillLearningPrereqState(s,{mode:"cross",fee,requireGuild:true});
-   rows.push({shared:true,key:s.id,s,ok:gate.ok,gate,source:`通用（${s.shared_scope_label}）`,track:rowTrack(s)})
+   const statOk=(G.character.stats[s.required_stat]||0)>=DB.guild_training.primary_stat_requirement;
+   const moneyOk=G.character.moneySilver>=DB.guild_training.cross_profession_fee;
+   rows.push({shared:true,key:s.id,s,ok:statOk&&moneyOk,source:`通用（${s.shared_scope_label}）`,track:rowTrack(s)})
  }
 
  for(const [cid,pool] of Object.entries(DB.skill_pools)){
@@ -4379,8 +2925,9 @@ function guildBasicTraining(){
    for(const s of pool){
      const key=skillKey(s);if(s.tier!=="F"||s.canonical_skill_id||known.has(key))continue;
      const localKey=`${cid}|${key}`;if(seenLocal.has(localKey))continue;seenLocal.add(localKey);
-     const gate=skillLearningPrereqState(s,{mode:"cross",statName:c.primary,fee,requireGuild:true});
-     rows.push({shared:false,key,cid,s,ok:gate.ok,gate,source:`${c.name}［${combatTrackText(c)}］`,track:rowTrack(s,c)})
+     const statOk=(G.character.stats[c.primary]||0)>=DB.guild_training.primary_stat_requirement;
+     const moneyOk=G.character.moneySilver>=DB.guild_training.cross_profession_fee;
+     rows.push({shared:false,key,cid,s,ok:statOk&&moneyOk,source:`${c.name}［${combatTrackText(c)}］`,track:rowTrack(s,c)})
    }
  }
 
@@ -4389,8 +2936,8 @@ function guildBasicTraining(){
  const magic=rows.filter(r=>r.track==="magic").sort(sorter);
 
  const rowHtml=r=>`<div class="itemrow"><span><b>${r.s.name}</b> <span class="tier">F</span>｜${r.source}<br>
- <span class="small">${skillDescriptionText(r.s)}<br><b>前置條件（角色基礎狀態）</b><br>${r.gate.html}${skillUseRequirementText(r.s)}</span></span>
-  <button type="button" class="${r.ok?"good":"prereq-action"}" onclick="${r.ok?`learnGuildBasic('${r.key}'${r.shared?"":`,'${r.cid}'`})`:`showSkillLearningRequirements('cross','${r.key}','${r.cid||""}')`}">${r.ok?"學習":"未達條件・查看"}</button></div>`;
+ <span class="small">${skillDescriptionText(r.s)}<br>前置：${r.shared?skillRequirementText(r.s):`${cls(r.cid).primary}≥${DB.guild_training.primary_stat_requirement}`}</span></span>
+ <button ${r.ok?"":"disabled"} onclick="learnGuildBasic('${r.key}'${r.shared?"":`,'${r.cid}'`})">${r.ok?"學習":"未達條件"}</button></div>`;
 
  const emptyText=track=>{
    const currentTrack=current.combat_track||"physical";
@@ -4406,7 +2953,7 @@ function guildBasicTraining(){
 
  const rule=`目前職業：${current.name}［${combatTrackText(current)}］。物理系只能跨學物理系；魔法系只能跨學魔法系；只有魔武雙修可同時跨學兩系。魔武雙修通用技能依主要作用系別歸類且只顯示一次。`;
  showModal("冒險者公會・跨職基礎技能",
-   `<div class="card small">${rule}<br>只教授公開F級技能；每項${fee}銀。各項前置比照副職業學習直接顯示需求／目前值；通用技能以canonical ID去重。</div>`+
+   `<div class="card small">${rule}<br>只教授公開F級技能；每項${DB.guild_training.cross_profession_fee}銀。通用技能以canonical ID去重。</div>`+
    section("物理系","physical",physical,"⚔")+
    section("魔法系","magic",magic,"✦")+
    `<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`,
@@ -4417,13 +2964,15 @@ function learnGuildBasic(ref,cid=""){
  const current=cls(G.character.classId);let s=null,sourceClass=null;
  if(ref.startsWith("SK-COM-")){
    s=sharedSkill(ref);if(!s||s.tier!=="F"||!sharedTrackAllowed(current,s.shared_scope))return;
+   if((G.character.stats[s.required_stat]||0)<DB.guild_training.primary_stat_requirement)return
  }else{
    sourceClass=cls(cid);s=findPoolSkillByKey(cid,ref);
-   if(!sourceClass||sourceClass.sealed||!s||s.tier!=="F"||!canCrossTrainClass(current,sourceClass))return
+   if(!sourceClass||sourceClass.sealed||!s||s.tier!=="F"||!canCrossTrainClass(current,sourceClass))return;
+   if((G.character.stats[sourceClass.primary]||0)<DB.guild_training.primary_stat_requirement)return
  }
- const gate=skillLearningPrereqState(s,{mode:"cross",statName:sourceClass?.primary||null,fee:DB.guild_training.cross_profession_fee,requireGuild:true});
- if(!gate.ok){alert(`尚未達成：${gate.missing.join("、")}。`);return}
+ if(G.character.moneySilver<DB.guild_training.cross_profession_fee)return;
  if(knownSkillKeys().has(skillKey(s))){alert("已學會同一技能，不能從其它職業重複學習。");return}
+ if(G.character.skills.length>=10){alert("技能已達10個上限，請先遺忘技能。");return}
  closeModal();if(!beginTurn("公會跨職技能訓練"))return;
  G.character.moneySilver-=DB.guild_training.cross_profession_fee;
  G.character.skills.push({...s,type:"戰鬥",mastery:.5,crossClass:true});
@@ -4432,38 +2981,19 @@ function learnGuildBasic(ref,cid=""){
 function learnCombatSkill(key){
  const d=findPoolSkillByKey(G.character.classId,key);if(!d)return;
  if(knownSkillKeys().has(skillKey(d))){alert("已學會同一技能。");return}
- const gate=skillLearningPrereqState(d,{mode:"class",requireGuild:true});
- if(!gate.ok){alert(`尚未達成：${gate.missing.join("、")}。`);return}
+ if(G.character.skills.length>=10){alert("技能已達10個，請先在角色頁遺忘技能。");return}
  closeModal();if(!beginTurn("學習技能"))return;
  const shared=d.canonical_skill_id?sharedSkill(d.canonical_skill_id):null;
  G.character.skills.push({...shared||d,type:"戰鬥",mastery:1});
  log("技能",`學會${(shared||d).name}［${d.tier}］。`,"ok");endTurn(3)
 }
 function prereqText(s){return Object.entries(s.prereq||{}).map(([k,v])=>`${k}≥${v}`).join("、")}
-function subjobPrereqComparison(s){
- const entries=Object.entries(s?.prereq||{});
- if(!entries.length)return '<span class="ok">無屬性門檻</span>';
- return entries.map(([k,v])=>{
-   const need=Math.max(0,Number(v)||0),current=Math.max(0,Number(G.character.stats?.[k])||0),ok=current>=need;
-   return `<span class="${ok?"ok":"bad"}">${k}：需求 ${need}｜目前 ${current}</span>`
- }).join("<br>")
-}
-function subjobFeeComparison(s){
- const need=Math.max(0,Number(s?.fee)||0),current=Math.max(0,Number(G.character.moneySilver)||0),ok=current>=need;
- return `<span class="${ok?"ok":"bad"}">學費：需求 ${need}銀｜目前 ${current}銀</span>`
-}
 function meetsSubjob(s){return Object.entries(s.prereq||{}).every(([k,v])=>(G.character.stats[k]||0)>=v)}
 function learnSubjobHere(fid){
  if(G.character.subjobs.length>=2){showModal("副職業",`已達2個副職業上限。<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`);return}
  const list=DB.subjobs.filter(s=>s.facilities.includes(fid)&&!G.character.subjobs.some(x=>x.id===s.id));
- const rows=list.map(s=>{
-   const statOk=meetsSubjob(s),feeOk=G.character.moneySilver>=s.fee,ok=statOk&&feeOk;
-   const missing=[];
-   if(!statOk)missing.push("屬性不足");
-   if(!feeOk)missing.push("銀幣不足");
-   return `<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span><br><span class="small">${s.desc}<br><b>前置條件（角色基礎屬性）</b><br>${subjobPrereqComparison(s)}<br>${subjobFeeComparison(s)}</span></span><button ${ok?"":"disabled"} onclick="learnSubjob('${fid}','${s.id}')">${ok?"學習":missing.join("＋")}</button></div>`
- }).join("")||"<div class='small'>此設施沒有可學副職業。</div>";
- showModal("副職業學習",`<div class="card small">前置條件會直接對照角色目前的<b>基礎屬性</b>；紅字會標出尚差多少，裝備或暫時增益不會改變此學習門檻。</div>`+rows+`<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
+ const rows=list.map(s=>{const ok=meetsSubjob(s)&&G.character.moneySilver>=s.fee;return `<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier}</span><br><span class="small">${s.desc}<br>前置：${prereqText(s)}｜學費${s.fee}銀</span></span><button ${ok?"":"disabled"} onclick="learnSubjob('${fid}','${s.id}')">${ok?"學習":"未達條件"}</button></div>`}).join("")||"<div class='small'>此設施沒有可學副職業。</div>";
+ showModal("副職業學習",rows+`<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
 }
 function learnSubjob(fid,sid){const s=sub(sid);if(!s||!s.facilities.includes(fid)||!meetsSubjob(s)||G.character.moneySilver<s.fee)return;closeModal();if(!beginTurn("學習副職業"))return;G.character.moneySilver-=s.fee;G.character.subjobs.push({id:sid,grade:"F",xp:0});log("副職業",`取得${s.name}［F］入門資格。`,"ok");endTurn(4)}
 function facilityQuest(fid){
@@ -4485,71 +3015,26 @@ function acceptFacilityQuest(fid,templateId){
 }
 
 function facilityHeal(fid){
- if(!["church","clinic"].includes(fid)){alert("請在教會或診療所使用治療");return}
  const oath=(DB.faith_oaths||[]).find(x=>x.id===faithState().oathId);
  const base=fid==="clinic"?8:5,fee=Math.max(1,base-(fid==="church"?(oath?.church_heal_discount||0):0));
- const members=partyMembers(),needs=G.character.hp<G.character.maxHp||(G.statusEffects||[]).length>0||members.some(m=>m.hp<(m.maxHp||partyMemberCombatStats(m).maxHp)||(m.statusEffects||[]).length>0);
- if(!needs){alert("全隊狀態良好，無需治療");return}
  if(G.character.moneySilver<fee){alert("銀幣不足");return}
- G.character.moneySilver-=fee;
- G.character.hp=G.character.maxHp;
- for(const m of members){const stats=partyMemberCombatStats(m);m.maxHp=stats.maxHp;m.hp=stats.maxHp}
- if(Array.isArray(G.statusEffects))G.statusEffects=[];
- for(const m of members)if(Array.isArray(m.statusEffects))m.statusEffects=[];
- log("治療",DB.facilities[fid].name+"為全隊恢復至滿血並清除異常狀態，支付"+fee+"銀"+(fid==="church"&&oath?.church_heal_discount?"（誓言折扣"+oath.church_heal_discount+"銀）":"")+"。","ok");
+ G.character.moneySilver-=fee;G.character.hp=clamp(G.character.hp+12,0,G.character.maxHp);
+ for(const m of partyMembers()){m.hp=clamp((m.hp||1)+12,1,m.maxHp||partyMemberCombatStats(m).maxHp)}
+ log("治療",`${DB.facilities[fid].name}治療，支付${fee}銀${fid==="church"&&oath?.church_heal_discount?`（誓言折扣${oath.church_heal_discount}銀）`:""}。`,"ok");
  persist();renderFacility(fid)
 }
 
 function marketDayKey(){return `${G.worldTime.year}-${G.worldTime.season}-${G.worldTime.day}`}
 function marketFacilityState(fid){
- G.worldState.localMarkets=G.worldState.localMarkets||{};
- const key=`${G.character.locationId}|${fid}`,day=marketDayKey(),rank=tierOrder(loc(G.character.locationId)?.tier||"F"),base=[80,160,320,640,1280,2500,5000][rank]||80,eco=localEconomyProfile();
- const prosperityBudget=clamp(Number(eco?.market_budget_mult||1),.6,1.5),facilityMult=fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1,budget=Math.round(base*facilityMult*prosperityBudget);
- let s=G.worldState.localMarkets[key];
- if(!s||s.day!==day)s=G.worldState.localMarkets[key]={day,budgetMax:budget,budgetRemaining:budget,stock:{},prosperityScore:Number(eco?.prosperity_score??null)};
- else if(s.budgetMax!==budget){const ratio=s.budgetMax>0?s.budgetRemaining/s.budgetMax:1;s.budgetMax=budget;s.budgetRemaining=Math.round(budget*clamp(ratio,0,2))}
+ G.worldState.localMarkets=G.worldState.localMarkets||{};const key=`${G.character.locationId}|${fid}`,day=marketDayKey(),rank=tierOrder(loc(G.character.locationId)?.tier||"F"),base=[80,160,320,640,1280,2500,5000][rank]||80;
+ let s=G.worldState.localMarkets[key];if(!s||s.day!==day)s=G.worldState.localMarkets[key]={day,budgetMax:Math.round(base*(fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1)),budgetRemaining:Math.round(base*(fid==="guild"?1.5:["tavern","inn"].includes(fid)?.65:1)),stock:{}};
  s.stock=s.stock||{};s.budgetRemaining=clamp(Number(s.budgetRemaining??s.budgetMax),0,Math.max(1,s.budgetMax*2));return s
 }
-function isAbilityStatPotion(d){
- return !!d&&d.type==="藥劑"&&Object.keys(d.buff||{}).some(k=>k.startsWith("stat_"))
-}
-function stableMarketRoll(text){
- let h=2166136261;
- for(let i=0;i<String(text).length;i++){h^=String(text).charCodeAt(i);h=Math.imul(h,16777619)}
- return (h>>>0)/4294967296
-}
-function rareAbilityPotionChance(d){
- if(!isAbilityStatPotion(d))return 1;
- const settlementRank=tierOrder(loc(G.character.locationId)?.tier||"F"),itemRank=tierOrder(d?.tier||"F");
- if(settlementRank<itemRank)return 0;
- const base=[0,.05,.08,.12,.18,.25,.35][settlementRank]??0;
- const gap=Math.max(0,settlementRank-itemRank);
- return clamp(base+gap*.015,0,.40)
-}
-function rareShopStockAvailable(fid,d){
- if(fid!=="alchemy"||!isAbilityStatPotion(d))return true;
- const chance=rareAbilityPotionChance(d);
- if(chance<=0)return false;
- const seed=[G.character.locationId,fid,marketDayKey(),d.id].join("|");
- return stableMarketRoll(seed)<chance
-}
 function marketStockLimit(d){
- if(isAbilityStatPotion(d))return 1;
- const access=Math.max(0,tierOrder(loc(G.character.locationId)?.tier||"F")-tierOrder(d?.tier||"F")),bulk=["食材","素材","草藥素材","工藝素材","礦石","藥劑","料理","食物","補給"].includes(d?.type),eco=localEconomyProfile();
- const base=(bulk?4:1)+access*(bulk?2:1),mult=clamp(Number(eco?.stock_mult||1),.6,1.5);
- return clamp(Math.max(1,Math.round(base*mult)),1,bulk?12:5)
+ const access=Math.max(0,tierOrder(loc(G.character.locationId)?.tier||"F")-tierOrder(d?.tier||"F")),bulk=["食材","素材","草藥素材","工藝素材","礦石","藥劑","料理","食物","補給"].includes(d?.type);
+ return clamp((bulk?4:1)+access*(bulk?2:1),1,bulk?12:5)
 }
-function marketStockQty(fid,d){
- const s=marketFacilityState(fid);
- if(fid==="alchemy"&&isAbilityStatPotion(d)){
-   if(!rareShopStockAvailable(fid,d))return 0;
-   if(s.stock[d.id]==null)s.stock[d.id]=1;
-   else s.stock[d.id]=clamp(Math.floor(Number(s.stock[d.id])||0),0,1);
-   return s.stock[d.id]
- }
- if(s.stock[d.id]==null)s.stock[d.id]=marketStockLimit(d);
- return Math.max(0,Math.floor(s.stock[d.id]))
-}
+function marketStockQty(fid,d){const s=marketFacilityState(fid);if(s.stock[d.id]==null)s.stock[d.id]=marketStockLimit(d);return Math.max(0,Math.floor(s.stock[d.id]))}
 function shopBuyUnitPrice(d){const disc=clamp(talentSpecial("buyDiscount"),0,.25);return Math.max(1,Math.ceil(d.value*1.15*regionalItemMarketFactor(d)*(1-disc)*affiliationPriceMultiplier("buy")))}
 function shopSellUnitPrice(d){const bonus=clamp(talentSpecial("sellBonus"),0,.25);return Math.max(1,Math.floor(d.value*.5*(1+bonus)*regionalItemMarketFactor(d)*affiliationPriceMultiplier("sell")))}
 function openGuildBuyback(){
@@ -4561,47 +3046,17 @@ function guildSellItem(index,unitPrice,qty=1){
  if(G.character.currentFacility!=="guild")return;const x=G.character.inventory[index],d=x&&item(x.id);if(!x||!d)return;const market=marketFacilityState("guild"),price=guildBuybackUnitPrice(d),affordable=Math.floor(market.budgetRemaining/price);
  qty=Math.max(0,Math.min(Number(qty)||1,x.qty||1,affordable));if(qty<1){alert("公會本日收購資金不足，請隔日再來。");return}const id=x.id;if(!removeItem(id,qty,index))return;market.budgetRemaining-=price*qty;G.character.moneySilver+=price*qty;persist();openGuildBuyback()
 }
-function shopBuy(fid,category=null){
+function shopBuy(fid){
  if(G.character.currentFacility!==fid)return;
- const f=DB.facilities[fid],stock=(f.stock||[]).map(item).filter(Boolean).filter(d=>rareShopStockAvailable(fid,d)),market=marketFacilityState(fid);
- const categories=itemListCategories(stock);
- if(category&&category!=="全部"&&!categories.includes(category))category=null;
- if(category)SHOP_CATEGORY_STATE[fid]=category;
- const selected=SHOP_CATEGORY_STATE[fid]&&["全部",...categories].includes(SHOP_CATEGORY_STATE[fid])?SHOP_CATEGORY_STATE[fid]:"全部";
- SHOP_CATEGORY_STATE[fid]=selected;
- const tabs=["全部",...categories].map(cat=>{const count=cat==="全部"?stock.length:stock.filter(d=>itemListCategoryLabel(d)===cat).length;return `<button ${cat===selected?'class="primary"':""} onclick="shopBuy('${fid}','${cat}')">${cat} ${count}</button>`}).join("");
- const filtered=selected==="全部"?stock:stock.filter(d=>itemListCategoryLabel(d)===selected);
- const rows=tierGroupedItemRows(filtered,d=>{const p=shopBuyUnitPrice(d),qty=marketStockQty(fid,d),rare=isAbilityStatPotion(d);return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span>${rare?" <span class='small'>・稀有到貨</span>":""}<br><span class="small">${itemStatsText(d)}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`},"此類別目前沒有庫存。");
- const rareNote=fid==="alchemy"?'<div class="card small">能力屬性強化藥水屬稀有到貨：只有符合城鎮層級時才可能每日輪替出現，出現時最多1瓶。</div>':"";
- showModal(f.name+"・購買",`<div class="card small">商品依世界層級 F→S 排列；有每日庫存上限，售罄後於隔日補貨。</div>${rareNote}<h3>商品類別</h3><div class="actions">${tabs}</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
+ const f=DB.facilities[fid],stock=(f.stock||[]).map(item).filter(Boolean),market=marketFacilityState(fid);
+ const rows=stock.map(d=>{const p=shopBuyUnitPrice(d),qty=marketStockQty(fid,d);return `<div class="itemrow"><span><b>${d.name}</b> <span class="tier">${d.tier}</span><br><span class="small">${itemStatsText(d)}｜今日庫存 ${qty}</span></span><span>${p}銀 <button ${qty>0?"":"disabled"} onclick="buyItem('${fid}','${d.id}',${p})">${qty>0?"購買":"售罄"}</button></span></div>`}).join("")||"目前沒有庫存。";
+ showModal(f.name+"・購買",`<div class="card small">商品有每日庫存上限，售罄後於隔日補貨。</div>${rows}<div class="actions"><button onclick="renderFacility('${fid}')">上一頁</button></div>`)
 }
 function buyItem(fid,id,p){
  if(G.character.currentFacility!==fid)return;const d=item(id),f=DB.facilities[fid];if(!d||!(f?.stock||[]).includes(id))return;const market=marketFacilityState(fid),price=shopBuyUnitPrice(d),qty=marketStockQty(fid,d);if(qty<=0){alert("今日庫存已售罄。");shopBuy(fid);return}if(G.character.moneySilver<price){alert("銀幣不足");return}
  G.character.moneySilver-=price;market.stock[id]=qty-1;market.budgetRemaining=Math.min(market.budgetMax*2,market.budgetRemaining+price);addItem(id);persist();shopBuy(fid)
 }
-let ALCHEMY_BUYBACK_CACHE={signature:"",ids:new Set()};
-function alchemyBuybackIngredientIds(){
- const signature=`${(DB.items||[]).length}|${(DB.recipes||[]).length}`;
- if(ALCHEMY_BUYBACK_CACHE.signature===signature)return ALCHEMY_BUYBACK_CACHE.ids;
- const ids=new Set(),add=id=>{if(id)ids.add(id)},addMats=arr=>(arr||[]).forEach(m=>add(m?.id||m?.item_id));
- for(const out of (DB.items||[])){
-   const cr=out?.craft_recipe;if(!cr||String(cr.profession||"").trim()!=="藥劑")continue;
-   addMats(cr.base_materials);addMats(cr.monster_components);addMats(cr.ingredients);
-   if(cr.requires&&typeof cr.requires==="object")Object.keys(cr.requires).forEach(add)
- }
- for(const recipe of (DB.recipes||[])){
-   if(String(recipe?.profession||"").trim()!=="藥劑")continue;
-   addMats(recipe.ingredients);addMats(recipe.base_materials);addMats(recipe.monster_components);
-   if(recipe.requires&&typeof recipe.requires==="object")Object.keys(recipe.requires).forEach(add)
- }
- ALCHEMY_BUYBACK_CACHE={signature,ids};return ids
-}
-function isAlchemyBuybackItem(d){
- if(!d)return false;
- if(["素材","草藥素材","藥草","藥材","煉金素材","藥劑"].includes(d.type))return true;
- return alchemyBuybackIngredientIds().has(d.id)
-}
-function canSellTo(fid,d){if(fid==="tavern")return d.type==="食材";if(fid==="blacksmith")return ["主武器","盔甲","頭盔","手套","鞋子","披風","礦石"].includes(d.type);if(fid==="alchemy")return isAlchemyBuybackItem(d);return true}
+function canSellTo(fid,d){if(fid==="tavern")return d.type==="食材";if(fid==="blacksmith")return ["主武器","盔甲","頭盔","手套","鞋子","披風","礦石"].includes(d.type);if(fid==="alchemy")return ["素材","藥劑"].includes(d.type);return true}
 function shopSell(fid){
  if(G.character.currentFacility!==fid)return;
  const market=marketFacilityState(fid),list=G.character.inventory.map((x,i)=>[x,i]).filter(([x])=>{const d=item(x.id);return d&&canSellTo(fid,d)});
@@ -4644,11 +3099,10 @@ function craftEffectText(d){
    const n=Number(use.thirst);
    add(n<0?`降低口渴${Math.abs(n)}`:`增加口渴${n}`)
  }
- if(use.hp)add(`恢復HP ${combatScaledNumber(use.hp)}`);
- if(use.regeneration)add("持續恢復：戰鬥中每回合+"+combatScaledNumber(use.regeneration.combat_hp_per_round)+"HP，共"+use.regeneration.combat_rounds+"回合；非戰鬥每小時+"+combatScaledRate(use.regeneration.field_hp_per_hour)+"HP，共"+use.regeneration.field_hours+"小時（不疊加）");
+ if(use.hp)add(`恢復HP ${use.hp}`);
  if(use.hp_percent)add(`HP恢復至${use.hp_percent}%`);
- if(use.stamina)add(`恢復SP ${combatScaledNumber(use.stamina)}`);
- if(use.mana)add(`恢復MP ${combatScaledNumber(use.mana)}`);
+ if(use.stamina)add(`恢復SP ${use.stamina}`);
+ if(use.mana)add(`恢復MP ${use.mana}`);
  if(use.mana_percent)add(`MP恢復至${use.mana_percent}%`);
  if(Array.isArray(use.conditions)&&use.conditions.length){
    const names={poison:"中毒",bleed:"流血",burn:"燃燒",freeze:"冰凍",fear:"恐懼",blind:"致盲",slow:"緩慢"};
@@ -4705,59 +3159,24 @@ function craftEffectText(d){
 function craftResultLine(d){
  return `成品：${d?.name||"未知"}｜效果：${craftEffectText(d)}`
 }
-function equipmentCompareValueText(v){
- const n=Number(v||0);
- if(n===0)return "0";
- if(Math.abs(n)<1)return `${n>0?"+":""}${n.toFixed(2)}`;
- return `${n>0?"+":""}${n}`
-}
-function inventoryComparisonItem(d){
- if(!d)return null;
- let eq=null;
- if(isShieldItem(d))eq=offhandEquip();
- else if(d.type==="飾品")eq=G.character.equipment?.[slotForItem(d)]||null;
- else if(d.type==="主武器")eq=G.character.equipment?.主武器||null;
- else eq=G.character.equipment?.[d.type]||null;
- const equipped=eq&&item(equipId(eq));
- return equipped||{combat:{}}
-}
-function itemStatsText(d,compareTo=null){
+function itemStatsText(d){
  const a=[];
  // PLAYER-FACING ITEM DESCRIPTION POLICY:
  // Keep category/material/requirements/rarity and all mechanical effects.
  // Acquisition sources, crafting profession/grade, recipe links and crafting-component metadata remain in DB only.
- const explicitNonMaterial=["工具","補給","書籍","卷軸","符文","鑰匙","寶藏","任務","任務道具"].includes(d.type)||["tool","key_item","quest","treasure"].includes(d.kind)||!!d.tool_effect||!!d.knowledge_tag;
- const toolLabels={mining:"採礦",woodcut:"伐木",fishing:"釣魚",gather:"採集",lockpick:"開鎖",light:"照明",navigation:"導航",timekeeping:"計時"};
  if(d.catalog_subcategory)a.push(d.catalog_subcategory);
- if(d.consumable_group)a.push(d.consumable_group);if(d.material_group&&!explicitNonMaterial)a.push(d.material_group);if(d.tool_effect)a.push(`工具：${toolLabels[d.tool_effect]||d.tool_effect}`);if(d.knowledge_tag)a.push(`知識：${d.knowledge_tag}`);if(d.monster_drop_group)a.push(d.monster_drop_group);
+ if(d.consumable_group)a.push(d.consumable_group);if(d.material_group)a.push(d.material_group);if(d.tool_effect)a.push(`工具：${d.tool_effect}`);if(d.knowledge_tag)a.push(`知識：${d.knowledge_tag}`);if(d.monster_drop_group)a.push(d.monster_drop_group);
  if(d.material)a.push(d.material);
  if(d.required_level)a.push(`建議Lv${d.required_level}+`);
-  if(globalThis.QUNLU_EQUIPMENT_RULES&&["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(d.type)){const summary=globalThis.QUNLU_EQUIPMENT_RULES.summary(d);if(summary)a.push(summary)}
  if(d.rarity)a.push(d.rarity);
  if(d.sealed)a.push("封印中：高階加成受限");
- if(d.combat||compareTo){
+ if(d.combat){
    const names={attack:"攻擊",magicPower:"魔法威力",defense:"防禦",magicDefense:"魔防",accuracy:"命中",evasion:"閃避",critRate:"爆擊",critDamage:"爆傷",attackSpeed:"攻速",castSpeed:"施法速度",blockRate:"格擋",statusResist:"抗性"};
-   const order=["attack","magicPower","defense","magicDefense","accuracy","evasion","critRate","critDamage","attackSpeed","castSpeed","blockRate","statusResist"];
-   if(compareTo){
-     for(const k of order){
-       const candidate=Number(d.combat?.[k]||0),current=Number(compareTo.combat?.[k]||0);
-       if(candidate===0&&current===0)continue;
-       const cls=current>candidate?"equip-compare-better":current<candidate?"equip-compare-worse":"equip-compare-equal";
-       const color=current>candidate?"var(--good)":current<candidate?"var(--bad)":"#f3efe7";
-       a.push(`<span class="equip-compare-base" style="color:#f3efe7">${names[k]}${equipmentCompareValueText(candidate)}/</span><span class="${cls}" style="color:${color}">${equipmentCompareValueText(current)}</span>`)
-     }
-   }else for(const [k,v] of Object.entries(d.combat||{}))if(v){const shown=["attack","magicPower","defense","magicDefense"].includes(k)?combatScaledNumber(v):v;a.push(`${names[k]||k}${shown>0?"+":""}${typeof shown==="number"&&Math.abs(shown)<1?shown.toFixed(2):shown}`)}
+   for(const [k,v] of Object.entries(d.combat))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
  }
- if((d.feature_tags||[]).length||d.set_id){
-   const advNames={moveSpeed:"移速",range:"射程",armorPenPct:"破甲",magicPenPct:"法穿",blockValue:"格擋減傷",poise:"韌性",statusAccuracy:"異常命中",lifeSteal:"生命偷取",healingPower:"治療效果",manaRegen:"MP回復/時",hpRegen:"HP回復/時",critResist:"爆擊抗性",threat:"威脅",stealth:"潛行",perception:"感知",carryCapacity:"負重",initiative:"先攻",blockRate:"格擋"};
-   for(const [k,v] of Object.entries(d.advanced_combat||{}))if(v)a.push(`${advNames[k]||k}${v>0?"+":""}${Math.abs(v)<1?Number(v).toFixed(2):v}`);
-   for(const [k,v] of Object.entries(d.element_resistances||{}))if(v)a.push(`${k}抗性${v>0?"+":""}${v}`);
-   if(d.feature)a.push(`特色：${d.feature}`);
-   if(d.set_id){const set=(DB.equipment_sets||[]).find(x=>x.id===d.set_id);if(set)a.push(`套裝：${set.name}（${set.pieces.length}件）`)}
- }
- if(d.use?.hp)a.push(`HP+${combatScaledNumber(d.use.hp)}`);if(d.use?.regeneration)a.push("持續恢復：戰鬥每回合+"+combatScaledNumber(d.use.regeneration.combat_hp_per_round)+"HP ×"+d.use.regeneration.combat_rounds+"回合／非戰鬥每小時+"+combatScaledRate(d.use.regeneration.field_hp_per_hour)+"HP ×"+d.use.regeneration.field_hours+"小時");if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
- if(d.use?.mana)a.push(`MP+${combatScaledNumber(d.use.mana)}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
- if(d.use?.stamina)a.push(`體力+${combatScaledNumber(d.use.stamina)}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
+ if(d.use?.hp)a.push(`HP+${d.use.hp}`);if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
+ if(d.use?.mana)a.push(`MP+${d.use.mana}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
+ if(d.use?.stamina)a.push(`體力+${d.use.stamina}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
  if(d.revive)a.push(`倒下自動復甦${d.revive.hp_percent}%`);
  if(d.toxicity)a.push(`毒性+${d.toxicity}`);
  if(d.battle_effect)a.push(`投擲${d.battle_effect.damage||0}傷害${d.battle_effect.element?`／${d.battle_effect.element}`:""}`);
@@ -4819,11 +3238,9 @@ function beginPlayerBattleAction(){
  return true
 }
 let battleLastFocus=null,battleSkillLastFocus=null;
-let battleSkillPopupStage="closed",battleSelectedSkillIndex=null;
 function startBattle(monster,context){
- closeBattleSkillPopup();
  battleLastFocus=document.activeElement;
- const enemy=scaleCombatRecord({...monster,maxHp:monster.hp,hp:monster.hp});enemy.maxHp=enemy.hp;const cs=combatStats();
+ const enemy={...monster,maxHp:monster.hp,hp:monster.hp},cs=combatStats();
  const playerInit=cs.initiative+Math.min(6,cs.range/8),enemyInit=(enemy.initiative||10)+Math.min(4,(enemy.range||1)/8);
  G.battle={active:true,context,round:1,enemy,playerBuff:{},enemyBuff:{},enemyStatuses:[],weaponOil:null,defending:false,playerStaggered:false,awaitingCompanion:false,companion:battleCompanionSnapshot(),party:partyBattleSnapshots(),
  log:[`${context}時遭遇 ${monster.name}［${monster.tier}］。`,`先攻：${G.character.name} ${playerInit.toFixed(1)}／${monster.name} ${enemyInit.toFixed(1)}。`]};
@@ -4832,33 +3249,24 @@ function startBattle(monster,context){
 }
 function battleLog(msg){if(!G.battle)return;G.battle.log.push(msg);if(G.battle.log.length>14)G.battle.log.shift()}
 function skillResourceCost(s){
- const raw=combatScaledNumber(s.stamina_cost||0);
- return skillUsesMana(s)?Math.max(0,raw-combatScaledNumber(talentSpecial("spellCostReduction"))):raw
+ const raw=s.stamina_cost||0;
+ return skillUsesMana(s)?Math.max(0,raw-talentSpecial("spellCostReduction")):raw
 }
 function skillUsesMana(s){return (s.resource||"stamina")==="mana"}
 function battleCritFromRoll(roll,critRate){const steps=Math.max(0,Math.floor(critRate/5));return steps>0&&roll>=Math.max(11,21-steps)}
-function companionBattleAbilityHTML(companion){
- if(!companion)return "";
- const sp=companionSpecies(companion.speciesId);if(!sp)return "";
- const aura=sp.unique_aura||null,skill=sp.unique_skill||null;
- if(!aura&&!skill)return "";
- const coreTitle=skill?.identity?.family_title||aura?.identity?.family_title||sp.family||"夥伴戰術";
- return `<div class="companion-battle-kit">${aura?`<div class="small companion-aura-line"><b>光環：${aura.name||"物種光環"}</b></div>`:""}${skill?`<div class="small companion-skill-line"><b>專屬技能：${skill.name||"物種技能"}</b>［${skill.kind||"自動"}］</div>`:""}<div class="small companion-identity-depth-line"><b>戰術核心：${coreTitle}</b></div></div>`;
-}
 function renderBattle(sharedCombatStats=null){
  const back=$("#battleBack");if(!G.battle?.active){back.classList.add("hide");document.body.classList.remove("battle-open");return}
  const opening=back.classList.contains("hide"),b=G.battle,e=b.enemy,c=G.character,cs=sharedCombatStats||combatStats(),php=clamp(c.hp/c.maxHp*100,0,100),ehp=clamp(e.hp/e.maxHp*100,0,100);
- setUIHTML($("#battleBody"),`<div class="battlehead battle-formation-v2">
- <div class="battleunit enemy battle-enemy-row"><b>${e.name} <span class="tier">${e.tier}</span></b><div class="small">${e.category||"敵人"}｜戰鬥回合 ${b.round}</div>
- <div>HP ${Math.max(0,Math.round(e.hp))}/${e.maxHp}</div><div class="small">先攻${Math.round(e.initiative||0)}｜移速${Math.round(e.moveSpeed||100)}｜韌性${Math.round(e.poise||0)}</div><div class="hpbar"><i style="width:${ehp}%"></i></div></div>
- <div class="battle-allies">
-   <div class="battleunit player"><b>${c.name}</b><div class="small">Lv${c.level}｜${cls(c.classId).name}｜${formationPositionLabel(formationPositionOf(c,"player"))}</div>
-   <div>HP ${Math.round(c.hp)}/${c.maxHp}　SP ${Math.round(c.stamina)}/${c.maxStamina}　MP ${Math.round(c.mana)}/${c.maxMana}</div>
-   <div class="small battle-unit-stats">先攻${cs.initiative}｜移速${cs.moveSpeed}｜射程${cs.range}m｜格擋${cs.blockRate}%/${cs.blockValue}%${b.playerStaggered?"｜硬直":""}</div>
-   <div class="hpbar"><i style="width:${php}%"></i></div></div>
-   ${b.party?.map(m=>`<div class="battleunit party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><div class="small">${m.roleLabel}｜${formationPositionLabel(formationPositionOf(m,"party"))}｜AI</div><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")||""}
-   ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜${formationPositionLabel(formationPositionOf(b.companion,"companion"))}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div><div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
- </div></div>
+ setUIHTML($("#battleBody"),`<div class="battlehead">
+ <div class="battleunit"><b>${c.name}</b><div class="small">Lv${c.level}｜${cls(c.classId).name}</div>
+ <div>HP ${Math.round(c.hp)}/${c.maxHp}　SP ${Math.round(c.stamina)}/${c.maxStamina}　MP ${Math.round(c.mana)}/${c.maxMana}</div>
+ <div class="small">先攻${cs.initiative}｜移速${cs.moveSpeed}｜射程${cs.range}m｜格擋${cs.blockRate}%/${cs.blockValue}%${b.playerStaggered?"｜硬直":""}</div>
+ <div class="hpbar"><i style="width:${php}%"></i></div></div>
+ ${b.party?.length?`<div class="party-battle-strip">${b.party.map(m=>`<div class="party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><span>${m.roleLabel}｜AI</span><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")}</div>`:""}
+ ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div><div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
+ <div class="battleversus">VS</div>
+ <div class="battleunit enemy"><b>${e.name} <span class="tier">${e.tier}</span></b><div class="small">${e.category||"敵人"}｜戰鬥回合 ${b.round}</div>
+ <div>HP ${Math.max(0,Math.round(e.hp))}/${e.maxHp}</div><div class="small">先攻${Math.round(e.initiative||0)}｜移速${Math.round(e.moveSpeed||100)}｜韌性${Math.round(e.poise||0)}</div><div class="hpbar"><i style="width:${ehp}%"></i></div></div></div>
  <div class="battlelog" role="log" aria-live="polite" aria-relevant="additions text">${b.log.map(x=>`<div>・${x}</div>`).join("")}</div>
  <div class="battleactions">
  <button class="good" onclick="battleGeneralAttack()">一般攻擊</button>
@@ -4877,9 +3285,9 @@ function battleGeneralAttack(){
  const score=r+Math.floor((cs.accuracy+rangeBonus-stagger-(e.evasion+(b.enemyBuff.evasion||0)-enemyStatusEvasionPenalty()))/10);
  if(score>=10){
    const crit=battleCritFromRoll(r,Math.max(0,cs.critRate-(e.critResist||0)));
-   let atk=cs.attack+combatScaledNumber(b.weaponOil?.attack||0)+combatScaledNumber(talentTargetBonus(e)),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
+   let atk=cs.attack+(b.weaponOil?.attack||0)+talentTargetBonus(e),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
    def*=1-cs.armorPenPct/100;
-   if(e.hp/e.maxHp<=.25)atk+=combatScaledNumber(talentSpecial("executeBonus"));
+   if(e.hp/e.maxHp<=.25)atk+=talentSpecial("executeBonus");
    let dmg=Math.max(1,Math.round(atk-def*.45));
    if(b.weaponOil?.element&&["光明","黑暗","火","風","水","地","雷","生命","死亡"].includes(b.weaponOil.element))dmg=applyElementDamage(dmg,e,b.weaponOil.element);
    if(crit)dmg=Math.round(dmg*cs.critDamage/100);
@@ -4892,25 +3300,12 @@ function battleGeneralAttack(){
  if(e.hp<=0){finishBattle("勝利");return}
  enemyBattleTurn()
 }
-function closeBattleSkillPopup(){
- const p=$("#battleSkillPopup"),wasOpen=p&&!p.classList.contains("hide");
- if(p)p.classList.add("hide");
- battleSkillPopupStage="closed";
- battleSelectedSkillIndex=null;
- if($("#battleSkillPopupTitle"))$("#battleSkillPopupTitle").textContent="選擇技能";
- if(wasOpen&&battleSkillLastFocus?.isConnected)battleSkillLastFocus.focus({preventScroll:true});
- battleSkillLastFocus=null;
-}
+function closeBattleSkillPopup(){const p=$("#battleSkillPopup"),wasOpen=p&&!p.classList.contains("hide");if(p)p.classList.add("hide");if(wasOpen&&battleSkillLastFocus?.isConnected)battleSkillLastFocus.focus({preventScroll:true});battleSkillLastFocus=null}
 function battleSkillPopupBackClose(e){if(e.target?.id==="battleSkillPopup")closeBattleSkillPopup()}
 function battleSkillMenu(){
  if(!G.battle?.active)return;
  const usable=G.character.skills.map((s,i)=>[s,i]).filter(([s])=>s.kind!=="被動"&&s.manual_battle_use!==false),body=$("#battleSkillPopupBody");
- if(!body)return;
- const alreadyOpen=!$("#battleSkillPopup").classList.contains("hide");
- if(!alreadyOpen)battleSkillLastFocus=document.activeElement;
- battleSkillPopupStage="list";
- battleSelectedSkillIndex=null;
- $("#battleSkillPopupTitle").textContent="選擇技能";
+ battleSkillLastFocus=document.activeElement;
  setUIHTML(body,usable.map(([s,i])=>{
    normalizeSkillXp(s);const mana=skillUsesMana(s),cost=skillResourceCost(s),res=mana?G.character.mana:G.character.stamina;
    const meta=[`類型：${skillUseTypeLabel(s)}`,s.school||"戰技",s.element||null].filter(Boolean).join("／");
@@ -4930,8 +3325,7 @@ function applyElementDamage(raw,e,element){
  return Math.max(1,Math.round(raw*(1-resist/100)))
 }
 function battleUseSkill(index,targetKey="self"){
- if(!G.battle?.active||battleSkillPopupStage!=="committing")return;
- closeBattleSkillPopup();
+ if(!G.battle?.active)return;closeBattleSkillPopup();
  const s=G.character.skills[index];if(!s||s.kind==="被動")return;
  const mana=skillUsesMana(s),cost=skillResourceCost(s),resource=mana?"MP":"體力";
  if((mana?G.character.mana:G.character.stamina)<cost){battleLog(`${resource}不足。`);return}
@@ -4957,8 +3351,7 @@ function battleUseSkill(index,targetKey="self"){
    });enemyBattleTurn();return
  }
  if(dtype==="buff"){
-   b.playerBuff.attack=(b.playerBuff.attack||0)+combatScaledNumber(s.power||0);b.playerBuff.defense=(b.playerBuff.defense||0)+combatScaledNumber(s.defense||0);
-   b.playerBuff.magicPower=(b.playerBuff.magicPower||0)+combatScaledNumber(s.magicPower||0);b.playerBuff.magicDefense=(b.playerBuff.magicDefense||0)+combatScaledNumber(s.magicDefense||0);
+   b.playerBuff.attack=(b.playerBuff.attack||0)+(s.power||0);b.playerBuff.defense=(b.playerBuff.defense||0)+(s.defense||0);
    b.playerBuff.accuracy=(b.playerBuff.accuracy||0)+(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus");b.playerBuff.evasion=(b.playerBuff.evasion||0)+(s.evasion||0);
    for(const k of ["magicPower","magicDefense","critRate","critDamage","attackSpeed","castSpeed","blockRate","statusResist"])b.playerBuff[k]=(b.playerBuff[k]||0)+(s[k]||0);
    b.playerBuff.statusResist=(b.playerBuff.statusResist||0)+skillLevelBonus(s,"status_resist_bonus");
@@ -4969,20 +3362,20 @@ function battleUseSkill(index,targetKey="self"){
    battleLog(`使用 ${s.name}：${supportEffectText(s)}。`);enemyBattleTurn();return
  }
  if(dtype==="debuff"){
-   for(const [k,v] of Object.entries(s.debuff||{}))b.enemyBuff[k]=(b.enemyBuff[k]||0)+(["attack","defense","magicPower","magicDefense"].includes(k)?combatScaledNumber(v):v);
+   for(const [k,v] of Object.entries(s.debuff||{}))b.enemyBuff[k]=(b.enemyBuff[k]||0)+v;
    if(s.status)applyEnemyStatus(s.status,(s.status_chance||50)+skillLevelBonus(s,"status_chance_bonus"),(s.status_rounds||2)+skillLevelBonus(s,"status_rounds_bonus"));
    battleLog(`${s.name} 削弱 ${e.name}。`);enemyBattleTurn();return
  }
 
  const r=rollD20(),scale=s.scaling_stat|| (dtype==="magic"?"magic":dtype==="physical"?"physical":"hybrid"),pct=skillPowerPercent(s)/100;
  let baseAtk=scale==="magic"?cs.magicPower:scale==="physical"?cs.attack:Math.round((cs.attack+cs.magicPower)/2);
- let atk=baseAtk*pct+combatScaledNumber(talentTargetBonus(e));
+ let atk=baseAtk*pct+talentTargetBonus(e);
  let edef=(dtype==="magic"?(e.magicDefense||e.defense):dtype==="hybrid"?Math.round((e.defense+(e.magicDefense||e.defense))/2):e.defense)-enemyStatusDefensePenalty();
  edef=Math.max(0,edef);
  let pen=dtype==="magic"?cs.magicPenPct:cs.armorPenPct;
  if(dtype==="magic")pen+=skillLevelBonus(s,"magic_pen_pct");else if(dtype==="hybrid")pen+=Math.max(skillLevelBonus(s,"armor_pen_pct"),skillLevelBonus(s,"magic_pen_pct"));else pen+=skillLevelBonus(s,"armor_pen_pct");
  edef*=1-pen/100;
- if(e.hp/e.maxHp<=.25)atk+=combatScaledNumber(talentSpecial("executeBonus"));
+ if(e.hp/e.maxHp<=.25)atk+=talentSpecial("executeBonus");
  const score=r+Math.floor((cs.accuracy+(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")-stagger-(e.evasion+(b.enemyBuff.evasion||0)-enemyStatusEvasionPenalty()))/10);
  if(score>=10){
    const crit=battleCritFromRoll(r,Math.max(0,cs.critRate-(e.critResist||0))),raw=Math.max(1,Math.round(atk-edef*.42));
@@ -5014,7 +3407,7 @@ function battleUseItem(index){
    const ef=d.battle_effect;
    if(ef.special==="repel"){battleLog(`使用 ${d.name}，強烈氣味迫使敵人退開。`);removeItem(x.id,1,index);finishBattle("逃跑成功");return}
    if(ef.special==="lure"){battleLog(`使用 ${d.name}，敵人受到誘餌干擾，命中下降。`);G.battle.enemyBuff.accuracy=(G.battle.enemyBuff.accuracy||0)-4}
-   const dmg=Math.max(0,combatScaledNumber(ef.damage||0));if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
+   const dmg=Math.max(0,ef.damage||0);if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
    if(ef.enemyDebuff)for(const [k,v] of Object.entries(ef.enemyDebuff))if(k!=="rounds")G.battle.enemyBuff[k]=(G.battle.enemyBuff[k]||0)+v;
    if(ef.status)applyEnemyStatus(ef.status,ef.status_chance||55,ef.rounds||2)
  }else if(d.weapon_oil){
@@ -5043,14 +3436,6 @@ function tryAutoRevive(){
 function tickBattleEffects(){
  if(!G.battle)return;
  if(G.battle.weaponOil){G.battle.weaponOil.rounds--;if(G.battle.weaponOil.rounds<=0){battleLog("武器塗油效果消失。");G.battle.weaponOil=null}}
- const r=G.battle.playerRegeneration;
- if(r&&G.character.hp>0&&r.rounds>0){
-   const before=G.character.hp;
-   G.character.hp=clamp(before+r.hp_per_round,0,G.character.maxHp);
-   r.rounds--;
-   if(G.character.hp>before)battleLog(r.source+"持續恢復 "+Math.round(G.character.hp-before)+"HP（剩餘"+r.rounds+"回合）。");
-   if(r.rounds<=0)G.battle.playerRegeneration=null;
- }
 }
 function enemyHasStatus(id){return (G.battle?.enemyStatuses||[]).some(s=>s.id===id)}
 function enemyStatusAccuracyPenalty(){return (enemyHasStatus("blind")?4:0)+(enemyHasStatus("confusion")?2:0)+(enemyHasStatus("slow")?1:0)}
@@ -5090,17 +3475,10 @@ function enemyBattleTurn(){
  if(!G.battle?.active)return;
  const b=G.battle,e=b.enemy,cs=combatStats();
  if(b.awaitingCompanion){b.awaitingCompanion=false;resolvePartyTurns();if(e.hp<=0){finishBattle("勝利");return}resolveCompanionTurn();if(e.hp<=0){finishBattle("勝利");return}}
- if(processEnemyStatuses()){battleLog(`${e.name}因狀態影響無法正常行動。`);tickBattleEffects();b.round++;persist();renderAll();return}
+ if(processEnemyStatuses()){battleLog(`${e.name}因狀態影響無法正常行動。`);b.round++;persist();renderAll();return}
  if(e.hp<=0){finishBattle("勝利");return}
- const r=rollD20();
- const playerWeight=(combatStats().threat||100)*(formationPositionOf(G.character,"player")==="front"?1.35:.72);
- const rawTargets=[{type:"player",unit:G.character,weight:playerWeight},...partyThreatTargets()];
- if(b.companion&&!b.companion.knockedOut&&b.companion.hp>0){
-   const companionFactor=formationPositionOf(b.companion,"companion")==="front"?1.25:.78;
-   rawTargets.push({type:"companion",unit:b.companion,weight:Math.round((b.companion.guarding?180:70)*companionFactor)});
- }
- const meleeTargets=rawTargets.filter(x=>formationPositionOf(x.unit,x.type)==="front");
- const targets=Number(e.range||1)<=1&&meleeTargets.length?meleeTargets:rawTargets;
+ const r=rollD20(),targets=[{type:"player",weight:combatStats().threat||100},...partyThreatTargets()];
+ if(b.companion&&!b.companion.knockedOut&&b.companion.hp>0)targets.push({type:"companion",unit:b.companion,weight:b.companion.guarding?180:70});
  let pick=weightedPick(targets.map(x=>[x,x.weight])),targetCompanion=pick?.type==="companion",targetParty=pick?.type==="party";
  if(targetCompanion){
    const c=pick.unit;c.guarding=false;
@@ -5125,8 +3503,8 @@ function enemyBattleTurn(){
      const impactPct=dmg/Math.max(1,G.character.maxHp)*100;if(impactPct>12+cs.poise*.38){b.playerStaggered=true;battleLog("強烈衝擊造成硬直，下一次行動命中下降。")}
      battleLog(`${e.name} D20=${r} 命中，造成 ${dmg} 傷害${e.primary_element?`／${e.primary_element}`:""}${crit?"（爆擊）":""}${blocked?`（格擋${cs.blockValue}%）`:""}。`);
      if(e.status_attack)applyPlayerStatus(e.status_attack.id,e,e.status_attack.base_chance,e.status_attack.rounds);
-     const thorn=combatScaledNumber(talentSpecial("thorns"));if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
-     const counter=combatScaledNumber(talentSpecial("counterDamage"));if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
+     const thorn=talentSpecial("thorns");if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
+     const counter=talentSpecial("counterDamage");if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
    }else battleLog(`${e.name} D20=${r} 攻擊未命中。`);
  }
  if(!targetCompanion&&!targetParty)degradeEquipment();b.defending=false;tickBattleEffects();
@@ -5240,7 +3618,7 @@ function supportPercentValue(s,key){
 }
 function passiveEffectText(s){
  const out=[],add=(v,label,suffix="")=>{const n=Number(v||0);if(n)out.push(`${label}${n>0?"+":""}${Math.round(n*100)/100}${suffix}`)};
- add(combatScaledNumber(s?.power),"物理攻擊");add(combatScaledNumber(s?.magicPower),"魔法攻擊");add(combatScaledNumber(s?.defense),"物理防禦");add(combatScaledNumber(s?.magicDefense),"魔法防禦");
+ add(s?.power,"物理攻擊");add(s?.magicPower,"魔法攻擊");add(s?.defense,"物理防禦");add(s?.magicDefense,"魔法防禦");
  add(s?.accuracy,"命中","%");add(s?.evasion,"閃避","%");add(s?.critRate,"爆擊率","%");add(s?.critDamage,"爆擊傷害","%");
  add(s?.blockRate,"格擋率","%");add(s?.statusResist,"異常抗性","%");
  return out.join("、")||s?.effect_text||s?.desc||"持續生效"
@@ -5269,7 +3647,7 @@ function supportEffectText(s){
  const dp=supportPercentValue(s,"defense_pct"),mdp=supportPercentValue(s,"magic_defense_pct");
  if(dp)out.push(`物理防禦+${dp}%`);
  if(mdp)out.push(`魔法防禦+${mdp}%`);
- add(combatScaledNumber(s?.power),"物理攻擊");add(combatScaledNumber(s?.magicPower),"魔法攻擊");add(combatScaledNumber(s?.defense),"物理防禦");add(combatScaledNumber(s?.magicDefense),"魔法防禦");
+ add(s?.power,"物理攻擊");add(s?.magicPower,"魔法攻擊");add(s?.defense,"物理防禦");add(s?.magicDefense,"魔法防禦");
  add(s?.accuracy,"命中","%");add(s?.evasion,"閃避","%");add(s?.critRate,"爆擊率","%");add(s?.critDamage,"爆擊傷害","%");
  add(s?.blockRate,"格擋率","%");add(s?.statusResist,"異常抗性","%");
  if(Number(s?.attackSpeed||0))out.push(`攻擊速度+${Math.round(Number(s.attackSpeed)*100)}%`);
@@ -5306,37 +3684,7 @@ function mutateBattleSupportTarget(key,fn){
  if(String(key).startsWith("party:")){const i=Number(String(key).split(":")[1]),x=G.battle?.party?.[i];if(x)return fn(x)}
  return null
 }
-function battleChooseSkill(index){
- if(!G.battle?.active||battleSkillPopupStage!=="list"||$("#battleSkillPopup")?.classList.contains("hide"))return;
- const s=G.character.skills[index];
- if(!s||s.kind==="被動"||s.manual_battle_use===false)return;
- const mana=skillUsesMana(s),cost=skillResourceCost(s);
- if((mana?G.character.mana:G.character.stamina)<cost)return;
- if(["heal","cleanse"].includes(s.damage_type)){
-   const targets=battleSupportTargets();
-   if(targets.length>1){
-     battleSkillPopupStage="targets";
-     battleSelectedSkillIndex=index;
-     $("#battleSkillPopupTitle").textContent=`使用${s.name}：選擇${s.damage_type==="heal"?"治療":"淨化"}目標`;
-     setUIHTML($("#battleSkillPopupBody"),`<div class="battle-skill-return"><button type="button" onclick="battleSkillMenu()">← 返回技能列表</button></div>`+
-       targets.map(t=>`<div class="itemrow"><span><b>${t.name}</b><br><span class="small">HP ${Math.round(t.hp)}/${Math.round(t.maxHp)}</span></span><button type="button" onclick="battleConfirmSkillTarget(${index},'${t.key}')">選擇</button></div>`).join(""));
-     $("#battleSkillPopupBody").scrollTop=0;
-     return;
-   }
- }
- battleSkillPopupStage="committing";
- battleUseSkill(index,"self");
-}
-function battleConfirmSkillTarget(index,targetKey){
- if(!G.battle?.active||battleSkillPopupStage!=="targets"||battleSelectedSkillIndex!==index)return;
- if($("#battleSkillPopup")?.classList.contains("hide"))return;
- const s=G.character.skills[index];
- if(!s||!["heal","cleanse"].includes(s.damage_type))return;
- if(!battleSupportTargets().some(t=>t.key===targetKey))return;
- if((skillUsesMana(s)?G.character.mana:G.character.stamina)<skillResourceCost(s))return;
- battleSkillPopupStage="committing";
- battleUseSkill(index,targetKey);
-}
+function battleChooseSkill(index){const s=G.character.skills[index];if(!s)return;if(["heal","cleanse"].includes(s.damage_type)&&battleSupportTargets().length>1){$("#battleSkillPopupTitle").textContent=s.damage_type==="heal"?"選擇治療目標":"選擇淨化目標";$("#battleSkillPopupBody").innerHTML=battleSupportTargets().map(t=>`<div class="itemrow"><span><b>${t.name}</b><br><span class="small">HP ${Math.round(t.hp)}/${Math.round(t.maxHp)}</span></span><button onclick="battleUseSkill(${index},'${t.key}')">選擇</button></div>`).join("");return}battleUseSkill(index,"self")}
 
 function skillMasteryMultiplier(s){return 1+clamp(s?.mastery||0,0,100)/500}
 function classMasteryNeed(tier){return DB.progression_system.class_mastery_required[tier]||100}
@@ -5356,7 +3704,7 @@ function openClassAdvancement(){
    const ok=c.level>=needLv&&(c.classMastery||0)>=needM&&specialOk;
    rows+=`<div class="card"><b>${cur.name}［${cur.tier}］解封</b><br><span class="small">Lv${needLv}｜職業熟練${needM}%${special?"｜特殊資格":""}</span><div class="actions"><button ${ok?"":"disabled"} onclick="unsealCurrentClass()">${ok?"正式解封":"未達條件"}</button></div></div>`
  }
- rows+=classAdvanceCandidates().map(x=>`<div class="card"><b>${x.c.name}</b> <span class="tier">${x.c.tier}</span>｜${x.c.combat_role||""}<br><span class="small">${x.c.combat_identity?`<b>核心：</b>${x.c.combat_identity.signature}<br><b>循環：</b>${x.c.combat_identity.battle_loop}<br><b>強項：</b>${x.c.combat_identity.strengths.join("／")}｜<b>代價：</b>${x.c.combat_identity.tradeoffs.join("／")}<br>`:""}需要：Lv${x.c.unlock_level||1}、目前職業熟練${classMasteryNeed(x.c.tier)}%${x.special?"、特殊路線資格":""}<br>目前：Lv${c.level}／${(c.classMastery||0).toFixed(1)}%</span><div class="actions"><button ${x.ok?"":"disabled"} onclick="advanceCombatClass('${x.c.id}')">${x.ok?"轉職":"未達條件"}</button></div></div>`).join("");
+ rows+=classAdvanceCandidates().map(x=>`<div class="card"><b>${x.c.name}</b> <span class="tier">${x.c.tier}</span>｜${x.c.combat_role||""}<br><span class="small">需要：Lv${x.c.unlock_level||1}、目前職業熟練${classMasteryNeed(x.c.tier)}%${x.special?"、特殊路線資格":""}<br>目前：Lv${c.level}／${(c.classMastery||0).toFixed(1)}%</span><div class="actions"><button ${x.ok?"":"disabled"} onclick="advanceCombatClass('${x.c.id}')">${x.ok?"轉職":"未達條件"}</button></div></div>`).join("");
  showModal("冒險者公會・職業進階",(rows||"<div class='small'>目前沒有直接進階路線。</div>")+`<div class="actions"><button onclick="renderFacility('guild')">上一頁</button></div>`)
 }
 function advanceCombatClass(targetId){
@@ -5409,8 +3757,7 @@ function companionXpToNext(level){return Math.round(30+level*18+level*level*2.5)
 function makeCompanionInstance(speciesId,source="未知"){
  const sp=companionSpecies(speciesId);if(!sp)return null;
  const level=Math.max(1,Math.min(G.character.level||1,sp.min_owner_level||1));
- return {uid:`CP-${Date.now().toString(36)}-${rand(99999)}`,speciesId:sp.id,level,xp:0,bond:0,source,
-   battlefieldPosition:defaultCompanionFormationPosition(sp),obtainedTurn:G.turn||0}
+ return {uid:`CP-${Date.now().toString(36)}-${rand(99999)}`,speciesId:sp.id,level,xp:0,bond:0,source,obtainedTurn:G.turn||0}
 }
 function canAcquireCompanion(sp){
  if(!sp)return {ok:false,reason:"資料不存在"};
@@ -5478,8 +3825,8 @@ function companionCombatStats(inst){
  if(sp.companion_kind==="summon")power*=1+owner.summonPower/350;
  else if(sp.companion_kind==="contract")power*=1+owner.summonPower/500;
  return {
-   hp:combatScaledNumber(Math.round((b.hp||18)*scale*power)),attack:combatScaledNumber(Math.round((b.attack||6)*scale*power)),
-   magic:combatScaledNumber(Math.round((b.magic||4)*scale*power)),defense:combatScaledNumber(Math.round((b.defense||4)*scale*power)),
+   hp:Math.round((b.hp||18)*scale*power),attack:Math.round((b.attack||6)*scale*power),
+   magic:Math.round((b.magic||4)*scale*power),defense:Math.round((b.defense||4)*scale*power),
    accuracy:clamp(Math.round((b.accuracy||58)+(lv-1)*.5),40,95),
    evasion:clamp(Math.round((b.evasion||8)+(lv-1)*.22),0,55),
    speed:Math.round((b.speed||10)+(lv-1)*.15),element:sp.element,ai:sp.ai_profile
@@ -5489,12 +3836,12 @@ function battleCompanionSnapshot(){
  const inst=activeCompanionInstance();if(!inst)return null;
  const sp=companionSpecies(inst.speciesId),cs=companionCombatStats(inst);
  return {uid:inst.uid,speciesId:sp.id,name:sp.name,tier:sp.tier,kind:sp.companion_kind,kindLabel:sp.companion_kind_label,
-   ai:sp.ai_profile,aiLabel:sp.ai_label,element:sp.element,position:formationPositionOf(inst,"companion"),maxHp:cs.hp,hp:cs.hp,attack:cs.attack,magic:cs.magic,defense:cs.defense,
+   ai:sp.ai_profile,aiLabel:sp.ai_label,element:sp.element,maxHp:cs.hp,hp:cs.hp,attack:cs.attack,magic:cs.magic,defense:cs.defense,
    accuracy:cs.accuracy,evasion:cs.evasion,speed:cs.speed,statusEffects:[],guarding:false,knockedOut:false}
 }
 function companionRosterSummary(){
- const a=activeCompanionInstance(),sp=a?companionSpecies(a.speciesId):null,carry=companionCarryCapacityBonus();
- return `出戰：${sp?sp.name:"無"}｜待機：${Math.max(0,companions().length-(a?1:0))}/${DB.companion_system.standby_limit}｜總數：${companions().length}/${DB.companion_system.roster_limit}｜負重支援 +${carry.total}kg`
+ const a=activeCompanionInstance(),sp=a?companionSpecies(a.speciesId):null;
+ return `出戰：${sp?sp.name:"無"}｜待機：${Math.max(0,companions().length-(a?1:0))}/${DB.companion_system.standby_limit}｜總數：${companions().length}/${DB.companion_system.roster_limit}`
 }
 function openCharacterSkills(){
  const c=G.character,skills=c.skills.map((s,i)=>{
@@ -5511,13 +3858,13 @@ function openCompanionPanel(filter="pet"){
  const isSummon=filter==="summon",list=companions().filter(c=>{
    const k=companionSpecies(c.speciesId)?.companion_kind;return isSummon?k==="summon":k==="pet"||k==="contract"
  });
- const rows=list.map(c=>{const sp=companionSpecies(c.speciesId),active=G.character.activeCompanionId===c.uid,carry=companionCarryProfile(sp,c);
+ const rows=list.map(c=>{const sp=companionSpecies(c.speciesId),active=G.character.activeCompanionId===c.uid;
    return `<div class="card"><b>${sp.name}</b> <span class="tier">${sp.tier}</span>［${sp.companion_kind_label}／${sp.ai_label}］${active?" <span class='ok'>出戰中</span>":""}<br>
-   <span class="small">Lv${c.level}｜XP ${c.xp||0}/${c.level>=G.character.level?"主人等級上限":companionXpToNext(c.level)}｜羈絆${(c.bond||0).toFixed(1)}%${sp.element?`｜${sp.element}`:""}<br>${DB.companion_system.ai_profiles[sp.ai_profile].behavior}<br>${carry.canCarry?`負重支援 +${carry.bonus}kg｜${carry.trait}`:"負重支援 0kg｜召喚獸不提供常駐行李空間"}</span>
+   <span class="small">Lv${c.level}｜XP ${c.xp||0}/${c.level>=G.character.level?"主人等級上限":companionXpToNext(c.level)}｜羈絆${(c.bond||0).toFixed(1)}%${sp.element?`｜${sp.element}`:""}<br>${DB.companion_system.ai_profiles[sp.ai_profile].behavior}</span>
    <div class="actions">${active?`<button disabled>出戰中</button>`:`<button class="good" onclick="setActiveCompanion('${c.uid}')">設為出戰</button>`}<button class="bad" onclick="releaseCompanion('${c.uid}')">離隊</button></div></div>`
  }).join("")||`<div class="card small">目前沒有${isSummon?"召喚獸":"寵物／契約獸"}。</div>`;
  const hint=isSummon?`召喚獸需在法師公會進行召喚研究；最高研究階級：${highestSummonSkillTier()||"尚無召喚技能"}。`:"寵物可在符合地區與階級的探索機緣中馴養；契約獸需進行契約儀式。";
- showModal(isSummon?"召喚":"寵物／契約",`<div class="card small"><b>${companionRosterSummary()}</b><br>${hint}<br>所有夥伴戰鬥時由AI自動操作；只有實體寵物／契約獸提供常駐負重。</div>${rows}`)
+ showModal(isSummon?"召喚":"寵物／契約",`<div class="card small"><b>${companionRosterSummary()}</b><br>${hint}<br>所有夥伴戰鬥時由AI自動操作。</div>${rows}`)
 }
 function companionResearchCost(sp){return Math.round(12+Math.pow(tierOrder(sp.tier)+1,2)*14)}
 function openSummonResearch(){
@@ -5572,45 +3919,6 @@ function partyTemplate(id){return IDX.partyTemplate.get(id)}
 function adventureParty(){return G?.character?.adventureParty||null}
 function partyMembers(){return adventureParty()?.members||[]}
 function partySize(){return 1+partyMembers().length}
-function defaultFormationPosition(role){
- const s=String(role||"").toLowerCase();
- return /healer|ranged|caster|support|scout|sniper|curse|治療|遠程|施法|支援|斥候|狙擊|詛咒/.test(s)?"back":"front";
-}
-function defaultCompanionFormationPosition(species){
- const s=[species?.name,species?.family,species?.ai_profile,species?.companion_kind].filter(Boolean).join(" ");
- return species?.companion_kind==="summon"||/鳥|鷹|隼|狐|貓|兔|蛇|元素|精靈|靈|caster|support|施法/i.test(s)?"back":"front";
-}
-function formationPositionLabel(position){return position==="back"?"後排":"前排"}
-function formationPositionOf(unit,type="party"){
- if(type==="player")return G?.character?.battlefieldPosition==="back"?"back":"front";
- return unit?.battlefieldPosition==="back"||unit?.position==="back"?"back":defaultFormationPosition(unit?.role||unit?.roleLabel);
-}
-function ensureAdventureFormation(){
- const c=G?.character;if(!c)return null;
- if(!["front","back"].includes(c.battlefieldPosition))c.battlefieldPosition=defaultFormationPosition(playerRoleFamily());
- for(const m of (adventureParty()?.members||[]))if(!["front","back"].includes(m.battlefieldPosition))m.battlefieldPosition=defaultFormationPosition(m.role||m.role_label);
- for(const inst of (c.companions||[])){
-   const sp=companionSpecies(inst.speciesId);
-   if(!["front","back"].includes(inst.battlefieldPosition))inst.battlefieldPosition=defaultCompanionFormationPosition(sp);
- }
- return c;
-}
-function formationUnitHtml(kind,uid,name,position,detail,extra=""){
- const next=position==="back"?"front":"back";
- return `<div class="itemrow"><span><b>${esc(name)}</b> <span class="tier">${formationPositionLabel(position)}</span><br><span class="small">${detail}</span></span><span class="actions"><button type="button" onclick="setAdventureFormationPosition('${kind}','${uid}','${next}')">移至${formationPositionLabel(next)}</button>${extra}</span></div>`;
-}
-function setAdventureFormationPosition(kind,uid,position){
- if(!["front","back"].includes(position))return;
- const c=ensureAdventureFormation();if(!c)return;
- let target=null;
- if(kind==="player"&&uid==="player")target=c;
- else if(kind==="party")target=(c.adventureParty?.members||[]).find(x=>x.uid===uid);
- else if(kind==="companion")target=(c.companions||[]).find(x=>x.uid===uid);
- if(!target)return;
- target.battlefieldPosition=position;
- persist();
- openAdventureParty();
-}
 function partyLeaderName(){
  const p=adventureParty();if(!p)return G.character.name;
  if(p.leader==="player")return G.character.name;
@@ -5676,7 +3984,6 @@ function makePartyMember(templateId,source="招募"){
  const t=partyTemplate(templateId),level=teammateLevel(t),scale=1+(level-1)*.035,b=t.base_stats;
  const maxHp=Math.round(b.hp*scale);
  return {uid:`PMI-${Date.now().toString(36)}-${rand(99999)}`,templateId:t.id,level,xp:0,bond:0,source,
-   battlefieldPosition:defaultFormationPosition(t.role),
    maxHp,hp:maxHp,joinedTurn:G.turn||0}
 }
 function createSelfLedParty(member){
@@ -5705,20 +4012,10 @@ function dismissPartyMember(uid){
 function openAdventureParty(){
  const p=adventureParty();
  if(!p){showModal("冒險團",`<div class="card"><b>目前沒有正式冒險團</b><br><span class="small">前往冒險者公會或酒館招募至少1名隊友，或在公會加入既有冒險團。正式編制包含你本人共2–5人。</span></div>`);return}
- ensureAdventureFormation();
- const playerPosition=formationPositionOf(G.character,"player");
- const playerRow=formationUnitHtml("player","player",G.character.name,playerPosition,`玩家角色｜${cls(G.character.classId)?.name||"未知職業"}｜可手動操作`);
- const rows=p.members.map(m=>{
-   const t=partyTemplate(m.templateId),position=formationPositionOf(m,"party");
-   const extra=p.mode==="self-led"?`<button type="button" class="bad" onclick="dismissPartyMember('${m.uid}')">請其離隊</button>`:"";
-   return `<div class="card"><b>${esc(t.name)}</b> <span class="tier">${esc(t.tier)}</span>［${esc(t.race)}／${esc(t.role_label)}］${p.leader===m.uid?" <span class='tier'>領隊</span>":""}<br><span class="small">Lv${m.level}｜HP ${Math.round(m.hp)}/${m.maxHp}｜羈絆${(m.bond||0).toFixed(1)}%｜${esc(t.background)}<br>戰鬥：${esc(DB.adventure_party_system.ai_profiles[t.role]||"AI自動操作")}</span>${formationUnitHtml("party",m.uid,t.name,position,`隊友｜${t.role_label}｜戰鬥由AI自動操作`,extra)}</div>`;
- }).join("");
- const active=activeCompanionInstance(),activeSpecies=active?companionSpecies(active.speciesId):null;
- const companionRows=active&&activeSpecies
-   ?`<div class="card"><b>${esc(activeSpecies.name)}</b> <span class="tier">${esc(activeSpecies.tier)}</span>［${esc(activeSpecies.companion_kind_label||"夥伴")}］<br><span class="small">出戰夥伴｜${esc(activeSpecies.ai_label||"AI自動操作")}｜光環與專屬技能依戰況生效</span>${formationUnitHtml("companion",active.uid,activeSpecies.name,formationPositionOf(active,"companion"),`寵物／契約獸／召喚獸｜戰鬥由AI自動操作`)}</div>`
-   :`<div class="card small">目前沒有出戰寵物／契約獸／召喚獸；待機夥伴不占用戰鬥站位。</div>`;
- showModal("冒險團",`<div class="card"><b>${esc(p.name)}</b><br>${p.mode==="self-led"?"你是領隊":`領隊：${esc(partyLeaderName())}`}｜編制 ${partySize()}/5<br><span class="small">前後排會保存到存檔，並同步到下一場戰鬥。近戰敵人優先接觸前排；遠程／魔法仍可壓制後排。</span></div><h3>目前隊形</h3>${playerRow}${rows}${companionRows}<div class="actions"><button type="button" class="bad" onclick="leaveAdventureParty()">離開／解散冒險團</button></div>`)
-}function candidateLegal(t){
+ const rows=p.members.map(m=>{const t=partyTemplate(m.templateId);return `<div class="card"><b>${t.name}</b> <span class="tier">${t.tier}</span>［${t.race}／${t.role_label}］${p.leader===m.uid?" <span class='tier'>領隊</span>":""}<br><span class="small">Lv${m.level}｜HP ${Math.round(m.hp)}/${m.maxHp}｜羈絆${(m.bond||0).toFixed(1)}%｜${t.background}<br>戰鬥：${DB.adventure_party_system.ai_profiles[t.role]}</span>${p.mode==="self-led"?`<div class="actions"><button class="bad" onclick="dismissPartyMember('${m.uid}')">請其離隊</button></div>`:""}</div>`}).join("");
+ showModal("冒險團",`<div class="card"><b>${p.name}</b><br>${p.mode==="self-led"?"你是領隊":`領隊：${partyLeaderName()}`}｜編制 ${partySize()}/5<br><span class="small">NPC隊友戰鬥皆由AI自動操作；玩家本人也計入冒險團人數。</span></div>${rows}<div class="actions"><button class="bad" onclick="leaveAdventureParty()">離開／解散冒險團</button></div>`)
+}
+function candidateLegal(t){
  if(!t?.recruitable)return false;
  if(G.character.level<t.min_player_level)return false;
  if(tierOrder(t.tier)>tierOrder(recruitMaxTier()))return false;
@@ -5792,13 +4089,13 @@ function attemptJoinParty(index){
 }
 function partyMemberCombatStats(inst){
  const t=partyTemplate(inst.templateId),b=t.base_stats,scale=1+(inst.level-1)*.035,bond=1+clamp(inst.bond||0,0,100)/700;
- return {maxHp:combatScaledNumber(Math.round(b.hp*scale*bond)),attack:combatScaledNumber(Math.round(b.attack*scale*bond)),magic:combatScaledNumber(Math.round(b.magic*scale*bond)),
-   defense:combatScaledNumber(Math.round(b.defense*scale*bond)),accuracy:clamp(Math.round(b.accuracy+(inst.level-1)*.45),40,95),
+ return {maxHp:Math.round(b.hp*scale*bond),attack:Math.round(b.attack*scale*bond),magic:Math.round(b.magic*scale*bond),
+   defense:Math.round(b.defense*scale*bond),accuracy:clamp(Math.round(b.accuracy+(inst.level-1)*.45),40,95),
    evasion:clamp(Math.round(b.evasion+(inst.level-1)*.2),0,55),speed:Math.round(b.speed+(inst.level-1)*.12)}
 }
 function partyBattleSnapshots(){
  return partyMembers().map(inst=>{const t=partyTemplate(inst.templateId),s=partyMemberCombatStats(inst),ratio=clamp((inst.hp??inst.maxHp)/Math.max(1,inst.maxHp||s.maxHp),0.05,1);
-   return {uid:inst.uid,templateId:t.id,name:t.name,tier:t.tier,role:t.role,roleLabel:t.role_label,position:formationPositionOf(inst,"party"),maxHp:s.maxHp,hp:Math.max(1,Math.round(s.maxHp*ratio)),
+   return {uid:inst.uid,templateId:t.id,name:t.name,tier:t.tier,role:t.role,roleLabel:t.role_label,maxHp:s.maxHp,hp:Math.max(1,Math.round(s.maxHp*ratio)),
      attack:s.attack,magic:s.magic,defense:s.defense,accuracy:s.accuracy,evasion:s.evasion,speed:s.speed,statusEffects:[],knockedOut:false,guarding:false}
  })
 }
@@ -5836,8 +4133,7 @@ function partyThreatTargets(){
  for(const m of (G.battle?.party||[])){
    if(m.knockedOut||m.hp<=0)continue;
    const w={tank:185,frontline:125,ranged:75,scout:65,caster:72,hybrid:105,healer:82,support:68,specialist:55}[m.role]||70;
-   const positionFactor=formationPositionOf(m,"party")==="front"?1.35:.72;
-   out.push({type:"party",unit:m,weight:Math.round((w+(m.guarding?100:0))*positionFactor)})
+   out.push({type:"party",unit:m,weight:w+(m.guarding?100:0)})
  }
  return out
 }
@@ -5954,7 +4250,6 @@ function openMoreMenu(){
    <button class="more-card" onclick="openEquipment()"><span class="more-icon">⚔</span><span>裝備</span></button>
    <button class="more-card" onclick="openIntelArchive()"><span class="more-icon">◉</span><span>情報</span></button>
    <button class="more-card" onclick="openMap()"><span class="more-icon">⌖</span><span>地圖</span></button>
-   <button class="more-card" onclick="openWorldMosaic()"><span class="more-icon">▦</span><span>世界圖</span></button>
    <button class="more-card" onclick="openSettings()"><span class="more-icon">⚙</span><span>設定</span></button>
  </div>`)
 }
@@ -5962,9 +4257,8 @@ function openCharacter(){
  characterDockContext=true;characterDockActiveKey=null;
  normalizeAbilityPoints();const revival=normalizeRevivalState();
  const c=G.character,cc=cls(c.classId),cs=combatStats(),eres=elementalResistances();
- const origin=org(c.originId),originFacet=(origin?.facets||[]).find(x=>x.id===c.originFacetId)||null;
  const roleText=cc.combat_role||"—",trackText=cc.combat_track_label||combatTrackText(cc);
- const subjobText=c.subjobs.length?c.subjobs.map(subjobProgressHtml).join(""):"無";
+ const subjobText=c.subjobs.length?c.subjobs.map(x=>`${sub(x.id).name}［${x.grade}］`).join("、"):"無";
  const attrs=[["STR 力量","力量"],["DEX 敏捷","敏捷"],["CON 體質","體力"],["INT 智力","智力"],["WIS 精神","意志"],["CHA 魅力","魅力"],["LUK 幸運","幸運"]].map(([label,key])=>`<div class="card"><b>${label}</b><br>${c.stats[key]}${effectiveStat(key)!==c.stats[key]?` → ${effectiveStat(key)}`:""}${c.abilityPoints>0?` <button class="stat-up good" onclick="spendAbilityPoint('${key}')">＋1</button>`:""}</div>`).join("");
  const core=`<div class="grid3"><div class="card"><b>物理攻擊</b><br>${cs.attack}</div><div class="card"><b>魔法攻擊</b><br>${cs.magicPower}</div><div class="card"><b>物理防禦</b><br>${cs.defense}</div><div class="card"><b>魔法防禦</b><br>${cs.magicDefense}</div><div class="card"><b>命中率</b><br>${cs.accuracy}%</div><div class="card"><b>閃避率</b><br>${cs.evasion}%</div><div class="card"><b>爆擊率</b><br>${cs.critRate}%</div><div class="card"><b>爆擊傷害</b><br>${cs.critDamage}%</div><div class="card"><b>速度／先攻</b><br>${cs.initiative}</div></div>`;
  const advanced=`<div class="grid3"><div class="card"><b>移動速度</b><br>${cs.moveSpeed}</div><div class="card"><b>攻擊速度</b><br>${cs.attackSpeed.toFixed(2)}×</div><div class="card"><b>詠唱速度</b><br>${cs.castSpeed.toFixed(2)}×</div><div class="card"><b>射程</b><br>${cs.range}m</div><div class="card"><b>破甲／魔穿</b><br>${cs.armorPenPct}% / ${cs.magicPenPct}%</div><div class="card"><b>格擋</b><br>${cs.blockRate}% / 減傷${cs.blockValue}%</div><div class="card"><b>韌性</b><br>${cs.poise}</div><div class="card"><b>異常命中</b><br>${cs.statusAccuracy}%</div><div class="card"><b>異常抗性</b><br>${cs.statusResist}%</div><div class="card"><b>生命偷取</b><br>${cs.lifeSteal}%</div><div class="card"><b>治療效果</b><br>${cs.healingPower}%</div><div class="card"><b>MP回復</b><br>${cs.manaRegen}/時</div><div class="card"><b>HP回復</b><br>${cs.hpRegen}/時</div><div class="card"><b>爆擊抗性</b><br>${cs.critResist}%</div><div class="card"><b>威脅值</b><br>${cs.threat}</div><div class="card"><b>潛行</b><br>${cs.stealth}</div><div class="card"><b>感知</b><br>${cs.perception}</div><div class="card"><b>負重上限</b><br>${cs.carryCapacity}kg</div></div>`;
@@ -5972,17 +4266,15 @@ function openCharacter(){
  showModal("角色",`
  <div class="profile-card">
    <div class="profile-name">${c.name}</div>
-   <div class="profile-row"><span class="profile-key">種族／出身</span><span class="profile-value">${displayRace()}｜${originDisplayLabel(origin,originFacet)||c.originId}</span></div>
+   <div class="profile-row"><span class="profile-key">種族／出身</span><span class="profile-value">${displayRace()}｜${org(c.originId).name}</span></div>
    <div class="profile-row"><span class="profile-key">戰鬥職業</span><span class="profile-value">${cc.name} <span class="tier">${cc.tier}</span></span></div>
    <div class="profile-row"><span class="profile-key">職業定位</span><span class="profile-value">${roleText}｜${trackText}</span></div>
    <div class="profile-row"><span class="profile-key">職業階級</span><span class="profile-value">${c.combatGrade}${c.classSealed?"｜能力封印中":""}</span></div>
    <div class="profile-row"><span class="profile-key">等級／經驗</span><span class="profile-value">Lv${c.level}｜XP ${c.xp||0}/${c.level>=99?"MAX":xpToNext(c.level)}</span></div>
    <div class="profile-row"><span class="profile-key">職業熟練</span><span class="profile-value">${(c.classMastery||0).toFixed(1)}%</span></div>
    <div class="profile-row"><span class="profile-key">元素親和</span><span class="profile-value">${c.element}</span></div>
-   <div class="profile-row"><span class="profile-key">副職業</span><span class="profile-value subjob-profile-value">${subjobText}</span></div>
+   <div class="profile-row"><span class="profile-key">副職業</span><span class="profile-value">${subjobText}</span></div>
  </div>
- <div class="card origin-depth-card"><b>出身特色｜${origin?.signature||"—"}</b><br><span class="small">代價｜${origin?.burden||"—"}<br>行動動機｜${origin?.drive||"—"}<br>人脈／接觸｜${origin?.social_access||"—"}${originFacet?`<br>背景側寫｜${originFacet.note}`:""}${origin?.hooks?.length?`<br>故事鉤子｜${origin.hooks.join("／")}`:""}</span></div>
- ${cc.combat_identity?`<div class="card class-identity-card"><b>職業核心｜${cc.combat_identity.signature}</b><br><span class="small">戰鬥循環｜${cc.combat_identity.battle_loop}<br>強項｜${cc.combat_identity.strengths.join("／")}<br>代價｜${cc.combat_identity.tradeoffs.join("／")}<br>武器特色｜${cc.combat_identity.weapon_identity}｜機制：${cc.combat_identity.mechanic_tags.join("／")}</span></div>`:""}
  <div class="money-card"><div class="money-title">持有金額</div><div class="money-display">${denominationMoney(c.moneySilver||0)}</div></div>
  <div class="resource-list-card">
    <div class="resource-list-row"><span class="resource-list-key">HP</span><span class="resource-list-value">${Math.round(c.hp)}/${c.maxHp}</span></div>
@@ -5999,7 +4291,7 @@ function openCharacter(){
    <h3>核心戰鬥數值</h3>${core}${resist}
    <h3>進階戰鬥素質</h3>${advanced}
    <div class="card small"><b>CHA／LUK衍生</b><br>召喚強度 ${cs.summonPower}｜掉寶倍率 ${cs.lootRate}%｜稀有事件基準 ${cs.rareEventRate}%</div>
-   <h3>天賦</h3>${characterTalents().map(t=>{const active=talentEffectActive(t),x=t.identity||{};return `<div class="itemrow"><span><b>${t.name}</b> <span class="tier">${t.tier}</span>［${t.category}］${active?"":" <span class=\"small\">（目前條件未生效）</span>"}<br><span class="small">${t.description}</span>${x.signature?`<br><span class="small">特色：${x.signature}｜代價：${x.tradeoff||"—"}</span>`:""}</span></div>`}).join("")}
+   <h3>天賦</h3>${characterTalents().map(t=>`<div class="itemrow"><span><b>${t.name}</b> <span class="tier">${t.tier}</span>［${t.category}］<br><span class="small">${t.description}</span></span></div>`).join("")}
  </div>`)
 }
 function forgetSkill(i){if(G.character.skills.length<=2){alert("至少保留2個技能。");return}if(confirm(`確定遺忘${G.character.skills[i].name}？`)){G.character.skills.splice(i,1);persist();openCharacter()}}
@@ -6010,43 +4302,18 @@ function openEquipment(){
  }).join("");
  const off=offhandEquip(),od=off&&item(off.id);
  b+=`<div class="itemrow"><span><b>副手</b>：${od?`${od.name} <span class="tier">${od.tier}</span><br><span class="small">${itemStatsText(od)}｜耐久${off.durability}/${off.maxDurability}</span>`:"—"}</span>${off?`<button onclick="unequipOffhand()">卸下</button>`:""}</div>`;
- showModal("裝備",b+equipmentSetSummaryHtml()+`<div class="card small">固定頂層裝備欄仍為8格；副手可裝備盾牌或任一單手武器，主手與副手可同時裝備單手武器。雙手武器與任何副手裝備互斥。套裝總件數與啟動門檻由資料定義，不限制3／5／8件。</div>`)
+ showModal("裝備",b+`<div class="card small">固定頂層裝備欄仍為8格；副手可裝備盾牌或任一單手武器，主手與副手可同時裝備單手武器。雙手武器與任何副手裝備互斥。</div>`)
 }
 function unequip(slot){const eq=G.character.equipment[slot];if(!eq)return;addItem(eq.id,1,{durability:eq.durability});G.character.equipment[slot]=null;persist();renderAll();openEquipment()}
 function slotForItem(d){if(d.type==="飾品")return G.character.equipment.飾品1?"飾品2":"飾品1";return d.type}
-function requirementEsc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
-function showBlockedRequirements(title,checks,returnAction){
- const missing=checks.filter(x=>!x.ok);
- const row=x=>`<div class="prereq-row ${x.ok?"prereq-met":"prereq-unmet"}"><b>${requirementEsc(x.label)}</b><br><span class="small">需求：${requirementEsc(x.need)}｜目前：${requirementEsc(x.current)}${x.shortfall?`<br>尚差：${requirementEsc(x.shortfall)}`:""}</span></div>`;
- const passed=checks.filter(x=>x.ok);
- showModal(title,`<div class="card small"><b>${missing.length?"尚未符合 "+missing.length+" 項條件":"目前已符合全部條件"}</b><br>紅色為未達成，綠色為已達成；查看不消耗遊戲時間或物品。</div>${missing.map(row).join("")}${passed.length?`<details class="card"><summary>查看已達成條件（${passed.length}）</summary>${passed.map(row).join("")}</details>`:""}<div class="actions"><button type="button" onclick="${returnAction}">返回原列表</button></div>`);
-}
-function equipmentRequirementState(d,offhand=false){
- const c=G.character,rule=globalThis.QUNLU_EQUIPMENT_RULES;
- const result=rule?.evaluate(d,{character:c,classRow:cls(c?.classId),statValue:n=>effectiveStat(n)});
- const checks=result?.checks?[...result.checks]:[];
- const add=(label,need,current,ok,shortfall="")=>checks.push({label,need,current,ok:!!ok,shortfall});
- if(!result){
-  if(!d)return {ok:false,reason:"裝備資料不存在",checks:[{label:"物品",need:"有效裝備",current:"不存在",ok:false,shortfall:"重新開啟背包"}],missing:["物品"]};
-  for(const [s,v] of Object.entries(d.required_stats||{})){
-   const cur=Number(effectiveStat(s))||0;add(s==="體力"?"體質":s,v,cur,cur>=v,cur>=v?"":v-cur);
-  }
-  if(d.sealed&&["B","A","S"].includes(d.tier))add("裝備解封","完成專屬解封","尚未解封",false,"完成裝備解封");
+function canEquipItem(d){
+ if(!d)return {ok:false,reason:"裝備資料不存在"};
+ if(d.required_level&&G.character.level<d.required_level)return {ok:false,reason:`需要角色Lv${d.required_level}以上（目前Lv${G.character.level}）`};
+ for(const [stat,need] of Object.entries(d.required_stats||{})){
+   if(effectiveStat(stat)<need)return {ok:false,reason:`需要${stat==="體力"?"體質":stat} ${need}以上（目前${effectiveStat(stat)}）`}
  }
- if(offhand){
-  add("副手類型","盾牌或單手武器",isShieldItem(d)?"盾牌":isOneHandedWeapon(d)?"單手武器":d?.type||"不適用",offhandEligible(d),offhandEligible(d)?"":"不可放入副手");
-  const blocked=mainIsTwoHanded();add("主手配置","沒有裝備雙手武器",blocked?"目前使用雙手武器":"可配置副手",!blocked,blocked?"先卸下雙手主武器":"");
- }
- const missing=checks.filter(x=>!x.ok);
- return {ok:!missing.length,reason:missing.length?"需要"+missing[0].label+"："+missing[0].need+"（目前"+missing[0].current+"）":"",checks,missing:missing.map(x=>x.label)}
-}
-function canEquipItem(d){return equipmentRequirementState(d,false)}
-function showEquipmentRequirements(index,offhand=false){
- const entry=G?.character?.inventory?.[index],d=entry&&item(entry.id);if(!d)return;
- showBlockedRequirements(`裝備條件・${d.name}${offhand?"（副手）":""}`,equipmentRequirementState(d,offhand).checks,"openInventory()");
-}
-function equipmentActionButton(gate,action,index,offhand,label){
- return `<button type="button" class="${gate.ok?"good":"prereq-action"}" onclick="${gate.ok?action:`showEquipmentRequirements(${index},${offhand})`}">${gate.ok?label:"未達條件・查看"}</button>`
+ if(["B","A","S"].includes(d.tier)&&d.sealed)return {ok:false,reason:`${d.tier}級裝備仍處於封印狀態，需完成對應資格／解封條件`};
+ return {ok:true,reason:""}
 }
 function equipOffhandFromInventory(index){
  const x=G.character.inventory[index],d=x&&item(x.id);if(!d)return;
@@ -6077,7 +4344,7 @@ function inventoryCategory(d){
  if(d.type==="工具"||d.tool_effect)return {key:"工具",order:40};
  if(["素材","草藥素材","工藝素材","礦石","魔物素材","寶石素材"].includes(d.type)||d.material_group||d.monster_drop_core)return {key:"素材",order:50};
  if(["書籍","卷軸","符文"].includes(d.type)||d.knowledge_tag)return {key:"書籍／卷軸／符文",order:60};
- if(["任務","任務道具","寶藏","鑰匙"].includes(d.type)||["quest","key_item","treasure"].includes(d.kind))return {key:"任務／寶物",order:70};
+ if(["任務","寶藏","鑰匙"].includes(d.type))return {key:"任務／寶物",order:70};
  return {key:"其他",order:90}
 }
 function inventorySortCompare(a,b){
@@ -6087,31 +4354,17 @@ function inventorySortCompare(a,b){
 function inventorySummary(){
  const inv=G.character.inventory||[],groups=new Map();let qty=0;
  for(const x of inv){const c=inventoryCategory(item(x.id)),n=x.qty||1,cur=groups.get(c.key)||{order:c.order,qty:0};cur.qty+=n;groups.set(c.key,cur);qty+=n}
- const weight=calcWeight(),cap=combatStats().carryCapacity,pct=cap?Math.round(weight/cap*100):0,sharedCarry=sharedCarryCapacityBonus();
- return {groups:[...groups.entries()].sort((a,b)=>a[1].order-b[1].order),stacks:inv.length,qty,weight,cap,pct,sharedCarry}
+ const weight=calcWeight(),cap=combatStats().carryCapacity,pct=cap?Math.round(weight/cap*100):0;
+ return {groups:[...groups.entries()].sort((a,b)=>a[1].order-b[1].order),stacks:inv.length,qty,weight,cap,pct}
 }
 function organizeInventory(){
  const inv=G.character.inventory;
  inv.sort(inventorySortCompare);
  persist();openInventory()
 }
-
-/* INVENTORY-CATEGORY-FILTER-1.0: UI-only selection, never written to character saves. */
-let inventoryCategoryFilter="全部",inventoryCategoryChips=[];
-function setInventoryCategory(index){
- const next=index<0?"全部":inventoryCategoryChips[index]||"全部";
- if(next===inventoryCategoryFilter)return;
- inventoryCategoryFilter=next;
- openInventory();
- if(typeof requestAnimationFrame==="function")requestAnimationFrame(()=>{
-   document.querySelector('#inventoryCategoryButtons button[data-inventory-category-index="'+index+'"]')?.focus({preventScroll:true});
- });
-}
 function openInventory(){
- const list=G.character.inventory||[],summary=inventorySummary();let lastCat="";
- inventoryCategoryChips=summary.groups.map(([name])=>name);
- if(inventoryCategoryFilter!=="全部"&&!inventoryCategoryChips.includes(inventoryCategoryFilter))inventoryCategoryFilter="全部";
- const view=list.map((x,i)=>({x,i})).filter(({x})=>inventoryCategoryFilter==="全部"||inventoryCategory(item(x.id)).key===inventoryCategoryFilter).sort((a,b)=>inventorySortCompare(a.x,b.x));
+ const list=G.character.inventory,summary=inventorySummary();let lastCat="";
+ const view=list.map((x,i)=>({x,i})).sort((a,b)=>inventorySortCompare(a.x,b.x));
  const rows=view.map(({x,i})=>{
    const d=item(x.id),cat=inventoryCategory(d),isEq=d&&["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type),usable=!!d.use||!!d.buff||!!d.utility_effect||!!d.battle_effect||d.type==="料理";
    const head=cat.key!==lastCat?(lastCat=cat.key,`<div class="inventory-category-title">${cat.key}</div>`):"";
@@ -6119,35 +4372,30 @@ function openInventory(){
    if(isEq){
      const g=canEquipItem(d);
      if(isShieldItem(d)){
-       const og=canEquipOffhandItem(d);
-       equipButtons=equipmentActionButton(og,`equipOffhandFromInventory(${i})`,i,true,"裝備副手");
+       const og=canEquipOffhandItem(d);equipButtons=`<button ${og.ok?"":"disabled"} onclick="equipOffhandFromInventory(${i})">${og.ok?"裝備副手":"副手不可用"}</button>`
      }else if(isOneHandedWeapon(d)){
-       const og=canEquipOffhandItem(d);
-       equipButtons=equipmentActionButton(g,`equipFromInventory(${i})`,i,false,"裝備主手")+equipmentActionButton(og,`equipOffhandFromInventory(${i})`,i,true,"裝備副手");
-     }else{
-       equipButtons=equipmentActionButton(g,`equipFromInventory(${i})`,i,false,"裝備");
-     }
+       const og=canEquipOffhandItem(d);equipButtons=`<button ${g.ok?"":"disabled"} onclick="equipFromInventory(${i})">${g.ok?"裝備主手":"未達條件"}</button><button ${og.ok?"":"disabled"} onclick="equipOffhandFromInventory(${i})">${og.ok?"裝備副手":"副手不可用"}</button>`
+     }else if(d.type==="主武器"){
+       equipButtons=`<button ${g.ok?"":"disabled"} onclick="equipFromInventory(${i})">${g.ok?"裝備":"未達條件"}</button>`
+     }else equipButtons=`<button ${g.ok?"":"disabled"} onclick="equipFromInventory(${i})">${g.ok?"裝備":"未達條件"}</button>`
    }
    const actions=[equipButtons,usable?`<button onclick="useItem(${i})">使用</button>`:"",`<button class="bad" onclick="dropItem(${i})">丟棄</button>`].filter(Boolean).join("");
    const actionCount=(actions.match(/<button/g)||[]).length;
    return `${head}<div class="inventory-item">
      <div class="inventory-item-head">${d.name} <span class="tier">${d.tier}</span> ×${x.qty||1}</div>
-     <div class="inventory-item-meta">${itemStatsText(d,isEq?inventoryComparisonItem(d):null)}${x.durability!=null?`｜耐久${x.durability}/${x.maxDurability}`:""}</div>
+     <div class="inventory-item-meta">${itemStatsText(d)}${x.durability!=null?`｜耐久${x.durability}/${x.maxDurability}`:""}</div>
      <div class="inventory-item-actions ${actionCount===1?"one":""}">${actions}</div>
    </div>`
- }).join("")||(inventoryCategoryFilter==="全部"?"<div class='small'>背包為空。</div>":"<div class='small'>此分類目前沒有物品。</div>");
- const chips=`<button type="button" class="inventory-chip${inventoryCategoryFilter==="全部"?" active":""}" data-inventory-category-index="-1" aria-pressed="${inventoryCategoryFilter==="全部"}" onclick="setInventoryCategory(-1)">全部 ${summary.qty}</button>`+summary.groups.map(([name,v],index)=>`<button type="button" class="inventory-chip${inventoryCategoryFilter===name?" active":""}" data-inventory-category-index="${index}" aria-pressed="${inventoryCategoryFilter===name}" onclick="setInventoryCategory(${index})">${name} ${v.qty}</button>`).join("");
- const visibleCount=inventoryCategoryFilter==="全部"?summary.qty:(summary.groups.find(([name])=>name===inventoryCategoryFilter)?.[1]?.qty||0);
+ }).join("")||"<div class='small'>背包為空。</div>";
+ const chips=summary.groups.map(([name,v])=>`<span class="inventory-chip">${name} ${v.qty}</span>`).join("");
  const loadClass=summary.pct>=100?"danger":summary.pct>=85?"warnText":"ok";
- showModal("背包",`<div class="inventory-summary"><div class="inventory-summary-top"><span>物品 ${summary.qty} 件｜堆疊 ${summary.stacks}</span><span class="${loadClass}">負重 ${summary.weight}/${summary.cap}kg（${summary.pct}%）</span></div><div class="small">同行負重支援：隊友 +${summary.sharedCarry.teammates.total}kg｜寵物／契約獸 +${summary.sharedCarry.companions.total}kg</div><div class="inventory-chiprow inventory-filter-buttons" id="inventoryCategoryButtons" role="group" aria-label="背包物品分類">${chips}</div><div class="small inventory-filter-status" role="status">目前顯示${inventoryCategoryFilter==="全部"?"所有物品":inventoryCategoryFilter}：${visibleCount}件</div></div><div class="inventory-sortbar"><button class="good" onclick="organizeInventory()">一鍵整理</button><span class="small">點選上方分類按鍵切換清單；整理只會調整順序。</span></div>${rows}`,"openInventory()")
+ showModal("背包",`<div class="inventory-summary"><div class="inventory-summary-top"><span>物品 ${summary.qty} 件｜堆疊 ${summary.stacks}</span><span class="${loadClass}">負重 ${summary.weight}/${summary.cap}kg（${summary.pct}%）</span></div><div class="inventory-chiprow">${chips}</div></div><div class="inventory-sortbar"><button class="good" onclick="organizeInventory()">一鍵整理</button><span class="small">目前已依分類顯示；整理會固定此排序。</span></div>${rows}`,"openInventory()")
 }
 function removeStatuses(list){
  if(!list?.length)return;
  G.character.statusEffects=(G.character.statusEffects||[]).filter(s=>!list.includes(s.id||s))
 }
 function applyConsumable(d){
- const scaleNumber=typeof combatScaledNumber==="function"?scaleNumber:value=>{const n=Number(value);return Number.isFinite(n)?Math.round(n*2):value};
- const scaleRate=typeof combatScaledRate==="function"?scaleRate:value=>{const n=Number(value);return Number.isFinite(n)?Math.round(n*2*100)/100:value};
  const c=G.character;
  if(d.toxicity){
    if((c.toxicity||0)+d.toxicity>100)return {ok:false,msg:`毒性將超過100（目前${Math.round(c.toxicity||0)}）`};
@@ -6156,22 +4404,12 @@ function applyConsumable(d){
  if(d.use){
    if(d.use.hunger)c.hunger=clamp(c.hunger+d.use.hunger,0,120);
    if(d.use.thirst)c.thirst=clamp(c.thirst+d.use.thirst,0,120);
-   if(d.use.hp)c.hp=clamp(c.hp+scaleNumber(d.use.hp)*(combatStats().healingPower/100),0,c.maxHp);
+   if(d.use.hp)c.hp=clamp(c.hp+d.use.hp*(combatStats().healingPower/100),0,c.maxHp);
    if(d.use.hp_percent)c.hp=clamp(c.maxHp*d.use.hp_percent/100,0,c.maxHp);
-   if(d.use.stamina)c.stamina=clamp(c.stamina+scaleNumber(d.use.stamina),0,c.maxStamina);
-   if(d.use.mana)c.mana=clamp(c.mana+scaleNumber(d.use.mana),0,c.maxMana);
+   if(d.use.stamina)c.stamina=clamp(c.stamina+d.use.stamina,0,c.maxStamina);
+   if(d.use.mana)c.mana=clamp(c.mana+d.use.mana,0,c.maxMana);
    if(d.use.mana_percent)c.mana=clamp(c.maxMana*d.use.mana_percent/100,0,c.maxMana);
-   if(d.use.conditions)removeStatuses(d.use.conditions);
-   if(d.use.regeneration){
-     const r=d.use.regeneration;
-     c.buffs=(c.buffs||[]).filter(b=>b.regen_source!=="healing_potion");
-     if(G.battle?.active){
-       const rounds=Math.max(0,Math.floor(Number(r.combat_rounds)||0));
-       if(rounds)G.battle.playerRegeneration={source:d.name,hp_per_round:scaleNumber(Math.max(0,Number(r.combat_hp_per_round)||0)),rounds};
-     }else{
-       c.buffs.push({name:d.name,regen_source:"healing_potion",hp_regen:scaleRate(Math.max(0,Number(r.field_hp_per_hour)||0)),hours:Math.max(0,Number(r.field_hours)||0)});
-     }
-   }
+   if(d.use.conditions)removeStatuses(d.use.conditions)
  }
  if(d.buff)c.buffs.push({...d.buff,hours:d.buff.hours||2,name:d.name});
  return {ok:true,msg:""}
@@ -6226,18 +4464,17 @@ function mapBreadcrumb(ctx){
 }
 function openWorldMapHierarchy(){
  const rows=(DB.realm_region_maps||[]).map(r=>{
-   const p=politicalEntity(r.political_entity_id),primaryIds=r.province_region_ids||[],backgroundIds=r.background_province_region_ids||[],subs=[...new Set([...primaryIds,...backgroundIds])].length;
-   return `<div class="itemrow"><span><b>${p?.name||r.name}</b> <span class="tier">${r.world_tier||p?.world_tier||"—"}</span><br><span class="small">${p?.government_type||""}｜首府：${p?.capital||"未固定"}｜行省級區域 ${subs}${backgroundIds.length?`（含背景推演 ${backgroundIds.length}）`:""}${(r.vassal_polity_ids||[]).length?`｜封臣 ${r.vassal_polity_ids.length}`:""}</span></span><button onclick="openRealmRegionMap('${r.id}')">查看</button></div>`
+   const p=politicalEntity(r.political_entity_id),subs=(r.province_region_ids||[]).length;
+   return `<div class="itemrow"><span><b>${p?.name||r.name}</b> <span class="tier">${r.world_tier||p?.world_tier||"—"}</span><br><span class="small">${p?.government_type||""}｜首府：${p?.capital||"未固定"}｜行省級區域 ${subs}${(r.vassal_polity_ids||[]).length?`｜封臣 ${r.vassal_polity_ids.length}`:""}</span></span><button onclick="openRealmRegionMap('${r.id}')">查看</button></div>`
  }).join("");
  const powerRows=(DB.world_map?.regional_power_region_ids||[]).map(rid=>{const r=worldRegion(rid),ps=regionalPowersForRegion(rid);return `<div class="itemrow"><span><b>${r?.name||rid}</b> <span class="tier">${r?.recommended_tier||"—"}</span><br><span class="small">非主權大區｜主要勢力：${ps.map(x=>x.name).join("、")||"無"}</span></span><button onclick="openLoreScope('region','${rid}','${r?.name||"地區"}・地方誌')">查看</button></div>`}).join("");
- showModal("世界地圖",`<div class="actions"><button type="button" onclick="openWorldMapAtlas('surface')">世界圖面顯示</button></div><div class="card small">主要查看層級：世界地圖 ＞ 王國／政體區域 ＞ 行省級區域。行省內再分城鎮、野外、地下城三類；區域勢力不會被誤列為王國／政體地圖。</div>${rows}${powerRows?`<h3>非主權區域</h3>${powerRows}`:""}`)
+ showModal("世界地圖",`<div class="card small">主要查看層級：世界地圖 ＞ 王國／政體區域 ＞ 行省級區域。行省內再分城鎮、野外、地下城三類；區域勢力不會被誤列為王國／政體地圖。</div>${rows}${powerRows?`<h3>非主權區域</h3>${powerRows}`:""}`)
 }
 function openRealmRegionMap(id){
  const r=realmRegionMap(id);if(!r)return;const p=politicalEntity(r.political_entity_id);
- const provinceIds=[...(r.province_region_ids||[]),...(r.background_province_region_ids||[])].filter((x,i,a)=>a.indexOf(x)===i);
- const provinces=provinceIds.map(provinceRegion).filter(Boolean);
+ const provinces=(r.province_region_ids||[]).map(provinceRegion).filter(Boolean);
  const rows=provinces.map(x=>`<div class="itemrow"><span><b>${x.name}</b> <span class="tier">${x.world_tier}</span><br><span class="small">${x.administrative_type}｜${x.map_status==="playable_current"?"CURRENT可玩":"背景資料"}｜首府：${loc(x.capital_location_id)?.name||p?.capital||"—"}</span></span><button onclick="openProvinceRegionMap('${x.id}')">查看</button></div>`).join("")||`<div class="card small">此政治體目前只建立王國／政體區域層級，尚未展開行省級可玩地圖；既有政治與世界誌資料仍有效。</div>`;
- showModal(`${p?.name||r.name}・${String(p?.government_type||"").includes("王國")?"王國區域地圖":"政體區域地圖"}`,`${mapBreadcrumb({realm:r})}<div class="actions regionmap-head-actions"><button type="button" class="primary" onclick="openRegionMapGraphic('realm','${r.id}')">圖面顯示</button></div><div class="card"><b>${p?.name||r.name}</b> <span class="tier">${r.world_tier||p?.world_tier||"—"}</span><br><span class="small">${p?.government_type||""}｜首府：${p?.capital||"未固定"}｜${p?.identity||""}</span><div class="actions">${p?`<button onclick="openPolity('${p.id}')">政治體</button>`:""}</div></div>${rows}`)
+ showModal(`${p?.name||r.name}・${String(p?.government_type||"").includes("王國")?"王國區域地圖":"政體區域地圖"}`,`${mapBreadcrumb({realm:r})}<div class="card"><b>${p?.name||r.name}</b> <span class="tier">${r.world_tier||p?.world_tier||"—"}</span><br><span class="small">${p?.government_type||""}｜首府：${p?.capital||"未固定"}｜${p?.identity||""}</span><div class="actions">${p?`<button onclick="openPolity('${p.id}')">政治體</button>`:""}</div></div>${rows}`)
 }
 
 function worldTierRank(t){return ({F:0,E:1,D:2,C:3,B:4,A:5,S:6})[t]??-1}
@@ -6259,18 +4496,16 @@ function openProvinceCategoryMap(pid,kind){
    const tier=l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier,here=l.id===G.character.locationId,hours=here?0:directTravelHours(l.id);
    return `<div class="itemrow"><span><b>${l.name}</b> <span class="tier">${tier}</span><br><span class="small">${l.size||provinceCategoryLabel(kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）</span></span>${here?`<span class="tier">目前</span>`:hours!==null?`<button onclick="travel('${l.id}',${hours})">前往 ${hours}小時</button>`:""}</div>`
  }).join("");
- showModal(`${p.name}・${provinceCategoryLabel(kind)}`,`${mapBreadcrumb({realm,province:p})}<div class="actions regionmap-head-actions"><button type="button" onclick="openRegionMapGraphic('province','${p.id}')">行省圖面顯示</button></div><div class="card small">只顯示目前位置與可直接前往的${provinceCategoryLabel(kind)}；不可前往區域已隱藏。依世界層級由高至低排列。</div>${body||"<div class='card small'>目前沒有可直接前往的區域。</div>"}`)
+ showModal(`${p.name}・${provinceCategoryLabel(kind)}`,`${mapBreadcrumb({realm,province:p})}<div class="card small">只顯示目前位置與可直接前往的${provinceCategoryLabel(kind)}；不可前往區域已隱藏。依世界層級由高至低排列。</div>${body||"<div class='card small'>目前沒有可直接前往的區域。</div>"}`)
 }
 function openProvinceRegionMap(id){
- const p=provinceRegion(id);if(!p)return;const realm=realmRegionMap(p.parent_realm_map_id),ctx={realm,province:p},eco=p.economy_profile||null;
- const planned=p.map_status!=="playable_current"?p.planned_content||null:null;
- const plannedCard=planned?`<div class="card"><b>背景地理推演</b><br><span class="small">地形：${esc(planned.geography_profile?.terrain||"未設定")}｜氣候：${esc(planned.geography_profile?.climate||"未設定")}｜水系：${esc(planned.geography_profile?.water||"未設定")}<br>交通：${esc(planned.geography_profile?.transport||"未設定")}<br>治理：${esc(planned.governance||"未設定")}<br>預計城鎮：${(planned.towns||[]).map(esc).join("、")||"未規劃"}<br>預計野外：${(planned.wilds||[]).map(esc).join("、")||"未規劃"}<br>預計地下城：${(planned.dungeons||[]).map(esc).join("、")||"未規劃"}<br>預計NPC：${(planned.npcs||[]).map(esc).join("、")||"未規劃"}</span></div>`:"";
+ const p=provinceRegion(id);if(!p)return;const realm=realmRegionMap(p.parent_realm_map_id),ctx={realm,province:p};
  const kinds=["town","wild","dungeon"];
  const cards=kinds.map(kind=>{
    const all=provinceCategoryLocations(p,kind,false),reachable=provinceCategoryLocations(p,kind,true);
    return `<div class="itemrow"><span><b>${provinceCategoryLabel(kind)}</b><br><span class="small">已建置 ${all.length}｜目前可前往 ${reachable.filter(x=>x.id!==G.character.locationId).length}${reachable.some(x=>x.id===G.character.locationId)?"｜含目前位置":""}</span></span><button onclick="openProvinceCategoryMap('${p.id}','${kind}')">查看</button></div>`
  }).join("");
- showModal(`${p.name}・行省級區域`,`${mapBreadcrumb(ctx)}<div class="actions regionmap-head-actions"><button type="button" class="primary" onclick="openRegionMapGraphic('province','${p.id}')">圖面顯示</button><button type="button" onclick="openRegionMapGraphic('local','${G.character.locationId}')">目前所在地圖面</button></div><div class="card"><b>${p.display_name||p.name}</b> <span class="tier">${p.world_tier}</span><br><span class="small">${p.administrative_type}<br>${p.identity||""}${eco?`<br>經濟繁榮度 ${eco.prosperity_score}/100（${eco.prosperity_label}）｜產業：${(eco.drivers||[]).join("、")}｜限制：${(eco.constraints||[]).join("、")}`:""}</span>${(p.lore_record_ids||[]).length?`<div class="actions"><button onclick="openLoreScope('province_region','${p.id}','${p.name}・地方史')">地方史</button></div>`:""}</div>${plannedCard}<div class="card small">省級地圖簡化為「城鎮／野外／地下城」三類。移動清單只顯示可以前往的區域；不可前往區域不顯示。</div>${cards}`)
+ showModal(`${p.name}・行省級區域`,`${mapBreadcrumb(ctx)}<div class="card"><b>${p.display_name||p.name}</b> <span class="tier">${p.world_tier}</span><br><span class="small">${p.administrative_type}<br>${p.identity||""}</span>${(p.lore_record_ids||[]).length?`<div class="actions"><button onclick="openLoreScope('province_region','${p.id}','${p.name}・地方史')">地方史</button></div>`:""}</div><div class="card small">省級地圖簡化為「城鎮／野外／地下城」三類。移動清單只顯示可以前往的區域；不可前往區域不顯示。</div>${cards}`)
 }
 function openProvinceTerrainMap(pid,kind){return openProvinceCategoryMap(pid,kind)}
 function openSettlementRegionMap(id){
@@ -6279,30 +4514,20 @@ function openSettlementRegionMap(id){
  return openWorldMapHierarchy()
 }
 function openMapLocationDetail(id){
- const l=loc(id);if(!l)return;const ctx=mapHierarchyForLocation(id),ix=locationIntegration(l.id),pc=politicalContextForLocation(l.id),eco=l.local_economy||ctx.province?.economy_profile||null;
+ const l=loc(id);if(!l)return;const ctx=mapHierarchyForLocation(id),ix=locationIntegration(l.id),pc=politicalContextForLocation(l.id);
  const links=(l.links||[]).map(x=>{const d=loc(x.to);return `<div class="itemrow"><span>${d?.name||x.to} <span class="tier">${d?.kind==="town"?(d?.settlement_world_tier||d?.tier):d?.tier||"—"}</span><br><span class="small">${x.hours}小時</span></span>${l.id===G.character.locationId?`<button onclick="travel('${x.to}',${x.hours})">前往</button>`:""}</div>`}).join("");
- showModal(l.name,`${mapBreadcrumb(ctx)}<div class="actions regionmap-head-actions"><button type="button" class="primary" onclick="openRegionMapGraphic('local','${l.id}')">圖面顯示</button>${ctx.province?`<button type="button" onclick="openRegionMapGraphic('province','${ctx.province.id}')">行省圖面</button>`:""}</div><div class="card"><b>${l.name}</b> <span class="tier">${l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier}</span>｜${l.size||mapKindLabel(l.kind)}<br><span class="small">${mapKindLabel(l.kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）${l.kind==="town"?`<br>城市世界層級：${l.settlement_world_tier||l.tier}｜${settlementTierProfile(l)?.label||""}`:""}<br>政治：${pc.polity?.name||"未確認"}｜行省級：${ctx.province?.name||"未建立"}｜城鎮區域：${ctx.settlement?.name||"未建立"}${eco?`<br>經濟繁榮度：${eco.prosperity_score}/100（${eco.prosperity_label}）｜${eco.infrastructure||""}`:""}<br>整合資料：素材${ix.gather_item_ids.length+ix.fish_item_ids.length}｜組織${ix.organization_ids.length}｜神系${ix.pantheon_ids.length}</span><div class="actions"><button onclick="openLocationLore('${l.id}')">地方誌</button>${ctx.settlement?`<button onclick="openSettlementRegionMap('${ctx.settlement.id}')">城鎮區域</button>`:""}</div></div><div class="card"><b>道路連結</b></div>${links||"<div class='small'>沒有已建檔道路。</div>"}`)
+ showModal(l.name,`${mapBreadcrumb(ctx)}<div class="card"><b>${l.name}</b> <span class="tier">${l.kind==="town"?(l.settlement_world_tier||l.tier):l.tier}</span>｜${l.size||mapKindLabel(l.kind)}<br><span class="small">${mapKindLabel(l.kind)}｜安全度 ${locationSafety(l)}/100（${safetyLabel(l)}）${l.kind==="town"?`<br>城市世界層級：${l.settlement_world_tier||l.tier}｜${settlementTierProfile(l)?.label||""}`:""}<br>政治：${pc.polity?.name||"未確認"}｜行省級：${ctx.province?.name||"未建立"}｜城鎮區域：${ctx.settlement?.name||"未建立"}<br>整合資料：素材${ix.gather_item_ids.length+ix.fish_item_ids.length}｜組織${ix.organization_ids.length}｜神系${ix.pantheon_ids.length}</span><div class="actions"><button onclick="openLocationLore('${l.id}')">地方誌</button>${ctx.settlement?`<button onclick="openSettlementRegionMap('${ctx.settlement.id}')">城鎮區域</button>`:""}</div></div><div class="card"><b>道路連結</b></div>${links||"<div class='small'>沒有已建檔道路。</div>"}`)
 }
 function openMap(){
- const current=G?.character?.locationId;
- if(current&&typeof openRegionMapGraphic==="function"&&openRegionMapGraphic("local",current))return;
  const ctx=mapHierarchyForLocation();
  if(ctx.province)return openProvinceRegionMap(ctx.province.id);
  if(ctx.realm)return openRealmRegionMap(ctx.realm.id);
  return openWorldMapHierarchy()
 }
-function travel(id,h,mapRoute){
- const from=loc(G.character.locationId),to=loc(id);
- if(!from||!to)return;
- let route=[from.id,id],travelHours=h;
- if(mapRoute?.mapRoute===true){
-  route=Array.isArray(mapRoute.path)?mapRoute.path:[];
-  if(to.kind!=="town"||route.length<2||route[0]!==from.id||route.at(-1)!==id)return;
-  for(let i=0;i<route.length-1;i++)if(!loc(route[i])?.links?.some(edge=>edge.to===route[i+1]))return;
-  travelHours=route.slice(0,-1).reduce((sum,at,i)=>sum+Number(loc(at).links.find(edge=>edge.to===route[i+1])?.hours||0),0);
- }else if(!from.links.some(x=>x.to===id))return;
+function travel(id,h){
+ const from=loc(G.character.locationId);if(!from.links.some(x=>x.to===id))return;
  closeModal();if(!beginTurn("旅行"))return;
- const routeRisk=route.some(locationId=>["wild","dungeon"].includes(loc(locationId)?.kind));
+ const to=loc(id),routeRisk=["wild","dungeon"].includes(from.kind)||["wild","dungeon"].includes(to.kind);
  G.character.locationId=id;G.character.currentFacility=null;discoverScopeLore("location",id,"旅行");if(to.world_region_id)discoverScopeLore("region",to.world_region_id,"旅行");if(to.political_entity_id)discoverScopeLore("polity",to.political_entity_id,"旅行");
  log("旅行",`抵達${to.name}［${to.tier}］；安全度${locationSafety(to)}/100（${safetyLabel(to)}）。`,"ok");
  let battled=false;
@@ -6310,7 +4535,7 @@ function travel(id,h,mapRoute){
  let evented=false;if(!battled&&["wild","dungeon"].includes(to.kind))evented=maybeAdventureEvent("旅行");
  let socialed=false;if(!battled&&!evented&&["wild","dungeon"].includes(to.kind))socialed=maybePartySocialEvent("旅行");
  if(!battled&&!evented&&!socialed&&["wild","dungeon"].includes(to.kind))maybeOrganizationEncounter("旅行");
- endTurn(travelHours)
+ endTurn(h)
 }
 function showAdventure(){setNavActive("adventure");closeModal();if(!G?.battle?.active){$("#battleBack")?.classList.add("hide");document.body.classList.remove("battle-open");closeBattleSkillPopup()}syncBodyScrollLock();window.scrollTo({top:0,behavior:"smooth"});renderHistoryLog();setTimeout(()=>{ensureActionsVisible();syncBodyScrollLock()},0)}
 
@@ -6321,19 +4546,14 @@ function currentSaveEntry(){
 function saveInfoHtml(){
  const s=currentSaveEntry();
  if(!G)return `<div class="card"><b>目前存檔</b><br><span class="small">尚未開始遊戲。</span></div>`;
- const quota=saveStorageInfo.quota?`${Math.round(saveStorageInfo.quota/1048576)} MB`:"瀏覽器動態配額";return `<div class="card"><b>目前存檔</b><br>${s?`${s.id}<br><span class="small">${s.time||timeText()}｜T${s.turn??G.turn}｜${s.type||"AUTO"}${s.reason?`｜${s.reason}`:""}</span>`:`<span class="small">尚無存檔紀錄</span>`}<br><span class="small">存檔筆數：${G.meta.saveIndex.length}/180｜大容量存檔：IndexedDB｜10×設計目標：${Math.round(SAVE_STORAGE_TARGET_BYTES/1048576)} MB｜目前配額：${quota}</span></div>`
+ return `<div class="card"><b>目前存檔</b><br>${s?`${s.id}<br><span class="small">${s.time||timeText()}｜T${s.turn??G.turn}｜${s.type||"AUTO"}${s.reason?`｜${s.reason}`:""}</span>`:`<span class="small">尚無存檔紀錄</span>`}<br><span class="small">存檔筆數：${G.meta.saveIndex.length}/180</span></div>`
 }
-function openSettings(){showModal("設定",`${saveInfoHtml()}<h3>世界與權柄</h3><div class="actions"><button onclick="openWorldLore()">世界誌 ${knownLore().length}/${DB.lore_system.record_count}</button><button onclick="openPoliticalAuthorityCatalog()">權柄20原型</button></div><hr><div class="actions"><button onclick="manualSave()">手動存檔</button><button onclick="checkForGameUpdate(true)">連線 GitHub 檢查更新</button><button onclick="exportSave()">匯出存檔</button><button class="bad" onclick="resetGame()">重開新檔</button></div><hr><h3>世界資料庫</h3><div class="rulebox">版本：${DB.meta.current_version}<br>職業：${DB.combat_classes.length}<br>戰士／騎士系：${DB.profession_tree.categories["戰士／騎士系"].length}<br>遊俠／盜賊／吟遊系：${DB.profession_tree.categories["遊俠／盜賊／吟遊系"].length}<br>法師／術士系：${DB.profession_tree.categories["法師／術士系"].length}<br>神職／自然系：${DB.profession_tree.categories["神職／自然系"].length}<br>混合／上位／傳說系：${DB.profession_tree.categories["混合／上位／傳說系"].length}<br>技能定義：${Object.values(DB.skill_pools).reduce((s,a)=>s+a.length,0)}<br>技能進階家族：${DB.skill_families.length}<br>裝備：${DB.items.filter(x=>["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(x.type)).length}<br>武器核心：${DB.equipment_system.catalog_counts["武器"]}<br>防具核心：${DB.equipment_system.catalog_counts["防具"]}<br>飾品核心：${DB.equipment_system.catalog_counts["飾品"]}<br>藥劑／戰鬥消耗品核心：${DB.items.filter(x=>x.type==="藥劑").length}<br>技能紀錄：${DB.skill_design_system.skill_records}<br>技能家族：${DB.skill_design_system.family_count}<br>戰鬥職業：${DB.class_design_system.count}<br>裝備核心：${DB.item_material_design_system.equipment_core_count}<br>藥劑：${DB.item_material_design_system.potion_count}<br>退出新生成的舊怪物素材：${DB.item_material_design_system.legacy_monster_materials_retired_from_generation}<br>公會跨職規則：${DB.guild_training.cross_track_rule}<br>同時委託上限：${DB.quest_system.max_active}<br>生成器：${DB.generators.length}（共同邏輯管線）<br>管理AI：${DB.management_ai.length}（輸入／驗證／回退規則）<br>網站模式：${location.protocol==="https:"?"公開HTTPS":"本機／預覽"}｜網域：${location.host||"local"}<br>戰鬥數值核心：${DB.combat_stat_system.count}項<br>CON/SP分離：啟用｜先攻/破甲/韌性/狀態命中：啟用<br>角色成長：Lv1–${DB.progression_system.max_level}｜職業熟練／轉職啟用<br>製作閉環：${DB.items.filter(x=>x.craft_recipe).length}筆配方資料｜鍛造／裁縫／藥劑／附魔介面啟用<br>武器組：8頂層欄＋內部副手（單手武器／盾牌）｜狀態系統：${Object.keys(DB.status_system.definitions).length}種<br>天賦核心：${DB.talent_system.core_count}<br>角色天賦上限：${DB.talent_system.character_limit}<br>體質／生存：${DB.talent_system.category_counts["體質與生存"]}<br>戰鬥專精：${DB.talent_system.category_counts["戰鬥專精"]}<br>魔法／血脈：${DB.talent_system.category_counts["魔法與血脈"]}<br>技巧／生活／命運：${DB.talent_system.category_counts["技巧生活與命運"]}<br>核心種族：${DB.race_system.core_count}<br>常見種族：${DB.race_system.groups["常見種族"].length}<br>精靈分支：${DB.race_system.groups["精靈族"].length}<br>混血種族：${DB.race_system.groups["混血種族"].length}<br>特殊種族：${DB.race_system.groups["特殊種族"].length}<br>角色出身核心：${DB.origin_system.core_count}<br>平民與鄉野：${DB.origin_system.category_counts["平民與鄉野"]}<br>貴族與騎士：${DB.origin_system.category_counts["貴族與騎士"]}<br>軍事與傭兵：${DB.origin_system.category_counts["軍事與傭兵"]}<br>信仰與魔法：${DB.origin_system.category_counts["信仰與魔法"]}<br>詛咒與命運：${DB.origin_system.category_counts["詛咒與命運"]}<br>怪物圖鑑核心：${DB.monster_catalog.core_count}<br>野獸動物：${DB.monster_catalog.category_counts["野獸動物系"]}<br>哥布林／獸人／巨人：${DB.monster_catalog.category_counts["哥布林獸人巨人系"]}<br>龍／亞龍／爬蟲：${DB.monster_catalog.category_counts["龍與亞龍爬蟲系"]}<br>不死：${DB.monster_catalog.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_catalog.category_counts["惡魔與深淵地獄系"]}<br>元素／植物／魔法生物：${DB.monster_catalog.category_counts["元素植物魔法生物系"]}<br>蟲／水生／軟泥：${DB.monster_catalog.category_counts["蟲水生軟泥系"]}<br>怪物掉落核心：${DB.monster_drop_system.core_count}<br>軟泥／魔像：${DB.monster_drop_system.category_counts["軟泥與魔像系"]}<br>哥布林／獸人／巨人：${DB.monster_drop_system.category_counts["哥布林獸人巨人系"]}<br>野獸：${DB.monster_drop_system.category_counts["野獸系"]}<br>龍與爬蟲：${DB.monster_drop_system.category_counts["龍與爬蟲系"]}<br>不死：${DB.monster_drop_system.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_drop_system.category_counts["惡魔與深淵系"]}<br>元素／植物／魔法生物：${DB.monster_drop_system.category_counts["元素植物魔法生物系"]}<br>蟲與水生：${DB.monster_drop_system.category_counts["蟲與水生系"]}<br>素材／通用道具核心：${DB.material_system.core_count}<br>草藥植物：${DB.material_system.category_counts["草藥與植物素材"]}<br>礦石金屬：${DB.material_system.category_counts["礦石與金屬素材"]}<br>怪物素材：${DB.material_system.category_counts["怪物素材"]}<br>食材食物：${DB.material_system.category_counts["食材與食物"]}<br>木材布料皮革：${DB.material_system.category_counts["木材布料皮革"]}<br>寶石結晶：${DB.material_system.category_counts["寶石與魔法結晶"]}<br>卷軸符文書籍：${DB.material_system.category_counts["卷軸符文書籍"]}<br>鑰匙工具寶藏：${DB.material_system.category_counts["鑰匙工具寶藏任務"]}<br>生命回復：${DB.consumable_system.category_counts["生命回復"]}<br>魔力與精力：${DB.consumable_system.category_counts["魔力與精力"]}<br>屬性強化：${DB.consumable_system.category_counts["屬性強化"]}<br>抗性防禦：${DB.consumable_system.category_counts["抗性防禦"]}<br>解除淨化：${DB.consumable_system.category_counts["解除淨化"]}<br>攻擊投擲／塗油：${DB.consumable_system.category_counts["攻擊投擲／塗油"]}<br>特殊煎藥／傳奇：${DB.consumable_system.category_counts["特殊煎藥／傳奇"]}<br>料理：${DB.items.filter(x=>x.type==="料理").length}<br>料理配方：${DB.recipes.length}<br>敵人：${DB.monsters.length}<br>敵方專用素材：${DB.items.filter(x=>x.type==="魔物素材").length}<br>野外地圖：${DB.locations.filter(x=>x.kind==="wild").length}<br>地下城：${DB.locations.filter(x=>x.kind==="dungeon").length}<br>城鎮：${DB.locations.filter(x=>x.kind==="town").length}<br>副職業：${DB.subjobs.length}</div><h3>核心規則</h3><div class="rulebox">設施對話與情報遵守知識來源限制。<br>副職業只能在指定設施且符合能力前置與學費後學習。<br>裝備耐久影響戰鬥加成，鐵匠鋪可修復。<br>戰鬥數值集中於角色卡；包含攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋與狀態抗性。<br>遭遇戰鬥改為彈出式回合制介面，可選一般攻擊、技能、防禦、使用道具與逃跑。<br>B級以上內容仍受前置資格與封印規則限制。<br>掉落規則：只有人型敵人可能掉落金錢與裝備；非人型敵人只能掉落素材。<br>戰鬥職業池為100種。<br>核心裝備200件、藥劑200種、通用素材200種；本版新增200種怪物掉落核心，並建立200裝備升級連結與200藥劑鍊金連結。<br>技能命名採傳統RPG結構：動詞＋名詞／元素＋效果；東方系採原創自然意象＋動作。<br>命名AI：以用途可讀性、區域詞根、怪物家族與世界層級生成名稱，並避開專有作品名稱與過度現實訓練術語。</div>`)}
-async function manualSave(){const id=`MANUAL-${G.meta.characterId.slice(-6)}-T${String(G.turn).padStart(5,"0")}`;G.meta.saveIndex.push({id,turn:G.turn,time:timeText(),type:"MANUAL"});persist();await flushPersistWrites();await requestExpandedSaveStorage();renderAll();log("存檔",`已建立${id}`,"save")}
+function openSettings(){showModal("設定",`${saveInfoHtml()}<h3>世界與權柄</h3><div class="actions"><button onclick="openWorldLore()">世界誌 ${knownLore().length}/${DB.lore_system.record_count}</button><button onclick="openPoliticalAuthorityCatalog()">權柄20原型</button></div><hr><div class="actions"><button onclick="manualSave()">手動存檔</button><button onclick="checkForGameUpdate(true)">檢查遊戲更新</button><button onclick="exportSave()">匯出存檔</button><button class="bad" onclick="resetGame()">重開新檔</button></div><hr><h3>世界資料庫</h3><div class="rulebox">版本：${DB.meta.current_version}<br>職業：${DB.combat_classes.length}<br>戰士／騎士系：${DB.profession_tree.categories["戰士／騎士系"].length}<br>遊俠／盜賊／吟遊系：${DB.profession_tree.categories["遊俠／盜賊／吟遊系"].length}<br>法師／術士系：${DB.profession_tree.categories["法師／術士系"].length}<br>神職／自然系：${DB.profession_tree.categories["神職／自然系"].length}<br>混合／上位／傳說系：${DB.profession_tree.categories["混合／上位／傳說系"].length}<br>技能定義：${Object.values(DB.skill_pools).reduce((s,a)=>s+a.length,0)}<br>技能進階家族：${DB.skill_families.length}<br>裝備：${DB.items.filter(x=>["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(x.type)).length}<br>武器核心：${DB.equipment_system.catalog_counts["武器"]}<br>防具核心：${DB.equipment_system.catalog_counts["防具"]}<br>飾品核心：${DB.equipment_system.catalog_counts["飾品"]}<br>藥劑／戰鬥消耗品核心：${DB.items.filter(x=>x.type==="藥劑").length}<br>技能紀錄：${DB.skill_design_system.skill_records}<br>技能家族：${DB.skill_design_system.family_count}<br>戰鬥職業：${DB.class_design_system.count}<br>裝備核心：${DB.item_material_design_system.equipment_core_count}<br>藥劑：${DB.item_material_design_system.potion_count}<br>退出新生成的舊怪物素材：${DB.item_material_design_system.legacy_monster_materials_retired_from_generation}<br>公會跨職規則：${DB.guild_training.cross_track_rule}<br>同時委託上限：${DB.quest_system.max_active}<br>生成器：${DB.generators.length}（共同邏輯管線）<br>管理AI：${DB.management_ai.length}（輸入／驗證／回退規則）<br>網站模式：${location.protocol==="https:"?"公開HTTPS":"本機／預覽"}｜網域：${location.host||"local"}<br>戰鬥數值核心：${DB.combat_stat_system.count}項<br>CON/SP分離：啟用｜先攻/破甲/韌性/狀態命中：啟用<br>角色成長：Lv1–${DB.progression_system.max_level}｜職業熟練／轉職啟用<br>製作閉環：${DB.items.filter(x=>x.craft_recipe).length}筆配方資料｜鍛造／裁縫／藥劑介面啟用<br>武器組：8頂層欄＋內部副手（單手武器／盾牌）｜狀態系統：${Object.keys(DB.status_system.definitions).length}種<br>天賦核心：${DB.talent_system.core_count}<br>角色天賦上限：${DB.talent_system.character_limit}<br>體質／生存：${DB.talent_system.category_counts["體質與生存"]}<br>戰鬥專精：${DB.talent_system.category_counts["戰鬥專精"]}<br>魔法／血脈：${DB.talent_system.category_counts["魔法與血脈"]}<br>技巧／生活／命運：${DB.talent_system.category_counts["技巧生活與命運"]}<br>核心種族：${DB.race_system.core_count}<br>常見種族：${DB.race_system.groups["常見種族"].length}<br>精靈分支：${DB.race_system.groups["精靈族"].length}<br>混血種族：${DB.race_system.groups["混血種族"].length}<br>特殊種族：${DB.race_system.groups["特殊種族"].length}<br>角色出身核心：${DB.origin_system.core_count}<br>平民與鄉野：${DB.origin_system.category_counts["平民與鄉野"]}<br>貴族與騎士：${DB.origin_system.category_counts["貴族與騎士"]}<br>軍事與傭兵：${DB.origin_system.category_counts["軍事與傭兵"]}<br>信仰與魔法：${DB.origin_system.category_counts["信仰與魔法"]}<br>詛咒與命運：${DB.origin_system.category_counts["詛咒與命運"]}<br>怪物圖鑑核心：${DB.monster_catalog.core_count}<br>野獸動物：${DB.monster_catalog.category_counts["野獸動物系"]}<br>哥布林／獸人／巨人：${DB.monster_catalog.category_counts["哥布林獸人巨人系"]}<br>龍／亞龍／爬蟲：${DB.monster_catalog.category_counts["龍與亞龍爬蟲系"]}<br>不死：${DB.monster_catalog.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_catalog.category_counts["惡魔與深淵地獄系"]}<br>元素／植物／魔法生物：${DB.monster_catalog.category_counts["元素植物魔法生物系"]}<br>蟲／水生／軟泥：${DB.monster_catalog.category_counts["蟲水生軟泥系"]}<br>怪物掉落核心：${DB.monster_drop_system.core_count}<br>軟泥／魔像：${DB.monster_drop_system.category_counts["軟泥與魔像系"]}<br>哥布林／獸人／巨人：${DB.monster_drop_system.category_counts["哥布林獸人巨人系"]}<br>野獸：${DB.monster_drop_system.category_counts["野獸系"]}<br>龍與爬蟲：${DB.monster_drop_system.category_counts["龍與爬蟲系"]}<br>不死：${DB.monster_drop_system.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_drop_system.category_counts["惡魔與深淵系"]}<br>元素／植物／魔法生物：${DB.monster_drop_system.category_counts["元素植物魔法生物系"]}<br>蟲與水生：${DB.monster_drop_system.category_counts["蟲與水生系"]}<br>素材／通用道具核心：${DB.material_system.core_count}<br>草藥植物：${DB.material_system.category_counts["草藥與植物素材"]}<br>礦石金屬：${DB.material_system.category_counts["礦石與金屬素材"]}<br>怪物素材：${DB.material_system.category_counts["怪物素材"]}<br>食材食物：${DB.material_system.category_counts["食材與食物"]}<br>木材布料皮革：${DB.material_system.category_counts["木材布料皮革"]}<br>寶石結晶：${DB.material_system.category_counts["寶石與魔法結晶"]}<br>卷軸符文書籍：${DB.material_system.category_counts["卷軸符文書籍"]}<br>鑰匙工具寶藏：${DB.material_system.category_counts["鑰匙工具寶藏任務"]}<br>生命回復：${DB.consumable_system.category_counts["生命回復"]}<br>魔力與精力：${DB.consumable_system.category_counts["魔力與精力"]}<br>屬性強化：${DB.consumable_system.category_counts["屬性強化"]}<br>抗性防禦：${DB.consumable_system.category_counts["抗性防禦"]}<br>解除淨化：${DB.consumable_system.category_counts["解除淨化"]}<br>攻擊投擲／塗油：${DB.consumable_system.category_counts["攻擊投擲／塗油"]}<br>特殊煎藥／傳奇：${DB.consumable_system.category_counts["特殊煎藥／傳奇"]}<br>料理：${DB.items.filter(x=>x.type==="料理").length}<br>料理配方：${DB.recipes.length}<br>敵人：${DB.monsters.length}<br>敵方專用素材：${DB.items.filter(x=>x.type==="魔物素材").length}<br>野外地圖：${DB.locations.filter(x=>x.kind==="wild").length}<br>地下城：${DB.locations.filter(x=>x.kind==="dungeon").length}<br>城鎮：${DB.locations.filter(x=>x.kind==="town").length}<br>副職業：${DB.subjobs.length}</div><h3>核心規則</h3><div class="rulebox">設施對話與情報遵守知識來源限制。<br>副職業只能在指定設施且符合能力前置與學費後學習。<br>裝備耐久影響戰鬥加成，鐵匠鋪可修復。<br>戰鬥數值集中於角色卡；包含攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋與狀態抗性。<br>遭遇戰鬥改為彈出式回合制介面，可選一般攻擊、技能、防禦、使用道具與逃跑。<br>B級以上內容仍受前置資格與封印規則限制。<br>掉落規則：只有人型敵人可能掉落金錢與裝備；非人型敵人只能掉落素材。<br>戰鬥職業池為100種。<br>核心裝備200件、藥劑200種、通用素材200種；本版新增200種怪物掉落核心，並建立200裝備升級連結與200藥劑鍊金連結。<br>技能命名採傳統RPG結構：動詞＋名詞／元素＋效果；東方系採原創自然意象＋動作。<br>命名AI：以用途可讀性、區域詞根、怪物家族與世界層級生成名稱，並避開專有作品名稱與過度現實訓練術語。</div>`)}
+function manualSave(){const id=`MANUAL-${G.meta.characterId.slice(-6)}-T${String(G.turn).padStart(5,"0")}`;G.meta.saveIndex.push({id,turn:G.turn,time:timeText(),type:"MANUAL"});persist();renderAll();log("存檔",`已建立${id}`,"save")}
 function exportSave(){const b=new Blob([JSON.stringify(G,null,2)],{type:"application/json;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${G.character.name}_${G.meta.characterId}_save.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),400)}
-async function resetGame(){if(confirm("確定清除本機存檔？")){try{pendingPersistSerialized=null;await saveDbClear()}catch(e){}try{for(let i=localStorage.length-1;i>=0;i--){const key=localStorage.key(i);if(key==="chronicle_save"||key==="chronicle_update_backups"||key?.startsWith("chronicle_save_backup_"))localStorage.removeItem(key)}}catch(e){}location.reload()}}
+function resetGame(){if(confirm("確定清除本機存檔？")){try{localStorage.removeItem("chronicle_save")}catch(e){}location.reload()}}
 function runGeneratorAudit(){
  const issues=[];
- issues.push(...databaseGrowthAudit());
-  if(typeof globalThis.runAlchemyHealingRecipeAudit==="function"){
-    const a=globalThis.runAlchemyHealingRecipeAudit();
-    if(!a?.pass)issues.push(...(a?.issues||[]).map(x=>`生命藥劑配方:${x}`))
-  }else issues.push("生命藥劑配方完整性runtime缺失");
  for(const l of DB.locations){
    if(typeof l.safety_score!=="number"||l.safety_score<0||l.safety_score>100)issues.push(`地圖安全度異常:${l.name}`);
    if(!l.safety_label)issues.push(`地圖安全標籤缺失:${l.name}`);
@@ -6348,31 +4568,25 @@ function runGeneratorAudit(){
  for(const c of DB.combat_classes)for(const p of (c.progression_from||[]))if(!cls(p))issues.push(`職業進階引用缺失:${c.name}->${p}`);
  for(const d of DB.items.filter(x=>x.craft_recipe))for(const x of craftRecipeMaterials(d))if(!item(x.id))issues.push(`配方引用缺失:${d.name}->${x.id}`);
  for(const s of Object.values(DB.skill_pools).flat())if(s.status&&!DB.status_system.definitions[s.status])issues.push(`技能狀態缺失:${s.name}->${s.status}`);
-  if(DB.skill_learning_prereq_compare_system?.version!=="SKILL-LEARNING-PREREQ-COMPARE-1.0")issues.push("技能學習前置對比系統缺失");
-  if(typeof skillLearningPrereqState!=="function"||typeof skillPrereqCompareLine!=="function")issues.push("技能學習前置對比runtime缺失");
  for(const d of DB.items||[])for(const id of (d.use?.conditions||[]))if(!DB.status_system.definitions[id])issues.push(`物品狀態引用缺失:${d.name}->${id}`);
  if(DB.status_system?.version!=="STATUS-1.11")issues.push("STATUS-1.11缺失");
  if(DB.quality_audit_system?.version!=="QUALITY-AUDIT-1.0")issues.push("QUALITY-AUDIT-1.0缺失");
  for(const e of (DB.adventure_event_templates||[])){
-   if(!["F","E","D","C","B","A","S"].includes(e.tier))issues.push(`奇遇模板層級無效:${e.name}`);
+   if(tierOrder(e.tier)>tierOrder("E"))issues.push(`奇遇模板超出目前直接模板上限:${e.name}`);
    if(!e.kinds?.length||!e.stat||!Number.isFinite(e.dc))issues.push(`奇遇模板條件不完整:${e.name}`);
-   if(Array.isArray(e.time_windows)&&e.time_windows.some(x=>!Array.isArray(x)||x.length!==2||x.some(v=>!Number.isFinite(Number(v))||Number(v)<0||Number(v)>24)))issues.push(`奇遇時段條件無效:${e.name}`);
-   if(Array.isArray(e.required_intel_tags)&&e.required_intel_tags.some(tag=>!(e.intel_tags||[]).includes(tag)))issues.push(`奇遇情報門檻未列入情報標籤:${e.name}`);
-   const r=e.reward||{},eventLoc=(e.location_ids||[]).map(loc).find(Boolean);
+   const r=e.reward||{};
    for(const id of (r.item_pool||[])){
      const d=item(id);if(!d)issues.push(`奇遇獎勵引用缺失:${e.name}->${id}`);
-     else if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type)||["武器","防具","飾品"].includes(d.catalog_group)||tierOrder(d.tier)>tierOrder(e.tier))issues.push(`奇遇獎勵超規:${e.name}->${d.name}`)
+     else if(["主武器","頭盔","盔甲","手套","鞋子","披風","飾品"].includes(d.type)||tierOrder(d.tier)>tierOrder("E"))issues.push(`奇遇獎勵超規:${e.name}->${d.name}`)
    }
-   const tierCaps={F:12,E:24,D:60,C:120,B:240,A:480,S:900};
-   if(r.money&&r.money[1]>(tierCaps[e.tier]||12))issues.push(`奇遇金錢上限過高:${e.name}`);
-   if(eventLoc&&tierOrder(e.tier)>tierOrder(eventLoc.tier))issues.push(`奇遇層級高於地圖:${e.name}->${eventLoc.name}`)
+   if(r.money&&r.money[1]>12)issues.push(`奇遇金錢上限過高:${e.name}`)
  }
  for(const sp of (DB.companion_species||[])){
    if(!["pet","summon","contract"].includes(sp.companion_kind))issues.push(`夥伴類型錯誤:${sp.name}`);
    if(!DB.companion_system.ai_profiles[sp.ai_profile])issues.push(`夥伴AI缺失:${sp.name}`);
    if(!sp.base_stats||!Number.isFinite(sp.base_stats.hp))issues.push(`夥伴戰鬥資料缺失:${sp.name}`);
  }
- if((DB.companion_species||[]).length<200)issues.push(`夥伴物種核心數量不足:${(DB.companion_species||[]).length}`);
+ if((DB.companion_species||[]).length!==200)issues.push(`夥伴物種數量異常:${(DB.companion_species||[]).length}`);
  if(G?.character?.companions?.length>DB.companion_system.roster_limit)issues.push(`角色夥伴超過上限`);
  if(G?.character?.activeCompanionId&&!G.character.companions.some(x=>x.uid===G.character.activeCompanionId))issues.push(`出戰夥伴引用無效`);
  for(const t of (DB.party_member_templates||[])){
@@ -6380,7 +4594,7 @@ function runGeneratorAudit(){
    if(!t.base_stats||!Number.isFinite(t.base_stats.hp))issues.push(`隊友戰鬥資料缺失:${t.name}`);
    if(tierOrder(t.tier)>tierOrder("C"))issues.push(`普通招募隊友超過C級:${t.name}`);
  }
- if((DB.party_member_templates||[]).length<200)issues.push(`隊友模板核心數量不足:${(DB.party_member_templates||[]).length}`);
+ if((DB.party_member_templates||[]).length!==200)issues.push(`隊友模板數量異常:${(DB.party_member_templates||[]).length}`);
  if(G?.character?.adventureParty){
    const p=G.character.adventureParty;
    if((p.members||[]).length<1||(p.members||[]).length>4)issues.push(`冒險團人數異常:${1+(p.members||[]).length}`);
@@ -6403,8 +4617,8 @@ function runGeneratorAudit(){
    const arr=mealSys?.venues?.[fid]?.[p]||[];if(arr.length<3)issues.push(`餐點資料不足:${fid}/${p}`);
    if(arr.some(x=>!Number.isFinite(x.price)||x.price<=0))issues.push(`餐點價格異常:${fid}/${p}`)
  }
- if((DB.pantheons||[]).length<9)issues.push(`神系核心數量不足:${(DB.pantheons||[]).length}`);
- if((DB.faith_entities||[]).length<100)issues.push(`信仰實體核心數量不足:${(DB.faith_entities||[]).length}`);
+ if((DB.pantheons||[]).length!==9)issues.push(`神系數量異常:${(DB.pantheons||[]).length}`);
+ if((DB.faith_entities||[]).length!==100)issues.push(`信仰實體數量異常:${(DB.faith_entities||[]).length}`);
  const faithIds=new Set((DB.faith_entities||[]).map(x=>x.id)),pantheonIds=new Set((DB.pantheons||[]).map(x=>x.id));
  for(const e of (DB.faith_entities||[])){
    if(!pantheonIds.has(e.pantheon_id))issues.push(`信仰神系引用缺失:${e.name}`);
@@ -6420,13 +4634,10 @@ function runGeneratorAudit(){
    if(f.patronDeityId&&!deity(f.patronDeityId))issues.push(`角色主神引用無效`);
    if(f.oathId&&!(DB.faith_oaths||[]).some(x=>x.id===f.oathId))issues.push(`角色誓言引用無效`)
  }
- const orgRows=DB.world_organizations||[],intentionalOrgReduction=Math.max(0,Number(DB.affiliation_identity_depth_system?.adventure_consolidation?.reduction||0));
- const orgFloor=Math.max(80,100-intentionalOrgReduction);
- if(orgRows.length<orgFloor)issues.push(`世界組織核心數量不足:${orgRows.length}/${orgFloor}`);
- const orgIds=new Set(orgRows.map(x=>x.id));
- const alignCount=orgRows.reduce((m,x)=>(m[x.alignment]=(m[x.alignment]||0)+1,m),{}),orgTotal=Math.max(1,orgRows.length);
- const alignRatio={light:(alignCount.light||0)/orgTotal,neutral:(alignCount.neutral||0)/orgTotal,dark:(alignCount.dark||0)/orgTotal};
- if((alignCount.light||0)<5||(alignCount.dark||0)<10||(alignCount.neutral||0)<30||(alignCount.undefined||0)>0)issues.push(`世界組織核心陣營分布不足:${JSON.stringify({count:alignCount,ratio:Object.fromEntries(Object.entries(alignRatio).map(([k,v])=>[k,Math.round(v*1000)/1000]))})}`);
+ if((DB.world_organizations||[]).length!==100)issues.push(`世界組織數量異常:${(DB.world_organizations||[]).length}`);
+ const orgIds=new Set((DB.world_organizations||[]).map(x=>x.id));
+ const alignCount=(DB.world_organizations||[]).reduce((m,x)=>(m[x.alignment]=(m[x.alignment]||0)+1,m),{});
+ if(alignCount.light!==10||alignCount.dark!==20||alignCount.neutral!==70)issues.push(`世界組織陣營分布異常:${JSON.stringify(alignCount)}`);
  for(const o of (DB.world_organizations||[])){
    if(!DB.facilities[o.primary_facility])issues.push(`組織設施引用缺失:${o.name}`);
    if(!o.joinable||!o.mission_issuer||!o.can_be_enemy)issues.push(`組織功能不完整:${o.name}`)
@@ -6458,9 +4669,9 @@ function runGeneratorAudit(){
    for(const mid of (c.monster_reference_ids||[]))if(!IDX.monster.has(mid))issues.push(`夥伴魔物關聯缺失:${c.name}->${mid}`)
  }
  if((G?.worldState?.integratedEvents||[]).length>60)issues.push("整合世界事件超過60筆");
- if((DB.political_entities||[]).length<15)issues.push(`政治單位核心數量不足:${(DB.political_entities||[]).length}`);
- if((DB.world_regions||[]).length<20)issues.push(`宏觀地區核心數量不足:${(DB.world_regions||[]).length}`);
- if((DB.culture_profiles||[]).length<20)issues.push(`文化資料核心數量不足:${(DB.culture_profiles||[]).length}`);
+ if((DB.political_entities||[]).length!==18)issues.push(`政治單位數量異常:${(DB.political_entities||[]).length}`);
+ if((DB.world_regions||[]).length!==20)issues.push(`宏觀地區數量異常:${(DB.world_regions||[]).length}`);
+ if((DB.culture_profiles||[]).length!==20)issues.push(`文化資料數量異常:${(DB.culture_profiles||[]).length}`);
  const polityIds=new Set((DB.political_entities||[]).map(x=>x.id)),regionIds=new Set((DB.world_regions||[]).map(x=>x.id)),cultureIds=new Set((DB.culture_profiles||[]).map(x=>x.id));
  for(const p of (DB.political_entities||[])){if(!regionIds.has(p.core_region_id))issues.push(`政治體核心地區缺失:${p.name}`);if(!cultureIds.has(p.culture_id))issues.push(`政治體文化缺失:${p.name}`);if(p.vassal_of&&!polityIds.has(p.vassal_of))issues.push(`政治體宗主引用缺失:${p.name}`)}
  for(const r of (DB.political_relations||[])){if(!polityIds.has(r.a)||!polityIds.has(r.b))issues.push(`政治關係引用缺失:${r.a}/${r.b}`);if(r.score<-100||r.score>100)issues.push(`政治關係值越界:${r.a}/${r.b}`)}
@@ -6476,8 +4687,8 @@ function runGeneratorAudit(){
  for(const [k,v] of Object.entries(G?.worldState?.politicalRelations||{}))if(v.score<-100||v.score>100)issues.push(`動態政治關係越界:${k}`);
 
  const authTierIds=new Set((DB.authority_tiers||[]).map(x=>x.id)),authRightIds=new Set((DB.authority_rights_catalog||[]).map(x=>x.id)),authIds=new Set((DB.authority_archetypes||[]).map(x=>x.id));
- if((DB.authority_archetypes||[]).length<20)issues.push(`權力原型核心數量不足:${(DB.authority_archetypes||[]).length}`);
- const authorityProfilePolityIds=new Set();for(const ap of (DB.polity_authority_profiles||[])){if(authorityProfilePolityIds.has(ap.polity_id))issues.push(`政治體權力檔案重複:${ap.polity_id}`);authorityProfilePolityIds.add(ap.polity_id);if(!politicalEntity(ap.polity_id))issues.push(`政治體權力檔案指向無效政體:${ap.polity_id}`)}
+ if((DB.authority_archetypes||[]).length!==20)issues.push(`權力原型數量異常:${(DB.authority_archetypes||[]).length}`);
+ if((DB.polity_authority_profiles||[]).length!==18)issues.push(`政治體權力檔案數量異常:${(DB.polity_authority_profiles||[]).length}`);
  if((DB.political_authority_catalog||[]).length)issues.push(`舊權力catalog仍在參與資料:${DB.political_authority_catalog.length}`);
  for(const a of (DB.authority_archetypes||[])){
    if(!a.succession_method||!a.jurisdiction||!a.symbols?.length||!a.subordinate_titles?.length)issues.push(`權力原型資料不完整:${a.name||a.id}`);
@@ -6496,10 +4707,6 @@ function runGeneratorAudit(){
      if(o.authority_archetype_id&&!authIds.has(o.authority_archetype_id))issues.push(`政治體主權原型缺失:${p.name}/${o.title}`)
    }
  }
- if(typeof globalThis.runPoliticalHierarchyDepthAudit==="function"){
-   const pha=globalThis.runPoliticalHierarchyDepthAudit();
-   if(!pha?.pass)issues.push(...(pha?.issues||[]).map(x=>`政治階層深化:${x}`))
- }else issues.push("政治階層深化runtime缺失");
  for(const l of (DB.locations||[]))if(l.kind==='town'&&l.world_region_id==='REG-18'){
    if(!l.local_authority)issues.push(`CURRENT聚落地方統治缺失:${l.name}`);
    else if(!authTierIds.has(l.local_authority.authority_tier))issues.push(`CURRENT地方權級缺失:${l.name}`)
@@ -6509,16 +4716,12 @@ function runGeneratorAudit(){
    const ap=profileByPolity.get(e.polityId),ids=new Set((ap?.office_nodes||[]).map(x=>x.id));
    if(!ap||!ids.has(e.a)||!ids.has(e.b))issues.push(`權力事件職位引用缺失:${e.polityId}/${e.a}/${e.b}`)
  }
- normalizePoliticalStandingState();
  for(const [pid,v] of Object.entries(G?.character?.politicalStanding||{}))if(!politicalEntity(pid)||v<-100||v>100)issues.push(`政治聲望異常:${pid}/${v}`);
 
  const dsc=DB.discipline_factions||[],dids=new Set(dsc.map(x=>x.id)),sfs=new Set((DB.skill_families||[]).map(x=>x.id)),cids=new Set(DB.combat_classes.map(x=>x.id));
- const discConsolidation=DB.affiliation_identity_depth_system?.discipline_consolidation||{};
- const physicalDisciplineFloor=Math.max(1,Number(discConsolidation.physical_after||25));
- const magicDisciplineFloor=Math.max(1,Number(discConsolidation.magic_after||24));
- if(dsc.filter(x=>x.track==="physical").length<physicalDisciplineFloor)issues.push(`物理流派核心數量不足:${dsc.filter(x=>x.track==="physical").length}/${physicalDisciplineFloor}`);
- if(dsc.filter(x=>x.track==="magic").length<magicDisciplineFloor)issues.push(`魔法流派核心數量不足:${dsc.filter(x=>x.track==="magic").length}/${magicDisciplineFloor}`);
- if(dids.size!==dsc.length)issues.push(`流派ID重複:${dids.size}/${dsc.length}`);
+ if(dsc.filter(x=>x.track==="physical").length!==25)issues.push(`物理流派數量異常:${dsc.filter(x=>x.track==="physical").length}`);
+ if(dsc.filter(x=>x.track==="magic").length!==24)issues.push(`魔法流派數量異常:${dsc.filter(x=>x.track==="magic").length}`);
+ if(dids.size!==49)issues.push(`流派ID重複或數量異常:${dids.size}`);
  const dnames=new Set();for(const d of dsc){
    if(dnames.has(d.name))issues.push(`流派名稱重複:${d.name}`);dnames.add(d.name);
    if(d.parent_org_id&&!orgIds.has(d.parent_org_id))issues.push(`流派父組織缺失:${d.name}->${d.parent_org_id}`);
@@ -6541,7 +4744,7 @@ function runGeneratorAudit(){
  }
 
  const et=DB.eastern_sword_traditions||[],ef=DB.eastern_sword_figures||[],etsk=DB.eastern_sword_techniques||[];
- if(et.length<3)issues.push(`東方劍術核心傳承數量不足:${et.length}`);
+ if(et.length!==3)issues.push(`東方劍術核心傳承數量異常:${et.length}`);
  if(!et.some(x=>x.id==="EST-THUNDERCLAP")||!et.some(x=>x.id==="EST-RAIKO")||!et.some(x=>x.id==="EST-YAGYU-MIND"))issues.push("雷鳴／雷煌／柳生唯心傳承缺失");
  if(!disciplineFor("DSC-PHY-31")||disciplineFor("DSC-PHY-31").discovery!=="hidden_restricted")issues.push("雷煌流隱藏流派設定缺失");
  if((disciplineFor("DSC-PHY-31")?.dialogue_record_ids||[]).length||(disciplineFor("DSC-PHY-31")?.intel_record_ids||[]).length)issues.push("雷煌流誤接入普通公開對話／情報");
@@ -6556,8 +4759,9 @@ function runGeneratorAudit(){
  if((DB.named_weapons||[]).filter(x=>String(x.id).startsWith("NW-RAIKO-")).some(x=>x.acquisition?.includes("普通商店" )===false?false:false)){}
 
  const st=DB.s_tier_combatants||[],reservedS=DB.s_tier_reserved_slots||[],stIds=new Set(st.map(x=>x.id));
- if(st.length>40)issues.push(`S級已確認人數超過全球上限:${st.length}/40`);
- if(st.length+reservedS.length>40)issues.push(`S級全球席位超過上限:${st.length+reservedS.length}/40`);
+ if(st.length!==30)issues.push(`S級已確認人數異常:${st.length}`);
+ if(reservedS.length!==10)issues.push(`S級保留席數異常:${reservedS.length}`);
+ if(st.length+reservedS.length!==40)issues.push(`S級全球席位總數異常:${st.length+reservedS.length}`);
  if(stIds.size!==st.length)issues.push("S級人物ID重複");
  for(const x of reservedS){
    if(x.status!=="reserved_blank"||x.name!==null||x.race_id!==null||x.background!==null||x.locked_for_future!==true)issues.push(`S級保留席被污染:${x.slot_id}`)
@@ -6581,16 +4785,16 @@ function runGeneratorAudit(){
  if((G?.worldState?.sTierEvents||[]).length>20)issues.push("S級世界影響事件超過20筆");
 
  const cpo=DB.continental_political_order,ou=DB.overseas_unknown_horizons||[];
- if(!cpo||cpo.political_unit_count<17||cpo.governed_polity_count<14||cpo.regional_power_count<2||cpo.nonstate_political_zone_count<1)issues.push("大陸政治體系統缺失或核心數量不足");
+ if(!cpo||cpo.political_unit_count!==20||cpo.governed_polity_count!==17||cpo.regional_power_count!==2||cpo.nonstate_political_zone_count!==1)issues.push("大陸政治體系統缺失或數量異常");
  if(politicalEntity("POL-020")?.name!=="黑月深庭")issues.push("POL-020未修正為黑月深庭");
  if(politicalEntity("POL-020")?.primary_authority_archetype_id!=="AUT-005")issues.push("黑月深庭主權原型錯誤");
  if(worldRegion("REG-20")?.political_entity_id!==null)issues.push("龍脊火山群誤掛政治體");
  if(worldRegion("REG-20")?.political_status!=="unclaimed_fragmented")issues.push("龍脊火山群無主狀態缺失");
  const stone=worldRegion("REG-13");if(!stone?.secondary_political_entity_ids?.includes("POL-020")||stone.layered_sovereignty!==true)issues.push("石冠山脈／黑月深庭重疊主權缺失");
  for(const rid of (stone?.secondary_political_entity_ids||[]))if(!politicalEntity(rid))issues.push(`宏觀地區次級政治體引用缺失:${rid}`);
- if(ou.length<3)issues.push(`海外未知文明核心數量不足:${ou.length}`);
+ if(ou.length!==3)issues.push(`海外未知文明數量異常:${ou.length}`);
  for(const x of ou){
-   if(!["魔族","魔裔","龍族","鳳族"].includes(x.people))issues.push(`海外未知族群異常:${x.people}`);
+   if(!["魔族","龍族","鳳族"].includes(x.people))issues.push(`海外未知族群異常:${x.people}`);
    for(const k of ["known_political_entity_id","known_name","known_capital","known_government","known_ruler","known_borders"])if(x[k]!==null)issues.push(`海外未知欄位被污染:${x.people}/${k}`);
  }
  for(const sid of ["ST-28","ST-29","ST-30"])if(sTierCombatant(sid)?.primary_polity_id!==null)issues.push(`古龍被誤掛國籍:${sid}`);
@@ -6598,10 +4802,10 @@ function runGeneratorAudit(){
 
  const wh=DB.world_history_system,ht=DB.world_timeline||[],hp=DB.historical_subperiods||[],hc=DB.historical_causal_chains||[],hd=DB.historical_disputes||[];
  if(!wh||wh.version!=="HISTORY-2.0")issues.push("HISTORY-2.0缺失");
- if(hp.length<12)issues.push(`歷史細分時期核心數量不足:${hp.length}`);
- if(ht.length<82)issues.push(`世界史年表核心數量不足:${ht.length}`);
- if(hc.length<14)issues.push(`歷史因果鏈核心數量不足:${hc.length}`);
- if(hd.length<8)issues.push(`爭議史核心數量不足:${hd.length}`);
+ if(hp.length!==12)issues.push(`歷史細分時期數量異常:${hp.length}`);
+ if(ht.length!==82)issues.push(`世界史年表數量異常:${ht.length}`);
+ if(hc.length!==14)issues.push(`歷史因果鏈數量異常:${hc.length}`);
+ if(hd.length!==8)issues.push(`爭議史數量異常:${hd.length}`);
  const heIds=new Set(ht.map(x=>x.id));if(heIds.size!==ht.length)issues.push("世界史事件ID重複");
  const eraMap=new Map((DB.historical_eras||[]).map(x=>[x.id,x])),perMap=new Map(hp.map(x=>[x.id,x]));
  for(const e of ht){
@@ -6622,14 +4826,14 @@ function runGeneratorAudit(){
  const sh=systemDomainHealth();issues.push(...sh.issues);
  if(DB.system_orchestrator?.version!=="ORCHESTRATOR-3.0")issues.push("ORCHESTRATOR-3.0缺失");
  if(DB.generation_pipeline?.version!=="GEN-PIPE-2.0")issues.push("GEN-PIPE-2.0缺失");
- if((DB.regional_content_profiles||[]).length<21)issues.push(`區域內容檔案核心數量不足:${(DB.regional_content_profiles||[]).length}`);
- if((DB.regional_npc_archetypes||[]).length<126)issues.push(`地方NPC原型核心數量不足:${(DB.regional_npc_archetypes||[]).length}`);
- if((DB.regional_adventure_hooks||[]).length<84)issues.push(`區域冒險脈絡核心數量不足:${(DB.regional_adventure_hooks||[]).length}`);
- if((DB.regional_life_events||[]).length<63)issues.push(`區域生活事件核心數量不足:${(DB.regional_life_events||[]).length}`);
- if((DB.quest_templates||[]).length<24)issues.push(`公會委託模板核心數量不足:${(DB.quest_templates||[]).length}`);
+ if((DB.regional_content_profiles||[]).length!==21)issues.push(`區域內容檔案數量異常:${(DB.regional_content_profiles||[]).length}`);
+ if((DB.regional_npc_archetypes||[]).length!==126)issues.push(`地方NPC原型數量異常:${(DB.regional_npc_archetypes||[]).length}`);
+ if((DB.regional_adventure_hooks||[]).length!==84)issues.push(`區域冒險脈絡數量異常:${(DB.regional_adventure_hooks||[]).length}`);
+ if((DB.regional_life_events||[]).length!==63)issues.push(`區域生活事件數量異常:${(DB.regional_life_events||[]).length}`);
+ if((DB.quest_templates||[]).length!==24)issues.push(`公會委託模板數量異常:${(DB.quest_templates||[]).length}`);
  const expectedAdventureEvents=DB.integration_registry?.counts?.adventure_event_templates??(DB.adventure_event_templates||[]).length;if((DB.adventure_event_templates||[]).length!==expectedAdventureEvents)issues.push(`奇遇模板數量異常:${(DB.adventure_event_templates||[]).length}/${expectedAdventureEvents}`);
- if((DB.dialogue_database?.records||[]).length<546)issues.push(`對話資料核心數量不足:${(DB.dialogue_database?.records||[]).length}`);
- if((DB.intel_database?.records||[]).length<546)issues.push(`情報資料核心數量不足:${(DB.intel_database?.records||[]).length}`);
+ if((DB.dialogue_database?.records||[]).length!==546)issues.push(`對話資料數量異常:${(DB.dialogue_database?.records||[]).length}`);
+ if((DB.intel_database?.records||[]).length!==546)issues.push(`情報資料數量異常:${(DB.intel_database?.records||[]).length}`);
  const rgIds=new Set((DB.world_regions||[]).map(x=>x.id));
  for(const x of DB.regional_content_profiles||[]){if(!rgIds.has(x.region_id))issues.push(`區域內容地區斷鏈:${x.id}`);for(const eid of x.history_event_ids||[])if(!historyEvent(eid))issues.push(`區域內容歷史斷鏈:${x.id}->${eid}`)}
  for(const x of DB.regional_npc_archetypes||[]){if(!rgIds.has(x.region_id))issues.push(`NPC原型地區斷鏈:${x.id}`);if(x.combat_tier_ceiling&&tierOrder(x.combat_tier_ceiling)>tierOrder("C"))issues.push(`普通NPC原型戰力越權:${x.id}`)}
@@ -6675,14 +4879,11 @@ function runGeneratorAudit(){
    if(!(lp.wilderness_map_ids||[]).length||!(lp.dungeon_map_ids||[]).length)issues.push("洛文省域野外／地下城資料缺失");
  }
 
- if((DB.regional_powers||[]).length<2)issues.push(`區域勢力核心數量不足:${(DB.regional_powers||[]).length}`);
+ if((DB.regional_powers||[]).length!==2)issues.push(`區域勢力數量異常:${(DB.regional_powers||[]).length}`);
  for(const rp of (DB.regional_powers||[])){if(rp.recognized_sovereignty!==false)issues.push(`區域勢力誤具主權:${rp.name}`);if(politicalEntity(rp.legacy_polity_id))issues.push(`退役政體仍存在:${rp.legacy_polity_id}`)}
- for(const rid of ["REG-17"]){const r=worldRegion(rid);if(r?.political_entity_id!==null)issues.push(`區域勢力地區誤掛政體:${rid}`);if(!regionalPowersForRegion(rid).length)issues.push(`區域勢力地區缺勢力:${rid}`)}
- const blackTide=worldRegion("REG-10");if(blackTide?.political_entity_id!=="POL-010")issues.push("黑潮群島主權未建立為POL-010");if(!regionalPowersForRegion("REG-10").length)issues.push("黑潮群島幕府軍政勢力缺失");
- for(const id of ["POL-005","POL-006","POL-018"])if(politicalEntity(id))issues.push(`已整併政治體仍存在:${id}`);
+ for(const rid of ["REG-10","REG-17"]){const r=worldRegion(rid);if(r?.political_entity_id!==null)issues.push(`區域勢力地區誤掛政體:${rid}`);if(!regionalPowersForRegion(rid).length)issues.push(`區域勢力地區缺勢力:${rid}`)}
  for(const pid of ["POL-007","POL-008","POL-009"]){if(politicalEntity(pid)?.government_type!=="自由都市")issues.push(`自由都市類型未統整:${pid}`)}
- const disciplineCanonicalFloor=Math.max(1,Number(DB.affiliation_identity_depth_system?.discipline_consolidation?.canonical_after||49));
- if((DB.discipline_factions||[]).length<disciplineCanonicalFloor)issues.push(`流派核心數量不足:${DB.discipline_factions?.length}/${disciplineCanonicalFloor}`);
+ if((DB.discipline_factions||[]).length!==49)issues.push(`流派精簡未達49:${DB.discipline_factions?.length}`);
  for(const id of ["EST-THUNDERCLAP","EST-RAIKO","EST-YAGYU-MIND"]){if(!(DB.eastern_sword_traditions||[]).some(x=>x.id===id))issues.push(`東方核心傳承缺失:${id}`)}
  if(!disciplineFor("DSC-PHY-31"))issues.push("雷煌流canonical流派缺失");
  for(const [oldId,newId] of Object.entries(DB.discipline_merge_map||{})){if(!disciplineFor(newId))issues.push(`流派整併目標缺失:${oldId}->${newId}`);if((DB.discipline_factions||[]).some(x=>x.id===oldId))issues.push(`舊流派未退役:${oldId}`)}
@@ -6693,12 +4894,12 @@ function runGeneratorAudit(){
        lhist=DB.local_historical_incidents||[],folk=DB.regional_folklore||[],rum=DB.regional_rumors||[],
        packs=DB.generator_material_packs||[];
  if(!wm||wm.version!=="WORLD-MATERIAL-1.0")issues.push("WORLD-MATERIAL-1.0缺失");
- if(fest.length<40)issues.push(`文化節慶核心數量不足:${fest.length}`);
- if(myths.length<27)issues.push(`神話母題核心數量不足:${myths.length}`);
- if(lhist.length<40)issues.push(`地方微歷史核心數量不足:${lhist.length}`);
- if(folk.length<40)issues.push(`地方民俗核心數量不足:${folk.length}`);
- if(rum.length<100)issues.push(`地方傳聞核心數量不足:${rum.length}`);
- if(packs.length<20)issues.push(`區域素材包核心數量不足:${packs.length}`);
+ if(fest.length!==40)issues.push(`文化節慶數量異常:${fest.length}`);
+ if(myths.length!==27)issues.push(`神話母題數量異常:${myths.length}`);
+ if(lhist.length!==40)issues.push(`地方微歷史數量異常:${lhist.length}`);
+ if(folk.length!==40)issues.push(`地方民俗數量異常:${folk.length}`);
+ if(rum.length!==100)issues.push(`地方傳聞數量異常:${rum.length}`);
+ if(packs.length!==20)issues.push(`區域素材包數量異常:${packs.length}`);
  for(const r of DB.world_regions||[]){
    const pack=generatorMaterialPackFor(r.id);if(!pack)issues.push(`地區素材包缺失:${r.id}`);
    if(localHistoryFor(r.id).length<2)issues.push(`地方微歷史不足:${r.id}`);
@@ -6712,7 +4913,7 @@ function runGeneratorAudit(){
 
  const wrs=DB.world_relationship_system,hr=DB.historical_relationship_records||[],hri=DB.historical_relationship_index||{};
  if(!wrs||wrs.version!=="RELATION-HISTORY-1.0")issues.push("RELATION-HISTORY-1.0缺失");
- if(hr.length<222)issues.push(`歷史關係核心數量不足:${hr.length}`);
+ if(hr.length!==222)issues.push(`歷史關係數量異常:${hr.length}`);
  const hrIds=new Set(hr.map(x=>x.id));if(hrIds.size!==hr.length)issues.push("歷史關係ID重複");
  for(const r of hr){
    if(r.score<-100||r.score>100)issues.push(`關係分數越界:${r.id}`);
@@ -6731,20 +4932,11 @@ function runGeneratorAudit(){
  const otherCount=(DB.items||[]).length-eqCount-potCount;
  const craftCount=(DB.items||[]).filter(x=>x.craft_recipe).length;
  if(ics.version!=="ITEM-CATALOG-1.1")issues.push("ITEM-CATALOG-1.1缺失");
- if((DB.items||[]).length<(DB.hard_rules.item_total_core_count||1098))issues.push(`物品核心總數不足:${(DB.items||[]).length}`);
- if(eqCount<352)issues.push(`裝備核心數量不足:${eqCount}`);
- if(DB.equipment_depth_system?.version!=="EQUIPMENT-DEPTH-1.0")issues.push("EQUIPMENT-DEPTH-1.0缺失");
- const setSizes=new Set();
- for(const set of DB.equipment_sets||[]){
-   const pieces=[...new Set(set.pieces||[])];setSizes.add(pieces.length);
-   if(!set.id||!set.name||pieces.length<2)issues.push(`套裝定義異常:${set.id||"未知"}`);
-   for(const id of pieces)if(!item(id))issues.push(`套裝部件不存在:${set.id}/${id}`);
-   for(const b of set.bonuses||[])if(!(Number(b.pieces)>0)||Number(b.pieces)>pieces.length)issues.push(`套裝門檻異常:${set.id}/${b.pieces}`)
- }
- for(const n of [3,5,8])if(!setSizes.has(n))issues.push(`套裝件數範例缺失:${n}件`);
- if(potCount<240)issues.push(`藥劑核心數量不足:${potCount}`);
- if(otherCount<(DB.hard_rules.general_item_core_count||578))issues.push(`一般道具核心數量不足:${otherCount}`);
- if(craftCount<520)issues.push(`可製作品核心數量不足:${craftCount}`);
+ if((DB.items||[]).length!==(DB.hard_rules.item_total_core_count||1098))issues.push(`物品總數異常:${(DB.items||[]).length}`);
+ if(eqCount!==280)issues.push(`裝備數量異常:${eqCount}`);
+ if(potCount!==240)issues.push(`藥劑數量異常:${potCount}`);
+ if(otherCount!==(DB.hard_rules.general_item_core_count||578))issues.push(`一般道具數量異常:${otherCount}`);
+ if(craftCount!==520)issues.push(`可製作品數量異常:${craftCount}`);
  if((DB.items||[]).some(x=>x.id?.startsWith("EQ31-")&&["A","S"].includes(x.tier)))issues.push("1.31新增裝備出現A/S級");
  for(const x of (DB.items||[]).filter(x=>x.id?.startsWith("EQ31-")||x.id?.startsWith("P31-"))){
    if(!x.craft_recipe)issues.push(`新增製作品缺配方:${x.id}`);
@@ -6752,33 +4944,14 @@ function runGeneratorAudit(){
  for(const fid of ["general","blacksmith","tailor","alchemy","enchanter","mageguild","church","clinic"]){
    for(const iid of DB.facilities?.[fid]?.stock||[])if(!item(iid))issues.push(`商店庫存引用缺失:${fid}/${iid}`);
  }
- const gatherToolIds=DB.gather_tool_market_system?.general_store_tool_ids||["MAT-UTIL-08","MAT-UTIL-09","MAT-UTIL-10","I-GATHER-KNIFE"];
- for(const id of gatherToolIds){
-   const d=item(id);if(!d)issues.push(`採集工具缺失:${id}`);
-   else if(!(DB.facilities?.general?.stock||[]).includes(id))issues.push(`雜貨鋪未販售採集工具:${d.name}`)
- }
- for(const effect of ["mining","woodcut","fishing","gather"])if(!(DB.items||[]).some(d=>d?.tool_effect===effect))issues.push(`採集工具效果缺失:${effect}`);
- if(typeof gatherToolEffectForItem!=="function"||typeof gatherLocationEntries!=="function")issues.push("採集工具runtime缺失");
 
  if(DB.system_audit_registry?.version!=="SYSTEM-AUDIT-3.0")issues.push("SYSTEM-AUDIT-3.0缺失");
- if(DB.generator_ai_coverage_system?.version!=="GEN-AI-COVERAGE-1.0")issues.push("GEN-AI-COVERAGE-1.0缺失");
- const coverageDomains=["combat_character","world_simulation","persistence_audit","character_generation"];
- for(const domainId of coverageDomains){
-  const d=(DB.system_orchestrator?.domains||[]).find(x=>x?.id===domainId);
-  if(!d?.generator_ids?.length)issues.push(`生成器配對缺失:${domainId}`);
-  if(!d?.management_ai_ids?.length)issues.push(`管理AI配對缺失:${domainId}`);
- }
- const requiredRuntimeContracts=[
-  ["GEN-COMBAT-CHARACTER","generateCombatCharacterProfile"],["GEN-WORLD-SIMULATION","generateWorldSimulationDecision"],["GEN-SAVE-AUDIT-SNAPSHOT","generateSaveAuditSnapshot"],["GEN-CHARACTER-PROFILE","generateCharacterProfile"],
-  ["AI-COMBAT-CHARACTER","manageCombatCharacterProfile"],["AI-WORLD-SIMULATION","manageWorldSimulation"],["AI-SAVE-AUDIT-GOVERNANCE","manageSaveAudit"],["AI-CHARACTER-GENERATION","manageCharacterGeneration"]
- ];
- for(const [id,fn] of requiredRuntimeContracts)if(!generatorRuntimeFunctionExists(fn))issues.push(`治理runtime缺失:${id}->${fn}`);
  for(const g of DB.generators||[]){
    if(g.runtime_status==="IMPLEMENTED"&&!generatorRuntimeFunctionExists(g.runtime_function))issues.push(`生成器runtime缺失:${g.id}->${g.runtime_function||"null"}`);
    if(g.audit_status!=="PASS")issues.push(`生成器未通過系統稽核:${g.id}`);
  }
  for(const a of DB.management_ai||[])if(a.audit_status!=="PASS")issues.push(`管理AI未通過系統稽核:${a.id}`);
- const retiredPolities=new Set(["POL-017"]);
+ const retiredPolities=new Set(["POL-010","POL-017"]);
  for(const [name,rows] of [["regional_content_profiles",DB.regional_content_profiles],["regional_economy_profiles",DB.regional_economy_profiles],["regional_npc_archetypes",DB.regional_npc_archetypes],["regional_adventure_hooks",DB.regional_adventure_hooks]]){
    for(const x of rows||[])if(x.polity_id&&retiredPolities.has(x.polity_id))issues.push(`退役政體殘留:${name}/${x.id}/${x.polity_id}`)
  }
@@ -6789,35 +4962,11 @@ function runGeneratorAudit(){
 
  if(DB.crafting_system?.ui_version!=="CRAFT-UI-1.1")issues.push("CRAFT-UI-1.1缺失");
  if(typeof craftMaterialText!=="function"||typeof cookingMaterialText!=="function")issues.push("製作素材文字函式缺失");
- if(DB.cooking_data_integrity_system?.version!=="COOKING-DATA-INTEGRITY-1.0")issues.push("COOKING-DATA-INTEGRITY-1.0缺失");
- if(typeof isCookingRecipe!=="function")issues.push("料理配方分類函式缺失");
- for(const x of DB.cooking_data_integrity_system?.semantic_issues||[])issues.push(`料理素材語意異常:${x.id}/${x.reason}`);
- const cookingProfessionLeaks=(DB.recipes||[]).filter(r=>{
-   const d=cookingOutputItem(r),prof=String(r?.profession||"").trim();
-   return d&&(d.type==="料理"||d.inventory_group==="食物"||d.food_subtype)&&prof&&!["料理","烹飪","cook","cooking","SJ-COOK"].includes(prof)
- });
- for(const r of cookingProfessionLeaks)issues.push(`料理配方專業分類異常:${r.id}/${r.profession}`);
- if(DB.crafting_data_integrity_system?.version!=="CRAFTING-DATA-INTEGRITY-1.0")issues.push("CRAFTING-DATA-INTEGRITY-1.0缺失");
- if(typeof craftingRecipeMatchesFacility!=="function"||typeof currentFacilityAllowsCrafting!=="function")issues.push("專業製作分類防線缺失");
- if(typeof inventoryComparisonItem!=="function"||typeof equipmentCompareValueText!=="function")issues.push("背包裝備屬性對比runtime缺失");
- if(typeof worldTierItemSort!=="function"||typeof itemListCategoryLabel!=="function"||typeof tierGroupedItemRows!=="function")issues.push("商品／製作世界層級排序runtime缺失");
- else{
-   const orderProbe=[{tier:"C",name:"C"},{tier:"F",name:"F"},{tier:"A",name:"A"},{tier:"D",name:"D"}].sort(worldTierItemSort).map(x=>x.tier).join("");
-   if(orderProbe!=="FDCA")issues.push("商品／製作世界層級排序異常");
- }
- for(const x of DB.crafting_data_integrity_system?.issues||[])issues.push(`專業製作資料異常:${x.id}/${x.reason}`);
- for(const [fid,prof] of Object.entries(DB.crafting_system?.facility_profession||{})){
-   for(const d of (DB.items||[]).filter(x=>x?.craft_recipe?.requires_facility===fid)){
-     if(d.craft_recipe.profession!==prof)issues.push(`製作設施專業污染:${fid}/${d.id}/${d.craft_recipe.profession}`);
-   }
- }
 
- if(DB.talent_system?.version!=="TALENT-IDENTITY-DEPTH-1.0")issues.push("TALENT-IDENTITY-DEPTH-1.0缺失");
- if((DB.talents||[]).length!==Number(DB.talent_system?.core_count||0))issues.push(`天賦核心數量與系統宣告不一致:${(DB.talents||[]).length}/${DB.talent_system?.core_count}`);
- const talentActual=(DB.talents||[]).reduce((m,x)=>(m[x.category]=(m[x.category]||0)+1,m),{});
- for(const cat of ["角色能力","戰鬥專精","戰鬥素質","副職業專精"])if(!(talentActual[cat]>0))issues.push(`天賦分類缺失:${cat}`);
- if((DB.talents||[]).some(t=>!t.identity?.signature||!t.identity?.playstyle||!t.identity?.tradeoff||!t.identity?.distinctive_axis))issues.push("天賦特色欄位不完整");
- if(typeof globalThis.runTalentIdentityDepthAudit!=="function"||!globalThis.runTalentIdentityDepthAudit().pass)issues.push("天賦深化稽核失敗");
+ if(DB.talent_system?.version!=="TALENT-CORE-2.0")issues.push("TALENT-CORE-2.0缺失");
+ if((DB.talents||[]).length!==100)issues.push(`天賦數量異常:${(DB.talents||[]).length}`);
+ const tc=DB.talent_system?.category_counts||{};
+ if(tc["角色能力"]!==25||tc["戰鬥專精"]!==30||tc["戰鬥素質"]!==20||tc["副職業專精"]!==25)issues.push("天賦分類數量異常");
  if(typeof talentSubjobBonus!=="function"||typeof craftTimeHours!=="function")issues.push("天賦副職業runtime缺失");
  if(DB.crafting_system?.profession_subjob?.["附魔"]!=="SJ-ENCHANT")issues.push("附魔副職業映射缺失");
 
@@ -6839,16 +4988,6 @@ function runGeneratorAudit(){
  if((DB.items||[]).some(x=>!(Number(x.weight)>0)))issues.push("存在無正重量物品");
  if(typeof craftItemBatch!=="function"||typeof cookBatch!=="function")issues.push("批量製作runtime缺失");
  if(typeof openGuildBuyback!=="function")issues.push("公會收購櫃檯runtime缺失");
- if(typeof isAbilityStatPotion!=="function"||typeof rareShopStockAvailable!=="function")issues.push("能力藥水稀有供應runtime缺失");
- else{
-   const fixedAbility=(DB.facilities?.alchemy?.stock||[]).map(item).filter(Boolean).filter(isAbilityStatPotion);
-   if(fixedAbility.some(d=>marketStockLimit(d)!==1))issues.push("能力藥水商店庫存上限異常");
- }
- if(typeof isAlchemyBuybackItem!=="function"||typeof alchemyBuybackIngredientIds!=="function")issues.push("煉金店收購分類runtime缺失");
- else{
-   const rejectedAlchemyIngredients=[...alchemyBuybackIngredientIds()].map(item).filter(Boolean).filter(d=>!canSellTo("alchemy",d));
-   if(rejectedAlchemyIngredients.length)issues.push(`煉金店拒收合法藥劑素材:${rejectedAlchemyIngredients.slice(0,8).map(x=>x.id).join(",")}`)
- }
 
  if(DB.encounter_ecology_system?.version!=="ENCOUNTER-ECOLOGY-2.0")issues.push("ENCOUNTER-ECOLOGY-2.0缺失");
  if(typeof monsterFitsLocationEcology!=="function"||typeof encounterWeightForLocation!=="function")issues.push("生態遭遇runtime缺失");
@@ -6895,17 +5034,6 @@ function runGeneratorAudit(){
  if(!windSkill||supportPercentValue(windSkill,"defense_pct")<10)issues.push("風之護盾防禦百分比效果缺失");
  if((Object.values(DB.skill_pools||{}).flat()).some(s=>s.kind==="輔助"&&["","獲得戰鬥增益"].includes(String(s.effect_text||""))))issues.push("存在無具體效果的輔助技能");
 
- if(DB.team_carry_system?.version!=="TEAM-CARRY-1.0")issues.push("TEAM-CARRY-1.0缺失");
- if(typeof teammateCarryProfile!=="function"||typeof companionCarryProfile!=="function"||typeof sharedCarryCapacityBonus!=="function")issues.push("同行負重runtime缺失");
- else{
-   for(const t of (DB.party_member_templates||[]))if(!(teammateCarryProfile(t,{level:Math.max(1,t.min_player_level||1),bond:0}).bonus>0))issues.push(`隊友負重設定異常:${t.id}`);
-   for(const sp of (DB.companion_species||[])){
-     const p=companionCarryProfile(sp,{level:Math.max(1,sp.min_owner_level||1),bond:0});
-     if(sp.companion_kind==="summon"&&p.bonus!==0)issues.push(`召喚獸錯誤提供常駐負重:${sp.id}`);
-     if(["pet","contract"].includes(sp.companion_kind)&&!(p.bonus>0))issues.push(`寵物負重設定異常:${sp.id}`)
-   }
- }
-
  if(DB.inventory_organization_system?.version!=="INVENTORY-ORGANIZE-2.0")issues.push("INVENTORY-ORGANIZE-2.0缺失");
  if(DB.modal_scroll_preservation_system?.version!=="MODAL-SCROLL-PRESERVE-1.0")issues.push("MODAL-SCROLL-PRESERVE-1.0缺失");
  if(inventoryCategory(item("I-BREAD")).key!=="食物")issues.push("黑麵包未歸入食物");
@@ -6937,7 +5065,6 @@ function runGeneratorAudit(){
  return issues
 }
 function runAudit(){
- const politicalRepair=normalizePoliticalStandingState();
  const c=G.character,issues=[];
  if(Object.keys(c.equipment).length!==8)issues.push("8裝備欄異常");
  if(c.subjobs.length>2)issues.push("副職業超過2");
@@ -6945,19 +5072,12 @@ function runAudit(){
  if((c.talents||[]).length>2)issues.push("天賦超過2");
  if(c.level<1||c.level>99)issues.push("角色等級超出1–99");
  if((c.classMastery||0)<0||(c.classMastery||0)>100)issues.push("職業熟練異常");
- if(DB.subjob_progression_system?.version!=="SUBJOB-PROGRESSION-2.0")issues.push("SUBJOB-PROGRESSION-2.0缺失");
- if(typeof subjobUpgradeState!=="function"||typeof upgradeSubjob!=="function")issues.push("副職業升級runtime缺失");
- for(const j of (c.subjobs||[])){if(!SUBJOB_GRADES.includes(j.grade))issues.push(`副職業階級異常:${j.id}/${j.grade}`);if(!Number.isFinite(Number(j.xp))||Number(j.xp)<0)issues.push(`副職業XP異常:${j.id}/${j.xp}`)}
  if(mainIsTwoHanded()&&offhandEquip())issues.push("雙手武器與副手裝備衝突");
  const auditOff=offhandEquip()&&item(equipId(offhandEquip()));if(auditOff&&!offhandEligible(auditOff))issues.push(`副手裝備不合法:${auditOff.name}`);
  for(const {eq} of equippedEntries())if(eq&&(eq.durability<0||eq.durability>eq.maxDurability))issues.push("裝備耐久異常");
  const caps=resourceCaps();if(c.maxHp!==caps.hp||c.maxStamina!==caps.stamina||c.maxMana!==caps.mana)issues.push("資源上限未同步");
- const hydrationItems=(DB.items||[]).filter(d=>Number(d?.use?.thirst)<0);
- const everydayHydration=hydrationItems.filter(d=>tierOrder(d.tier||"F")<=tierOrder("E")&&(d.acquisition_sources||[]).some(s=>["shop","cook","craft"].includes(s)));
- if(hydrationItems.length<24)issues.push(`補水食物／飲品總量不足:${hydrationItems.length}`);
- if(everydayHydration.length<10)issues.push(`低階日常補水來源不足:${everydayHydration.length}`);
  issues.push(...runGeneratorAudit());
- G.lastAudit={turn:G.turn,time:timeText(),issues,repairs:politicalRepair.repairs||[]};
+ G.lastAudit={turn:G.turn,time:timeText(),issues};
  log("五回合自檢",issues.length?issues.join("、"):"通過：世界觀、HISTORY-2.0世界史、大陸政治體、海外未知邊界、權力層級、S級戰力名錄、武技／魔法流派、文化、角色、職業技能、裝備製作、地圖生態、夥伴隊伍、信仰組織、對話情報、委託來源、跨庫索引、INTEGRATION-3.0、ORCHESTRATOR-3.0、CURRENT現行引擎、生成器與管理AI一致。",issues.length?"danger":"ok")
 }
 let modalLastFocus=null;
@@ -7124,7 +5244,7 @@ document.addEventListener("keydown",e=>{
 })
 
 const WEB_UPDATE={
- manifest:"https://raw.githubusercontent.com/alanyen-git/qunlu-game-web/main/version.json",
+ manifest:"version.json",
  checking:false,
  available:null,
  timer:null
@@ -7142,21 +5262,22 @@ function localGameVersion(){return DB?.meta?.current_version||"CURRENT-0.0.0"}
 function updateBannerHtml(info){
  const el=document.querySelector("#gameUpdateBanner");if(!el)return;
  if(!info){el.classList.add("hide");el.innerHTML="";return}
- el.innerHTML=`<b>發現新版本 ${info.version}</b><span>${info.summary||"遊戲已更新"}<br><small>來源：GitHub</small></span><button type="button" onclick="applyGameUpdate()">更新遊戲</button>`;
+ el.innerHTML=`<b>發現新版本 ${info.version}</b><span>${info.summary||"遊戲已更新"}</span><button type="button" onclick="applyGameUpdate()">更新遊戲</button>`;
  el.classList.remove("hide")
 }
-async function saveUpdateBackup(targetVersion){
+function saveUpdateBackup(targetVersion){
  try{
-   const raw=JSON.stringify(G);
+   const raw=localStorage.getItem("chronicle_save");
    if(!raw)return null;
    const stamp=new Date().toISOString().replace(/[:.]/g,"-");
    const key=`chronicle_save_backup_${localGameVersion()}_to_${targetVersion}_${stamp}`;
-   await saveDbPut(key,raw);
-   let index=await saveDbGet(SAVE_BACKUP_INDEX_KEY);
-   if(!Array.isArray(index))index=[];
+   localStorage.setItem(key,raw);
+   let index=JSON.parse(localStorage.getItem("chronicle_update_backups")||"[]");
    index.unshift({key,from:localGameVersion(),to:targetVersion,time:new Date().toISOString()});
-   while(index.length>5){const old=index.pop();if(old?.key)await saveDbDelete(old.key)}
-   await saveDbPut(SAVE_BACKUP_INDEX_KEY,index);
+   while(index.length>5){
+     const old=index.pop();if(old?.key)localStorage.removeItem(old.key)
+   }
+   localStorage.setItem("chronicle_update_backups",JSON.stringify(index));
    return key
  }catch(e){console.warn("update backup failed",e);return null}
 }
@@ -7164,23 +5285,17 @@ async function checkForGameUpdate(manual=false){
  if(WEB_UPDATE.checking)return null;
  WEB_UPDATE.checking=true;
  try{
-   const bridge=globalThis.QUNLU_NATIVE_UPDATE;
-   let info=null;
-   if(bridge?.isNative&&typeof bridge.check==="function") info=await bridge.check();
-   else{
-    const sep=WEB_UPDATE.manifest.includes("?")?"&":"?";
-    const res=await fetch(`${WEB_UPDATE.manifest}${sep}t=${Date.now()}`,{cache:"no-store"});
-    if(!res.ok)throw new Error(`HTTP ${res.status}`);
-    info=await res.json();
-   }
-   const hasUpdate=info?.available===false?false:compareGameVersion(info?.version,localGameVersion())>0;
-   if(hasUpdate){
+   const sep=WEB_UPDATE.manifest.includes("?")?"&":"?";
+   const res=await fetch(`${WEB_UPDATE.manifest}${sep}t=${Date.now()}`,{cache:"no-store"});
+   if(!res.ok)throw new Error(`HTTP ${res.status}`);
+   const info=await res.json();
+   if(compareGameVersion(info.version,localGameVersion())>0){
      WEB_UPDATE.available=info;updateBannerHtml(info);
-     if(manual)showModal("遊戲更新",`<div class="card"><b>${info.version}</b><br>${info.summary||""}<br><span class="small">來源：GitHub<br>${(info.changelog||[]).join("<br>")}</span></div><div class="actions"><button class="good" onclick="applyGameUpdate()">備份存檔並下載</button><button onclick="closeModal()">稍後</button></div>`);
+     if(manual)showModal("遊戲更新",`<div class="card"><b>${info.version}</b><br>${info.summary||""}<br><span class="small">${(info.changelog||[]).join("<br>")}</span></div><div class="actions"><button class="good" onclick="applyGameUpdate()">備份存檔並更新</button><button onclick="closeModal()">稍後</button></div>`);
      return info
    }
    WEB_UPDATE.available=null;updateBannerHtml(null);
-   if(manual)showModal("遊戲更新",`<div class="card ok">目前已是最新版：${localGameVersion()}<br><span class="small">已連線 GitHub 檢查版本。</span></div>`);
+   if(manual)showModal("遊戲更新",`<div class="card ok">目前已是最新版：${localGameVersion()}</div>`);
    return null
  }catch(e){
    console.warn("version check failed",e);
@@ -7188,31 +5303,11 @@ async function checkForGameUpdate(manual=false){
    return null
  }finally{WEB_UPDATE.checking=false}
 }
-async function applyGameUpdate(){
+function applyGameUpdate(){
  const info=WEB_UPDATE.available;if(!info)return;
- try{persist();await flushPersistWrites()}catch(e){}
- await saveUpdateBackup(info.version);
- const bridge=globalThis.QUNLU_NATIVE_UPDATE;
- if(bridge?.isNative&&typeof bridge.apply==="function"){
-  try{
-   const result=await bridge.apply(info);
-   WEB_UPDATE.available=null;updateBannerHtml(null);closeModal();
-   showModal("更新已下載",`<div class="card ok">${result?.version||info.version} 已下載完成，將在遊戲進入背景或下次啟動時套用。當前遊戲不會被中斷。</div>`);
-  }catch(e){
-   console.warn("native game update failed",e);
-   showModal("遊戲更新",`<div class="card warnText">更新下載失敗，請確認網路後再試；目前遊戲與存檔仍可繼續使用。</div>`);
-  }
-  return
- }
+ saveUpdateBackup(info.version);
+ try{persist()}catch(e){}
  const u=new URL(location.href);
- if(location.origin!=="https://alanyen-git.github.io"){
-  const target=new URL("https://alanyen-git.github.io/qunlu-game-web/");
-  target.search=u.search;
-  target.hash=u.hash;
-  target.searchParams.set("v",String(info.build||Date.now()));
-  location.replace(target.toString());
-  return
- }
  u.searchParams.set("v",String(info.build||Date.now()));
  location.replace(u.toString())
 }
@@ -7222,7 +5317,9 @@ function initWebUpdate(){
  let protocol="";
  try{protocol=new URL(location.href).protocol}catch(e){}
  if(!/^https?:$/.test(protocol))return null;
- return null
+ checkForGameUpdate(false);
+ WEB_UPDATE.timer=setInterval(()=>checkForGameUpdate(false),5*60*1000);
+ return WEB_UPDATE.timer
 }
 
-window.addEventListener("load",async()=>{await init();initWebUpdate()},{once:true});
+window.addEventListener("load",()=>{init();initWebUpdate()},{once:true});

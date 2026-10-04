@@ -2,9 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>群陸旅誌 CURRENT-2.25.22</title>
-<meta name="theme-color" content="#091116">
-<meta name="color-scheme" content="dark">
+<title>群陸旅誌 CURRENT-1.62.0</title>
+<meta name="theme-color" content="#071014">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,16 +11,15 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="assets/css/game.css?v=CURRENT-2.25.22-VISUAL-SYSTEM1">
+<link rel="stylesheet" href="assets/css/game.css">
 <!-- QUNLU-MODULARIZED-BASELINE: CSS/DB/runtime split from CURRENT-1.53.0 -->
-<!-- RELEASE-CURRENT-2.25.22 | VISUAL-SYSTEM-1.0 -->
 </head>
 <body>
 
 <div id="gameUpdateBanner" class="update-banner hide"><b>發現新版本</b><span></span><button type="button" onclick="applyGameUpdate()">更新遊戲</button></div>
 <div id="saveWarning" class="update-banner save-warning hide" role="alert"><b>本機存檔失敗</b><span>請檢查瀏覽器儲存空間，並先匯出存檔備份。</span><button type="button" onclick="exportSave()">匯出存檔</button></div>
 
-<div class="top"><div class="topin"><div class="top-brand"><img class="brand-sigil" src="assets/art/qunlu-sigil.svg" alt=""><div><div class="title">群陸旅誌</div><div class="small top-subtitle">旅人的劍與魔法人生</div></div></div><div class="top-state-wrap"><div id="topState" class="small"></div></div></div></div>
+<div class="top"><div class="topin"><div class="top-brand"><div class="title">群陸旅誌</div><div class="small top-subtitle">旅人的劍與魔法人生</div></div><div class="top-state-wrap"><div id="topState" class="small"></div></div></div></div>
 <div class="wrap">
 <div class="panel creation-shell" id="createPanel">
 <h2>建立角色</h2><div class="small">全面整合成長、轉職、技能熟練、製作、副手武器／盾牌、狀態與戰鬥數值；所有重要變動實際寫回存檔並納入五回合稽核。</div>
@@ -95,111 +93,15 @@
   </div>
 </div>
 
-<!-- 程序載入順序：由低依賴至高依賴；PROGRAM-REGISTRY會驗證此順序。 -->
-<!-- 1. 核心 -->
-<script defer src="src/bootstrap.js?v=CURRENT-2.25.22"></script>
-
-<!-- 2. 靜態資料與資料正規化 -->
-<script defer src="src/game-data.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/data-patches.js?v=CURRENT-2.25.22-GATHER-HF1"></script>
-<script defer src="src/origin-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/combat-class-identity-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/talent-identity-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/asdail-depth-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/asdail-narrative-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/asdail-integration-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/affiliation-identity-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/political-consolidation-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/political-hierarchy-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/starter-settlements-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/anweir-seruvia-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/black-moon-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/black-tide-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/tyervalon-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/blue-tower-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/vanrek-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/gray-blade-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/frost-horn-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/white-felt-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/holy-radiance-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/dawn-casavelle-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/boundary-dragonspine-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/alchemy-healing-recipe-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/equipment-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/crafting-recipe-semantic-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/crafting-recipe-semantic-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/equipment-recipe-balance-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/recipe-economy-balance-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/trade-venues-data-v1.js?v=CURRENT-2.25.22-TRADE-V11"></script>
-
-<!-- 3. 主runtime與經濟／製作 -->
-<script defer src="src/equipment-eligibility-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/runtime.js?v=CURRENT-2.25.22-BATTLE-SKILL2-SUBJOB-EXAM1-ENEMY-ROSTER1"></script>
-<script defer src="src/monster-behavior-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/asdail-narrative-runtime-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/companion-growth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/crafting-success-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/market-economy-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/trade-venues-runtime-v1.js?v=CURRENT-2.25.22-TRADE-V11"></script>
-<script defer src="src/world-autonomy-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/runtime-patches.js?v=CURRENT-2.25.22-ENEMY-ROSTER2-FF4UI2"></script>
-
-<!-- 4. 世界、組織、NPC、地下城 -->
-<script defer src="src/affiliation-contribution-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/affiliation-entry-gate-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/affiliation-treasury-depth-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/world-autonomy-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/world-map-geopolitics-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/polity-database-completion-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/region-map-graphics-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/world-map-tile-atlas-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/world-map-province-atlas-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/map-survey-completion-v1.js?v=CURRENT-2.25.22-MAP-SURVEY2-PERF1"></script>
-<script defer src="src/map-scene-v2.js?v=CURRENT-2.25.22-MAP-COVERAGE1-PERF1"></script>
-<script defer src="src/npc-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/npc-depth-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/dungeon-depth-v2.js?v=CURRENT-2.25.22"></script>
-
-<!-- 5. 成長、職業、技能、完整性 -->
-<script defer src="src/combat-class-progression-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/class-skill-optimization-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/class-skill-passive-compat-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/class-naming-reference-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/skill-naming-reference-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/class-tier-skill-expansion-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/skill-mechanics-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/skill-targeting-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/combat-role-formation-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/trade-skill-manuscripts-v1.js?v=CURRENT-2.25.22-SKM1"></script>
-<script defer src="src/system-integrity-v2.js?v=CURRENT-2.25.22-POLREP-HF1"></script>
-<script defer src="src/affiliation-integrity-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/player-experience-guidance-v1.js?v=CURRENT-2.25.22"></script>
-
-<!-- 6. 世界與內容命名 -->
-<script defer src="src/world-naming-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/world-naming-v2.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/world-naming-protection-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/equipment-naming-reference-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/equipment-name-naturalization-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/item-name-naturalization-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/name-generator-v2.js?v=CURRENT-2.25.22"></script>
-
-<!-- 7. 生存與夥伴 -->
-<script defer src="src/water-source-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/companion-aura-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/companion-unique-skill-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/companion-identity-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/companion-species-identity-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/adventure-party-teammate-depth-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/rpg-reference-synthesis-v1.js?v=CURRENT-2.25.22"></script>
-
-<!-- 8. 最終正規化、發布稽核與PWA -->
-<script defer src="src/quest-regional-ecology-v1.js?v=CURRENT-2.25.22-FAITH-LOCAL7-ACTIVE-MIGRATION1"></script>
-<script defer src="src/profession-recipe-differentiation-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/recipe-finalization-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/equipment-taxonomy-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/release-integrity-v1.js?v=CURRENT-2.25.22"></script>
-<script defer src="src/release-version-sync-v1.js?v=CURRENT-2.25.22" data-release="CURRENT-2.25.22"></script>
-<script defer src="src/pwa.js?v=CURRENT-2.25.22-SUBJOB-EXAM1-TAVERN-24H1"></script>
-<script defer src="src/program-registry-v1.js?v=CURRENT-2.25.22"></script>
+<script src="src/bootstrap.js"></script>
+<script src="src/game-data.js"></script>
+<script src="src/data-patches.js"></script>
+<script src="src/asdail-depth-v2.js"></script>
+<script src="src/runtime.js"></script>
+<script src="src/market-economy-v2.js"></script>
+<script src="src/world-autonomy-v1.js"></script>
+<script src="src/runtime-patches.js"></script>
+<script src="src/world-autonomy-v2.js"></script>
+<script src="src/npc-depth-v1.js"></script>
+<script src="src/pwa.js"></script>
 </body></html>
