@@ -1106,28 +1106,3 @@ button:focus-visible{outline:2px solid #d9bd79;outline-offset:2px}
  .atlas-node{grid-template-columns:26px minmax(0,1fr)}
  .atlas-node-action{grid-column:2}
 }
-
-
-/* CURRENT-1.64.0：彩繪地形圖層 */
-.atlas-map{background:#70824d;box-shadow:inset 0 0 0 4px #d8c58b,inset 0 0 0 6px #5e573b,0 12px 26px #0006}
-.atlas-map:before{inset:11px;border-color:#e0d49e;opacity:.68;box-shadow:inset 0 0 24px #29372940}
-.atlas-landscape{z-index:0;opacity:1;filter:saturate(1.08) contrast(1.04)}
-.atlas-ornament{z-index:1;color:#eee2b7;text-shadow:0 2px 5px #1d2b1d;opacity:.86}
-.atlas-landmarks{z-index:2}
-.atlas-node{background:linear-gradient(135deg,#f1e5c9ed,#d9d0a7e8);border-color:#887247;box-shadow:0 4px 10px #15231c70,inset 0 1px #fff9;backdrop-filter:blur(4px)}
-.atlas-node.is-current{background:linear-gradient(135deg,#f7e9b9f5,#e6c878f0);border-color:#a66f2e}
-.atlas-scale{z-index:2;color:#f2e8c8;text-shadow:0 1px 3px #13251e;left:22px;right:22px}
-.atlas-world,.atlas-realm{min-height:420px}
-.atlas-local{min-height:360px}
-.atlas-category-card{box-shadow:0 4px 12px #0005;transition:transform .18s ease,border-color .18s ease}
-.atlas-category-card:hover{transform:translateY(-2px);border-color:#d6ba72}
-@media(max-width:650px){
- .atlas-map{min-height:400px;padding:18px 12px 40px;border-radius:12px}
- .atlas-world,.atlas-realm{min-height:min(66dvh,620px)}
- .atlas-local{min-height:430px}
- .atlas-landmarks{gap:9px}
- .atlas-node{background:linear-gradient(135deg,#f3e8d3f2,#dcd2aef0)}
- .atlas-map .atlas-node button{min-height:42px}
- .atlas-scale{bottom:13px}
-}
-@media(prefers-reduced-motion:reduce){.atlas-category-card{transition:none}}
