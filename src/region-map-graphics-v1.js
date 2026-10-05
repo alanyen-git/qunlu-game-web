@@ -5,7 +5,7 @@
  */
 (()=>{
 "use strict";
-const REV="REGION-MAP-GRAPHICS-1.4";
+const REV="REGION-MAP-GRAPHICS-1.5";
 const TIER_COLOR={F:"#79ae79",E:"#9ec47d",D:"#c3b778",C:"#d8a565",B:"#dd8876",A:"#ca83a6",S:"#b68ee5"};
 const D=()=>typeof DB!=="undefined"?DB:null;
 const player=()=>typeof G!=="undefined"?G?.character:null;
@@ -55,13 +55,26 @@ function atlasPage(level,selectedId,content){
  return '<div class="atlas-screen atlas-screen--'+level+' atlas-witcher3-style"><div class="atlas-art-ribbon"><span>FIELD ATLAS</span><b>深境手繪圖誌</b><i>墨線地形・銅金標記・可考證道路</i></div>'+levelNavigation(level,selectedId)+'<div class="atlas-screen-content">'+content+'</div></div>';
 }
 const svgStart=(w,h,label,view)=>{
- const box=(view||"0 0 "+w+" "+h).trim().split(/\s+/).map(Number),x=Number.isFinite(box[0])?box[0]:0,y=Number.isFinite(box[1])?box[1]:0,vw=Number.isFinite(box[2])?box[2]:w,vh=Number.isFinite(box[3])?box[3]:h;
+ const box=(view||"0 0 "+w+" "+h).trim().split(/\\s+/).map(Number),x=Number.isFinite(box[0])?box[0]:0,y=Number.isFinite(box[1])?box[1]:0,vw=Number.isFinite(box[2])?box[2]:w,vh=Number.isFinite(box[3])?box[3]:h;
  const contour=[];
- for(let i=1;i<6;i++){
-  const yy=y+vh*(i/6),wave=vw*.08;
-  contour.push('<path d="M '+coord(x)+' '+coord(yy)+' Q '+coord(x+vw*.23)+' '+coord(yy-wave)+' '+coord(x+vw*.48)+' '+coord(yy)+' T '+coord(x+vw)+' '+coord(yy)+'" fill="none" stroke="#776b4d" stroke-width="1.4" opacity=".23"></path>');
+ for(let i=1;i<11;i++){
+  const yy=y+vh*(i/11),wave=vw*(.035+(i%3)*.009);
+  contour.push('<path d="M '+coord(x)+' '+coord(yy)+' C '+coord(x+vw*.2)+' '+coord(yy-wave)+' '+coord(x+vw*.31)+' '+coord(yy+wave*.55)+' '+coord(x+vw*.49)+' '+coord(yy)+' S '+coord(x+vw*.78)+' '+coord(yy-wave*.7)+' '+coord(x+vw)+' '+coord(yy)+'" fill="none" stroke="#d1c586" stroke-width="'+coord(Math.max(1,vw/720))+'" opacity=".28"></path>');
  }
- return '<svg class="regionmap-svg" data-map-art="dark-medieval-cartography" viewBox="'+[x,y,vw,vh].join(" ")+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="atlas-paper-grain" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M0 8 L34 8 M0 25 L34 25" stroke="#6f6245" stroke-width=".7" opacity=".13"></path><path d="M8 0 L8 34 M26 0 L26 34" stroke="#fff6d3" stroke-width=".7" opacity=".12"></path></pattern></defs><rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" fill="#d9cfaa"></rect><rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" fill="url(#atlas-paper-grain)" opacity=".75"></rect><g class="atlas-topographic-lines">'+contour.join("")+'</g>';
+ const tileW=Math.max(34,vw/13),tileH=Math.max(30,vh/11);
+ return '<svg class="regionmap-svg" data-map-art="original-painted-terrain-atlas" viewBox="'+[x,y,vw,vh].join(" ")+'" role="img" aria-label="'+esc(label)+'" xmlns="http://www.w3.org/2000/svg"><defs>'+
+ '<linearGradient id="atlas-land-gradient" x1="0" y1="0" x2=".18" y2="1"><stop stop-color="#89945a"></stop><stop offset=".48" stop-color="#a3a15d"></stop><stop offset="1" stop-color="#647c48"></stop></linearGradient>'+
+ '<linearGradient id="atlas-hill-light" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d5c983" stop-opacity=".55"></stop><stop offset="1" stop-color="#536c43" stop-opacity=".1"></stop></linearGradient>'+
+ '<pattern id="atlas-terrain-fill" width="'+coord(tileW)+'" height="'+coord(tileH)+'" patternUnits="userSpaceOnUse"><rect width="'+coord(tileW)+'" height="'+coord(tileH)+'" fill="#7d914f"></rect><path d="M0 '+coord(tileH*.68)+' Q '+coord(tileW*.22)+' '+coord(tileH*.43)+' '+coord(tileW*.5)+' '+coord(tileH*.68)+' T '+coord(tileW)+' '+coord(tileH*.61)+' V '+coord(tileH)+' H0z" fill="#8c9a53" opacity=".7"></path><g fill="#334a34" opacity=".82"><path d="M'+coord(tileW*.08)+' '+coord(tileH*.72)+'l'+coord(tileW*.1)+' -'+coord(tileH*.38)+' '+coord(tileW*.11)+' '+coord(tileH*.38)+'z"></path><path d="M'+coord(tileW*.4)+' '+coord(tileH*.88)+'l'+coord(tileW*.12)+' -'+coord(tileH*.47)+' '+coord(tileW*.13)+' '+coord(tileH*.47)+'z"></path><path d="M'+coord(tileW*.71)+' '+coord(tileH*.69)+'l'+coord(tileW*.09)+' -'+coord(tileH*.33)+' '+coord(tileW*.1)+' '+coord(tileH*.33)+'z"></path></g><g fill="none" stroke="#c1bd73" stroke-width="'+coord(Math.max(.7,vw/1050))+'" opacity=".72"><path d="M'+coord(tileW*.11)+' '+coord(tileH*.62)+'l'+coord(tileW*.07)+' -'+coord(tileH*.21)+' '+coord(tileW*.07)+' '+coord(tileH*.21)+'"></path><path d="M'+coord(tileW*.43)+' '+coord(tileH*.77)+'l'+coord(tileW*.09)+' -'+coord(tileH*.3)+' '+coord(tileW*.09)+' '+coord(tileH*.3)+'"></path><path d="M'+coord(tileW*.73)+' '+coord(tileH*.59)+'l'+coord(tileW*.07)+' -'+coord(tileH*.2)+' '+coord(tileW*.07)+' '+coord(tileH*.2)+'"></path></g><circle cx="'+coord(tileW*.28)+'" cy="'+coord(tileH*.3)+'" r="'+coord(Math.max(1,vw/900))+'" fill="#d9cd87" opacity=".42"></circle></pattern>'+
+ '<pattern id="atlas-ground-grain" width="44" height="40" patternUnits="userSpaceOnUse"><circle cx="5" cy="9" r="1.1" fill="#efe1a1" opacity=".46"></circle><circle cx="27" cy="7" r=".8" fill="#243d30" opacity=".36"></circle><circle cx="15" cy="29" r="1.2" fill="#e7d08b" opacity=".33"></circle><path d="M34 19l6 2M2 36l5-2" stroke="#34462f" stroke-width="1.2" opacity=".3"></path></pattern>'+
+ '<filter id="atlas-relief-noise" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".024" numOctaves="3" seed="17"></feTurbulence><feColorMatrix values=".45 0 0 0 .24 .45 0 0 0 .29 .45 0 0 0 .14 0 0 0 .15 0"></feColorMatrix></filter>'+
+ '</defs><rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" fill="url(#atlas-land-gradient)"></rect>'+
+ '<path d="M'+coord(x)+' '+coord(y+vh*.2)+' Q '+coord(x+vw*.2)+' '+coord(y+vh*.04)+' '+coord(x+vw*.38)+' '+coord(y+vh*.2)+' T '+coord(x+vw*.77)+' '+coord(y+vh*.14)+' T '+coord(x+vw)+' '+coord(y+vh*.22)+' L'+coord(x+vw)+' '+coord(y+vh*.48)+' Q '+coord(x+vw*.77)+' '+coord(y+vh*.38)+' '+coord(x+vw*.54)+' '+coord(y+vh*.5)+' T '+coord(x)+' '+coord(y+vh*.44)+'z" fill="url(#atlas-hill-light)" opacity=".8"></path>'+
+ '<path d="M'+coord(x)+' '+coord(y+vh*.61)+' Q '+coord(x+vw*.19)+' '+coord(y+vh*.49)+' '+coord(x+vw*.37)+' '+coord(y+vh*.63)+' T '+coord(x+vw*.7)+' '+coord(y+vh*.57)+' T '+coord(x+vw)+' '+coord(y+vh*.64)+' L'+coord(x+vw)+' '+coord(y+vh)+' H'+coord(x)+'z" fill="#627b47" opacity=".52"></path>'+
+ '<rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" fill="url(#atlas-terrain-fill)" opacity=".76"></rect>'+
+ '<g class="atlas-terrain-relief" fill="none" stroke="#394b34" stroke-width="'+coord(Math.max(1,vw/500))+'" opacity=".34"><path d="M'+coord(x-vw*.05)+' '+coord(y+vh*.35)+' C '+coord(x+vw*.16)+' '+coord(y+vh*.18)+' '+coord(x+vw*.28)+' '+coord(y+vh*.46)+' '+coord(x+vw*.48)+' '+coord(y+vh*.31)+' S '+coord(x+vw*.82)+' '+coord(y+vh*.16)+' '+coord(x+vw*1.05)+' '+coord(y+vh*.38)+'"></path><path d="M'+coord(x-vw*.03)+' '+coord(y+vh*.38)+' C '+coord(x+vw*.16)+' '+coord(y+vh*.21)+' '+coord(x+vw*.29)+' '+coord(y+vh*.49)+' '+coord(x+vw*.49)+' '+coord(y+vh*.34)+' S '+coord(x+vw*.83)+' '+coord(y+vh*.19)+' '+coord(x+vw*1.04)+' '+coord(y+vh*.41)+'"></path><path d="M'+coord(x-vw*.04)+' '+coord(y+vh*.76)+' C '+coord(x+vw*.2)+' '+coord(y+vh*.57)+' '+coord(x+vw*.34)+' '+coord(y+vh*.81)+' '+coord(x+vw*.56)+' '+coord(y+vh*.7)+' S '+coord(x+vw*.82)+' '+coord(y+vh*.54)+' '+coord(x+vw*1.03)+' '+coord(y+vh*.76)+'"></path></g>'+
+ '<rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" fill="url(#atlas-ground-grain)" opacity=".74"></rect><rect x="'+x+'" y="'+y+'" width="'+vw+'" height="'+vh+'" filter="url(#atlas-relief-noise)" opacity=".46"></rect>'+
+ '<g class="atlas-topographic-lines">'+contour.join("")+'</g>';
 };
 const poly=points=>array(points).filter(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(+p[0])&&Number.isFinite(+p[1])).map(p=>coord(p[0])+","+coord(p[1])).join(" ");
 const label=(x,y,value,size=15)=>'<text x="'+coord(x)+'" y="'+coord(y)+'" text-anchor="middle" fill="#3e382b" font-size="'+size+'" font-weight="700" pointer-events="none">'+esc(value)+'</text>';
@@ -161,7 +174,7 @@ function realmGraphic(realmId){
   }
  }
  for(const g of geoms){
-  parts.push('<polygon points="'+poly(g.points)+'" fill="#b6b392" fill-opacity=".88" stroke="#594c36" stroke-width="3"><title>'+esc(find("world_regions",g.region_id)?.name||p?.name||g.region_id)+'</title></polygon>');
+  parts.push('<polygon points="'+poly(g.points)+'" fill="url(#atlas-terrain-fill)" fill-opacity=".96" stroke="#e4d292" stroke-width="3"><title>'+esc(find("world_regions",g.region_id)?.name||p?.name||g.region_id)+'</title></polygon>');
  }
  const cap=array(geo.capitals).find(c=>c.political_entity_id===pid&&Number.isFinite(+c.x)&&Number.isFinite(+c.y));
  if(cap){
@@ -182,7 +195,7 @@ function realmGraphic(realmId){
  parts.push('<path d="M '+coord(nx-8)+' '+coord(ny+12)+' L '+coord(nx)+' '+coord(ny)+' L '+coord(nx+8)+' '+coord(ny+12)+' Z" fill="#e7e8d5"></path>');
  parts.push(label(nx,ny+63,"北 N",13));
  parts.push("</svg>");
- const note="實線為正史疆域｜金點為首都／統治中樞｜褐線山脈、藍線河流、虛金線道路；行省精確邊界尚未建檔，不以假座標呈現。";
+ const note="彩繪地形底圖依既有疆域與測繪資料呈現｜金點為首都／統治中樞｜地形紋理為原創繪製，不新增未確認疆界。";
  const info='<div class="atlas-dossier-kicker">政治體檔案</div><div class="atlas-dossier-stat"><b>'+provinces.length+'</b><span>所轄行省</span></div><div class="atlas-dossier-stat"><b>'+geoms.length+'</b><span>已繪疆域區塊</span></div><div class="atlas-dossier-divider"></div><div class="atlas-dossier-kicker">圖例</div><div class="atlas-key"><i class="atlas-key-capital"></i>首都／統治中樞</div><div class="atlas-key"><i class="atlas-key-province"></i>行省所在大區</div>';
  const body=atlasPage("realm",r.id,linkBack+'<div class="card small"><b>'+esc(p?.name||r.name)+'</b>｜'+esc(p?.government_type||"")+'｜'+esc(r.world_tier||p?.world_tier||"—")+'級</div>'+shell(parts.join(""),note,info)+'<h3 class="atlas-section-title">所轄行省</h3>'+(rowsToButtons(provinces,"province")||'<div class="card small">尚無行省級圖面資料。</div>'));
  showModal((p?.name||r.name)+"・王國級圖面",body);scheduleFit();
