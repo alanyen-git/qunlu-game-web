@@ -1,0 +1,261 @@
+# Manual-only release validation and GitHub Pages deployment for an explicitly selected release branch.
+name: Validate public web game
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate release integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check sw.js
+          for file in src/*.js; do node --check "$file"; done
+          for file in tools/*.js; do node --check "$file"; done
+          node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+          const vm = require("vm");
+          const version = JSON.parse(fs.readFileSync("version.json", "utf8"));
+          JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
+          const html = fs.readFileSync("index.html", "utf8");
+          const sw = fs.readFileSync("sw.js", "utf8");
+          const titleVersion = html.match(/<title>[^<]*(CURRENT-\d+\.\d+\.\d+)<\/title>/)?.[1];
+          if (titleVersion !== version.version) throw new Error(`version mismatch: index=${titleVersion} manifest=${version.version}`);
+          const literalBackslashN = String.fromCharCode(92) + "n";
+          for (const [name, content] of [["sw.js", sw], ["index.html", html]]) {
+            if (content.includes(literalBackslashN)) throw new Error(`${name} contains a literal backslash-n token`);
+          }
+          const refs = [
+            ...[...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)].map(m => m[1]),
+            ...[...html.matchAll(/<link[^>]+href=["']([^"']+)["']/g)].map(m => m[1])
+          ].map(x => x.split("?")[0]).filter(x => !/^https?:/.test(x));
+          for (const ref of refs) if (!fs.existsSync(ref)) throw new Error(`missing index resource: ${ref}`);
+          for (const match of sw.matchAll(/["']\.\/([^"']+)["']/g)) {
+            const ref = match[1];
+            if (!ref || ref === "." || ref.endsWith("/")) continue;
+            if (!fs.existsSync(path.normalize(ref))) throw new Error(`missing service-worker resource: ${ref}`);
+          }
+          const normalizeRef = value => String(value||"").split("?")[0].replace(/^\.\//,"");
+          const indexPrograms = [...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)]
+            .map(m => normalizeRef(m[1])).filter(x => x.startsWith("src/"));
+          const swPrograms = [...sw.matchAll(/["']\.\/(src\/[^"']+\.js)["']/g)].map(m => m[1]);
+          const diskPrograms = fs.readdirSync("src").filter(x => x.endsWith(".js")).map(x => "src/"+x).sort();
+          const unique = values => [...new Set(values)];
+          if (unique(indexPrograms).length !== indexPrograms.length) throw new Error("duplicate src program in index.html");
+          if (unique(swPrograms).length !== swPrograms.length) throw new Error("duplicate src program in sw.js");
+          if (JSON.stringify(indexPrograms) !== JSON.stringify(swPrograms)) {
+            throw new Error("index.html and sw.js program order/set mismatch");
+          }
+          if (JSON.stringify([...indexPrograms].sort()) !== JSON.stringify(diskPrograms)) {
+            const indexSet = new Set(indexPrograms), diskSet = new Set(diskPrograms);
+            const orphan = diskPrograms.filter(x => !indexSet.has(x));
+            const missing = indexPrograms.filter(x => !diskSet.has(x));
+            throw new Error(`src program inventory mismatch; orphan=${orphan.join(",")} missing=${missing.join(",")}`);
+          }
+          const scriptVersions = [...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)]
+            .map(m => m[1]).filter(x => x.startsWith("src/"));
+          for (const src of scriptVersions) {
+            if (!src.includes(`v=${version.version}`)) throw new Error(`script cache version mismatch: ${src}`);
+          }
+
+          const registryContext = vm.createContext({
+            console,
+            DB:{meta:{current_version:version.version},items:[]},
+            document:{
+              title:`群陸旅誌 ${version.version}`,
+              scripts:indexPrograms.map(src=>({src:`https://example.invalid/${src}?v=${version.version}`})),
+              currentScript:null
+            },
+            location:{href:"https://example.invalid/index.html"},
+            URL,
+            structuredClone,
+            setTimeout,clearTimeout
+          });
+          vm.runInContext(fs.readFileSync("src/bootstrap.js","utf8"),registryContext,{filename:"src/bootstrap.js"});
+          vm.runInContext(fs.readFileSync("src/program-registry-v1.js","utf8"),registryContext,{filename:"src/program-registry-v1.js"});
+          const registryPrograms=vm.runInContext("QUNLU_ACTIVE_PROGRAMS",registryContext);
+          if (JSON.stringify(registryPrograms) !== JSON.stringify(indexPrograms)) {
+            throw new Error("PROGRAM-REGISTRY and index.html program list mismatch");
+          }
+          if (version.program_refactor?.active_src_programs !== indexPrograms.length) {
+            throw new Error(`version.json active_src_programs mismatch: ${version.program_refactor?.active_src_programs} != ${indexPrograms.length}`);
+          }
+
+          console.log(`release integrity OK: ${version.version}; ${refs.length} index refs; ${indexPrograms.length} src programs synchronized`);
+          NODE
+
+          node <<'NODE'
+          const fs = require("fs");
+          const vm = require("vm");
+          const version = JSON.parse(fs.readFileSync("version.json", "utf8"));
+          const context = vm.createContext({ console, structuredClone, setTimeout, clearTimeout });
+          const files = [
+            "src/game-data.js",
+            "src/data-patches.js",
+            "src/asdail-depth-v2.js",
+            "src/asdail-narrative-depth-v1.js",
+            "src/asdail-integration-v1.js",
+            "src/alchemy-healing-recipe-v1.js",
+            "src/equipment-depth-v1.js",
+            "src/crafting-recipe-semantic-v1.js",
+            "src/crafting-recipe-semantic-v2.js",
+            "src/equipment-recipe-balance-v1.js",
+            "src/recipe-economy-balance-v1.js",
+            "src/profession-recipe-differentiation-v1.js",
+            "src/recipe-finalization-v1.js"
+          ];
+          for (const file of files) vm.runInContext(fs.readFileSync(file, "utf8"), context, { filename: file });
+
+          const report = vm.runInContext(`(()=>{
+            const get=id=>(DB.items||[]).find(x=>x?.id===id);
+            const mats=id=>(get(id)?.craft_recipe?.base_materials||[]).map(x=>[x.id,Number(x.qty)]);
+            return {
+              semantic:runCraftingRecipeSemanticAuditV2(),
+              equipment:runEquipmentRecipeBalanceAudit(),
+              economy:runRecipeEconomyBalanceAudit(),
+              finalization:runRecipeFinalizationAudit(),
+              formulas:{
+                "P7-03":mats("P7-03"),
+                "P31-002":mats("P31-002"),
+                "P31-003":mats("P31-003"),
+                "P31-010":mats("P31-010")
+              }
+            }
+          })()`, context);
+
+          for (const [name,result] of Object.entries({semantic:report.semantic,equipment:report.equipment,economy:report.economy,finalization:report.finalization})) {
+            if (!result?.pass) throw new Error(`${name} audit failed: ${JSON.stringify(result?.issues||[]).slice(0,4000)}`);
+          }
+          const expected={
+            "P7-03":[["MAT-HERB-04",1],["I-MINT",1]],
+            "P31-002":[["I-HERB",1],["MAT-HERB-05",1]],
+            "P31-003":[["MAT-HERB-04",1],["I-MINT",1]],
+            "P31-010":[["MAT-HERB-04",1],["MAT-HERB-18",1]]
+          };
+          for (const [id,want] of Object.entries(expected)) {
+            if (JSON.stringify(report.formulas[id]) !== JSON.stringify(want)) {
+              throw new Error(`canonical recipe mismatch ${id}: got=${JSON.stringify(report.formulas[id])} want=${JSON.stringify(want)}`);
+            }
+          }
+          const stats=report.economy.stats||{};
+          if (stats.professional !== version.recipe_economy_balance.professional_recipes) throw new Error(`professional recipe count mismatch: ${stats.professional}`);
+          if (stats.cooking !== version.recipe_economy_balance.cooking_recipes) throw new Error(`cooking recipe count mismatch: ${stats.cooking}`);
+          console.log(`recipe runtime audit OK: ${stats.professional} professional + ${stats.cooking} cooking; canonical low potions locked`);
+          NODE
+
+          node tools/debug-all-programs.js
+          node tools/test-starter-authority-quest-localization.js
+          node tools/test-audit-metadata.js
+          node tools/test-runtime-refactor.js
+          node tools/test-service-worker-refresh.js
+          node tools/test-version-update-system.js
+          node tools/test-save-reopen-reset.js
+          node tools/test-origin-name-simplification.js
+          node tools/test-adventure-formation.js
+          node tools/test-android-build-config.js
+          node tools/test-battle-formation.js
+          node tools/test-gameplay-balance-fixes.js
+          node tools/test-battle-skill-popup.js
+          node tools/test-skill-targeting.js
+          node tools/test-requirement-details.js
+          node tools/test-inventory-category-buttons.js
+          node tools/test-combat-class-progression.js
+          node tools/test-class-tier-skill-expansion.js
+          node tools/test-combat-role-formation.js
+          node <<'NODE'
+          const fs=require('fs'),vm=require('vm');
+          const ctx=vm.createContext({console,structuredClone,setTimeout,clearTimeout});
+          for(const path of ['src/game-data.js','src/data-patches.js','src/combat-class-identity-depth-v1.js','src/class-tier-skill-expansion-v1.js'])vm.runInContext(fs.readFileSync(path,'utf8'),ctx,{filename:path});
+          const report=ctx.runClassTierSkillExpansionAudit();
+          if(!report.pass||report.stats.classes!==93||report.stats.byGrade.B<186)throw new Error('full 93-class E–B skill audit failed: '+JSON.stringify(report).slice(0,4000));
+          console.log('93-class E–B skill audit OK:',JSON.stringify(report.stats));
+          NODE
+          node tools/test-equipment-taxonomy.js
+          node tools/test-item-role-taxonomy.js
+          node tools/test-auction-equipment-pricing.js
+          node tools/test-black-market-pricing.js
+          node tools/test-skill-manuscripts.js
+          node tools/test-alchemy-craft-categories.js
+          node tools/test-healing-potion-differentiation.js
+          node tools/test-profession-recipe-distinctness.js
+          node tools/test-crafting-recipe-separation.js
+          node tools/test-profession-craft-tabs.js
+          node tools/test-cooking-category-learning.js
+          node tools/test-tavern-all-day-meals.js
+          node tools/test-region-map-graphics.js
+          node tools/test-world-mosaic.js
+          node tools/test-world-map-province-atlas.js
+          node tools/test-map-survey-completion-v1.js
+          node tools/test-map-scene-v2.js
+          node tools/test-visual-system.js
+          node tools/test-polity-province-depth.js
+          node tools/test-monster-behavior-depth.js
+          node tools/test-polity-database-completion.js
+
+      - name: Detect Pages publishing source
+        id: pages_mode
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mode="$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq '.build_type // "legacy"' 2>/dev/null || echo legacy)"
+          echo "build_type=${mode}" >> "${GITHUB_OUTPUT}"
+          if [[ "${mode}" != "workflow" ]]; then
+            echo "::warning title=Pages quality gate::Branch-based Pages may publish before tests finish. Set Settings > Pages > Source to GitHub Actions to enforce validated publishing."
+          fi
+
+      - name: Stage production site
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          cp index.html manifest.webmanifest sw.js version.json _site/
+          cp -R assets icons src _site/
+          test ! -e _site/tools
+          test ! -e _site/DEBUG_ALL_PROGRAMS.json
+          echo "production artifact files:"
+          find _site -maxdepth 2 -type f | sort
+
+      - name: Build Android over-the-air update bundle
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:mobile
+          npm run build:mobile:update -- _site/mobile "$GITHUB_SHA"
+
+      - name: Setup Pages
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
+        uses: actions/configure-pages@v6
+
+      - name: Upload artifact
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: "_site"
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'workflow_dispatch' || steps.pages_mode.outputs.build_type == 'workflow'
+        id: deployment
+        uses: actions/deploy-pages@v5
