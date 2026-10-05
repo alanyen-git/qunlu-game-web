@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.22",
-  "previous_version": "CURRENT-2.25.21",
+  "version": "CURRENT-2.25.23",
+  "previous_version": "CURRENT-2.25.22",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "ACTIVE-QUEST-LOCAL-MIGRATION-1.0：既有進行中委託開啟時同步遷移名稱、描述、巡查點、目標地圖與地方快照，避免舊存檔繼續顯示橋灣鎮模板名稱。",
+  "summary": "REGION-MAP-GRAPHICS-1.5：以彩繪地貌、林地紋理與立體陰影強化王國、行省與當地圖面；保留既有疆域、道路資料、旅行條件與舊存檔相容。",
   "changelog": [
+    "REGION-MAP-GRAPHICS-1.5：地圖加入原創彩繪地形底圖、密林紋理、坡地光影與更清晰的河道／道路／疆域層級，並加強手機地圖檢視高度；不改動正史疆界、道路可達性或存檔資料。",
     "COMBAT-SCALING-2.0：生命值、魔力值、攻擊力、防禦力、技能與藥劑固定量同步放大2倍；最大體力固定100；保留機率、百分比、價格、時間與存檔ID以維持相容性。",
     "ACTIVE-QUEST-LOCAL-MIGRATION-1.0：修正既有進行中委託仍顯示舊地圖／舊名稱；開啟委託板時會依發布城鎮遷移地方化快照，保留進度並更新實際目標。",
     "LOCALITY-AUDIT-1.0：新增資料庫模板與現有存檔的跨區域檢查，組織契約納入地方化；所在地不足時不再退回同省或20小時外地圖。",
@@ -500,7 +501,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v201",
+  "pwa_cache_revision": "v202",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -877,7 +878,7 @@
     "load_order_audit": true,
     "save_compatible": true,
     "note": "CURRENT-2.25.13：補齊四個資料庫領域的生成器／管理AI配對與runtime治理閘門；91個正式src模組與PWA v191同步，Android版號由版本檔遞增；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.25.22",
+    "last_verified_release": "CURRENT-2.25.23",
     "notes": [
       "ENEMY-ROSTER-1.2：多敵人生成不再只看同地圖候選池；改以第一名敵人為生態群組錨點，依 authored encounter group、勢力、怪物族群與生態類別篩選合理隊友。犬科掠食者不會與羊／鹿等草食群並肩作戰；不死、惡魔、構裝、元素、人型勢力、水生、昆蟲、龍裔與野生動物分群處理。Boss 若沒有合理隨從則保留單體，不硬湊不相關敵人。舊存檔相容。PWA v199，Android versionCode 2025020。",
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
@@ -1836,7 +1837,7 @@
     "player_escrow_price_protection": true,
     "save_compatible": true
   },
-  "map_graphics_revision": "REGION-MAP-GRAPHICS-1.4",
+  "map_graphics_revision": "REGION-MAP-GRAPHICS-1.5",
   "world_mosaic_revision": "WORLD-MOSAIC-ATLAS-1.2",
   "alchemy_recipe_category_revision": "ALCHEMY-CRAFT-CATEGORIES-1.1",
   "alchemy_recipe_category": {
@@ -2220,4 +2221,4 @@
     "save_compatible": true
   },
   "map_survey_completion_revision": "MAP-SURVEY-COMPLETION-2.0"
-}
+}\n
