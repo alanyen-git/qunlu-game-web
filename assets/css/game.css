@@ -1033,3 +1033,76 @@ button:focus-visible{outline:2px solid #d9bd79;outline-offset:2px}
   .battle-skill-body .itemrow{grid-template-columns:minmax(0,1fr);align-items:stretch}.battle-skill-body .itemrow>button{width:100%;min-height:48px}
   .money-display{font-size:clamp(15px,5vw,20px)}
 }
+
+
+/* ===== CURRENT-1.63.0：羊皮紙地誌地圖與行動標記 ===== */
+.atlas-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 2px 10px}
+.atlas-heading h3{margin:3px 0 4px;font-size:18px;letter-spacing:.04em;color:#f2dfb4}
+.atlas-heading p{margin:0;color:#c0c4b5;font-size:12px;line-height:1.55}
+.atlas-kicker{font-size:10px;letter-spacing:.16em;color:#c9aa69;font-weight:800}
+.atlas-compass{flex:0 0 42px;width:42px;height:42px;border:1px solid #9a8355;border-radius:50%;display:grid;place-content:center;text-align:center;color:#e3c886;font-size:11px;line-height:1.05;background:#29251b}
+.atlas-map{position:relative;isolation:isolate;min-height:300px;margin:8px 0 14px;padding:22px 18px 42px;overflow:hidden;border:1px solid #957d50;border-radius:13px;background-color:#d5c394;background-image:radial-gradient(ellipse at 18% 24%,#e8dcba 0 9%,transparent 36%),radial-gradient(ellipse at 80% 75%,#a99a6d 0 5%,transparent 34%),repeating-linear-gradient(8deg,#4f483015 0 1px,transparent 1px 6px),linear-gradient(130deg,#d6c89f,#b9ad83 54%,#ded1a8);box-shadow:inset 0 0 0 5px #e4d6ad,inset 0 0 0 6px #8f784b,0 9px 20px #0003}
+.atlas-map:before{content:"";position:absolute;inset:12px;z-index:-1;border:1px solid #796a48;border-radius:7px;opacity:.55;pointer-events:none}
+.atlas-landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-1;opacity:.78}
+.atlas-river{fill:none;stroke:#638b8a;stroke-width:8;stroke-linecap:round;opacity:.68}
+.atlas-road{fill:none;stroke:#8a6541;stroke-width:3;stroke-dasharray:2 5;stroke-linecap:round;opacity:.8}
+.atlas-contour{fill:none;stroke:#786c4e;stroke-width:1;opacity:.4}
+.atlas-ornament{position:absolute;color:#586348;opacity:.65;font-size:22px;line-height:1.2;pointer-events:none;text-shadow:0 1px #f1e5c4}
+.atlas-mountain{right:7%;top:17%;color:#665846}.atlas-forest{left:5%;bottom:18%}
+.atlas-landmarks{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-width:780px;margin:auto}
+.atlas-node{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:8px;min-width:0;padding:9px 10px;border:1px solid #806d48;border-radius:10px;color:#29291e;background:#e7d9b5ed;box-shadow:0 3px 7px #342a1c38;backdrop-filter:blur(2px)}
+.atlas-node.is-current{border:2px solid #9c632e;background:#f1dfad}
+.atlas-marker{display:grid;place-items:center;width:28px;height:28px;border:1px solid #796444;border-radius:50%;color:#54472e;background:#f3e7c5;font-size:18px}
+.atlas-node-copy{min-width:0;display:grid;gap:2px}
+.atlas-node-copy b{font-size:13px;line-height:1.25;overflow-wrap:anywhere}
+.atlas-node-meta,.atlas-node-detail{font-size:10px;line-height:1.4;color:#595743}
+.atlas-node-action{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:wrap}
+.atlas-map .atlas-node button,.atlas-category-card button,.atlas-polity-note button{min-height:34px;padding:6px 9px;border-color:#766344;border-radius:7px;background:#51452f;color:#fff2d5;font-size:11px}
+.atlas-scale{position:absolute;bottom:12px;left:21px;right:21px;display:flex;justify-content:space-between;color:#514a34;font-size:9px;letter-spacing:.04em}
+.atlas-map-empty{grid-column:1/-1;place-self:center;padding:34px 10px;color:#4b4938;font-size:13px;text-align:center}
+.atlas-legend,.atlas-map-legend{display:flex;gap:8px 16px;flex-wrap:wrap;margin:8px 2px 13px;color:#c2c5b7;font-size:11px}
+.atlas-subhead{margin:14px 2px 7px!important;color:#ead8aa;font-size:14px}
+.atlas-polity-note{display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin:6px 0 10px;padding:11px 12px;border:1px solid #65583a;border-radius:10px;background:linear-gradient(115deg,#302c20,#1a201a)}
+.atlas-polity-note>b{color:#f2dfb4}.atlas-polity-note>span{grid-column:1;grid-row:2;color:#c1c4b5;font-size:11px}.atlas-polity-note p{grid-column:1;margin:3px 0 0;color:#b5b9ab;font-size:11px;line-height:1.5}.atlas-polity-note button{grid-column:2;grid-row:1/4;align-self:center}
+.atlas-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.atlas-category-card{padding:0;overflow:hidden;text-align:left;border:1px solid #61583e;border-radius:12px;background:#171b15;color:#eef0e5}
+.atlas-category-landscape{height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#e9dab5;background:radial-gradient(ellipse at 48% 115%,#354a35 0 34%,transparent 35%),linear-gradient(155deg,#56644a,#273c35 56%,#857552)}
+.atlas-card-wild .atlas-category-landscape{background:radial-gradient(ellipse at 65% 125%,#647044 0 30%,transparent 31%),linear-gradient(145deg,#59694d,#354338 58%,#889064)}
+.atlas-card-dungeon .atlas-category-landscape{background:radial-gradient(ellipse at 50% 110%,#343536 0 33%,transparent 34%),linear-gradient(145deg,#68614c,#34352f 63%,#76604a)}
+.atlas-category-symbol{font-size:25px;letter-spacing:.14em;text-shadow:0 2px 4px #0008}.atlas-category-landscape>span:last-child{font-size:10px;letter-spacing:.14em}
+.atlas-category-info{display:grid;gap:5px;padding:10px}.atlas-category-info b{font-size:14px}.atlas-category-info>span{font-size:10px;color:#b8bdad;line-height:1.4}.atlas-category-open{color:#e2c783!important;font-weight:750}
+.atlas-footnote{padding:8px 10px;border-left:2px solid #a48c59;color:#b7bdad;font-size:10px;line-height:1.5}
+.atlas-place-context{display:grid;gap:8px}.atlas-place-context .actions{margin-top:2px}
+.atlas-current-label,.atlas-route-label{display:inline-flex;align-items:center;align-self:center;padding:3px 7px;border:1px solid #926f3e;border-radius:99px;color:#f0d995;background:#403521;font-size:10px;white-space:nowrap}
+.atlas-place-list{display:grid;gap:8px}
+.atlas-place{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:9px;width:100%;min-height:58px;padding:8px 10px;text-align:left;border:1px solid #746344;border-radius:9px;background:#eadfbe;color:#29291e}
+.atlas-place.is-current{border:2px solid #ae7130;background:#f1dfad}
+.atlas-place-symbol{display:grid;place-items:center;width:32px;height:32px;border:1px solid #7e6b45;border-radius:50%;color:#55452d;background:#f5ebcf;font-size:20px}
+.atlas-place-copy{min-width:0;display:grid;gap:3px}.atlas-place-copy b{font-size:13px;overflow-wrap:anywhere}.atlas-place-copy>span{font-size:10px;color:#575744;line-height:1.35}
+.atlas-place-route{grid-column:2/-1;justify-self:stretch}.atlas-place-route button{width:100%;min-height:37px;background:#51452f;color:#fff2d5}
+.atlas-map .atlas-node-action button{white-space:nowrap}
+.atlas-location-card{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #786746;border-radius:11px;background:#e8d9b5;color:#29291e}
+.atlas-location-card>div{display:grid;gap:4px;flex:1}.atlas-location-card>div span{color:#5d5945;font-size:11px}
+.atlas-road-row{display:flex;justify-content:space-between;align-items:center;gap:9px;padding:10px 2px;border-bottom:1px dashed #716449}
+.atlas-road-row>span{min-width:0}.atlas-road-row .small{display:block;margin-top:3px}
+@media(max-width:650px){
+ .atlas-map{min-height:250px;padding:18px 12px 38px}
+ .atlas-landmarks{grid-template-columns:minmax(0,1fr);gap:7px}
+ .atlas-node{grid-template-columns:28px minmax(0,1fr) auto;padding:8px}
+ .atlas-node-action{grid-column:2/-1;justify-content:flex-start}
+ .atlas-category-grid{grid-template-columns:1fr}
+ .atlas-category-card{display:grid;grid-template-columns:34% 1fr;min-height:90px}
+ .atlas-category-landscape{height:100%;min-height:90px}
+ .atlas-category-info{align-content:center}
+ .atlas-scale{left:15px;right:15px;font-size:8px}
+ .atlas-heading h3{font-size:16px}
+ .atlas-polity-note{grid-template-columns:1fr}
+ .atlas-polity-note button{grid-column:1;grid-row:auto;justify-self:start}
+ .atlas-place{grid-template-columns:32px minmax(0,1fr) auto}
+}
+@media(max-width:380px){
+ .atlas-place{grid-template-columns:30px minmax(0,1fr)}
+ .atlas-place>.atlas-current-label,.atlas-place>.atlas-route-label{grid-column:2;justify-self:start}
+ .atlas-node{grid-template-columns:26px minmax(0,1fr)}
+ .atlas-node-action{grid-column:2}
+}
