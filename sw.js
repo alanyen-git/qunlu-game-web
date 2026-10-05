@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v6";
+const CACHE_NAME=CACHE_PREFIX+"v7";
 const CORE=[
   "./",
   "./index.html",
@@ -16,7 +16,6 @@ const CORE=[
   "./src/runtime-patches.js",
   "./src/world-autonomy-v2.js",
   "./src/npc-depth-v1.js",
-  "./src/map-atlas-v1.js",
   "./src/map-atlas-v1.js",
   "./src/pwa.js",
   "./icons/icon-192.png",
