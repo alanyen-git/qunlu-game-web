@@ -17,6 +17,7 @@ const CORE=[
   "./src/world-autonomy-v2.js",
   "./src/npc-depth-v1.js",
   "./src/map-atlas-v1.js",
+  "./src/map-atlas-v1.js",
   "./src/pwa.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
