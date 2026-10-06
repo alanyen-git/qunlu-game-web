@@ -1,11 +1,12 @@
 {
-  "version": "CURRENT-2.25.23",
-  "previous_version": "CURRENT-2.25.22",
+  "version": "CURRENT-2.25.24",
+  "previous_version": "CURRENT-2.25.23",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "REGION-MAP-GRAPHICS-1.5：以彩繪地貌、林地紋理與立體陰影強化王國、行省與當地圖面；保留既有疆域、道路資料、旅行條件與舊存檔相容。",
+  "summary": "RUNTIME-INDEX-CACHE-1.0：無資料變更時沿用runtime索引與快取，委託地點結果記憶化，取水來源稽核改為唯讀；不改遊戲規則與存檔結構。",
   "changelog": [
+    "RUNTIME-INDEX-CACHE-1.0：無資料變更時沿用runtime索引與快取，委託地點結果記憶化，取水來源稽核改為唯讀；不改遊戲規則與存檔結構。 PWA v203；延續舊存檔相容。",
     "REGION-MAP-GRAPHICS-1.5：地圖加入原創彩繪地形底圖、密林紋理、坡地光影與更清晰的河道／道路／疆域層級，並加強手機地圖檢視高度；不改動正史疆界、道路可達性或存檔資料。",
     "COMBAT-SCALING-2.0：生命值、魔力值、攻擊力、防禦力、技能與藥劑固定量同步放大2倍；最大體力固定100；保留機率、百分比、價格、時間與存檔ID以維持相容性。",
     "ACTIVE-QUEST-LOCAL-MIGRATION-1.0：修正既有進行中委託仍顯示舊地圖／舊名稱；開啟委託板時會依發布城鎮遷移地方化快照，保留進度並更新實際目標。",
@@ -501,7 +502,7 @@
   },
   "catalog_tier_sort_revision": "CATALOG-TIER-SORT-1.0",
   "inventory_equipment_compare_revision": "INVENTORY-EQUIP-COMPARE-1.2",
-  "pwa_cache_revision": "v202",
+  "pwa_cache_revision": "v203",
   "affiliation_contribution_revision": "AFFILIATION-CONTRIBUTION-1.1",
   "affiliation_treasury_depth_revision": "AFFILIATION-TREASURY-DEPTH-2.3",
   "affiliation_integrity_revision": "AFFILIATION-INTEGRITY-1.1",
@@ -877,9 +878,10 @@
     "orphan_src_guard": true,
     "load_order_audit": true,
     "save_compatible": true,
-    "note": "CURRENT-2.25.13：補齊四個資料庫領域的生成器／管理AI配對與runtime治理閘門；91個正式src模組與PWA v191同步，Android版號由版本檔遞增；舊存檔相容。",
-    "last_verified_release": "CURRENT-2.25.23",
+    "note": "CURRENT-2.25.24：五回合索引更新改為資料變動時才重建，委託可行地點結果快取，水源來源稽核改為唯讀；91個正式src模組與PWA v203同步，舊存檔相容。",
+    "last_verified_release": "CURRENT-2.25.24",
     "notes": [
+      "CURRENT-2.25.24：延後無變更時的runtime索引重建，快取委託可行地點結果；水源稽核維持唯讀，舊存檔相容。",
       "ENEMY-ROSTER-1.2：多敵人生成不再只看同地圖候選池；改以第一名敵人為生態群組錨點，依 authored encounter group、勢力、怪物族群與生態類別篩選合理隊友。犬科掠食者不會與羊／鹿等草食群並肩作戰；不死、惡魔、構裝、元素、人型勢力、水生、昆蟲、龍裔與野生動物分群處理。Boss 若沒有合理隨從則保留單體，不硬湊不相關敵人。舊存檔相容。PWA v199，Android versionCode 2025020。",
       "CURRENT-2.20.0：587隻怪物各自掛接物種行為簽章、專屬動作與菁英／Boss階段技；新增MONSTER-BEHAVIOR-DEPTH-1.0。",
       "CURRENT-2.19.0：POLITY-DATABASE-COMPLETION-1.0補齊16個政治體的治理、行省、城鎮、野外、地下城、NPC、經濟、文化與地方事件資料；修補6個遺留地點的行省掛接；PWA v172。",
@@ -919,8 +921,8 @@
   "full_program_debug": {
     "programs_total": 91,
     "programs_loaded": 91,
-    "stateful_tests": 11,
-    "stateful_tests_passed": 11,
+    "stateful_tests": 12,
+    "stateful_tests_passed": 12,
     "full_audits_executed": 74,
     "full_audits_passed": 74,
     "state_required_audits_skipped": [],
@@ -939,7 +941,8 @@
       "市場買賣交易",
       "同行負重懲罰一致性",
       "奇遇動態條件與去重",
-      "生成器／管理AI領域配對與runtime治理"
+      "生成器／管理AI領域配對與runtime治理",
+      "runtime索引更新與快取重用"
     ],
     "release_drift_guard": true,
     "readonly_mutation_guard": true,
@@ -947,7 +950,7 @@
     "deployment_gate": false,
     "last_result": "pass",
     "save_compatible": true,
-    "last_verified_release": "CURRENT-2.25.23",
+    "last_verified_release": "CURRENT-2.25.24",
     "delivery_note": "GitHub Pages is published by the manually dispatched GitHub Actions workflow after release integrity validation."
   },
   "program_optimization_revision": "PROGRAM-OPTIMIZE-2.0",
@@ -955,7 +958,7 @@
     "audited_src_programs": 91,
     "loader_defer_order_preserved": true,
     "service_worker_strategy": "navigation/version network-first; JS/CSS HTTP-revalidated network-first with offline fallback; other static cache-first",
-    "pwa_cache": "v202",
+    "pwa_cache": "v203",
     "redundant_persist_writes_skipped": true,
     "shared_weight_calculation": true,
     "registry_membership_lookup": "Set",
@@ -982,7 +985,10 @@
     "single_pass_database_audit": true,
     "npc_story_template_indexes": true,
     "gather_inventory_snapshot": true,
-    "refactor_scope": "共用查找、完整稽核與高頻世界循環"
+    "refactor_scope": "共用查找、完整稽核與高頻世界循環",
+    "runtime_index_refresh": "rebuild only when source arrays, index keys, or cache dependencies change",
+    "quest_viability_cache": true,
+    "water_source_audit_read_only": true
   },
   "asdail_narrative_depth_revision": "ASDAIL-NARRATIVE-DEPTH-1.0",
   "asdail_narrative_runtime_revision": "ASDAIL-NARRATIVE-RUNTIME-2.0",

@@ -152,13 +152,50 @@ let TRAVEL_CACHE=null;
 function ensureTravelCache(){if(TRAVEL_CACHE)return TRAVEL_CACHE;const ids=DB.locations.map(x=>x.id),ix=new Map(ids.map((id,i)=>[id,i])),n=ids.length,d=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Infinity));for(const l of DB.locations){const i=ix.get(l.id);for(const e of (l.links||[])){const j=ix.get(e.to);if(j!=null&&Number.isFinite(e.hours))d[i][j]=Math.min(d[i][j],e.hours)}}for(let k=0;k<n;k++)for(let i=0;i<n;i++){if(!Number.isFinite(d[i][k]))continue;for(let j=0;j<n;j++){const nd=d[i][k]+d[k][j];if(nd<d[i][j])d[i][j]=nd}}TRAVEL_CACHE={ix,d};return TRAVEL_CACHE}
 const ENCOUNTER_CACHE=new Map();
 const CRAFT_INDEX=new Map();
+let QUEST_LOCATION_CACHE=new WeakMap();
+let RUNTIME_INDEX_SOURCE_SNAPSHOT=null;
+
+function runtimeIndexSourceArrays(){
+ const sources=Object.entries(DB).filter(([,rows])=>Array.isArray(rows));
+ for(const [name,rows] of [["dialogue_database.records",DB.dialogue_database?.records],["intel_database.records",DB.intel_database?.records]]){
+   if(Array.isArray(rows))sources.push([name,rows]);
+ }
+ for(const [id,facility] of Object.entries(DB.facilities||{}))if(Array.isArray(facility?.stock))sources.push(["facilities."+id+".stock",facility.stock]);
+ return sources
+}
+function runtimeIndexDependencySignature(name,row){
+ if(name==="items")return JSON.stringify([row?.type,row?.tier,row?.inventory_group,row?.food_subtype,row?.recipe_id,row?.craft_recipe,row?.acquisition_sources]);
+ if(name==="locations")return JSON.stringify([row?.kind,row?.tier,row?.links,row?.facilities,row?.gather,row?.mining,row?.woodcut,row?.fish,row?.hunt,row?.encounter_profile,row?.encounter_tags]);
+ if(name==="monsters")return JSON.stringify([row?.tier,row?.encounter_weight,row?.encounter_enabled,row?.domestic,row?.habitat,row?.habitats,row?.near_town_eligible,row?.category,row?.ecology_profile,row?.loot_materials]);
+ if(name==="recipes")return JSON.stringify([row?.name,row?.ingredients,row?.requires,row?.output,row?.result]);
+ return null
+}
+function runtimeIndexSourceSnapshot(){
+ const sources=runtimeIndexSourceArrays().map(([name,rows])=>({name,rows,entries:rows.map(row=>[row,row?.id,row?.region_id,row?.polity_id,runtimeIndexDependencySignature(name,row)])}));
+ return {sources,craftingProfessions:JSON.stringify(DB.crafting_system?.facility_profession||{})}
+}
+function runtimeIndexSourcesChanged(){
+ const previous=RUNTIME_INDEX_SOURCE_SNAPSHOT,current=runtimeIndexSourceArrays();
+ if(!previous||previous.sources.length!==current.length||previous.craftingProfessions!==JSON.stringify(DB.crafting_system?.facility_profession||{}))return true;
+ for(let i=0;i<current.length;i++){
+   const [name,rows]=current[i],old=previous.sources[i];
+   if(name!==old.name||rows!==old.rows||rows.length!==old.entries.length)return true;
+   for(let j=0;j<rows.length;j++){
+     const row=rows[j],entry=old.entries[j];
+     if(row!==entry[0]||row?.id!==entry[1]||row?.region_id!==entry[2]||row?.polity_id!==entry[3]||runtimeIndexDependencySignature(name,row)!==entry[4])return true;
+   }
+ }
+ return false
+}
 
 function replaceRuntimeIndex(map,rows,keyFn=x=>x?.id){
  if(!(map instanceof Map))return;
  map.clear();
  for(const x of rows||[]){const key=keyFn(x);if(key!=null)map.set(key,x)}
 }
-function syncRuntimeIndexesAndMetadata(){
+function syncRuntimeIndexesAndMetadata(force=true){
+ if(!force&&!runtimeIndexSourcesChanged())return DB.database_growth_compat_system?.live_counts||{};
+ QUEST_LOCATION_CACHE=new WeakMap();
  replaceRuntimeIndex(IDX.item,DB.items);
  replaceRuntimeIndex(IDX.race,DB.races);
  replaceRuntimeIndex(IDX.loc,DB.locations);
@@ -266,15 +303,16 @@ function syncRuntimeIndexesAndMetadata(){
    rules:[
      "可擴充資料庫只檢查核心最低量與引用完整性，不因新增合法資料超過舊版基準而報錯。",
      "真正封閉規則仍維持硬限制，例如S級全球上限40、8個頂層裝備欄、副職業2個、技能10個。",
-     "五回合自檢前重建runtime索引與可推導統計，避免後載入擴充資料被舊索引誤判為不存在。",
+     "五回合自檢比對runtime索引資料源；僅在資料列、索引鍵或快取相依欄位變更時重建，避免後載入擴充資料被舊索引誤判為不存在。",
      "新增資料若缺必要引用、ID重複、超出封閉上限或破壞世界規則，仍必須正常回報。"
    ]
  };
+ RUNTIME_INDEX_SOURCE_SNAPSHOT=runtimeIndexSourceSnapshot();
  return counts
 }
 function databaseGrowthAudit(){
  const issues=[];
- syncRuntimeIndexesAndMetadata();
+ syncRuntimeIndexesAndMetadata(false);
  for(const [key,value] of Object.entries(DB)){
    if(!Array.isArray(value)||!value.length)continue;
    let objectCount=0,identifiedCount=0;
@@ -1951,9 +1989,13 @@ function questLocationValid(t,l){
  return false
 }
 function questViableLocations(t){
+ if(!t||typeof t!=="object")return [];
+ const signature=JSON.stringify([t.objective||{},t.recommended_locations||[]]),cached=QUEST_LOCATION_CACHE.get(t);
+ if(cached&&cached.signature===signature)return cached.locations.slice();
  const preferred=(t.recommended_locations||[]).map(loc).filter(l=>questLocationValid(t,l)).map(l=>l.id);
- if(preferred.length)return preferred;
- return DB.locations.filter(l=>questLocationValid(t,l)).map(l=>l.id)
+ const locations=preferred.length?preferred:DB.locations.filter(l=>questLocationValid(t,l)).map(l=>l.id);
+ QUEST_LOCATION_CACHE.set(t,{signature,locations});
+ return locations.slice()
 }
 function questTemplateViable(t){
  if(!t||G.character.level<t.min_level||G.character.level>t.max_level)return false;

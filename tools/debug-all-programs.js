@@ -278,6 +278,40 @@ statefulStep("save_roundtrip",()=>{
   })()`);
 });
 
+statefulStep("runtime_index_refresh_and_cache_reuse",()=>{
+  return ctx(`(()=>{
+    const target=(DB.locations||[]).find(l=>l?.kind==="wild"&&Array.isArray(l.links));
+    const facilityId=Object.keys(DB.crafting_system?.facility_profession||{})[0];
+    if(!target||!facilityId)throw new Error("缺少索引快取回歸測試資料");
+    ensureTravelCache();encounterCandidates(target);craftingItemsFor(facilityId,"F");
+    const travel=TRAVEL_CACHE,encounters=ENCOUNTER_CACHE.size,crafts=CRAFT_INDEX.size;
+    databaseGrowthAudit();
+    if(TRAVEL_CACHE!==travel||ENCOUNTER_CACHE.size!==encounters||CRAFT_INDEX.size!==crafts)throw new Error("資料未變動時不應清空快取");
+    const originalLinks=target.links.slice();
+    try{
+      target.links.push({to:target.id,hours:.01});
+      databaseGrowthAudit();
+      if(TRAVEL_CACHE!==null||ENCOUNTER_CACHE.size||CRAFT_INDEX.size)throw new Error("地點連結變更後未清除相依快取");
+    }finally{
+      target.links.splice(0,target.links.length,...originalLinks);
+      databaseGrowthAudit();
+    }
+    const id="__TEST_RUNTIME_INDEX_REFRESH__";
+    if(item(id))throw new Error("測試物品ID已存在");
+    const row={id,name:"索引回歸測試物品",tier:"F",type:"道具"};
+    try{
+      DB.items.push(row);databaseGrowthAudit();
+      if(item(id)!==row||!DB.content_link_index?.item_sources?.[id])throw new Error("新增物品未同步runtime索引與來源索引");
+      if(TRAVEL_CACHE!==null||ENCOUNTER_CACHE.size||CRAFT_INDEX.size)throw new Error("新增資料後未清除相依快取");
+    }finally{
+      const index=DB.items.indexOf(row);if(index>=0)DB.items.splice(index,1);
+      databaseGrowthAudit();
+    }
+    if(item(id)||DB.content_link_index?.item_sources?.[id])throw new Error("移除物品後索引仍保留舊資料");
+    return {unchanged_audit_reused_caches:true,nested_location_change_invalidated:true,item_add_remove_refreshed_indexes:true};
+  })()`);
+});
+
 statefulStep("legacy_save_migration",()=>{
   if(!baselineState)throw new Error("缺少建角基準狀態");
   context.__baselineState=structuredClone(baselineState);

@@ -431,10 +431,14 @@
     const emptyBag=dbItem(EMPTY_BAG_ID);
     const bucket=(DB.items||[]).find(d=>d?.water_collection_tool===true||d?.tool_effect==="water_collect"||COLLECTION_TOOL_RE.test(String(d?.name||"")));
     const lifecycleOk=water?.container_return_id===EMPTY_BAG_ID&&emptyBag?.container_state==="empty";
-    const linkAudit=syncContentLinkItemSources();
+    const sourceIndex=DB.content_link_index?.item_sources||{},validIds=new Set((DB.items||[]).map(d=>d?.id).filter(Boolean));
+    const sourceIds=Object.keys(sourceIndex),blankIds=sourceIds.filter(id=>!Object.values(sourceIndex[id]||{}).some(values=>Array.isArray(values)&&values.length));
+    const missingIds=[...validIds].filter(id=>!Object.prototype.hasOwnProperty.call(sourceIndex,id));
+    const staleIds=sourceIds.filter(id=>!validIds.has(id));
+    const indexComplete=sourceIds.length===validIds.size&&!missingIds.length&&!staleIds.length;
     return {
       revision:REVISION,
-      pass:!!water&&!!emptyBag&&!!bucket&&lifecycleOk&&points.length>0&&missingTowns.length===0&&linkAudit.index_count===linkAudit.item_count,
+      pass:!!water&&!!emptyBag&&!!bucket&&lifecycleOk&&points.length>0&&missingTowns.length===0&&indexComplete,
       source_count:points.length,
       town_count:towns.length,
       missing_towns:missingTowns,
@@ -442,9 +446,11 @@
       empty_bag_present:!!emptyBag,
       collection_tool_present:!!bucket,
       container_lifecycle_ok:lifecycleOk,
-      item_source_index_count:linkAudit.index_count,
-      item_count:linkAudit.item_count,
-      blank_item_source_ids:linkAudit.blank_ids
+      item_source_index_count:sourceIds.length,
+      item_count:validIds.size,
+      blank_item_source_ids:blankIds,
+      missing_item_source_ids:missingIds,
+      stale_item_source_ids:staleIds
     };
   }
 
