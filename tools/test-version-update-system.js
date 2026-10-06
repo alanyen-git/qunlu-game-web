@@ -8,11 +8,12 @@ const ota=fs.readFileSync("mobile/ota-bootstrap.js","utf8");
 const architecture=fs.readFileSync("mobile/ARCHITECTURE.md","utf8");
 const html=fs.readFileSync("index.html","utf8");
 const sw=fs.readFileSync("sw.js","utf8");
+const water=fs.readFileSync("src/water-source-v1.js","utf8");
 const version=JSON.parse(fs.readFileSync("version.json","utf8"));
 
-assert.equal(version.version,"CURRENT-2.25.23");
-assert.equal(version.previous_version,"CURRENT-2.25.22");
-assert.equal(version.pwa_cache_revision,"v202");
+assert.equal(version.version,"CURRENT-2.25.24");
+assert.equal(version.previous_version,"CURRENT-2.25.23");
+assert.equal(version.pwa_cache_revision,"v203");
 assert.match(runtime,/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json/);
 assert.match(runtime,/checkForGameUpdate\(true\)/);
 assert.match(runtime,/QUNLU_NATIVE_UPDATE/);
@@ -22,7 +23,15 @@ assert.match(runtime,/連線 GitHub 檢查更新/);
 assert.match(runtime,/legacy save restore failed; trying expanded storage/);
 assert.match(runtime,/expanded save restore failed/);
 assert.match(runtime,/legacy save is incomplete/);
-assert.match(sw,/CACHE_NAME=CACHE_PREFIX\+"v202"/);
+assert.match(sw,/CACHE_NAME=CACHE_PREFIX\+"v203"/);
+
+assert.equal(version.full_program_debug.stateful_tests,12);
+assert.equal(version.program_optimization.quest_viability_cache,true);
+assert.equal(version.program_optimization.water_source_audit_read_only,true);
+assert.ok(runtime.includes("function runtimeIndexSourcesChanged()"));
+const waterAudit=water.slice(water.indexOf("function runWaterSourceAudit()"),water.indexOf("\\n  }",water.indexOf("function runWaterSourceAudit()")));
+assert.doesNotMatch(waterAudit,/syncContentLinkItemSources\\\(/);
+assert.match(waterAudit,/missing_item_source_ids/);
 
 assert.match(ota,/GITHUB_VERSION_URL\s*=\s*"https:\/\/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json"/);
 assert.match(ota,/globalThis\.QUNLU_NATIVE_UPDATE/);
