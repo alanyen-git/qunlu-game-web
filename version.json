@@ -1,22 +1,17 @@
 {
-  "version": "CURRENT-1.65.0",
-  "previous_version": "CURRENT-1.64.0",
+  "version": "CURRENT-1.64.0",
+  "previous_version": "CURRENT-1.63.0",
   "channel": "web",
   "distribution_mode": "static_web",
   "entrypoint": "index.html",
-  "summary": "戰鬥核心數值等比例×2並維持原相對平衡；建立100職業與210怪物原創三頭身立繪系統並接入戰鬥／資料庫。",
+  "summary": "戰鬥介面全面改為復古 JRPG 藍色視窗配置：上方回合標題、中央戰場、雙欄狀態／戰鬥紀錄與右側直列指令。",
   "changelog": [
-    "HP、SP、MP、物理攻擊、魔法攻擊、物理防禦、魔法防禦與固定回復量整體提高100%。",
-    "怪物、隊友、寵物／召喚獸的核心絕對戰鬥數值同步×2，避免只強化單一陣營。",
-    "技能MP／SP固定消耗同步×2；固定藥劑回復與戰鬥道具固定傷害同步×2，維持原本可施放次數與回復比例。",
-    "命中、閃避、爆擊率、攻速、施法速度、格擋率、元素／狀態抗性、破甲、射程與負重維持原值，避免百分比型數值溢位。",
-    "加入COMBAT-NUMBER-SCALE-2.0平衡證明：線性傷害與生命同步×2，使平均擊殺回合數近似不變。",
-    "新增BATTLE-ART-1.0：為100種戰鬥職業建立依武器、定位與階級差異化的原創三頭身角色立繪。",
-    "為210筆怪物資料建立依生態類別、名稱、階級與種子差異化的原創怪物立繪。",
-    "每筆職業／怪物資料庫新增art_profile、portrait_svg、battle_sprite_svg並提供覆蓋率稽核。",
-    "戰鬥畫面正式以資料庫立繪取代emoji佔位圖；角色選職介面同步顯示職業立繪。",
-    "戰鬥資訊列新增ATK、MATK、DEF、MDEF，敵方也顯示核心攻防數值。",
-    "網頁版同步更新PWA離線快取並由GitHub Pages自動部署。"
+    "戰鬥介面改為參考指定圖面配置：上方大字回合標題、中央完整戰場、下方角色狀態與戰鬥訊息雙欄。",
+    "底部指令改為右側直列「攻擊／魔法／技能／道具」，視覺採深藍漸層、銀白雙層邊框與復古 RPG 視窗樣式。",
+    "魔法與技能分流顯示；原有防禦與撤退保留於技能選單內，不移除既有戰鬥功能。",
+    "戰場新增敵我分區、角色／敵方動態 HP 顯示、隊友與夥伴站位及戰鬥地點標籤。",
+    "手機版戰鬥畫面改為滿版 9:16 優先配置，避免底部按鍵被系統導覽列或原主選單遮住。",
+    "更新 PWA 快取版本與靜態資源版本參數，降低舊戰鬥介面殘留快取。"
   ],
   "content_revision": "ASDAIL-DEPTH-2.0",
   "market_economy_revision": "MARKET-PRICE-SYNC-2.0",
@@ -24,16 +19,5 @@
   "npc_depth_revision": "NPC-DEPTH-1.0",
   "deployment_provider": "github_pages",
   "netlify_dependency": false,
-  "save_compatible": true,
-  "combat_number_scale": {
-    "version": "COMBAT-NUMBER-SCALE-2.0",
-    "multiplier": 2,
-    "rationale": "核心絕對數值同步放大，比例與平均擊殺回合數近似不變；機率型數值不放大。"
-  },
-  "battle_art": {
-    "version": "BATTLE-ART-1.0",
-    "class_portraits": 100,
-    "monster_portraits": 210,
-    "integration": "DB.combat_classes / DB.monsters art_profile + portrait_svg + battle_sprite_svg"
-  }
+  "save_compatible": true
 }
