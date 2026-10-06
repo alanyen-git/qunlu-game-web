@@ -1106,3 +1106,212 @@ button:focus-visible{outline:2px solid #d9bd79;outline-offset:2px}
  .atlas-node{grid-template-columns:26px minmax(0,1fr)}
  .atlas-node-action{grid-column:2}
 }
+
+
+/* ===== CURRENT-1.64.0 RETRO JRPG BATTLE UI ===== */
+body.battle-open{overflow:hidden!important}
+body.battle-open .nav{visibility:hidden}
+.battleback{
+  inset:0!important;padding:0!important;background:#05070c!important;
+  align-items:stretch!important;justify-content:center!important;
+}
+.battlebox{
+  width:min(760px,100vw)!important;height:100dvh!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:#050b14!important;box-shadow:none!important;overflow:hidden!important;
+}
+#battleTitle{display:none!important}
+#battleBody{height:100%;overflow:hidden!important;padding:0!important}
+.retro-battle-root{
+  height:100%;min-height:0;display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto minmax(150px,25dvh);
+  gap:4px;padding:5px;
+  background:linear-gradient(180deg,#070d15 0,#03070b 100%);
+  color:#fff;
+  font-family:"Noto Serif TC","Microsoft JhengHei",serif;
+}
+.retro-turn-banner,.retro-window{
+  border:2px solid #d8deed;
+  box-shadow:inset 0 0 0 2px #43516f,inset 0 0 0 4px #101a32,0 0 0 1px #080c14;
+  background:linear-gradient(180deg,#3149d8 0,#182da7 47%,#142385 100%);
+}
+.retro-turn-banner{
+  min-height:58px;display:grid;place-items:center;padding:8px 12px;
+  font-size:clamp(24px,5vw,38px);font-weight:800;letter-spacing:.04em;
+  text-shadow:0 3px 0 #0a0e26,0 0 6px #000;
+}
+.retro-battle-stage{
+  position:relative;isolation:isolate;overflow:hidden;min-height:0;
+  border:2px solid #d6dbe7;box-shadow:inset 0 0 0 2px #46536b;
+  background:
+    linear-gradient(90deg,transparent 0 18%,rgba(10,13,18,.20) 18% 19%,transparent 19% 100%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,rgba(0,0,0,.045) 2px 5px),
+    linear-gradient(180deg,#202832 0 47%,#2c261f 48% 100%);
+}
+.retro-battle-stage:before{
+  content:"";position:absolute;inset:0;z-index:-3;
+  background:
+    linear-gradient(90deg,#20242a 0 8%,#383b3c 8% 10%,#191d22 10% 24%,#3c3b37 24% 26%,#1d2227 26% 45%,#35342f 45% 47%,#1b2025 47% 66%,#35342f 66% 68%,#1b2025 68% 88%,#35342f 88% 90%,#1a1e23 90%),
+    linear-gradient(180deg,#242b31,#11161b);
+  opacity:.92;
+}
+.retro-battle-stage:after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:42%;z-index:-1;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 28px,rgba(9,7,5,.35) 28px 31px),
+    repeating-linear-gradient(90deg,#3c342a 0 54px,#332d26 54px 108px,#4a3d2f 108px 162px);
+  transform:perspective(440px) rotateX(57deg);transform-origin:bottom;
+}
+.retro-stage-light{
+  position:absolute;z-index:-1;left:46%;top:8%;width:34%;height:62%;
+  background:radial-gradient(ellipse at center,#f9b55f50 0,#c45b2030 36%,transparent 70%);
+  filter:blur(4px);pointer-events:none;
+}
+.retro-fireplace{
+  position:absolute;left:51%;top:12%;width:22%;height:42%;z-index:0;
+  border:10px solid #5f5b53;border-bottom-width:14px;border-radius:46% 46% 8px 8px;
+  background:#16100d;box-shadow:inset 0 0 0 5px #2f2a27,0 0 14px #0008;
+}
+.retro-fireplace:before,.retro-fireplace:after{
+  content:"";position:absolute;bottom:5%;left:50%;transform:translateX(-50%);
+  border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:54px solid #ff8b1f;
+  filter:drop-shadow(0 0 10px #ff7a1f);
+}
+.retro-fireplace:after{
+  bottom:8%;border-left-width:10px;border-right-width:10px;border-bottom-width:34px;border-bottom-color:#ffe86e;
+}
+.retro-fireplace span{
+  position:absolute;left:-31%;right:-31%;bottom:-25%;height:15px;border-radius:50%;
+  background:#1a100b;box-shadow:0 -4px 0 #6f3e20;
+}
+.retro-stage-side{position:absolute;inset:0;pointer-events:none}
+.enemy-side .retro-combatant{position:absolute;left:10%;bottom:12%}
+.ally-side{
+  left:53%;right:4%;top:18%;bottom:12%;display:grid;
+  grid-template-columns:repeat(2,minmax(72px,1fr));grid-auto-rows:minmax(96px,1fr);
+  gap:6px;align-content:center;justify-items:center;
+}
+.retro-combatant{
+  min-width:86px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  text-align:center;text-shadow:0 2px 3px #000;filter:drop-shadow(0 5px 5px #0008);
+}
+.retro-combatant.ko{opacity:.42;filter:grayscale(.8) drop-shadow(0 5px 5px #0008)}
+.retro-sprite-bubble{
+  width:76px;height:84px;display:grid;place-items:center;position:relative;
+  border-radius:42% 42% 18% 18%;
+  background:
+    radial-gradient(circle at 50% 26%,#d6a477 0 18%,transparent 19%),
+    radial-gradient(ellipse at 50% 63%,#6d7d94 0 34%,#293544 35% 52%,transparent 53%);
+}
+.retro-sprite-bubble:before,.retro-sprite-bubble:after{
+  content:"";position:absolute;bottom:15px;width:11px;height:36px;background:#4d596b;border-radius:8px;
+}
+.retro-sprite-bubble:before{left:17px;transform:rotate(13deg)}
+.retro-sprite-bubble:after{right:17px;transform:rotate(-13deg)}
+.retro-sprite-bubble>span{
+  position:relative;z-index:3;font-family:system-ui,sans-serif;font-size:30px;line-height:1;
+  transform:translateY(6px);filter:drop-shadow(0 1px 1px #000);
+}
+.retro-sprite-bubble.enemy{
+  width:104px;height:96px;border-radius:44% 44% 24% 24%;
+  background:radial-gradient(ellipse at 50% 54%,#57514a 0 36%,#302c28 37% 60%,transparent 61%);
+}
+.retro-sprite-bubble.enemy:before,.retro-sprite-bubble.enemy:after{background:#443c35;height:40px}
+.retro-sprite-bubble.enemy>span{font-size:44px}
+.retro-unit-name{font-weight:900;font-size:14px;margin-top:-4px}
+.retro-unit-role{font-size:10px;opacity:.92;white-space:nowrap}
+.retro-mini-hp{width:88px;height:6px;margin-top:3px;border:1px solid #d8d8d8;background:#09101b}
+.retro-mini-hp i{display:block;height:100%;background:#7edd87}
+.retro-combatant.enemy .retro-mini-hp i{background:#f29184}
+.retro-location-label{
+  position:absolute;left:50%;bottom:4px;transform:translateX(-50%);
+  font-weight:900;font-size:15px;letter-spacing:.08em;text-shadow:0 2px 2px #000;
+}
+.retro-info-row{display:grid;grid-template-columns:58% 42%;gap:4px;min-height:116px}
+.retro-window{min-width:0;overflow:hidden}
+.retro-party-status{padding:9px 12px}
+.retro-stat-row{
+  display:grid;grid-template-columns:minmax(70px,1fr) auto auto;gap:10px;align-items:center;
+  min-height:26px;font-size:clamp(13px,2.8vw,19px);font-variant-numeric:tabular-nums;
+}
+.retro-stat-row b{color:#f5d37a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.retro-stat-row span{white-space:nowrap}
+.retro-player-extra{margin-top:4px;padding-top:5px;border-top:1px solid #7687d366;font-size:11px;opacity:.9}
+.retro-log{
+  padding:8px 11px;display:flex;flex-direction:column;justify-content:flex-start;
+  gap:4px;font-size:clamp(12px,2.7vw,18px);line-height:1.35;
+}
+.retro-log>div{padding-bottom:3px;border-bottom:1px solid #7d8fe75e}
+.retro-log b{font-weight:900}
+.retro-command-window{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(128px,28%);
+  gap:0;min-height:0;padding:0!important;
+}
+.retro-choice{
+  min-width:0;min-height:0;overflow:auto;padding:10px 12px!important;margin:0!important;
+  background:linear-gradient(180deg,#263cca,#162aa6 55%,#14258e);
+}
+.retro-choice .itemrow{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;
+  border-bottom:1px solid #91a0e55c;padding:8px 4px;color:#fff;
+}
+.retro-choice .itemrow button{min-height:36px;padding:6px 10px;border-radius:3px}
+.retro-command-placeholder{
+  height:100%;display:grid;grid-template-columns:repeat(4,64px);align-items:end;justify-content:space-around;
+  gap:8px;padding:12px;opacity:.22;
+}
+.retro-command-placeholder span{
+  aspect-ratio:1;border:3px solid #d6dff4;border-radius:50%;
+  display:grid;place-items:center;font-size:30px;color:#d9e1f9;
+}
+.retro-command-list{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:9px 8px;border-left:2px solid #d9deee;
+  background:linear-gradient(180deg,#243bc3,#142890);
+}
+.retro-command{
+  min-height:42px!important;padding:4px 7px!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;color:#fff!important;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:inherit;font-size:clamp(18px,4.2vw,28px)!important;font-weight:900;
+  text-shadow:0 2px 2px #080b24;
+}
+.retro-command:hover:not(:disabled),.retro-command:focus-visible{
+  background:#ffffff12!important;color:#ffe99a!important;
+}
+.retro-command i{font-style:normal;color:#fff}
+.battle-skill-sheet{
+  border-radius:4px!important;border:2px solid #e1e5ef!important;
+  box-shadow:inset 0 0 0 2px #465476,0 22px 70px #000d!important;
+  background:linear-gradient(180deg,#263dc4,#13278d)!important;
+}
+.battle-skill-head{background:#101d72!important;border-bottom-color:#a9b5e0!important}
+.battle-skill-body .itemrow{border-bottom-color:#8f9cda55!important}
+.battle-skill-body button{border-radius:3px!important}
+.retro-tactical-row{background:#ffffff0b}
+@media(max-width:620px){
+  .retro-battle-root{grid-template-rows:auto minmax(0,1fr) auto minmax(155px,25dvh);padding:4px;gap:3px}
+  .retro-turn-banner{min-height:52px;font-size:clamp(22px,7vw,30px)}
+  .retro-battle-stage{min-height:38dvh}
+  .retro-fireplace{left:49%;width:28%;height:38%}
+  .enemy-side .retro-combatant{left:7%;bottom:10%}
+  .ally-side{left:50%;right:1%;top:14%;bottom:8%;grid-template-columns:repeat(2,minmax(62px,1fr))}
+  .retro-sprite-bubble{width:62px;height:70px}.retro-sprite-bubble.enemy{width:88px;height:82px}
+  .retro-sprite-bubble>span{font-size:25px}.retro-sprite-bubble.enemy>span{font-size:38px}
+  .retro-unit-name{font-size:12px}.retro-unit-role{font-size:9px}.retro-mini-hp{width:72px}
+  .retro-info-row{grid-template-columns:58% 42%;min-height:112px}
+  .retro-party-status{padding:7px 8px}.retro-stat-row{grid-template-columns:minmax(54px,1fr) auto;gap:6px;font-size:12px}
+  .retro-stat-row span:last-child{display:none}
+  .retro-log{padding:7px 8px;font-size:12px}
+  .retro-command-window{grid-template-columns:minmax(0,1fr) 34%}
+  .retro-command-placeholder{grid-template-columns:repeat(4,44px);padding:8px;align-items:center}
+  .retro-command-placeholder span{font-size:20px}
+  .retro-command-list{padding:6px 4px}.retro-command{min-height:36px!important;font-size:20px!important}
+  .battle-skill-popup{align-items:flex-end!important;padding:0!important}
+  .battle-skill-sheet{width:100%!important;max-height:86dvh!important;border-radius:4px 4px 0 0!important}
+}
+@media(max-width:380px){
+  .retro-command-placeholder{grid-template-columns:repeat(2,46px)}
+  .retro-info-row{grid-template-columns:56% 44%}
+  .retro-log{font-size:11px}
+}
