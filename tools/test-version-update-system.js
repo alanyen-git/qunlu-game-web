@@ -29,10 +29,12 @@ assert.equal(version.full_program_debug.stateful_tests,12);
 assert.equal(version.program_optimization.quest_viability_cache,true);
 assert.equal(version.program_optimization.water_source_audit_read_only,true);
 assert.ok(runtime.includes("function runtimeIndexSourcesChanged()"));
-const waterAudit=water.match(/function runWaterSourceAudit\\(\\)\\{[\\s\\S]*?\\n  \\}/)?.[0]||"";
-assert.ok(waterAudit);
+const auditStart=water.indexOf("function runWaterSourceAudit(){");
+const auditEnd=water.indexOf("\n  }\n\n  if(typeof renderActions",auditStart);
+assert.ok(auditStart>=0&&auditEnd>auditStart);
+const waterAudit=water.slice(auditStart,auditEnd);
 assert.equal(waterAudit.includes("syncContentLinkItemSources()"),false);
-
+assert.ok(waterAudit.includes("missing_item_source_ids"));
 assert.match(ota,/GITHUB_VERSION_URL\s*=\s*"https:\/\/raw\.githubusercontent\.com\/alanyen-git\/qunlu-game-web\/main\/version\.json"/);
 assert.match(ota,/globalThis\.QUNLU_NATIVE_UPDATE/);
 assert.match(ota,/CapacitorUpdater\.download/);
