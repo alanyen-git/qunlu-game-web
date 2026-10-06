@@ -1,5 +1,5 @@
 const CACHE_PREFIX="qunlu-pwa-";
-const CACHE_NAME=CACHE_PREFIX+"v9";
+const CACHE_NAME=CACHE_PREFIX+"v8";
 const CORE=[
   "./",
   "./index.html",
@@ -10,8 +10,6 @@ const CORE=[
   "./src/game-data.js",
   "./src/data-patches.js",
   "./src/asdail-depth-v2.js",
-  "./src/combat-scale-v2.js",
-  "./src/battle-art-v1.js",
   "./src/runtime.js",
   "./src/market-economy-v2.js",
   "./src/world-autonomy-v1.js",
