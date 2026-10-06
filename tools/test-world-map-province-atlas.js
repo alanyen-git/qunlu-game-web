@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
-assert.ok(html.includes("src/world-map-province-atlas-v1.js?v="+version.version));
+const source=fs.readFileSync("src/world-map-province-atlas-v1.js","utf8");
 const html=fs.readFileSync("index.html","utf8"),sw=fs.readFileSync("sw.js","utf8");
 const registry=fs.readFileSync("src/program-registry-v1.js","utf8"),version=JSON.parse(fs.readFileSync("version.json","utf8"));
 assert.match(source,/WORLD-MAP-PROVINCE-ATLAS-1\.1/);
-assert.match(html,/src\/world-map-province-atlas-v1\.js\?v=CURRENT-2.25.23/);
+assert.ok(html.includes("src/world-map-province-atlas-v1.js?v="+version.version));
 assert.ok(sw.includes('"./src/world-map-province-atlas-v1.js"'));
 assert.ok(registry.includes('"src/world-map-province-atlas-v1.js"'));
 assert.equal(version.world_map_province_atlas_revision,"WORLD-MAP-PROVINCE-ATLAS-1.1");
