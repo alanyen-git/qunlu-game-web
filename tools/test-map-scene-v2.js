@@ -12,8 +12,8 @@ assert.match(source,/continuous-canvas/);
 assert.match(source,/ensureMapSurveyCompletion/);
 assert.doesNotMatch(source,/function render\(\)\{\s*if\(typeof globalThis\.refreshMapSurveyCompletion/);
 assert.match(runtime,/Object\.defineProperty\(globalThis,"G"/);
-assert.match(html,/src\/map-survey-completion-v1\.js\?v=CURRENT-2\.25\.23/);
-assert.match(html,/src\/map-scene-v2\.js\?v=CURRENT-2\.25\.23/);
+assert.ok(html.includes("src/map-survey-completion-v1.js?v="+version.version));
+assert.ok(html.includes("src/map-scene-v2.js?v="+version.version));
 assert.doesNotMatch(html,/src\/witcher-map-core-v1\.js/);
 assert.ok(sw.includes('"./src/map-scene-v2.js"'));
 assert.ok(!sw.includes('"./src/witcher-map-core-v1.js"'));
@@ -21,9 +21,9 @@ assert.ok(registry.includes('"src/map-scene-v2.js"'));
 assert.ok(!registry.includes('"src/witcher-map-core-v1.js"'));
 assert.equal(version.map_scene_revision,"MAP-SCENE-2.2");
 assert.equal(version.map_scene.legacy_renderer_active,false);
-assert.equal(version.pwa_cache_revision,"v202");
+assert.match(sw,new RegExp('CACHE_NAME=CACHE_PREFIX\\+"'+version.pwa_cache_revision+'"'));
 
-const DB={meta:{current_version:"CURRENT-2.25.23"},world_geopolitical_map:{canvas:{width:900,height:560},region_geometry:[
+const DB={meta:{current_version:version.version},world_geopolitical_map:{canvas:{width:900,height:560},region_geometry:[
  {region_id:"REG-1",layer:"surface",political_entity_id:"POL-1",points:[[20,20],[620,20],[620,430],[20,430]]}
 ],mountain_ranges:[{id:"MT-1",name:"長脊",regions:["REG-1"],points:[[70,90],[300,130],[520,100]]}],rivers:[{id:"RV-1",name:"銀河",regions:["REG-1"],points:[[150,30],[260,220],[220,420]]}],lakes:[],major_roads:[{id:"RD-1",name:"王道",regions:["REG-1"],points:[[80,300],[550,260]]}],border_passes:[{id:"PASS-1",name:"北隘",regions:["REG-1"],map_coordinates:[500,105]}],capitals:[{id:"CAP-1",name:"蒼翠城",political_entity_id:"POL-1",x:320,y:220}]},
  world_regions:[{id:"REG-1",name:"蒼翠領",political_entity_id:"POL-1"}],political_entities:[{id:"POL-1",name:"蒼翠王國"}],
