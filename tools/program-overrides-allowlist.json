@@ -1,0 +1,1033 @@
+{
+  "revision": "GLOBAL-FUNCTION-OVERRIDE-CONTRACT-1.0",
+  "baseline_release": "CURRENT-2.25.23",
+  "baseline_commit": "e0abee3e2aea35a419f27173ef62736783f7bdf6",
+  "purpose": "Every cross-file global function replacement observed in the audited release must be explicitly reviewed. New, removed, or rerouted replacements fail the release audit until this contract is reviewed.",
+  "overrides": [
+    {
+      "name": "startBattle",
+      "previous": "src/runtime.js",
+      "current": "src/monster-behavior-depth-v1.js"
+    },
+    {
+      "name": "enemyBattleTurn",
+      "previous": "src/runtime.js",
+      "current": "src/monster-behavior-depth-v1.js"
+    },
+    {
+      "name": "endTurn",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "resolveAdventureEvent",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "cookBatch",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "updateQuestProgress",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "acceptGuildQuest",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "turnInQuest",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "turnInGuildQuest",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "craftItemBatch",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "guildQuests",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "openMoreMenu",
+      "previous": "src/runtime.js",
+      "current": "src/asdail-narrative-runtime-v1.js"
+    },
+    {
+      "name": "gainCompanionXp",
+      "previous": "src/runtime.js",
+      "current": "src/companion-growth-v1.js"
+    },
+    {
+      "name": "companionCombatStats",
+      "previous": "src/runtime.js",
+      "current": "src/companion-growth-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/runtime.js",
+      "current": "src/companion-growth-v1.js"
+    },
+    {
+      "name": "openCooking",
+      "previous": "src/runtime.js",
+      "current": "src/crafting-success-v2.js"
+    },
+    {
+      "name": "cookBatch",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/crafting-success-v2.js"
+    },
+    {
+      "name": "craftSuccessChance",
+      "previous": "src/runtime.js",
+      "current": "src/crafting-success-v2.js"
+    },
+    {
+      "name": "craftItemBatch",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/crafting-success-v2.js"
+    },
+    {
+      "name": "openCrafting",
+      "previous": "src/runtime.js",
+      "current": "src/crafting-success-v2.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/companion-growth-v1.js",
+      "current": "src/crafting-success-v2.js"
+    },
+    {
+      "name": "guildBuybackUnitPrice",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "shopBuyUnitPrice",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "shopSellUnitPrice",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "openGuildBuyback",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "guildSellItem",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "shopBuy",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "buyItem",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "shopSell",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "sellItem",
+      "previous": "src/runtime.js",
+      "current": "src/market-economy-v2.js"
+    },
+    {
+      "name": "resolveAdventureEvent",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/trade-venues-runtime-v1.js"
+    },
+    {
+      "name": "turnInQuest",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/trade-venues-runtime-v1.js"
+    },
+    {
+      "name": "renderFacility",
+      "previous": "src/runtime.js",
+      "current": "src/trade-venues-runtime-v1.js"
+    },
+    {
+      "name": "recordIntel",
+      "previous": "src/runtime.js",
+      "current": "src/trade-venues-runtime-v1.js"
+    },
+    {
+      "name": "canSellTo",
+      "previous": "src/runtime.js",
+      "current": "src/trade-venues-runtime-v1.js"
+    },
+    {
+      "name": "runWorldDynamics",
+      "previous": "src/runtime.js",
+      "current": "src/world-autonomy-v1.js"
+    },
+    {
+      "name": "init",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "migrateSave",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "selectClass",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "rollClass",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "questPenaltyText",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "applyQuestPenalty",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "abandonQuest",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "turnInQuest",
+      "previous": "src/trade-venues-runtime-v1.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "subjobUpgradeState",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "subjobProgressHtml",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "upgradeSubjob",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "renderFacility",
+      "previous": "src/trade-venues-runtime-v1.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "openMealService",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "eatFacilityMeal",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "startBattle",
+      "previous": "src/monster-behavior-depth-v1.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "renderBattle",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "enemyBattleTurn",
+      "previous": "src/monster-behavior-depth-v1.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "finishBattle",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "openSettings",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "manualSave",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "resetGame",
+      "previous": "src/runtime.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/crafting-success-v2.js",
+      "current": "src/runtime-patches.js"
+    },
+    {
+      "name": "syncRuntimeIndexesAndMetadata",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "turnInQuest",
+      "previous": "src/runtime-patches.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "openDisciplineDirectory",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "joinDiscipline",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "openDiscipline",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "attemptJoinOrganization",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "openWorldOrganizations",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "openOrganization",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-contribution-v1.js"
+    },
+    {
+      "name": "resolveAdventureEvent",
+      "previous": "src/trade-venues-runtime-v1.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "turnInQuest",
+      "previous": "src/affiliation-contribution-v1.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "discoverDiscipline",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "joinDiscipline",
+      "previous": "src/affiliation-contribution-v1.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "openDiscipline",
+      "previous": "src/affiliation-contribution-v1.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "studyDiscipline",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "discoverOrganization",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "attemptJoinOrganization",
+      "previous": "src/affiliation-contribution-v1.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "openOrganization",
+      "previous": "src/affiliation-contribution-v1.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "openOrganizationContracts",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "resolveOrganizationEncounter",
+      "previous": "src/runtime.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "recordIntel",
+      "previous": "src/trade-venues-runtime-v1.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/runtime-patches.js",
+      "current": "src/affiliation-entry-gate-v1.js"
+    },
+    {
+      "name": "syncRuntimeIndexesAndMetadata",
+      "previous": "src/affiliation-contribution-v1.js",
+      "current": "src/affiliation-treasury-depth-v2.js"
+    },
+    {
+      "name": "openAffiliationTreasury",
+      "previous": "src/affiliation-contribution-v1.js",
+      "current": "src/affiliation-treasury-depth-v2.js"
+    },
+    {
+      "name": "openWorldMapHierarchy",
+      "previous": "src/runtime.js",
+      "current": "src/world-map-geopolitics-v1.js"
+    },
+    {
+      "name": "openWorldMapHierarchy",
+      "previous": "src/world-map-geopolitics-v1.js",
+      "current": "src/world-map-tile-atlas-v1.js"
+    },
+    {
+      "name": "openWorldMapAtlas",
+      "previous": "src/world-map-geopolitics-v1.js",
+      "current": "src/world-map-tile-atlas-v1.js"
+    },
+    {
+      "name": "openWorldMapAtlas",
+      "previous": "src/world-map-tile-atlas-v1.js",
+      "current": "src/world-map-province-atlas-v1.js"
+    },
+    {
+      "name": "openWorldMapHierarchy",
+      "previous": "src/world-map-tile-atlas-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openRealmRegionMap",
+      "previous": "src/runtime.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openProvinceCategoryMap",
+      "previous": "src/runtime.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openProvinceRegionMap",
+      "previous": "src/runtime.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openProvinceTerrainMap",
+      "previous": "src/runtime.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openSettlementRegionMap",
+      "previous": "src/runtime.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openMapLocationDetail",
+      "previous": "src/runtime.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openMap",
+      "previous": "src/runtime.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openWorldMapAtlas",
+      "previous": "src/world-map-province-atlas-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openWorldMapPolityTerritory",
+      "previous": "src/world-map-geopolitics-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openWorldMapNonStateRegion",
+      "previous": "src/world-map-geopolitics-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openWorldMapPass",
+      "previous": "src/world-map-geopolitics-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openWorldMapWilderness",
+      "previous": "src/world-map-geopolitics-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openRegionMapGraphic",
+      "previous": "src/region-map-graphics-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openWorldMapProvinceAtlas",
+      "previous": "src/world-map-province-atlas-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "openWorldMapProvinceDetails",
+      "previous": "src/world-map-province-atlas-v1.js",
+      "current": "src/map-scene-v2.js"
+    },
+    {
+      "name": "worldNpcCurrentState",
+      "previous": "src/world-autonomy-v2.js",
+      "current": "src/npc-depth-v1.js"
+    },
+    {
+      "name": "beginTurn",
+      "previous": "src/runtime.js",
+      "current": "src/dungeon-depth-v2.js"
+    },
+    {
+      "name": "renderActions",
+      "previous": "src/runtime.js",
+      "current": "src/dungeon-depth-v2.js"
+    },
+    {
+      "name": "actExplore",
+      "previous": "src/runtime.js",
+      "current": "src/dungeon-depth-v2.js"
+    },
+    {
+      "name": "finishBattle",
+      "previous": "src/runtime-patches.js",
+      "current": "src/dungeon-depth-v2.js"
+    },
+    {
+      "name": "runAudit",
+      "previous": "src/runtime.js",
+      "current": "src/dungeon-depth-v2.js"
+    },
+    {
+      "name": "turnInQuest",
+      "previous": "src/affiliation-entry-gate-v1.js",
+      "current": "src/combat-class-progression-v1.js"
+    },
+    {
+      "name": "openClassAdvancement",
+      "previous": "src/runtime.js",
+      "current": "src/combat-class-progression-v1.js"
+    },
+    {
+      "name": "advanceCombatClass",
+      "previous": "src/runtime.js",
+      "current": "src/combat-class-progression-v1.js"
+    },
+    {
+      "name": "unsealCurrentClass",
+      "previous": "src/runtime.js",
+      "current": "src/combat-class-progression-v1.js"
+    },
+    {
+      "name": "awardBattleProgress",
+      "previous": "src/runtime.js",
+      "current": "src/combat-class-progression-v1.js"
+    },
+    {
+      "name": "runAudit",
+      "previous": "src/dungeon-depth-v2.js",
+      "current": "src/combat-class-progression-v1.js"
+    },
+    {
+      "name": "selectClass",
+      "previous": "src/runtime-patches.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "rollClass",
+      "previous": "src/runtime-patches.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "createCharacter",
+      "previous": "src/runtime.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "skillCombat",
+      "previous": "src/runtime.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "guildBasicTraining",
+      "previous": "src/runtime.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "learnGuildBasic",
+      "previous": "src/runtime.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "passiveEffectText",
+      "previous": "src/runtime.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "awardBattleProgress",
+      "previous": "src/combat-class-progression-v1.js",
+      "current": "src/class-skill-optimization-v1.js"
+    },
+    {
+      "name": "guildBasicTraining",
+      "previous": "src/class-skill-optimization-v1.js",
+      "current": "src/class-tier-skill-expansion-v1.js"
+    },
+    {
+      "name": "migrateSave",
+      "previous": "src/runtime-patches.js",
+      "current": "src/skill-mechanics-depth-v1.js"
+    },
+    {
+      "name": "createCharacter",
+      "previous": "src/class-skill-optimization-v1.js",
+      "current": "src/skill-mechanics-depth-v1.js"
+    },
+    {
+      "name": "battleUseSkill",
+      "previous": "src/runtime.js",
+      "current": "src/skill-mechanics-depth-v1.js"
+    },
+    {
+      "name": "enemyBattleTurn",
+      "previous": "src/runtime-patches.js",
+      "current": "src/skill-mechanics-depth-v1.js"
+    },
+    {
+      "name": "skillEffectText",
+      "previous": "src/runtime.js",
+      "current": "src/skill-mechanics-depth-v1.js"
+    },
+    {
+      "name": "battleChooseSkill",
+      "previous": "src/runtime.js",
+      "current": "src/skill-mechanics-depth-v1.js"
+    },
+    {
+      "name": "migrateSave",
+      "previous": "src/skill-mechanics-depth-v1.js",
+      "current": "src/skill-targeting-v1.js"
+    },
+    {
+      "name": "battleUseSkill",
+      "previous": "src/skill-mechanics-depth-v1.js",
+      "current": "src/skill-targeting-v1.js"
+    },
+    {
+      "name": "enemyBattleTurn",
+      "previous": "src/skill-mechanics-depth-v1.js",
+      "current": "src/skill-targeting-v1.js"
+    },
+    {
+      "name": "skillDescriptionText",
+      "previous": "src/runtime.js",
+      "current": "src/skill-targeting-v1.js"
+    },
+    {
+      "name": "battleChooseSkill",
+      "previous": "src/skill-mechanics-depth-v1.js",
+      "current": "src/skill-targeting-v1.js"
+    },
+    {
+      "name": "battleConfirmSkillTarget",
+      "previous": "src/runtime.js",
+      "current": "src/skill-targeting-v1.js"
+    },
+    {
+      "name": "migrateSave",
+      "previous": "src/skill-targeting-v1.js",
+      "current": "src/combat-role-formation-v1.js"
+    },
+    {
+      "name": "showClassSelect",
+      "previous": "src/runtime.js",
+      "current": "src/combat-role-formation-v1.js"
+    },
+    {
+      "name": "selectClass",
+      "previous": "src/class-skill-optimization-v1.js",
+      "current": "src/combat-role-formation-v1.js"
+    },
+    {
+      "name": "rollClass",
+      "previous": "src/class-skill-optimization-v1.js",
+      "current": "src/combat-role-formation-v1.js"
+    },
+    {
+      "name": "createCharacter",
+      "previous": "src/skill-mechanics-depth-v1.js",
+      "current": "src/combat-role-formation-v1.js"
+    },
+    {
+      "name": "startBattle",
+      "previous": "src/runtime-patches.js",
+      "current": "src/combat-role-formation-v1.js"
+    },
+    {
+      "name": "openCharacter",
+      "previous": "src/runtime.js",
+      "current": "src/combat-role-formation-v1.js"
+    },
+    {
+      "name": "skillLearningPrereqState",
+      "previous": "src/runtime.js",
+      "current": "src/trade-skill-manuscripts-v1.js"
+    },
+    {
+      "name": "classTraining",
+      "previous": "src/runtime.js",
+      "current": "src/trade-skill-manuscripts-v1.js"
+    },
+    {
+      "name": "learnCombatSkill",
+      "previous": "src/runtime.js",
+      "current": "src/trade-skill-manuscripts-v1.js"
+    },
+    {
+      "name": "useItem",
+      "previous": "src/runtime.js",
+      "current": "src/trade-skill-manuscripts-v1.js"
+    },
+    {
+      "name": "openAuctionHouse",
+      "previous": "src/trade-venues-runtime-v1.js",
+      "current": "src/trade-skill-manuscripts-v1.js"
+    },
+    {
+      "name": "openBlackMarket",
+      "previous": "src/trade-venues-runtime-v1.js",
+      "current": "src/trade-skill-manuscripts-v1.js"
+    },
+    {
+      "name": "migrateSave",
+      "previous": "src/combat-role-formation-v1.js",
+      "current": "src/system-integrity-v2.js"
+    },
+    {
+      "name": "persist",
+      "previous": "src/runtime.js",
+      "current": "src/system-integrity-v2.js"
+    },
+    {
+      "name": "createCharacter",
+      "previous": "src/combat-role-formation-v1.js",
+      "current": "src/system-integrity-v2.js"
+    },
+    {
+      "name": "openMoreMenu",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/system-integrity-v2.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/affiliation-entry-gate-v1.js",
+      "current": "src/affiliation-integrity-v1.js"
+    },
+    {
+      "name": "renderAll",
+      "previous": "src/runtime.js",
+      "current": "src/player-experience-guidance-v1.js"
+    },
+    {
+      "name": "openMoreMenu",
+      "previous": "src/system-integrity-v2.js",
+      "current": "src/player-experience-guidance-v1.js"
+    },
+    {
+      "name": "validateGeneratedName",
+      "previous": "src/runtime.js",
+      "current": "src/name-generator-v2.js"
+    },
+    {
+      "name": "generateWorldName",
+      "previous": "src/runtime.js",
+      "current": "src/name-generator-v2.js"
+    },
+    {
+      "name": "renderActions",
+      "previous": "src/dungeon-depth-v2.js",
+      "current": "src/water-source-v1.js"
+    },
+    {
+      "name": "consumeIngredient",
+      "previous": "src/runtime.js",
+      "current": "src/water-source-v1.js"
+    },
+    {
+      "name": "useItem",
+      "previous": "src/trade-skill-manuscripts-v1.js",
+      "current": "src/water-source-v1.js"
+    },
+    {
+      "name": "runAudit",
+      "previous": "src/combat-class-progression-v1.js",
+      "current": "src/water-source-v1.js"
+    },
+    {
+      "name": "elementalResistances",
+      "previous": "src/runtime.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "combatStats",
+      "previous": "src/runtime.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "renderBattle",
+      "previous": "src/runtime-patches.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "enemyBattleTurn",
+      "previous": "src/skill-targeting-v1.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "battleCompanionSnapshot",
+      "previous": "src/runtime.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "openCompanionPanel",
+      "previous": "src/runtime.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "partyBattleSnapshots",
+      "previous": "src/runtime.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "resolvePartyTurns",
+      "previous": "src/runtime.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "partyThreatTargets",
+      "previous": "src/runtime.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/affiliation-integrity-v1.js",
+      "current": "src/companion-aura-v1.js"
+    },
+    {
+      "name": "renderBattle",
+      "previous": "src/companion-aura-v1.js",
+      "current": "src/companion-unique-skill-v1.js"
+    },
+    {
+      "name": "resolveCompanionTurn",
+      "previous": "src/runtime.js",
+      "current": "src/companion-unique-skill-v1.js"
+    },
+    {
+      "name": "companionCombatStats",
+      "previous": "src/companion-growth-v1.js",
+      "current": "src/companion-unique-skill-v1.js"
+    },
+    {
+      "name": "openCompanionPanel",
+      "previous": "src/companion-aura-v1.js",
+      "current": "src/companion-unique-skill-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/companion-aura-v1.js",
+      "current": "src/companion-unique-skill-v1.js"
+    },
+    {
+      "name": "elementalResistances",
+      "previous": "src/companion-aura-v1.js",
+      "current": "src/companion-identity-depth-v1.js"
+    },
+    {
+      "name": "combatStats",
+      "previous": "src/companion-aura-v1.js",
+      "current": "src/companion-identity-depth-v1.js"
+    },
+    {
+      "name": "renderBattle",
+      "previous": "src/companion-unique-skill-v1.js",
+      "current": "src/companion-identity-depth-v1.js"
+    },
+    {
+      "name": "tryAutoRevive",
+      "previous": "src/runtime.js",
+      "current": "src/companion-identity-depth-v1.js"
+    },
+    {
+      "name": "resolveCompanionTurn",
+      "previous": "src/companion-unique-skill-v1.js",
+      "current": "src/companion-identity-depth-v1.js"
+    },
+    {
+      "name": "enemyBattleTurn",
+      "previous": "src/companion-aura-v1.js",
+      "current": "src/companion-identity-depth-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/companion-unique-skill-v1.js",
+      "current": "src/companion-identity-depth-v1.js"
+    },
+    {
+      "name": "combatStats",
+      "previous": "src/companion-identity-depth-v1.js",
+      "current": "src/companion-species-identity-v1.js"
+    },
+    {
+      "name": "resolveCompanionTurn",
+      "previous": "src/companion-identity-depth-v1.js",
+      "current": "src/companion-species-identity-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/companion-identity-depth-v1.js",
+      "current": "src/companion-species-identity-v1.js"
+    },
+    {
+      "name": "openAdventureParty",
+      "previous": "src/runtime.js",
+      "current": "src/adventure-party-teammate-depth-v1.js"
+    },
+    {
+      "name": "openRecruitTeammates",
+      "previous": "src/runtime.js",
+      "current": "src/adventure-party-teammate-depth-v1.js"
+    },
+    {
+      "name": "openPartyMemberProfile",
+      "previous": "src/adventure-party-teammate-depth-v1.js",
+      "current": "src/rpg-reference-synthesis-v1.js"
+    },
+    {
+      "name": "acceptGuildQuest",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "turnInQuest",
+      "previous": "src/combat-class-progression-v1.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "turnInGuildQuest",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "generateFaithMissions",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "acceptFaithMission",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "generateAuthorityRequests",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "acceptAuthorityRequest",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "generateOrganizationContracts",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "organizationContractCandidates",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "acceptOrganizationContract",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "guildQuests",
+      "previous": "src/asdail-narrative-runtime-v1.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "facilityQuest",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "acceptFacilityQuest",
+      "previous": "src/runtime.js",
+      "current": "src/quest-regional-ecology-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/companion-species-identity-v1.js",
+      "current": "src/release-integrity-v1.js"
+    },
+    {
+      "name": "migrateSave",
+      "previous": "src/system-integrity-v2.js",
+      "current": "src/release-version-sync-v1.js"
+    },
+    {
+      "name": "localGameVersion",
+      "previous": "src/runtime.js",
+      "current": "src/release-version-sync-v1.js"
+    },
+    {
+      "name": "runGeneratorAudit",
+      "previous": "src/release-integrity-v1.js",
+      "current": "src/program-registry-v1.js"
+    }
+  ]
+}
