@@ -279,7 +279,7 @@ function rollOrigin(){
  deriveElement();refreshTalentPreview()
 }
 function deriveElement(){if(!creation.race||!creation.origin){creation.element=null;$("#elementResult").textContent="依種族＋出身自動隨機";return}const r=by(DB.races,creation.race),o=org(creation.origin),pool=[...(r.affinity_bias||[]),...(o.affinities||[]),...(o.affinities||[])];creation.element=pool[rand(pool.length)]||"地";$("#elementResult").textContent=creation.element+"親和";refreshTalentPreview()}
-function showClassSelect(){const list=DB.combat_classes.filter(x=>x.selectable);setUIHTML($("#classSelectBox"),list.map(c=>`<button onclick="selectClass('${c.id}')">${c.name} <span class="tier">${c.tier}</span></button>`).join(" "));$("#classSelectBox").classList.remove("hide")}
+function showClassSelect(){const list=DB.combat_classes.filter(x=>x.selectable);setUIHTML($("#classSelectBox"),`<div class="class-select-grid">${list.map(c=>`<button class="class-select-card" onclick="selectClass('${c.id}')"><img src="${c.portrait_svg||""}" alt="${c.name}立繪"><span><b>${c.name}</b> <span class="tier">${c.tier}</span><small>${c.combat_role||""}｜${c.weapon_group||""}</small></span></button>`).join("")}</div>`);$("#classSelectBox").classList.remove("hide")}
 function selectClass(id){creation.classId=id;$("#classResult").innerHTML=`${cls(id).name} <span class="tier">${cls(id).tier}</span>（自選）`;$("#classSelectBox").classList.add("hide");refreshTalentPreview()}
 function rollClass(){
  if(creation.randomLeft<=0){alert("隨機職業機會已用完。");return}
@@ -544,13 +544,15 @@ function guildBuybackUnitPrice(d){
  const bonus=clamp(talentSpecial("sellBonus"),0,.25),market=Math.max(1,Math.floor((d?.value||1)*.5*(1+bonus)*regionalItemMarketFactor(d)*affiliationPriceMultiplier("sell")));
  return Math.max(1,Math.floor(market*.9))
 }
+function combatScale(){return Number(globalThis.QUNLU_COMBAT_NUMBER_SCALE||2)}
+function combatScalar(value){const n=Number(value||0);return Math.round(n*combatScale()*100)/100}
 function resourceCaps(){
  const str=statCode("STR",false),con=statCode("CON",false),intl=statCode("INT",false),wis=statCode("WIS",false),lv=Math.max(1,G.character.level||1);
  const r=raceData(),o=org(G.character.originId);
  return {
-   hp:Math.max(1,Math.round(16+con*1.2+(lv-1)*2)),
-   stamina:Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8)),
-   mana:Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana"))),
+   hp:combatScalar(Math.max(1,Math.round(16+con*1.2+(lv-1)*2))),
+   stamina:combatScalar(Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8))),
+   mana:combatScalar(Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana")))),
    carry:Math.max(20,Math.round((30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity"))*10)/10)
  }
 }
@@ -621,6 +623,7 @@ function combatStats(){
    lootRate:Math.round(clamp(100+luck*1.5+af.lootRate,100,200)),
    rareEventRate:Math.round(clamp(.5+luck*.15,1,20)*10)/10
  };
+ for(const k of ["attack","magicPower","defense","magicDefense","manaRegen","hpRegen"])cs[k]=combatScalar(cs[k]);
  const statusIds=new Set((G.character.statusEffects||[]).map(x=>x?.id||x));
  if(statusIds.has("slow")){
    cs.accuracy=clamp(cs.accuracy-5,5,99);cs.evasion=clamp(cs.evasion-5,0,80);
@@ -3099,10 +3102,10 @@ function craftEffectText(d){
    const n=Number(use.thirst);
    add(n<0?`降低口渴${Math.abs(n)}`:`增加口渴${n}`)
  }
- if(use.hp)add(`恢復HP ${use.hp}`);
+ if(use.hp)add(`恢復HP ${combatScalar(use.hp)}`);
  if(use.hp_percent)add(`HP恢復至${use.hp_percent}%`);
- if(use.stamina)add(`恢復SP ${use.stamina}`);
- if(use.mana)add(`恢復MP ${use.mana}`);
+ if(use.stamina)add(`恢復SP ${combatScalar(use.stamina)}`);
+ if(use.mana)add(`恢復MP ${combatScalar(use.mana)}`);
  if(use.mana_percent)add(`MP恢復至${use.mana_percent}%`);
  if(Array.isArray(use.conditions)&&use.conditions.length){
    const names={poison:"中毒",bleed:"流血",burn:"燃燒",freeze:"冰凍",fear:"恐懼",blind:"致盲",slow:"緩慢"};
@@ -3174,12 +3177,12 @@ function itemStatsText(d){
    const names={attack:"攻擊",magicPower:"魔法威力",defense:"防禦",magicDefense:"魔防",accuracy:"命中",evasion:"閃避",critRate:"爆擊",critDamage:"爆傷",attackSpeed:"攻速",castSpeed:"施法速度",blockRate:"格擋",statusResist:"抗性"};
    for(const [k,v] of Object.entries(d.combat))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
  }
- if(d.use?.hp)a.push(`HP+${d.use.hp}`);if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
- if(d.use?.mana)a.push(`MP+${d.use.mana}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
- if(d.use?.stamina)a.push(`體力+${d.use.stamina}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
+ if(d.use?.hp)a.push(`HP+${combatScalar(d.use.hp)}`);if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
+ if(d.use?.mana)a.push(`MP+${combatScalar(d.use.mana)}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
+ if(d.use?.stamina)a.push(`SP+${combatScalar(d.use.stamina)}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
  if(d.revive)a.push(`倒下自動復甦${d.revive.hp_percent}%`);
  if(d.toxicity)a.push(`毒性+${d.toxicity}`);
- if(d.battle_effect)a.push(`投擲${d.battle_effect.damage||0}傷害${d.battle_effect.element?`／${d.battle_effect.element}`:""}`);
+ if(d.battle_effect)a.push(`投擲${combatScalar(d.battle_effect.damage||0)}傷害${d.battle_effect.element?`／${d.battle_effect.element}`:""}`);
  if(d.weapon_oil)a.push(`武器塗油／${d.weapon_oil.rounds||4}回合`);
  if(d.durability)a.push(`耐久${d.durability}`);if(d.weight!=null)a.push(`重量${Number(d.weight).toFixed(d.weight<1?2:1)}kg`);
  return a.join("｜")||d.type
@@ -3249,8 +3252,8 @@ function startBattle(monster,context){
 }
 function battleLog(msg){if(!G.battle)return;G.battle.log.push(msg);if(G.battle.log.length>14)G.battle.log.shift()}
 function skillResourceCost(s){
- const raw=s.stamina_cost||0;
- return skillUsesMana(s)?Math.max(0,raw-talentSpecial("spellCostReduction")):raw
+ const raw=s.stamina_cost||0,base=skillUsesMana(s)?Math.max(0,raw-talentSpecial("spellCostReduction")):raw;
+ return Math.max(0,Math.round(combatScalar(base)))
 }
 function skillUsesMana(s){return (s.resource||"stamina")==="mana"}
 function battleCritFromRoll(roll,critRate){const steps=Math.max(0,Math.floor(critRate/5));return steps>0&&roll>=Math.max(11,21-steps)}
@@ -3258,25 +3261,16 @@ function renderBattle(sharedCombatStats=null){
  const back=$("#battleBack");if(!G.battle?.active){back.classList.add("hide");document.body.classList.remove("battle-open");return}
  const opening=back.classList.contains("hide"),b=G.battle,e=b.enemy,c=G.character,cs=sharedCombatStats||combatStats(),php=clamp(c.hp/c.maxHp*100,0,100),ehp=clamp(e.hp/e.maxHp*100,0,100);
  const safeName=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
- const enemyGlyph=(()=>{
-   const text=`${e.category||""} ${e.name||""}`.toLowerCase();
-   if(/狼|犬|狐|獸|野獸/.test(text))return "🐺";
-   if(/龍|蜥蜴|蛇/.test(text))return "🐉";
-   if(/亡靈|骷髏|幽靈/.test(text))return "💀";
-   if(/魔|惡魔/.test(text))return "👹";
-   if(/鳥|鷹|鴉/.test(text))return "🦅";
-   if(/蟲|蛛/.test(text))return "🕷";
-   return "⚔";
- })();
- const allyGlyph=(role="")=>/法|術|巫|牧|僧/.test(role)?"✦":/弓|獵|遊俠/.test(role)?"➹":/盾|騎|守/.test(role)?"🛡":"⚔";
- const party=[{name:c.name,role:cls(c.classId).name,hp:c.hp,maxHp:c.maxHp,player:true},
-   ...(b.party||[]).map(x=>({name:x.name,role:x.roleLabel||"隊友",hp:x.hp,maxHp:x.maxHp,ko:x.knockedOut})),
-   ...(b.companion?[{name:b.companion.name,role:b.companion.aiLabel||"夥伴",hp:b.companion.hp,maxHp:b.companion.maxHp,ko:b.companion.knockedOut,companion:true}]:[])
+ const classArt=globalThis.QunluBattleArt?.classPortrait(c.classId)||cls(c.classId)?.portrait_svg||"";
+ const enemyArt=globalThis.QunluBattleArt?.monsterPortrait(e.id)||e.portrait_svg||"";
+ const party=[{name:c.name,role:cls(c.classId).name,hp:c.hp,maxHp:c.maxHp,player:true,art:classArt},
+   ...(b.party||[]).map(x=>({name:x.name,role:x.roleLabel||"隊友",hp:x.hp,maxHp:x.maxHp,ko:x.knockedOut,art:globalThis.QunluBattleArt?.partyPortrait(x.roleLabel||x.role,x.name)||""})),
+   ...(b.companion?[{name:b.companion.name,role:b.companion.aiLabel||"夥伴",hp:b.companion.hp,maxHp:b.companion.maxHp,ko:b.companion.knockedOut,companion:true,art:globalThis.QunluBattleArt?.companionPortrait(b.companion.name,b.companion.kindLabel||b.companion.kind)||""}]:[])
  ];
  const partySprites=party.map((u,i)=>{
    const hp=clamp((u.hp||0)/Math.max(1,u.maxHp||1)*100,0,100);
    return `<div class="retro-combatant ally ${u.ko?"ko":""} ${u.player?"is-player":""}" style="--slot:${i}">
-     <div class="retro-sprite-bubble"><span>${allyGlyph(u.role)}</span></div>
+     <div class="retro-sprite-bubble has-art"><img src="${u.art}" alt="${safeName(u.name)}立繪"></div>
      <div class="retro-unit-name">${safeName(u.name)}</div>
      <div class="retro-unit-role">${safeName(u.role)}</div>
      <div class="retro-mini-hp"><i style="width:${hp}%"></i></div>
@@ -3294,9 +3288,9 @@ function renderBattle(sharedCombatStats=null){
      <div class="retro-fireplace" aria-hidden="true"><span></span></div>
      <div class="retro-stage-side enemy-side">
        <div class="retro-combatant enemy">
-         <div class="retro-sprite-bubble enemy"><span>${enemyGlyph}</span></div>
+         <div class="retro-sprite-bubble enemy has-art"><img src="${enemyArt}" alt="${safeName(e.name)}立繪"></div>
          <div class="retro-unit-name">${safeName(e.name)}</div>
-         <div class="retro-unit-role">${safeName(e.category||"敵人")}｜${safeName(e.tier||"")}</div>
+         <div class="retro-unit-role">${safeName(e.category||"敵人")}｜${safeName(e.tier||"")}<br>ATK ${Math.round(e.attack||0)}｜DEF ${Math.round(e.defense||0)}</div>
          <div class="retro-mini-hp"><i style="width:${ehp}%"></i></div>
        </div>
      </div>
@@ -3306,7 +3300,7 @@ function renderBattle(sharedCombatStats=null){
    <div class="retro-info-row">
      <div class="retro-window retro-party-status">
        ${statRows}
-       <div class="retro-player-extra">SP ${Math.round(c.stamina)}/${c.maxStamina}　先攻 ${Math.round(cs.initiative)}　格擋 ${Math.round(cs.blockRate)}%</div>
+       <div class="retro-player-extra">SP ${Math.round(c.stamina)}/${c.maxStamina}｜ATK ${Math.round(cs.attack)}｜MATK ${Math.round(cs.magicPower)}｜DEF ${Math.round(cs.defense)}｜MDEF ${Math.round(cs.magicDefense)}｜先攻 ${Math.round(cs.initiative)}</div>
      </div>
      <div class="retro-window retro-log" role="log" aria-live="polite" aria-relevant="additions text">
        ${logLines.map((x,i)=>`<div><b>${i+1}.</b> ${safeName(x)}</div>`).join("")||"<div>1. 戰鬥開始。</div>"}
@@ -3334,9 +3328,9 @@ function battleGeneralAttack(){
  const score=r+Math.floor((cs.accuracy+rangeBonus-stagger-(e.evasion+(b.enemyBuff.evasion||0)-enemyStatusEvasionPenalty()))/10);
  if(score>=10){
    const crit=battleCritFromRoll(r,Math.max(0,cs.critRate-(e.critResist||0)));
-   let atk=cs.attack+(b.weaponOil?.attack||0)+talentTargetBonus(e),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
+   let atk=cs.attack+combatScalar(b.weaponOil?.attack||0)+combatScalar(talentTargetBonus(e)),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
    def*=1-cs.armorPenPct/100;
-   if(e.hp/e.maxHp<=.25)atk+=talentSpecial("executeBonus");
+   if(e.hp/e.maxHp<=.25)atk+=combatScalar(talentSpecial("executeBonus"));
    let dmg=Math.max(1,Math.round(atk-def*.45));
    if(b.weaponOil?.element&&["光明","黑暗","火","風","水","地","雷","生命","死亡"].includes(b.weaponOil.element))dmg=applyElementDamage(dmg,e,b.weaponOil.element);
    if(crit)dmg=Math.round(dmg*cs.critDamage/100);
@@ -3465,7 +3459,7 @@ function battleUseItem(index){
    const ef=d.battle_effect;
    if(ef.special==="repel"){battleLog(`使用 ${d.name}，強烈氣味迫使敵人退開。`);removeItem(x.id,1,index);finishBattle("逃跑成功");return}
    if(ef.special==="lure"){battleLog(`使用 ${d.name}，敵人受到誘餌干擾，命中下降。`);G.battle.enemyBuff.accuracy=(G.battle.enemyBuff.accuracy||0)-4}
-   const dmg=Math.max(0,ef.damage||0);if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
+   const dmg=Math.max(0,Math.round(combatScalar(ef.damage||0)));if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
    if(ef.enemyDebuff)for(const [k,v] of Object.entries(ef.enemyDebuff))if(k!=="rounds")G.battle.enemyBuff[k]=(G.battle.enemyBuff[k]||0)+v;
    if(ef.status)applyEnemyStatus(ef.status,ef.status_chance||55,ef.rounds||2)
  }else if(d.weapon_oil){
@@ -3547,7 +3541,7 @@ function enemyBattleTurn(){
    const score=r+Math.floor((e.accuracy-(c.evasion||0))/10);
    if(score>=10){let dmg=Math.max(1,Math.round(e.attack-(c.defense||0)*.42));c.hp=Math.max(0,c.hp-dmg);battleLog(`${e.name}攻擊隊友${c.name}，造成${dmg}傷害。`);if(c.hp<=0){c.knockedOut=true;partyBattleLog(`${c.name}本場戰鬥失去戰鬥能力。`)}}else battleLog(`${e.name}攻擊${c.name}但未命中。`)
  }else{
-   const wasDefending=!!b.defending,defendBonus=b.defending?7:0,enemyAcc=e.accuracy+(b.enemyBuff.accuracy||0)-enemyStatusAccuracyPenalty();
+   const wasDefending=!!b.defending,defendBonus=b.defending?combatScalar(7):0,enemyAcc=e.accuracy+(b.enemyBuff.accuracy||0)-enemyStatusAccuracyPenalty();
    const score=r+Math.floor((enemyAcc-(cs.evasion+(b.defending?4:0)))/10);
    if(score>=10){
      let pdef=Math.max(0,cs.defense+defendBonus);pdef*=1-(e.armorPenPct||0)/100;
@@ -3561,8 +3555,8 @@ function enemyBattleTurn(){
      const impactPct=dmg/Math.max(1,G.character.maxHp)*100;if(impactPct>12+cs.poise*.38){b.playerStaggered=true;battleLog("強烈衝擊造成硬直，下一次行動命中下降。")}
      battleLog(`${e.name} D20=${r} 命中，造成 ${dmg} 傷害${e.primary_element?`／${e.primary_element}`:""}${crit?"（爆擊）":""}${blocked?`（格擋${cs.blockValue}%）`:""}。`);
      if(e.status_attack)applyPlayerStatus(e.status_attack.id,e,e.status_attack.base_chance,e.status_attack.rounds);
-     const thorn=talentSpecial("thorns");if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
-     const counter=talentSpecial("counterDamage");if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
+     const thorn=combatScalar(talentSpecial("thorns"));if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
+     const counter=combatScalar(talentSpecial("counterDamage"));if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
    }else battleLog(`${e.name} D20=${r} 攻擊未命中。`);
  }
  if(!targetCompanion&&!targetParty)degradeEquipment();b.defending=false;tickBattleEffects();
@@ -4462,10 +4456,10 @@ function applyConsumable(d){
  if(d.use){
    if(d.use.hunger)c.hunger=clamp(c.hunger+d.use.hunger,0,120);
    if(d.use.thirst)c.thirst=clamp(c.thirst+d.use.thirst,0,120);
-   if(d.use.hp)c.hp=clamp(c.hp+d.use.hp*(combatStats().healingPower/100),0,c.maxHp);
+   if(d.use.hp)c.hp=clamp(c.hp+combatScalar(d.use.hp)*(combatStats().healingPower/100),0,c.maxHp);
    if(d.use.hp_percent)c.hp=clamp(c.maxHp*d.use.hp_percent/100,0,c.maxHp);
-   if(d.use.stamina)c.stamina=clamp(c.stamina+d.use.stamina,0,c.maxStamina);
-   if(d.use.mana)c.mana=clamp(c.mana+d.use.mana,0,c.maxMana);
+   if(d.use.stamina)c.stamina=clamp(c.stamina+combatScalar(d.use.stamina),0,c.maxStamina);
+   if(d.use.mana)c.mana=clamp(c.mana+combatScalar(d.use.mana),0,c.maxMana);
    if(d.use.mana_percent)c.mana=clamp(c.maxMana*d.use.mana_percent/100,0,c.maxMana);
    if(d.use.conditions)removeStatuses(d.use.conditions)
  }
@@ -4629,6 +4623,8 @@ function runGeneratorAudit(){
  for(const d of DB.items||[])for(const id of (d.use?.conditions||[]))if(!DB.status_system.definitions[id])issues.push(`物品狀態引用缺失:${d.name}->${id}`);
  if(DB.status_system?.version!=="STATUS-1.11")issues.push("STATUS-1.11缺失");
  if(DB.quality_audit_system?.version!=="QUALITY-AUDIT-1.0")issues.push("QUALITY-AUDIT-1.0缺失");
+ if(DB.combat_number_scale?.multiplier!==2)issues.push("COMBAT-NUMBER-SCALE-2.0缺失或倍率錯誤");
+ const artAudit=globalThis.runBattleArtAudit?.();if(!artAudit?.pass)issues.push(`BATTLE-ART-1.0覆蓋缺失：職業${artAudit?.missingClasses?.length??"?"}／怪物${artAudit?.missingMonsters?.length??"?"}`);
  for(const e of (DB.adventure_event_templates||[])){
    if(tierOrder(e.tier)>tierOrder("E"))issues.push(`奇遇模板超出目前直接模板上限:${e.name}`);
    if(!e.kinds?.length||!e.stat||!Number.isFinite(e.dc))issues.push(`奇遇模板條件不完整:${e.name}`);
