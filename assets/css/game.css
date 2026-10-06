@@ -1315,3 +1315,27 @@ body.battle-open .nav{visibility:hidden}
   .retro-info-row{grid-template-columns:56% 44%}
   .retro-log{font-size:11px}
 }
+
+
+/* ===== CURRENT-1.65.0 BATTLE ART + DOUBLE SCALE UI ===== */
+.class-select-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.class-select-card{min-height:158px!important;padding:8px!important;display:grid!important;grid-template-columns:74px minmax(0,1fr);align-items:center;gap:9px;text-align:left}
+.class-select-card img{width:74px;height:126px;object-fit:contain;filter:drop-shadow(0 5px 5px #0008)}
+.class-select-card span{min-width:0}.class-select-card small{display:block;margin-top:5px;color:#b9c2b7;font-size:10px;line-height:1.4}
+.retro-sprite-bubble.has-art{width:96px;height:122px;border-radius:0;background:none!important;overflow:visible}
+.retro-sprite-bubble.has-art:before,.retro-sprite-bubble.has-art:after{display:none!important}
+.retro-sprite-bubble.has-art img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 5px 4px #0009)}
+.retro-sprite-bubble.enemy.has-art{width:132px;height:146px;background:none!important}
+.retro-unit-role{line-height:1.25}
+.retro-player-extra{white-space:normal;line-height:1.45}
+@media(max-width:620px){
+  .class-select-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .class-select-card{grid-template-columns:56px minmax(0,1fr);min-height:124px!important;padding:6px!important}
+  .class-select-card img{width:56px;height:102px}
+  .retro-sprite-bubble.has-art{width:74px;height:94px}
+  .retro-sprite-bubble.enemy.has-art{width:100px;height:116px}
+  .retro-player-extra{font-size:10px}
+}
+@media(max-width:360px){
+  .class-select-grid{grid-template-columns:1fr}
+}
