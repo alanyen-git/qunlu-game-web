@@ -279,7 +279,7 @@ function rollOrigin(){
  deriveElement();refreshTalentPreview()
 }
 function deriveElement(){if(!creation.race||!creation.origin){creation.element=null;$("#elementResult").textContent="依種族＋出身自動隨機";return}const r=by(DB.races,creation.race),o=org(creation.origin),pool=[...(r.affinity_bias||[]),...(o.affinities||[]),...(o.affinities||[])];creation.element=pool[rand(pool.length)]||"地";$("#elementResult").textContent=creation.element+"親和";refreshTalentPreview()}
-function showClassSelect(){const list=DB.combat_classes.filter(x=>x.selectable);setUIHTML($("#classSelectBox"),`<div class="class-select-grid">${list.map(c=>`<button class="class-select-card" onclick="selectClass('${c.id}')"><img src="${c.portrait_svg||""}" alt="${c.name}立繪"><span><b>${c.name}</b> <span class="tier">${c.tier}</span><small>${c.combat_role||""}｜${c.weapon_group||""}</small></span></button>`).join("")}</div>`);$("#classSelectBox").classList.remove("hide")}
+function showClassSelect(){const list=DB.combat_classes.filter(x=>x.selectable);setUIHTML($("#classSelectBox"),list.map(c=>`<button onclick="selectClass('${c.id}')">${c.name} <span class="tier">${c.tier}</span></button>`).join(" "));$("#classSelectBox").classList.remove("hide")}
 function selectClass(id){creation.classId=id;$("#classResult").innerHTML=`${cls(id).name} <span class="tier">${cls(id).tier}</span>（自選）`;$("#classSelectBox").classList.add("hide");refreshTalentPreview()}
 function rollClass(){
  if(creation.randomLeft<=0){alert("隨機職業機會已用完。");return}
@@ -544,15 +544,13 @@ function guildBuybackUnitPrice(d){
  const bonus=clamp(talentSpecial("sellBonus"),0,.25),market=Math.max(1,Math.floor((d?.value||1)*.5*(1+bonus)*regionalItemMarketFactor(d)*affiliationPriceMultiplier("sell")));
  return Math.max(1,Math.floor(market*.9))
 }
-function combatScale(){return Number(globalThis.QUNLU_COMBAT_NUMBER_SCALE||2)}
-function combatScalar(value){const n=Number(value||0);return Math.round(n*combatScale()*100)/100}
 function resourceCaps(){
  const str=statCode("STR",false),con=statCode("CON",false),intl=statCode("INT",false),wis=statCode("WIS",false),lv=Math.max(1,G.character.level||1);
  const r=raceData(),o=org(G.character.originId);
  return {
-   hp:combatScalar(Math.max(1,Math.round(16+con*1.2+(lv-1)*2))),
-   stamina:combatScalar(Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8))),
-   mana:combatScalar(Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana")))),
+   hp:Math.max(1,Math.round(16+con*1.2+(lv-1)*2)),
+   stamina:Math.max(1,Math.round(12+con*.6+str*.4+(lv-1)*.8)),
+   mana:Math.max(0,Math.round(9+intl+wis*.5+(lv-1)*.7+talentSpecial("maxMana"))),
    carry:Math.max(20,Math.round((30+str*1.4+con*.6+(r?.weight_mod||0)+(o?.weight_mod||0)+talentSpecial("carryCapacity"))*10)/10)
  }
 }
@@ -623,7 +621,6 @@ function combatStats(){
    lootRate:Math.round(clamp(100+luck*1.5+af.lootRate,100,200)),
    rareEventRate:Math.round(clamp(.5+luck*.15,1,20)*10)/10
  };
- for(const k of ["attack","magicPower","defense","magicDefense","manaRegen","hpRegen"])cs[k]=combatScalar(cs[k]);
  const statusIds=new Set((G.character.statusEffects||[]).map(x=>x?.id||x));
  if(statusIds.has("slow")){
    cs.accuracy=clamp(cs.accuracy-5,5,99);cs.evasion=clamp(cs.evasion-5,0,80);
@@ -3102,10 +3099,10 @@ function craftEffectText(d){
    const n=Number(use.thirst);
    add(n<0?`降低口渴${Math.abs(n)}`:`增加口渴${n}`)
  }
- if(use.hp)add(`恢復HP ${combatScalar(use.hp)}`);
+ if(use.hp)add(`恢復HP ${use.hp}`);
  if(use.hp_percent)add(`HP恢復至${use.hp_percent}%`);
- if(use.stamina)add(`恢復SP ${combatScalar(use.stamina)}`);
- if(use.mana)add(`恢復MP ${combatScalar(use.mana)}`);
+ if(use.stamina)add(`恢復SP ${use.stamina}`);
+ if(use.mana)add(`恢復MP ${use.mana}`);
  if(use.mana_percent)add(`MP恢復至${use.mana_percent}%`);
  if(Array.isArray(use.conditions)&&use.conditions.length){
    const names={poison:"中毒",bleed:"流血",burn:"燃燒",freeze:"冰凍",fear:"恐懼",blind:"致盲",slow:"緩慢"};
@@ -3177,12 +3174,12 @@ function itemStatsText(d){
    const names={attack:"攻擊",magicPower:"魔法威力",defense:"防禦",magicDefense:"魔防",accuracy:"命中",evasion:"閃避",critRate:"爆擊",critDamage:"爆傷",attackSpeed:"攻速",castSpeed:"施法速度",blockRate:"格擋",statusResist:"抗性"};
    for(const [k,v] of Object.entries(d.combat))if(v)a.push(`${names[k]||k}${v>0?"+":""}${typeof v==="number"&&Math.abs(v)<1?v.toFixed(2):v}`);
  }
- if(d.use?.hp)a.push(`HP+${combatScalar(d.use.hp)}`);if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
- if(d.use?.mana)a.push(`MP+${combatScalar(d.use.mana)}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
- if(d.use?.stamina)a.push(`SP+${combatScalar(d.use.stamina)}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
+ if(d.use?.hp)a.push(`HP+${d.use.hp}`);if(d.use?.hp_percent)a.push(`HP恢復至${d.use.hp_percent}%`);
+ if(d.use?.mana)a.push(`MP+${d.use.mana}`);if(d.use?.mana_percent)a.push(`MP恢復至${d.use.mana_percent}%`);
+ if(d.use?.stamina)a.push(`體力+${d.use.stamina}`);if(d.use?.hunger)a.push(`飢餓${d.use.hunger}`);if(d.use?.thirst)a.push(`口渴${d.use.thirst}`);
  if(d.revive)a.push(`倒下自動復甦${d.revive.hp_percent}%`);
  if(d.toxicity)a.push(`毒性+${d.toxicity}`);
- if(d.battle_effect)a.push(`投擲${combatScalar(d.battle_effect.damage||0)}傷害${d.battle_effect.element?`／${d.battle_effect.element}`:""}`);
+ if(d.battle_effect)a.push(`投擲${d.battle_effect.damage||0}傷害${d.battle_effect.element?`／${d.battle_effect.element}`:""}`);
  if(d.weapon_oil)a.push(`武器塗油／${d.weapon_oil.rounds||4}回合`);
  if(d.durability)a.push(`耐久${d.durability}`);if(d.weight!=null)a.push(`重量${Number(d.weight).toFixed(d.weight<1?2:1)}kg`);
  return a.join("｜")||d.type
@@ -3252,8 +3249,8 @@ function startBattle(monster,context){
 }
 function battleLog(msg){if(!G.battle)return;G.battle.log.push(msg);if(G.battle.log.length>14)G.battle.log.shift()}
 function skillResourceCost(s){
- const raw=s.stamina_cost||0,base=skillUsesMana(s)?Math.max(0,raw-talentSpecial("spellCostReduction")):raw;
- return Math.max(0,Math.round(combatScalar(base)))
+ const raw=s.stamina_cost||0;
+ return skillUsesMana(s)?Math.max(0,raw-talentSpecial("spellCostReduction")):raw
 }
 function skillUsesMana(s){return (s.resource||"stamina")==="mana"}
 function battleCritFromRoll(roll,critRate){const steps=Math.max(0,Math.floor(critRate/5));return steps>0&&roll>=Math.max(11,21-steps)}
@@ -3261,16 +3258,25 @@ function renderBattle(sharedCombatStats=null){
  const back=$("#battleBack");if(!G.battle?.active){back.classList.add("hide");document.body.classList.remove("battle-open");return}
  const opening=back.classList.contains("hide"),b=G.battle,e=b.enemy,c=G.character,cs=sharedCombatStats||combatStats(),php=clamp(c.hp/c.maxHp*100,0,100),ehp=clamp(e.hp/e.maxHp*100,0,100);
  const safeName=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
- const classArt=globalThis.QunluBattleArt?.classPortrait(c.classId)||cls(c.classId)?.portrait_svg||"";
- const enemyArt=globalThis.QunluBattleArt?.monsterPortrait(e.id)||e.portrait_svg||"";
- const party=[{name:c.name,role:cls(c.classId).name,hp:c.hp,maxHp:c.maxHp,player:true,art:classArt},
-   ...(b.party||[]).map(x=>({name:x.name,role:x.roleLabel||"隊友",hp:x.hp,maxHp:x.maxHp,ko:x.knockedOut,art:globalThis.QunluBattleArt?.partyPortrait(x.roleLabel||x.role,x.name)||""})),
-   ...(b.companion?[{name:b.companion.name,role:b.companion.aiLabel||"夥伴",hp:b.companion.hp,maxHp:b.companion.maxHp,ko:b.companion.knockedOut,companion:true,art:globalThis.QunluBattleArt?.companionPortrait(b.companion.name,b.companion.kindLabel||b.companion.kind)||""}]:[])
+ const enemyGlyph=(()=>{
+   const text=`${e.category||""} ${e.name||""}`.toLowerCase();
+   if(/狼|犬|狐|獸|野獸/.test(text))return "🐺";
+   if(/龍|蜥蜴|蛇/.test(text))return "🐉";
+   if(/亡靈|骷髏|幽靈/.test(text))return "💀";
+   if(/魔|惡魔/.test(text))return "👹";
+   if(/鳥|鷹|鴉/.test(text))return "🦅";
+   if(/蟲|蛛/.test(text))return "🕷";
+   return "⚔";
+ })();
+ const allyGlyph=(role="")=>/法|術|巫|牧|僧/.test(role)?"✦":/弓|獵|遊俠/.test(role)?"➹":/盾|騎|守/.test(role)?"🛡":"⚔";
+ const party=[{name:c.name,role:cls(c.classId).name,hp:c.hp,maxHp:c.maxHp,player:true},
+   ...(b.party||[]).map(x=>({name:x.name,role:x.roleLabel||"隊友",hp:x.hp,maxHp:x.maxHp,ko:x.knockedOut})),
+   ...(b.companion?[{name:b.companion.name,role:b.companion.aiLabel||"夥伴",hp:b.companion.hp,maxHp:b.companion.maxHp,ko:b.companion.knockedOut,companion:true}]:[])
  ];
  const partySprites=party.map((u,i)=>{
    const hp=clamp((u.hp||0)/Math.max(1,u.maxHp||1)*100,0,100);
    return `<div class="retro-combatant ally ${u.ko?"ko":""} ${u.player?"is-player":""}" style="--slot:${i}">
-     <div class="retro-sprite-bubble has-art"><img src="${u.art}" alt="${safeName(u.name)}立繪"></div>
+     <div class="retro-sprite-bubble"><span>${allyGlyph(u.role)}</span></div>
      <div class="retro-unit-name">${safeName(u.name)}</div>
      <div class="retro-unit-role">${safeName(u.role)}</div>
      <div class="retro-mini-hp"><i style="width:${hp}%"></i></div>
@@ -3288,9 +3294,9 @@ function renderBattle(sharedCombatStats=null){
      <div class="retro-fireplace" aria-hidden="true"><span></span></div>
      <div class="retro-stage-side enemy-side">
        <div class="retro-combatant enemy">
-         <div class="retro-sprite-bubble enemy has-art"><img src="${enemyArt}" alt="${safeName(e.name)}立繪"></div>
+         <div class="retro-sprite-bubble enemy"><span>${enemyGlyph}</span></div>
          <div class="retro-unit-name">${safeName(e.name)}</div>
-         <div class="retro-unit-role">${safeName(e.category||"敵人")}｜${safeName(e.tier||"")}<br>ATK ${Math.round(e.attack||0)}｜DEF ${Math.round(e.defense||0)}</div>
+         <div class="retro-unit-role">${safeName(e.category||"敵人")}｜${safeName(e.tier||"")}</div>
          <div class="retro-mini-hp"><i style="width:${ehp}%"></i></div>
        </div>
      </div>
@@ -3300,7 +3306,7 @@ function renderBattle(sharedCombatStats=null){
    <div class="retro-info-row">
      <div class="retro-window retro-party-status">
        ${statRows}
-       <div class="retro-player-extra">SP ${Math.round(c.stamina)}/${c.maxStamina}｜ATK ${Math.round(cs.attack)}｜MATK ${Math.round(cs.magicPower)}｜DEF ${Math.round(cs.defense)}｜MDEF ${Math.round(cs.magicDefense)}｜先攻 ${Math.round(cs.initiative)}</div>
+       <div class="retro-player-extra">SP ${Math.round(c.stamina)}/${c.maxStamina}　先攻 ${Math.round(cs.initiative)}　格擋 ${Math.round(cs.blockRate)}%</div>
      </div>
      <div class="retro-window retro-log" role="log" aria-live="polite" aria-relevant="additions text">
        ${logLines.map((x,i)=>`<div><b>${i+1}.</b> ${safeName(x)}</div>`).join("")||"<div>1. 戰鬥開始。</div>"}
@@ -3328,9 +3334,9 @@ function battleGeneralAttack(){
  const score=r+Math.floor((cs.accuracy+rangeBonus-stagger-(e.evasion+(b.enemyBuff.evasion||0)-enemyStatusEvasionPenalty()))/10);
  if(score>=10){
    const crit=battleCritFromRoll(r,Math.max(0,cs.critRate-(e.critResist||0)));
-   let atk=cs.attack+combatScalar(b.weaponOil?.attack||0)+combatScalar(talentTargetBonus(e)),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
+   let atk=cs.attack+(b.weaponOil?.attack||0)+talentTargetBonus(e),def=Math.max(0,e.defense+(b.enemyBuff.defense||0)-enemyStatusDefensePenalty());
    def*=1-cs.armorPenPct/100;
-   if(e.hp/e.maxHp<=.25)atk+=combatScalar(talentSpecial("executeBonus"));
+   if(e.hp/e.maxHp<=.25)atk+=talentSpecial("executeBonus");
    let dmg=Math.max(1,Math.round(atk-def*.45));
    if(b.weaponOil?.element&&["光明","黑暗","火","風","水","地","雷","生命","死亡"].includes(b.weaponOil.element))dmg=applyElementDamage(dmg,e,b.weaponOil.element);
    if(crit)dmg=Math.round(dmg*cs.critDamage/100);
@@ -3459,7 +3465,7 @@ function battleUseItem(index){
    const ef=d.battle_effect;
    if(ef.special==="repel"){battleLog(`使用 ${d.name}，強烈氣味迫使敵人退開。`);removeItem(x.id,1,index);finishBattle("逃跑成功");return}
    if(ef.special==="lure"){battleLog(`使用 ${d.name}，敵人受到誘餌干擾，命中下降。`);G.battle.enemyBuff.accuracy=(G.battle.enemyBuff.accuracy||0)-4}
-   const dmg=Math.max(0,Math.round(combatScalar(ef.damage||0)));if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
+   const dmg=Math.max(0,ef.damage||0);if(dmg){G.battle.enemy.hp=Math.max(0,G.battle.enemy.hp-dmg);battleLog(`投擲 ${d.name}，造成 ${dmg} ${ef.element||""}傷害。`)}
    if(ef.enemyDebuff)for(const [k,v] of Object.entries(ef.enemyDebuff))if(k!=="rounds")G.battle.enemyBuff[k]=(G.battle.enemyBuff[k]||0)+v;
    if(ef.status)applyEnemyStatus(ef.status,ef.status_chance||55,ef.rounds||2)
  }else if(d.weapon_oil){
@@ -3541,7 +3547,7 @@ function enemyBattleTurn(){
    const score=r+Math.floor((e.accuracy-(c.evasion||0))/10);
    if(score>=10){let dmg=Math.max(1,Math.round(e.attack-(c.defense||0)*.42));c.hp=Math.max(0,c.hp-dmg);battleLog(`${e.name}攻擊隊友${c.name}，造成${dmg}傷害。`);if(c.hp<=0){c.knockedOut=true;partyBattleLog(`${c.name}本場戰鬥失去戰鬥能力。`)}}else battleLog(`${e.name}攻擊${c.name}但未命中。`)
  }else{
-   const wasDefending=!!b.defending,defendBonus=b.defending?combatScalar(7):0,enemyAcc=e.accuracy+(b.enemyBuff.accuracy||0)-enemyStatusAccuracyPenalty();
+   const wasDefending=!!b.defending,defendBonus=b.defending?7:0,enemyAcc=e.accuracy+(b.enemyBuff.accuracy||0)-enemyStatusAccuracyPenalty();
    const score=r+Math.floor((enemyAcc-(cs.evasion+(b.defending?4:0)))/10);
    if(score>=10){
      let pdef=Math.max(0,cs.defense+defendBonus);pdef*=1-(e.armorPenPct||0)/100;
@@ -3555,8 +3561,8 @@ function enemyBattleTurn(){
      const impactPct=dmg/Math.max(1,G.character.maxHp)*100;if(impactPct>12+cs.poise*.38){b.playerStaggered=true;battleLog("強烈衝擊造成硬直，下一次行動命中下降。")}
      battleLog(`${e.name} D20=${r} 命中，造成 ${dmg} 傷害${e.primary_element?`／${e.primary_element}`:""}${crit?"（爆擊）":""}${blocked?`（格擋${cs.blockValue}%）`:""}。`);
      if(e.status_attack)applyPlayerStatus(e.status_attack.id,e,e.status_attack.base_chance,e.status_attack.rounds);
-     const thorn=combatScalar(talentSpecial("thorns"));if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
-     const counter=combatScalar(talentSpecial("counterDamage"));if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
+     const thorn=talentSpecial("thorns");if(thorn){e.hp=Math.max(0,e.hp-thorn);battleLog(`荊棘反傷 ${thorn}。`)}
+     const counter=talentSpecial("counterDamage");if(counter&&wasDefending){e.hp=Math.max(0,e.hp-counter);battleLog(`反擊造成 ${counter} 傷害。`)}
    }else battleLog(`${e.name} D20=${r} 攻擊未命中。`);
  }
  if(!targetCompanion&&!targetParty)degradeEquipment();b.defending=false;tickBattleEffects();
@@ -4456,10 +4462,10 @@ function applyConsumable(d){
  if(d.use){
    if(d.use.hunger)c.hunger=clamp(c.hunger+d.use.hunger,0,120);
    if(d.use.thirst)c.thirst=clamp(c.thirst+d.use.thirst,0,120);
-   if(d.use.hp)c.hp=clamp(c.hp+combatScalar(d.use.hp)*(combatStats().healingPower/100),0,c.maxHp);
+   if(d.use.hp)c.hp=clamp(c.hp+d.use.hp*(combatStats().healingPower/100),0,c.maxHp);
    if(d.use.hp_percent)c.hp=clamp(c.maxHp*d.use.hp_percent/100,0,c.maxHp);
-   if(d.use.stamina)c.stamina=clamp(c.stamina+combatScalar(d.use.stamina),0,c.maxStamina);
-   if(d.use.mana)c.mana=clamp(c.mana+combatScalar(d.use.mana),0,c.maxMana);
+   if(d.use.stamina)c.stamina=clamp(c.stamina+d.use.stamina,0,c.maxStamina);
+   if(d.use.mana)c.mana=clamp(c.mana+d.use.mana,0,c.maxMana);
    if(d.use.mana_percent)c.mana=clamp(c.maxMana*d.use.mana_percent/100,0,c.maxMana);
    if(d.use.conditions)removeStatuses(d.use.conditions)
  }
@@ -4600,7 +4606,7 @@ function saveInfoHtml(){
  if(!G)return `<div class="card"><b>目前存檔</b><br><span class="small">尚未開始遊戲。</span></div>`;
  return `<div class="card"><b>目前存檔</b><br>${s?`${s.id}<br><span class="small">${s.time||timeText()}｜T${s.turn??G.turn}｜${s.type||"AUTO"}${s.reason?`｜${s.reason}`:""}</span>`:`<span class="small">尚無存檔紀錄</span>`}<br><span class="small">存檔筆數：${G.meta.saveIndex.length}/180</span></div>`
 }
-function openSettings(){showModal("設定",`${saveInfoHtml()}<h3>世界與權柄</h3><div class="actions"><button onclick="openWorldLore()">世界誌 ${knownLore().length}/${DB.lore_system.record_count}</button><button onclick="openPoliticalAuthorityCatalog()">權柄20原型</button></div><hr><div class="actions"><button onclick="manualSave()">手動存檔</button><button onclick="checkForGameUpdate(true)">檢查遊戲更新</button><button onclick="exportSave()">匯出存檔</button><button class="bad" onclick="resetGame()">重開新檔</button></div><hr><h3>世界資料庫</h3><div class="rulebox">版本：${DB.meta.current_version}<br>職業：${DB.combat_classes.length}<br>戰士／騎士系：${DB.profession_tree.categories["戰士／騎士系"].length}<br>遊俠／盜賊／吟遊系：${DB.profession_tree.categories["遊俠／盜賊／吟遊系"].length}<br>法師／術士系：${DB.profession_tree.categories["法師／術士系"].length}<br>神職／自然系：${DB.profession_tree.categories["神職／自然系"].length}<br>混合／上位／傳說系：${DB.profession_tree.categories["混合／上位／傳說系"].length}<br>技能定義：${Object.values(DB.skill_pools).reduce((s,a)=>s+a.length,0)}<br>技能進階家族：${DB.skill_families.length}<br>裝備：${DB.items.filter(x=>["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(x.type)).length}<br>武器核心：${DB.equipment_system.catalog_counts["武器"]}<br>防具核心：${DB.equipment_system.catalog_counts["防具"]}<br>飾品核心：${DB.equipment_system.catalog_counts["飾品"]}<br>藥劑／戰鬥消耗品核心：${DB.items.filter(x=>x.type==="藥劑").length}<br>技能紀錄：${DB.skill_design_system.skill_records}<br>技能家族：${DB.skill_design_system.family_count}<br>戰鬥職業：${DB.class_design_system.count}<br>裝備核心：${DB.item_material_design_system.equipment_core_count}<br>藥劑：${DB.item_material_design_system.potion_count}<br>退出新生成的舊怪物素材：${DB.item_material_design_system.legacy_monster_materials_retired_from_generation}<br>公會跨職規則：${DB.guild_training.cross_track_rule}<br>同時委託上限：${DB.quest_system.max_active}<br>生成器：${DB.generators.length}（共同邏輯管線）<br>管理AI：${DB.management_ai.length}（輸入／驗證／回退規則）<br>網站模式：${location.protocol==="https:"?"公開HTTPS":"本機／預覽"}｜網域：${location.host||"local"}<br>戰鬥數值核心：${DB.combat_stat_system.count}項｜核心數值倍率 ×${DB.combat_number_scale?.multiplier||1}<br>職業立繪：${DB.battle_art_system?.class_portrait_count||0}/${DB.combat_classes.length}｜怪物立繪：${DB.battle_art_system?.monster_portrait_count||0}/${DB.monsters.length}<br>CON/SP分離：啟用｜先攻/破甲/韌性/狀態命中：啟用<br>角色成長：Lv1–${DB.progression_system.max_level}｜職業熟練／轉職啟用<br>製作閉環：${DB.items.filter(x=>x.craft_recipe).length}筆配方資料｜鍛造／裁縫／藥劑介面啟用<br>武器組：8頂層欄＋內部副手（單手武器／盾牌）｜狀態系統：${Object.keys(DB.status_system.definitions).length}種<br>天賦核心：${DB.talent_system.core_count}<br>角色天賦上限：${DB.talent_system.character_limit}<br>體質／生存：${DB.talent_system.category_counts["體質與生存"]}<br>戰鬥專精：${DB.talent_system.category_counts["戰鬥專精"]}<br>魔法／血脈：${DB.talent_system.category_counts["魔法與血脈"]}<br>技巧／生活／命運：${DB.talent_system.category_counts["技巧生活與命運"]}<br>核心種族：${DB.race_system.core_count}<br>常見種族：${DB.race_system.groups["常見種族"].length}<br>精靈分支：${DB.race_system.groups["精靈族"].length}<br>混血種族：${DB.race_system.groups["混血種族"].length}<br>特殊種族：${DB.race_system.groups["特殊種族"].length}<br>角色出身核心：${DB.origin_system.core_count}<br>平民與鄉野：${DB.origin_system.category_counts["平民與鄉野"]}<br>貴族與騎士：${DB.origin_system.category_counts["貴族與騎士"]}<br>軍事與傭兵：${DB.origin_system.category_counts["軍事與傭兵"]}<br>信仰與魔法：${DB.origin_system.category_counts["信仰與魔法"]}<br>詛咒與命運：${DB.origin_system.category_counts["詛咒與命運"]}<br>怪物圖鑑核心：${DB.monster_catalog.core_count}<br>野獸動物：${DB.monster_catalog.category_counts["野獸動物系"]}<br>哥布林／獸人／巨人：${DB.monster_catalog.category_counts["哥布林獸人巨人系"]}<br>龍／亞龍／爬蟲：${DB.monster_catalog.category_counts["龍與亞龍爬蟲系"]}<br>不死：${DB.monster_catalog.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_catalog.category_counts["惡魔與深淵地獄系"]}<br>元素／植物／魔法生物：${DB.monster_catalog.category_counts["元素植物魔法生物系"]}<br>蟲／水生／軟泥：${DB.monster_catalog.category_counts["蟲水生軟泥系"]}<br>怪物掉落核心：${DB.monster_drop_system.core_count}<br>軟泥／魔像：${DB.monster_drop_system.category_counts["軟泥與魔像系"]}<br>哥布林／獸人／巨人：${DB.monster_drop_system.category_counts["哥布林獸人巨人系"]}<br>野獸：${DB.monster_drop_system.category_counts["野獸系"]}<br>龍與爬蟲：${DB.monster_drop_system.category_counts["龍與爬蟲系"]}<br>不死：${DB.monster_drop_system.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_drop_system.category_counts["惡魔與深淵系"]}<br>元素／植物／魔法生物：${DB.monster_drop_system.category_counts["元素植物魔法生物系"]}<br>蟲與水生：${DB.monster_drop_system.category_counts["蟲與水生系"]}<br>素材／通用道具核心：${DB.material_system.core_count}<br>草藥植物：${DB.material_system.category_counts["草藥與植物素材"]}<br>礦石金屬：${DB.material_system.category_counts["礦石與金屬素材"]}<br>怪物素材：${DB.material_system.category_counts["怪物素材"]}<br>食材食物：${DB.material_system.category_counts["食材與食物"]}<br>木材布料皮革：${DB.material_system.category_counts["木材布料皮革"]}<br>寶石結晶：${DB.material_system.category_counts["寶石與魔法結晶"]}<br>卷軸符文書籍：${DB.material_system.category_counts["卷軸符文書籍"]}<br>鑰匙工具寶藏：${DB.material_system.category_counts["鑰匙工具寶藏任務"]}<br>生命回復：${DB.consumable_system.category_counts["生命回復"]}<br>魔力與精力：${DB.consumable_system.category_counts["魔力與精力"]}<br>屬性強化：${DB.consumable_system.category_counts["屬性強化"]}<br>抗性防禦：${DB.consumable_system.category_counts["抗性防禦"]}<br>解除淨化：${DB.consumable_system.category_counts["解除淨化"]}<br>攻擊投擲／塗油：${DB.consumable_system.category_counts["攻擊投擲／塗油"]}<br>特殊煎藥／傳奇：${DB.consumable_system.category_counts["特殊煎藥／傳奇"]}<br>料理：${DB.items.filter(x=>x.type==="料理").length}<br>料理配方：${DB.recipes.length}<br>敵人：${DB.monsters.length}<br>敵方專用素材：${DB.items.filter(x=>x.type==="魔物素材").length}<br>野外地圖：${DB.locations.filter(x=>x.kind==="wild").length}<br>地下城：${DB.locations.filter(x=>x.kind==="dungeon").length}<br>城鎮：${DB.locations.filter(x=>x.kind==="town").length}<br>副職業：${DB.subjobs.length}</div><h3>核心規則</h3><div class="rulebox">設施對話與情報遵守知識來源限制。<br>副職業只能在指定設施且符合能力前置與學費後學習。<br>裝備耐久影響戰鬥加成，鐵匠鋪可修復。<br>戰鬥數值集中於角色卡；包含攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋與狀態抗性。<br>遭遇戰鬥改為彈出式回合制介面，可選一般攻擊、技能、防禦、使用道具與逃跑。<br>B級以上內容仍受前置資格與封印規則限制。<br>掉落規則：只有人型敵人可能掉落金錢與裝備；非人型敵人只能掉落素材。<br>戰鬥職業池為100種。<br>核心裝備200件、藥劑200種、通用素材200種；本版新增200種怪物掉落核心，並建立200裝備升級連結與200藥劑鍊金連結。<br>技能命名採傳統RPG結構：動詞＋名詞／元素＋效果；東方系採原創自然意象＋動作。<br>命名AI：以用途可讀性、區域詞根、怪物家族與世界層級生成名稱，並避開專有作品名稱與過度現實訓練術語。</div>`)}
+function openSettings(){showModal("設定",`${saveInfoHtml()}<h3>世界與權柄</h3><div class="actions"><button onclick="openWorldLore()">世界誌 ${knownLore().length}/${DB.lore_system.record_count}</button><button onclick="openPoliticalAuthorityCatalog()">權柄20原型</button></div><hr><div class="actions"><button onclick="manualSave()">手動存檔</button><button onclick="checkForGameUpdate(true)">檢查遊戲更新</button><button onclick="exportSave()">匯出存檔</button><button class="bad" onclick="resetGame()">重開新檔</button></div><hr><h3>世界資料庫</h3><div class="rulebox">版本：${DB.meta.current_version}<br>職業：${DB.combat_classes.length}<br>戰士／騎士系：${DB.profession_tree.categories["戰士／騎士系"].length}<br>遊俠／盜賊／吟遊系：${DB.profession_tree.categories["遊俠／盜賊／吟遊系"].length}<br>法師／術士系：${DB.profession_tree.categories["法師／術士系"].length}<br>神職／自然系：${DB.profession_tree.categories["神職／自然系"].length}<br>混合／上位／傳說系：${DB.profession_tree.categories["混合／上位／傳說系"].length}<br>技能定義：${Object.values(DB.skill_pools).reduce((s,a)=>s+a.length,0)}<br>技能進階家族：${DB.skill_families.length}<br>裝備：${DB.items.filter(x=>["主武器","盔甲","頭盔","手套","鞋子","披風","飾品"].includes(x.type)).length}<br>武器核心：${DB.equipment_system.catalog_counts["武器"]}<br>防具核心：${DB.equipment_system.catalog_counts["防具"]}<br>飾品核心：${DB.equipment_system.catalog_counts["飾品"]}<br>藥劑／戰鬥消耗品核心：${DB.items.filter(x=>x.type==="藥劑").length}<br>技能紀錄：${DB.skill_design_system.skill_records}<br>技能家族：${DB.skill_design_system.family_count}<br>戰鬥職業：${DB.class_design_system.count}<br>裝備核心：${DB.item_material_design_system.equipment_core_count}<br>藥劑：${DB.item_material_design_system.potion_count}<br>退出新生成的舊怪物素材：${DB.item_material_design_system.legacy_monster_materials_retired_from_generation}<br>公會跨職規則：${DB.guild_training.cross_track_rule}<br>同時委託上限：${DB.quest_system.max_active}<br>生成器：${DB.generators.length}（共同邏輯管線）<br>管理AI：${DB.management_ai.length}（輸入／驗證／回退規則）<br>網站模式：${location.protocol==="https:"?"公開HTTPS":"本機／預覽"}｜網域：${location.host||"local"}<br>戰鬥數值核心：${DB.combat_stat_system.count}項<br>CON/SP分離：啟用｜先攻/破甲/韌性/狀態命中：啟用<br>角色成長：Lv1–${DB.progression_system.max_level}｜職業熟練／轉職啟用<br>製作閉環：${DB.items.filter(x=>x.craft_recipe).length}筆配方資料｜鍛造／裁縫／藥劑介面啟用<br>武器組：8頂層欄＋內部副手（單手武器／盾牌）｜狀態系統：${Object.keys(DB.status_system.definitions).length}種<br>天賦核心：${DB.talent_system.core_count}<br>角色天賦上限：${DB.talent_system.character_limit}<br>體質／生存：${DB.talent_system.category_counts["體質與生存"]}<br>戰鬥專精：${DB.talent_system.category_counts["戰鬥專精"]}<br>魔法／血脈：${DB.talent_system.category_counts["魔法與血脈"]}<br>技巧／生活／命運：${DB.talent_system.category_counts["技巧生活與命運"]}<br>核心種族：${DB.race_system.core_count}<br>常見種族：${DB.race_system.groups["常見種族"].length}<br>精靈分支：${DB.race_system.groups["精靈族"].length}<br>混血種族：${DB.race_system.groups["混血種族"].length}<br>特殊種族：${DB.race_system.groups["特殊種族"].length}<br>角色出身核心：${DB.origin_system.core_count}<br>平民與鄉野：${DB.origin_system.category_counts["平民與鄉野"]}<br>貴族與騎士：${DB.origin_system.category_counts["貴族與騎士"]}<br>軍事與傭兵：${DB.origin_system.category_counts["軍事與傭兵"]}<br>信仰與魔法：${DB.origin_system.category_counts["信仰與魔法"]}<br>詛咒與命運：${DB.origin_system.category_counts["詛咒與命運"]}<br>怪物圖鑑核心：${DB.monster_catalog.core_count}<br>野獸動物：${DB.monster_catalog.category_counts["野獸動物系"]}<br>哥布林／獸人／巨人：${DB.monster_catalog.category_counts["哥布林獸人巨人系"]}<br>龍／亞龍／爬蟲：${DB.monster_catalog.category_counts["龍與亞龍爬蟲系"]}<br>不死：${DB.monster_catalog.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_catalog.category_counts["惡魔與深淵地獄系"]}<br>元素／植物／魔法生物：${DB.monster_catalog.category_counts["元素植物魔法生物系"]}<br>蟲／水生／軟泥：${DB.monster_catalog.category_counts["蟲水生軟泥系"]}<br>怪物掉落核心：${DB.monster_drop_system.core_count}<br>軟泥／魔像：${DB.monster_drop_system.category_counts["軟泥與魔像系"]}<br>哥布林／獸人／巨人：${DB.monster_drop_system.category_counts["哥布林獸人巨人系"]}<br>野獸：${DB.monster_drop_system.category_counts["野獸系"]}<br>龍與爬蟲：${DB.monster_drop_system.category_counts["龍與爬蟲系"]}<br>不死：${DB.monster_drop_system.category_counts["不死系"]}<br>惡魔／深淵：${DB.monster_drop_system.category_counts["惡魔與深淵系"]}<br>元素／植物／魔法生物：${DB.monster_drop_system.category_counts["元素植物魔法生物系"]}<br>蟲與水生：${DB.monster_drop_system.category_counts["蟲與水生系"]}<br>素材／通用道具核心：${DB.material_system.core_count}<br>草藥植物：${DB.material_system.category_counts["草藥與植物素材"]}<br>礦石金屬：${DB.material_system.category_counts["礦石與金屬素材"]}<br>怪物素材：${DB.material_system.category_counts["怪物素材"]}<br>食材食物：${DB.material_system.category_counts["食材與食物"]}<br>木材布料皮革：${DB.material_system.category_counts["木材布料皮革"]}<br>寶石結晶：${DB.material_system.category_counts["寶石與魔法結晶"]}<br>卷軸符文書籍：${DB.material_system.category_counts["卷軸符文書籍"]}<br>鑰匙工具寶藏：${DB.material_system.category_counts["鑰匙工具寶藏任務"]}<br>生命回復：${DB.consumable_system.category_counts["生命回復"]}<br>魔力與精力：${DB.consumable_system.category_counts["魔力與精力"]}<br>屬性強化：${DB.consumable_system.category_counts["屬性強化"]}<br>抗性防禦：${DB.consumable_system.category_counts["抗性防禦"]}<br>解除淨化：${DB.consumable_system.category_counts["解除淨化"]}<br>攻擊投擲／塗油：${DB.consumable_system.category_counts["攻擊投擲／塗油"]}<br>特殊煎藥／傳奇：${DB.consumable_system.category_counts["特殊煎藥／傳奇"]}<br>料理：${DB.items.filter(x=>x.type==="料理").length}<br>料理配方：${DB.recipes.length}<br>敵人：${DB.monsters.length}<br>敵方專用素材：${DB.items.filter(x=>x.type==="魔物素材").length}<br>野外地圖：${DB.locations.filter(x=>x.kind==="wild").length}<br>地下城：${DB.locations.filter(x=>x.kind==="dungeon").length}<br>城鎮：${DB.locations.filter(x=>x.kind==="town").length}<br>副職業：${DB.subjobs.length}</div><h3>核心規則</h3><div class="rulebox">設施對話與情報遵守知識來源限制。<br>副職業只能在指定設施且符合能力前置與學費後學習。<br>裝備耐久影響戰鬥加成，鐵匠鋪可修復。<br>戰鬥數值集中於角色卡；包含攻擊、魔法威力、防禦、魔防、命中、閃避、爆擊、爆傷、攻速、施法速度、格擋與狀態抗性。<br>遭遇戰鬥改為彈出式回合制介面，可選一般攻擊、技能、防禦、使用道具與逃跑。<br>B級以上內容仍受前置資格與封印規則限制。<br>掉落規則：只有人型敵人可能掉落金錢與裝備；非人型敵人只能掉落素材。<br>戰鬥職業池為100種。<br>核心裝備200件、藥劑200種、通用素材200種；本版新增200種怪物掉落核心，並建立200裝備升級連結與200藥劑鍊金連結。<br>技能命名採傳統RPG結構：動詞＋名詞／元素＋效果；東方系採原創自然意象＋動作。<br>命名AI：以用途可讀性、區域詞根、怪物家族與世界層級生成名稱，並避開專有作品名稱與過度現實訓練術語。</div>`)}
 function manualSave(){const id=`MANUAL-${G.meta.characterId.slice(-6)}-T${String(G.turn).padStart(5,"0")}`;G.meta.saveIndex.push({id,turn:G.turn,time:timeText(),type:"MANUAL"});persist();renderAll();log("存檔",`已建立${id}`,"save")}
 function exportSave(){const b=new Blob([JSON.stringify(G,null,2)],{type:"application/json;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${G.character.name}_${G.meta.characterId}_save.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),400)}
 function resetGame(){if(confirm("確定清除本機存檔？")){try{localStorage.removeItem("chronicle_save")}catch(e){}location.reload()}}
@@ -4623,8 +4629,6 @@ function runGeneratorAudit(){
  for(const d of DB.items||[])for(const id of (d.use?.conditions||[]))if(!DB.status_system.definitions[id])issues.push(`物品狀態引用缺失:${d.name}->${id}`);
  if(DB.status_system?.version!=="STATUS-1.11")issues.push("STATUS-1.11缺失");
  if(DB.quality_audit_system?.version!=="QUALITY-AUDIT-1.0")issues.push("QUALITY-AUDIT-1.0缺失");
- if(DB.combat_number_scale?.multiplier!==2)issues.push("COMBAT-NUMBER-SCALE-2.0缺失或倍率錯誤");
- const artAudit=globalThis.runBattleArtAudit?.();if(!artAudit?.pass)issues.push(`BATTLE-ART-1.0覆蓋缺失：職業${artAudit?.missingClasses?.length??"?"}／怪物${artAudit?.missingMonsters?.length??"?"}`);
  for(const e of (DB.adventure_event_templates||[])){
    if(tierOrder(e.tier)>tierOrder("E"))issues.push(`奇遇模板超出目前直接模板上限:${e.name}`);
    if(!e.kinds?.length||!e.stat||!Number.isFinite(e.dc))issues.push(`奇遇模板條件不完整:${e.name}`);
