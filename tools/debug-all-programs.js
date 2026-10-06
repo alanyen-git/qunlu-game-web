@@ -8,6 +8,7 @@ const crypto=require("crypto");
 const root=process.cwd();
 const read=file=>fs.readFileSync(file,"utf8");
 const version=JSON.parse(read("version.json"));
+const overrideContract=JSON.parse(read("tools/program-overrides-allowlist.json"));
 const html=read("index.html");
 const scripts=[...html.matchAll(/<script[^>]+src=["']([^"']+)["'][^>]*>/g)].map(m=>m[1]).filter(x=>x.startsWith("src/"));
 const programPaths=scripts.map(x=>x.split("?")[0]);
@@ -173,13 +174,23 @@ const context=vm.createContext(sandbox);
 
 documentStub.scripts=scripts.map(src=>({src:`https://example.invalid/qunlu-game-web/${src}`,dataset:{release:version.version}}));
 
+const functionOwners=new Map();
+const functionOverrides=[];
 for(let i=0;i<programPaths.length;i++){
   const file=programPaths[i];
   if(!fs.existsSync(file)){problems.push(`missing program: ${file}`);continue}
   documentStub.currentScript=documentStub.scripts[i];
+  const beforeFunctions=new Map();
+  for(const key of Object.getOwnPropertyNames(context))if(typeof context[key]==="function")beforeFunctions.set(key,context[key]);
   const started=process.hrtime.bigint();
   try{
     vm.runInContext(read(file),context,{filename:file,timeout:15000});
+    for(const key of Object.getOwnPropertyNames(context)){
+      const current=context[key];if(typeof current!=="function")continue;
+      const previous=beforeFunctions.get(key);
+      if(previous&&previous!==current){functionOverrides.push({name:key,previous:functionOwners.get(key)||"preexisting",current:file});functionOwners.set(key,file)}
+      else if(!previous)functionOwners.set(key,file);
+    }
     const elapsed=Number(process.hrtime.bigint()-started)/1e6;
     let dbVersion=null;
     try{dbVersion=vm.runInContext('typeof DB==="object" ? DB.meta?.current_version ?? null : null',context)}catch(error){}
@@ -544,6 +555,13 @@ if(finalVersion!==version.version)problems.push(`final DB version mismatch: ${fi
 let registry=null;
 try{registry=vm.runInContext('typeof runProgramRegistryAudit==="function" ? runProgramRegistryAudit() : null',context)}catch(error){}
 if(!registry?.pass)problems.push(`program registry failed: ${JSON.stringify(registry?.issues||[])}`);
+const overrideKey=row=>JSON.stringify([row.name,row.previous,row.current]);
+const countKeys=rows=>{const counts=new Map();for(const row of rows){const key=overrideKey(row);counts.set(key,(counts.get(key)||0)+1)}return counts};
+const observedCounts=countKeys(functionOverrides),expectedCounts=countKeys(overrideContract.overrides||[]);
+const unexpectedOverrides=[],missingOverrides=[];
+for(const [key,count] of observedCounts){const expected=expectedCounts.get(key)||0;for(let i=expected;i<count;i++)unexpectedOverrides.push(JSON.parse(key))}
+for(const [key,count] of expectedCounts){const observed=observedCounts.get(key)||0;for(let i=observed;i<count;i++)missingOverrides.push(JSON.parse(key))}
+if(unexpectedOverrides.length||missingOverrides.length)problems.push(`global function override contract drift: unexpected=${JSON.stringify(unexpectedOverrides.slice(0,20))} missing=${JSON.stringify(missingOverrides.slice(0,20))}`);
 
 if(consoleErrors.length)problems.push("console.error during initialization: "+consoleErrors.join(" | "));
 
@@ -562,6 +580,7 @@ const report={
   slow_modules:slow.slice(0,10),
   load_report:loadReport,
   audit_report:auditReport,
+  function_overrides:functionOverrides,
   final_db_version:finalVersion
 };
 fs.writeFileSync("DEBUG_ALL_PROGRAMS.json",JSON.stringify(report,null,2)+"\n");
@@ -571,5 +590,5 @@ if(report.problems.length){
   for(const issue of report.problems)console.error(" - "+issue);
   process.exit(1);
 }
-console.log(`DEBUG OK: ${report.loaded}/${report.programs} programs loaded; ${report.stateful_passed}/${report.stateful_tests} stateful tests; ${report.audits} audits executed; DB=${report.final_db_version}`);
+console.log(`DEBUG OK: ${report.loaded}/${report.programs} programs loaded; ${report.function_overrides.length} cross-file function overrides observed; ${report.stateful_passed}/${report.stateful_tests} stateful tests; ${report.audits} audits executed; DB=${report.final_db_version}`);
 if(report.warnings.length)console.log(`Warnings: ${report.warnings.length} (see DEBUG_ALL_PROGRAMS.json)`);
