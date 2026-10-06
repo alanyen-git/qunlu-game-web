@@ -3257,26 +3257,75 @@ function battleCritFromRoll(roll,critRate){const steps=Math.max(0,Math.floor(cri
 function renderBattle(sharedCombatStats=null){
  const back=$("#battleBack");if(!G.battle?.active){back.classList.add("hide");document.body.classList.remove("battle-open");return}
  const opening=back.classList.contains("hide"),b=G.battle,e=b.enemy,c=G.character,cs=sharedCombatStats||combatStats(),php=clamp(c.hp/c.maxHp*100,0,100),ehp=clamp(e.hp/e.maxHp*100,0,100);
- setUIHTML($("#battleBody"),`<div class="battlehead">
- <div class="battleunit"><b>${c.name}</b><div class="small">Lv${c.level}｜${cls(c.classId).name}</div>
- <div>HP ${Math.round(c.hp)}/${c.maxHp}　SP ${Math.round(c.stamina)}/${c.maxStamina}　MP ${Math.round(c.mana)}/${c.maxMana}</div>
- <div class="small">先攻${cs.initiative}｜移速${cs.moveSpeed}｜射程${cs.range}m｜格擋${cs.blockRate}%/${cs.blockValue}%${b.playerStaggered?"｜硬直":""}</div>
- <div class="hpbar"><i style="width:${php}%"></i></div></div>
- ${b.party?.length?`<div class="party-battle-strip">${b.party.map(m=>`<div class="party-mini ${m.knockedOut?"ko":""}"><b>${m.name}</b><span>${m.roleLabel}｜AI</span><div>HP ${Math.max(0,Math.round(m.hp))}/${m.maxHp}</div><div class="hpbar"><i style="width:${clamp(m.hp/m.maxHp*100,0,100)}%"></i></div></div>`).join("")}</div>`:""}
- ${b.companion?`<div class="battleunit companion"><b>${b.companion.name} <span class="tier">${b.companion.tier}</span></b><div class="small">${b.companion.aiLabel}｜AI自動${b.companion.knockedOut?"｜失去戰鬥能力":""}</div><div>HP ${Math.max(0,Math.round(b.companion.hp))}/${b.companion.maxHp}</div><div class="hpbar"><i style="width:${clamp(b.companion.hp/b.companion.maxHp*100,0,100)}%"></i></div></div>`:""}
- <div class="battleversus">VS</div>
- <div class="battleunit enemy"><b>${e.name} <span class="tier">${e.tier}</span></b><div class="small">${e.category||"敵人"}｜戰鬥回合 ${b.round}</div>
- <div>HP ${Math.max(0,Math.round(e.hp))}/${e.maxHp}</div><div class="small">先攻${Math.round(e.initiative||0)}｜移速${Math.round(e.moveSpeed||100)}｜韌性${Math.round(e.poise||0)}</div><div class="hpbar"><i style="width:${ehp}%"></i></div></div></div>
- <div class="battlelog" role="log" aria-live="polite" aria-relevant="additions text">${b.log.map(x=>`<div>・${x}</div>`).join("")}</div>
- <div class="battleactions">
- <button class="good" onclick="battleGeneralAttack()">一般攻擊</button>
- <button onclick="battleSkillMenu()">技能</button>
- <button onclick="battleDefend()">防禦</button>
- <button onclick="battleItemMenu()">使用道具</button>
- <button class="warn" onclick="battleFlee()">逃跑</button>
- </div><div id="battleChoice" class="battlechoice"></div>`);
+ const safeName=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+ const enemyGlyph=(()=>{
+   const text=`${e.category||""} ${e.name||""}`.toLowerCase();
+   if(/狼|犬|狐|獸|野獸/.test(text))return "🐺";
+   if(/龍|蜥蜴|蛇/.test(text))return "🐉";
+   if(/亡靈|骷髏|幽靈/.test(text))return "💀";
+   if(/魔|惡魔/.test(text))return "👹";
+   if(/鳥|鷹|鴉/.test(text))return "🦅";
+   if(/蟲|蛛/.test(text))return "🕷";
+   return "⚔";
+ })();
+ const allyGlyph=(role="")=>/法|術|巫|牧|僧/.test(role)?"✦":/弓|獵|遊俠/.test(role)?"➹":/盾|騎|守/.test(role)?"🛡":"⚔";
+ const party=[{name:c.name,role:cls(c.classId).name,hp:c.hp,maxHp:c.maxHp,player:true},
+   ...(b.party||[]).map(x=>({name:x.name,role:x.roleLabel||"隊友",hp:x.hp,maxHp:x.maxHp,ko:x.knockedOut})),
+   ...(b.companion?[{name:b.companion.name,role:b.companion.aiLabel||"夥伴",hp:b.companion.hp,maxHp:b.companion.maxHp,ko:b.companion.knockedOut,companion:true}]:[])
+ ];
+ const partySprites=party.map((u,i)=>{
+   const hp=clamp((u.hp||0)/Math.max(1,u.maxHp||1)*100,0,100);
+   return `<div class="retro-combatant ally ${u.ko?"ko":""} ${u.player?"is-player":""}" style="--slot:${i}">
+     <div class="retro-sprite-bubble"><span>${allyGlyph(u.role)}</span></div>
+     <div class="retro-unit-name">${safeName(u.name)}</div>
+     <div class="retro-unit-role">${safeName(u.role)}</div>
+     <div class="retro-mini-hp"><i style="width:${hp}%"></i></div>
+   </div>`
+ }).join("");
+ const statRows=party.map(u=>`<div class="retro-stat-row ${u.ko?"ko":""}">
+   <b>${safeName(u.name)}</b><span>HP ${Math.max(0,Math.round(u.hp||0))}/${Math.max(1,Math.round(u.maxHp||1))}</span>
+   <span>${u.player?`MP ${Math.round(c.mana)}/${c.maxMana}`:"AI"}</span>
+ </div>`).join("");
+ const logLines=(b.log||[]).slice(-4);
+ setUIHTML($("#battleBody"),`<div class="retro-battle-root">
+   <div class="retro-turn-banner">「${safeName(c.name)}」的回合！</div>
+   <div class="retro-battle-stage">
+     <div class="retro-stage-light"></div>
+     <div class="retro-fireplace" aria-hidden="true"><span></span></div>
+     <div class="retro-stage-side enemy-side">
+       <div class="retro-combatant enemy">
+         <div class="retro-sprite-bubble enemy"><span>${enemyGlyph}</span></div>
+         <div class="retro-unit-name">${safeName(e.name)}</div>
+         <div class="retro-unit-role">${safeName(e.category||"敵人")}｜${safeName(e.tier||"")}</div>
+         <div class="retro-mini-hp"><i style="width:${ehp}%"></i></div>
+       </div>
+     </div>
+     <div class="retro-stage-side ally-side">${partySprites}</div>
+     <div class="retro-location-label">${safeName(b.context||"戰鬥")}</div>
+   </div>
+   <div class="retro-info-row">
+     <div class="retro-window retro-party-status">
+       ${statRows}
+       <div class="retro-player-extra">SP ${Math.round(c.stamina)}/${c.maxStamina}　先攻 ${Math.round(cs.initiative)}　格擋 ${Math.round(cs.blockRate)}%</div>
+     </div>
+     <div class="retro-window retro-log" role="log" aria-live="polite" aria-relevant="additions text">
+       ${logLines.map((x,i)=>`<div><b>${i+1}.</b> ${safeName(x)}</div>`).join("")||"<div>1. 戰鬥開始。</div>"}
+     </div>
+   </div>
+   <div class="retro-window retro-command-window">
+     <div id="battleChoice" class="battlechoice retro-choice">
+       <div class="retro-command-placeholder" aria-hidden="true"><span>✦</span><span>▧</span><span>◆</span><span>⬡</span></div>
+     </div>
+     <div class="retro-command-list">
+       <button class="retro-command active" onclick="battleGeneralAttack()"><span>攻擊</span><i>☞</i></button>
+       <button class="retro-command" onclick="battleSkillMenu('magic')"><span>魔法</span></button>
+       <button class="retro-command" onclick="battleSkillMenu('skill')"><span>技能</span></button>
+       <button class="retro-command" onclick="battleItemMenu()"><span>道具</span></button>
+     </div>
+   </div>
+ </div>`);
  back.classList.remove("hide");document.body.classList.add("battle-open");
- if(opening&&typeof requestAnimationFrame==="function")requestAnimationFrame(()=>$("#battleBody")?.querySelector(".battleactions button:not([disabled])")?.focus({preventScroll:true}))
+ if(opening&&typeof requestAnimationFrame==="function")requestAnimationFrame(()=>$("#battleBody")?.querySelector(".retro-command-list button:not([disabled])")?.focus({preventScroll:true}))
 }
 function battleGeneralAttack(){
  if(!G.battle?.active||!beginPlayerBattleAction())return;
@@ -3302,11 +3351,20 @@ function battleGeneralAttack(){
 }
 function closeBattleSkillPopup(){const p=$("#battleSkillPopup"),wasOpen=p&&!p.classList.contains("hide");if(p)p.classList.add("hide");if(wasOpen&&battleSkillLastFocus?.isConnected)battleSkillLastFocus.focus({preventScroll:true});battleSkillLastFocus=null}
 function battleSkillPopupBackClose(e){if(e.target?.id==="battleSkillPopup")closeBattleSkillPopup()}
-function battleSkillMenu(){
+function battleSkillMenu(mode="all"){
  if(!G.battle?.active)return;
- const usable=G.character.skills.map((s,i)=>[s,i]).filter(([s])=>s.kind!=="被動"&&s.manual_battle_use!==false),body=$("#battleSkillPopupBody");
+ const usable=G.character.skills.map((s,i)=>[s,i]).filter(([s])=>{
+   if(s.kind==="被動"||s.manual_battle_use===false)return false;
+   if(mode==="magic")return skillUsesMana(s);
+   if(mode==="skill")return !skillUsesMana(s);
+   return true
+ }),body=$("#battleSkillPopupBody");
  battleSkillLastFocus=document.activeElement;
- setUIHTML(body,usable.map(([s,i])=>{
+ const title=mode==="magic"?"選擇魔法":mode==="skill"?"選擇技能":"選擇技能";
+ $("#battleSkillPopupTitle").textContent=title;
+ const tactical=mode==="skill"?`<div class="itemrow retro-tactical-row"><span><b>防禦</b><br><span class="small">採取防禦姿態，提高本次防禦與格擋。</span></span><button onclick="closeBattleSkillPopup();battleDefend()">使用</button></div>
+ <div class="itemrow retro-tactical-row"><span><b>撤退</b><br><span class="small">嘗試脫離本場戰鬥；失敗時敵方會取得行動。</span></span><button onclick="closeBattleSkillPopup();battleFlee()">使用</button></div>`:"";
+ setUIHTML(body,tactical+usable.map(([s,i])=>{
    normalizeSkillXp(s);const mana=skillUsesMana(s),cost=skillResourceCost(s),res=mana?G.character.mana:G.character.stamina;
    const meta=[`類型：${skillUseTypeLabel(s)}`,s.school||"戰技",s.element||null].filter(Boolean).join("／");
    return `<div class="itemrow"><span><b>${s.name}</b> <span class="tier">${s.tier||"F"}</span>
@@ -3315,7 +3373,7 @@ function battleSkillMenu(){
    <br><span class="small">${skillDescriptionText(s)}</span>
    <br><span class="small">命中${(s.accuracy||0)+skillLevelBonus(s,"accuracy_bonus")}｜${mana?"MP":"體力"}消耗${cost}</span></span>
    <button ${res<cost?"disabled":""} onclick="battleChooseSkill(${i})">使用</button></div>`
- }).join("")||"<div class='small'>沒有可主動使用的技能。</div>");
+ }).join("")||(!tactical?"<div class='small'>沒有可主動使用的技能。</div>":""));
  $("#battleSkillPopup")?.classList.remove("hide");
  if(typeof requestAnimationFrame==="function")requestAnimationFrame(()=>body.querySelector("button:not([disabled])")?.focus({preventScroll:true}))
 }
